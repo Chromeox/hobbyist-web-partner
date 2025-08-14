@@ -1,0 +1,27 @@
+'use client'
+
+interface ClassEditorProps {
+  onClose: () => void
+  class?: any
+  onSave: (data: any) => void
+}
+
+export default function ClassEditor({ onClose, class: classData, onSave }: ClassEditorProps) {
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+        <h2 className="text-lg font-semibold mb-4">
+          {classData ? 'Edit Class' : 'Create New Class'}
+        </h2>
+        <p className="text-gray-600 mb-4">Class editor coming soon...</p>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
