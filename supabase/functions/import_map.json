@@ -1,0 +1,18 @@
+{
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.0",
+    "@supabase/functions-js": "https://esm.sh/@supabase/functions-js@2.1.5",
+    "stripe": "https://esm.sh/stripe@14.10.0",
+    "jsonwebtoken": "https://esm.sh/jsonwebtoken@9.0.2",
+    "dayjs": "https://esm.sh/dayjs@1.11.10",
+    "zod": "https://esm.sh/zod@3.22.4",
+    "@sendgrid/mail": "https://esm.sh/@sendgrid/mail@8.1.0",
+    "twilio": "https://esm.sh/twilio@4.19.3",
+    "cors": "https://esm.sh/cors@2.8.5",
+    "crypto": "https://deno.land/std@0.208.0/crypto/mod.ts",
+    "encoding": "https://deno.land/std@0.208.0/encoding/mod.ts",
+    "http": "https://deno.land/std@0.208.0/http/mod.ts",
+    "path": "https://deno.land/std@0.208.0/path/mod.ts",
+    "testing": "https://deno.land/std@0.208.0/testing/mod.ts"
+  }
+}
