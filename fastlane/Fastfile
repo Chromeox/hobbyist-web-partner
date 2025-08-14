@@ -1,0 +1,424 @@
+# This file contains the fastlane configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+default_platform(:ios)
+
+# Lane for setting up certificates and provisioning profiles
+lane :setup_certificates do
+  desc "Setup certificates and provisioning profiles"
+  
+  # Use match to sync certificates and provisioning profiles
+  match(
+    type: "development",
+    app_identifier: "com.hobbyist.app",
+    readonly: ENV["CI"] == "true" # Read-only in CI environments
+  )
+  
+  match(
+    type: "appstore",
+    app_identifier: "com.hobbyist.app",
+    readonly: ENV["CI"] == "true"
+  )
+  
+  UI.success "✅ Certificates and provisioning profiles setup complete"
+end
+
+# Lane for building the app
+lane :build_app_store do
+  desc "Build app for App Store distribution"
+  
+  # Ensure we have the latest certificates
+  setup_certificates
+  
+  # Increment build number
+  increment_build_number(
+    xcodeproj: "HobbyistSwiftUI.xcodeproj",
+    build_number: latest_testflight_build_number + 1
+  )
+  
+  # Build the app
+  build_app(
+    scheme: "HobbyistSwiftUI",
+    export_method: "app-store",
+    output_directory: "./build",
+    output_name: "HobbyistSwiftUI.ipa",
+    clean: true,
+    include_bitcode: false,
+    include_symbols: true
+  )
+  
+  UI.success "✅ App Store build complete"
+end
+
+# Lane for building TestFlight
+lane :build_testflight do
+  desc "Build app for TestFlight distribution"
+  
+  # Ensure we have the latest certificates
+  setup_certificates
+  
+  # Increment build number based on TestFlight
+  increment_build_number(
+    xcodeproj: "HobbyistSwiftUI.xcodeproj",
+    build_number: latest_testflight_build_number + 1
+  )
+  
+  # Build the app
+  build_app(
+    scheme: "HobbyistSwiftUI",
+    export_method: "app-store",
+    output_directory: "./build",
+    output_name: "HobbyistSwiftUI-TestFlight.ipa",
+    clean: true,
+    include_bitcode: false,
+    include_symbols: true
+  )
+  
+  UI.success "✅ TestFlight build complete"
+end
+
+# Lane for uploading to TestFlight
+lane :upload_testflight do |options|
+  desc "Upload app to TestFlight"
+  
+  # Build the app if no IPA provided
+  unless options[:skip_build]
+    build_testflight
+  end
+  
+  # Upload to TestFlight
+  pilot(
+    ipa: "./build/HobbyistSwiftUI-TestFlight.ipa",
+    skip_waiting_for_build_processing: true,
+    skip_submission: false,
+    distribute_external: false,
+    changelog: options[:changelog] || "Bug fixes and performance improvements",
+    beta_app_feedback_email: ENV["BETA_FEEDBACK_EMAIL"],
+    beta_app_description: "HobbyistSwiftUI alpha version for testing"
+  )
+  
+  UI.success "✅ TestFlight upload complete"
+  
+  # Send notification (optional)
+  if ENV["SLACK_WEBHOOK_URL"]
+    slack(
+      message: "📱 New TestFlight build uploaded successfully!",
+      success: true,
+      payload: {
+        "Build Number" => get_build_number,
+        "Version" => get_version_number,
+        "Changelog" => options[:changelog] || "Bug fixes and performance improvements"
+      }
+    )
+  end
+end
+
+# Lane for uploading to App Store
+lane :upload_app_store do |options|
+  desc "Upload app to App Store"
+  
+  # Build the app if no IPA provided
+  unless options[:skip_build]
+    build_app_store
+  end
+  
+  # Upload to App Store Connect
+  deliver(
+    ipa: "./build/HobbyistSwiftUI.ipa",
+    skip_metadata: options[:skip_metadata] || false,
+    skip_screenshots: options[:skip_screenshots] || false,
+    skip_binary_upload: false,
+    force: true,
+    submit_for_review: options[:submit_for_review] || false,
+    automatic_release: options[:automatic_release] || false,
+    phased_release: options[:phased_release] || true,
+    submission_information: {
+      add_id_info_serves_ads: false,
+      add_id_info_tracks_action: true,
+      add_id_info_tracks_install: true,
+      add_id_info_uses_idfa: false,
+      content_rights_has_rights: true,
+      content_rights_contains_third_party_content: true,
+      export_compliance_platform: "ios",
+      export_compliance_compliance_required: false,
+      export_compliance_encryption_updated: false,
+      export_compliance_app_type: nil,
+      export_compliance_uses_encryption: false
+    }
+  )
+  
+  UI.success "✅ App Store upload complete"
+  
+  # Send notification (optional)
+  if ENV["SLACK_WEBHOOK_URL"]
+    slack(
+      message: "🚀 App successfully uploaded to App Store!",
+      success: true,
+      payload: {
+        "Build Number" => get_build_number,
+        "Version" => get_version_number,
+        "Status" => options[:submit_for_review] ? "Submitted for Review" : "Ready for Manual Review"
+      }
+    )
+  end
+end
+
+# Lane for complete TestFlight release
+lane :release_testflight do |options|
+  desc "Complete TestFlight release process"
+  
+  # Validate environment
+  ensure_env_vars(
+    env_vars: ['MATCH_PASSWORD', 'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD']
+  )
+  
+  # Run tests before release
+  unless options[:skip_tests]
+    run_tests(
+      scheme: "HobbyistSwiftUI",
+      devices: ["iPhone 15 Pro"],
+      clean: true
+    )
+  end
+  
+  # Upload to TestFlight
+  upload_testflight(options)
+  
+  UI.success "🎉 TestFlight release complete!"
+end
+
+# Lane for complete App Store release
+lane :release_app_store do |options|
+  desc "Complete App Store release process"
+  
+  # Validate environment
+  ensure_env_vars(
+    env_vars: ['MATCH_PASSWORD', 'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD']
+  )
+  
+  # Run tests before release
+  unless options[:skip_tests]
+    run_tests(
+      scheme: "HobbyistSwiftUI",
+      devices: ["iPhone 15 Pro", "iPad Pro (12.9-inch) (6th generation)"],
+      clean: true
+    )
+  end
+  
+  # Validate metadata and screenshots
+  unless options[:skip_validation]
+    precheck(
+      app_identifier: "com.hobbyist.app"
+    )
+  end
+  
+  # Upload to App Store
+  upload_app_store(options)
+  
+  UI.success "🎉 App Store release complete!"
+end
+
+# Lane for updating metadata only
+lane :update_metadata do |options|
+  desc "Update App Store metadata without uploading binary"
+  
+  deliver(
+    app_identifier: "com.hobbyist.app",
+    skip_binary_upload: true,
+    skip_screenshots: options[:skip_screenshots] || false,
+    force: true,
+    metadata_path: "./fastlane/metadata"
+  )
+  
+  UI.success "✅ Metadata update complete"
+end
+
+# Lane for uploading screenshots
+lane :upload_screenshots do
+  desc "Upload screenshots to App Store Connect"
+  
+  deliver(
+    app_identifier: "com.hobbyist.app",
+    skip_binary_upload: true,
+    skip_metadata: true,
+    force: true,
+    metadata_path: "./fastlane/metadata"
+  )
+  
+  UI.success "✅ Screenshots upload complete"
+end
+
+# Lane for generating screenshots
+lane :generate_screenshots do
+  desc "Generate app screenshots automatically"
+  
+  capture_screenshots(
+    scheme: "HobbyistSwiftUIUITests",
+    output_directory: "./fastlane/screenshots",
+    clear_previous_screenshots: true,
+    override_status_bar: true,
+    devices: [
+      "iPhone 15 Pro Max",
+      "iPhone 15 Pro", 
+      "iPhone SE (3rd generation)",
+      "iPad Pro (12.9-inch) (6th generation)",
+      "iPad Pro (11-inch) (4th generation)"
+    ]
+  )
+  
+  UI.success "✅ Screenshot generation complete"
+end
+
+# Lane for running all tests
+lane :test do
+  desc "Run all unit and UI tests"
+  
+  run_tests(
+    scheme: "HobbyistSwiftUI",
+    devices: ["iPhone 15 Pro"],
+    clean: true,
+    code_coverage: true,
+    output_directory: "./test_output"
+  )
+  
+  UI.success "✅ All tests passed"
+end
+
+# Lane for code signing setup
+lane :setup_code_signing do
+  desc "Setup code signing certificates"
+  
+  # Create/update certificates and provisioning profiles
+  match(
+    type: "development",
+    app_identifier: "com.hobbyist.app",
+    force_for_new_devices: true
+  )
+  
+  match(
+    type: "appstore", 
+    app_identifier: "com.hobbyist.app"
+  )
+  
+  UI.success "✅ Code signing setup complete"
+end
+
+# Lane for hotfix releases
+lane :hotfix_release do |options|
+  desc "Create and release hotfix build"
+  
+  # Validate required parameters
+  unless options[:version] && options[:changelog]
+    UI.user_error! "❌ version and changelog parameters are required for hotfix releases"
+  end
+  
+  # Set version number
+  increment_version_number(
+    version_number: options[:version]
+  )
+  
+  # Build and upload
+  upload_testflight(
+    skip_build: false,
+    changelog: "[HOTFIX] #{options[:changelog]}"
+  )
+  
+  UI.success "🚑 Hotfix release complete for version #{options[:version]}"
+end
+
+# Lane for beta testing setup
+lane :setup_beta_testing do
+  desc "Setup beta testing environment"
+  
+  # Add beta testers
+  pilot(
+    skip_submission: true,
+    distribute_external: false,
+    groups: ["Alpha Testers", "Internal Team"],
+    notify_external_testers: false
+  )
+  
+  UI.success "✅ Beta testing setup complete"
+end
+
+# Lane for cleanup
+lane :cleanup do
+  desc "Clean up build artifacts and temporary files"
+  
+  # Remove build directory
+  sh "rm -rf ../build" if File.directory?("../build")
+  
+  # Clear derived data
+  clear_derived_data
+  
+  UI.success "✅ Cleanup complete"
+end
+
+# Error handling
+error do |lane, exception|
+  UI.error "❌ Lane #{lane} failed with exception: #{exception}"
+  
+  # Send error notification if Slack is configured
+  if ENV["SLACK_WEBHOOK_URL"]
+    slack(
+      message: "❌ Fastlane failed in lane: #{lane}",
+      success: false,
+      payload: {
+        "Error" => exception.to_s,
+        "Lane" => lane.to_s
+      }
+    )
+  end
+end
+
+# Success callback
+success do |lane|
+  UI.success "🎉 Lane #{lane} completed successfully!"
+end
+
+platform :ios do
+  # iOS specific lanes can be added here if needed
+  
+  desc "iOS platform specific configurations and lanes"
+  
+  # Lane for updating iOS specific settings
+  lane :update_ios_settings do
+    desc "Update iOS specific project settings"
+    
+    # Update project settings
+    update_project_provisioning(
+      xcodeproj: "HobbyistSwiftUI.xcodeproj",
+      target_filter: "HobbyistSwiftUI",
+      profile: ENV["sigh_com.hobbyist.app_appstore_profile-path"],
+      code_signing_identity: "iPhone Distribution"
+    )
+    
+    UI.success "✅ iOS settings updated"
+  end
+  
+  # Lane for device registration
+  lane :register_devices do
+    desc "Register new devices for development"
+    
+    register_devices(
+      devices_file: "./fastlane/devices.txt"
+    )
+    
+    # Update provisioning profiles with new devices
+    match(
+      type: "development",
+      force_for_new_devices: true
+    )
+    
+    UI.success "✅ New devices registered"
+  end
+end
