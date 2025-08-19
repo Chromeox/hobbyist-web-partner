@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-08-18T23:00:03.802Z",
+  "environment": {
+    "node": "v22.14.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "results": {
+    "jsonPerformance": [
+      {
+        "name": "Small (1KB)",
+        "actualSize": 2216,
+        "stringifyTime": 0.019125,
+        "parseTime": 0.019792,
+        "totalTime": 0.038917
+      },
+      {
+        "name": "Medium (10KB)",
+        "actualSize": 22784,
+        "stringifyTime": 0.043875,
+        "parseTime": 0.107083,
+        "totalTime": 0.15095799999999998
+      },
+      {
+        "name": "Large (100KB)",
+        "actualSize": 231689,
+        "stringifyTime": 0.40675,
+        "parseTime": 1.540166,
+        "totalTime": 1.9469159999999999
+      },
+      {
+        "name": "XLarge (1MB)",
+        "actualSize": 2404443,
+        "stringifyTime": 4.676542,
+        "parseTime": 12.598584,
+        "totalTime": 17.275126
+      }
+    ]
+  },
+  "recommendations": []
+}
