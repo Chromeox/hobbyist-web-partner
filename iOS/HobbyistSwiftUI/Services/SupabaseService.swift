@@ -5,15 +5,32 @@ import Combine
 class SupabaseService {
     static let shared = SupabaseService()
     
-    private let baseURL: String
-    private let apiKey: String
+    private var baseURL: String {
+        guard let url = AppConfiguration.shared.supabaseURL else {
+            fatalError("Supabase URL not configured. Please check AppConfiguration.")
+        }
+        return url
+    }
+    
+    private var apiKey: String {
+        guard let key = AppConfiguration.shared.supabaseAnonKey else {
+            fatalError("Supabase API key not configured. Please check AppConfiguration.")
+        }
+        return key
+    }
+    
     private let session = URLSession.shared
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        // In production, these should come from environment configuration
-        self.baseURL = ProcessInfo.processInfo.environment["SUPABASE_URL"] ?? "https://mcjqvdzdhtcvbrejvrtp.supabase.co"
-        self.apiKey = ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"] ?? ""
+        // Configuration is now handled by AppConfiguration
+        validateConfiguration()
+    }
+    
+    private func validateConfiguration() {
+        guard AppConfiguration.shared.validateConfiguration() else {
+            print("⚠️ Warning: Invalid Supabase configuration detected")
+        }
     }
     
     // MARK: - Generic Request Methods
@@ -221,15 +238,30 @@ class SupabaseService {
     // MARK: - Token Management
     
     private func saveAuthToken(_ token: String) {
-        UserDefaults.standard.set(token, forKey: "supabase_auth_token")
+        // Use secure Keychain storage instead of UserDefaults
+        do {
+            try KeychainService.shared.save(token, for: .authToken)
+        } catch {
+            print("Failed to save auth token to Keychain: \(error)")
+        }
     }
     
     private func getAuthToken() -> String? {
-        UserDefaults.standard.string(forKey: "supabase_auth_token")
+        // Retrieve from secure Keychain storage
+        do {
+            return try KeychainService.shared.getString(for: .authToken)
+        } catch {
+            return nil
+        }
     }
     
     private func clearAuthToken() {
-        UserDefaults.standard.removeObject(forKey: "supabase_auth_token")
+        // Clear from secure Keychain storage
+        do {
+            try KeychainService.shared.delete(key: .authToken)
+        } catch {
+            print("Failed to clear auth token from Keychain: \(error)")
+        }
     }
     
     // MARK: - Realtime Subscription
