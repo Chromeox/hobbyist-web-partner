@@ -1,169 +1,212 @@
 import Foundation
-import CoreLocation
 
-struct ClassModel: Identifiable, Codable, Hashable {
-    let id: UUID
+// MARK: - HobbyClass Model
+
+struct HobbyClass: Identifiable, Codable, Equatable {
+    let id: String
     let title: String
     let description: String
-    let instructorId: UUID
-    let venueId: UUID?
-    let categoryId: UUID?
-    let startTime: Date
-    let endTime: Date
-    let duration: Int
+    let category: ClassCategory
+    let difficulty: DifficultyLevel
+    let price: Double
+    let startDate: Date
+    let endDate: Date
+    let duration: Int // in minutes
     let maxParticipants: Int
-    let currentParticipants: Int
-    let creditCost: Int
-    let price: Decimal?
-    let allowCreditPayment: Bool
-    let difficultyLevel: DifficultyLevel
-    let requirements: [String]?
+    let enrolledCount: Int
+    let instructor: Instructor
+    let venue: Venue
     let imageUrl: String?
-    let status: ClassStatus
-    let isRecurring: Bool
-    let recurringPattern: RecurringPattern?
+    let thumbnailUrl: String?
+    let averageRating: Double
+    let totalReviews: Int
     let tags: [String]
-    let createdAt: Date
-    let updatedAt: Date?
-    
-    var instructor: Instructor?
-    var venue: Venue?
-    var category: Category?
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case title
-        case description
-        case instructorId = "instructor_id"
-        case venueId = "venue_id"
-        case categoryId = "category_id"
-        case startTime = "start_time"
-        case endTime = "end_time"
-        case duration
-        case maxParticipants = "max_participants"
-        case currentParticipants = "current_participants"
-        case creditCost = "credit_cost"
-        case price
-        case allowCreditPayment = "allow_credit_payment"
-        case difficultyLevel = "difficulty_level"
-        case requirements
-        case imageUrl = "image_url"
-        case status
-        case isRecurring = "is_recurring"
-        case recurringPattern = "recurring_pattern"
-        case tags
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case instructor
-        case venue
-        case category
-    }
+    let requirements: [String]
+    let whatToBring: [String]
+    let cancellationPolicy: String?
+    let isOnline: Bool
+    let meetingUrl: String?
     
     var availableSpots: Int {
-        max(0, maxParticipants - currentParticipants)
+        maxParticipants - enrolledCount
+    }
+    
+    var isAvailable: Bool {
+        availableSpots > 0 && startDate > Date()
     }
     
     var isFull: Bool {
-        availableSpots == 0
+        availableSpots <= 0
+    }
+    
+    var formattedPrice: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        return formatter.string(from: NSNumber(value: price)) ?? "$\(price)"
     }
     
     var formattedDuration: String {
         let hours = duration / 60
         let minutes = duration % 60
+        
         if hours > 0 && minutes > 0 {
-            return "\(hours)h \(minutes)min"
+            return "\(hours)h \(minutes)m"
         } else if hours > 0 {
             return "\(hours)h"
         } else {
-            return "\(minutes)min"
+            return "\(minutes)m"
         }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case description
+        case category
+        case difficulty
+        case price
+        case startDate = "start_date"
+        case endDate = "end_date"
+        case duration
+        case maxParticipants = "max_participants"
+        case enrolledCount = "enrolled_count"
+        case instructor
+        case venue
+        case imageUrl = "image_url"
+        case thumbnailUrl = "thumbnail_url"
+        case averageRating = "average_rating"
+        case totalReviews = "total_reviews"
+        case tags
+        case requirements
+        case whatToBring = "what_to_bring"
+        case cancellationPolicy = "cancellation_policy"
+        case isOnline = "is_online"
+        case meetingUrl = "meeting_url"
     }
 }
 
-struct Category: Identifiable, Codable, Hashable {
-    let id: UUID
+// MARK: - Instructor Model
+
+struct Instructor: Identifiable, Codable, Equatable {
+    let id: String
     let name: String
-    let description: String?
-    let iconName: String?
-    let colorHex: String?
-    let parentId: UUID?
-    let displayOrder: Int
-    let isActive: Bool
+    let bio: String
+    let profileImageUrl: String?
+    let rating: Double
+    let totalClasses: Int
+    let totalStudents: Int
+    let specialties: [String]
+    let certifications: [String]
+    let yearsOfExperience: Int
+    let socialLinks: SocialLinks?
+    
+    struct SocialLinks: Codable, Equatable {
+        let website: String?
+        let instagram: String?
+        let facebook: String?
+        let linkedin: String?
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case description
-        case iconName = "icon_name"
-        case colorHex = "color_hex"
-        case parentId = "parent_id"
-        case displayOrder = "display_order"
-        case isActive = "is_active"
+        case bio
+        case profileImageUrl = "profile_image_url"
+        case rating
+        case totalClasses = "total_classes"
+        case totalStudents = "total_students"
+        case specialties
+        case certifications
+        case yearsOfExperience = "years_of_experience"
+        case socialLinks = "social_links"
     }
 }
 
-struct RecurringPattern: Codable, Hashable {
-    let frequency: RecurrenceFrequency
-    let interval: Int
-    let daysOfWeek: [Int]?
-    let endDate: Date?
-    let occurrences: Int?
+// MARK: - Venue Model
+
+struct Venue: Identifiable, Codable, Equatable {
+    let id: String
+    let name: String
+    let address: String
+    let city: String
+    let state: String
+    let zipCode: String
+    let latitude: Double
+    let longitude: Double
+    let amenities: [String]
+    let parkingInfo: String?
+    let publicTransit: String?
+    let imageUrls: [String]
+    let accessibilityInfo: String?
+    
+    var fullAddress: String {
+        "\(address), \(city), \(state) \(zipCode)"
+    }
     
     enum CodingKeys: String, CodingKey {
-        case frequency
-        case interval
-        case daysOfWeek = "days_of_week"
-        case endDate = "end_date"
-        case occurrences
+        case id
+        case name
+        case address
+        case city
+        case state
+        case zipCode = "zip_code"
+        case latitude
+        case longitude
+        case amenities
+        case parkingInfo = "parking_info"
+        case publicTransit = "public_transit"
+        case imageUrls = "image_urls"
+        case accessibilityInfo = "accessibility_info"
     }
 }
 
-enum RecurrenceFrequency: String, Codable, CaseIterable {
-    case daily = "daily"
-    case weekly = "weekly"
-    case biweekly = "biweekly"
-    case monthly = "monthly"
-}
+// MARK: - Enums
 
-enum DifficultyLevel: String, Codable, CaseIterable {
-    case beginner = "beginner"
-    case intermediate = "intermediate"
-    case advanced = "advanced"
-    case allLevels = "all_levels"
+enum ClassCategory: String, CaseIterable, Codable {
+    case arts = "Arts & Crafts"
+    case cooking = "Cooking"
+    case fitness = "Fitness"
+    case music = "Music"
+    case technology = "Technology"
+    case languages = "Languages"
+    case outdoors = "Outdoors"
+    case wellness = "Wellness"
+    case business = "Business"
+    case photography = "Photography"
+    case dance = "Dance"
+    case writing = "Writing"
     
-    var displayName: String {
+    var icon: String {
         switch self {
-        case .beginner: return "Beginner"
-        case .intermediate: return "Intermediate"
-        case .advanced: return "Advanced"
-        case .allLevels: return "All Levels"
+        case .arts: return "paintbrush"
+        case .cooking: return "fork.knife"
+        case .fitness: return "figure.run"
+        case .music: return "music.note"
+        case .technology: return "laptopcomputer"
+        case .languages: return "globe"
+        case .outdoors: return "leaf"
+        case .wellness: return "heart"
+        case .business: return "briefcase"
+        case .photography: return "camera"
+        case .dance: return "figure.dance"
+        case .writing: return "pencil"
         }
     }
+}
+
+enum DifficultyLevel: String, CaseIterable, Codable {
+    case beginner = "Beginner"
+    case intermediate = "Intermediate"
+    case advanced = "Advanced"
+    case allLevels = "All Levels"
     
     var color: String {
         switch self {
         case .beginner: return "green"
-        case .intermediate: return "orange"
+        case .intermediate: return "yellow"
         case .advanced: return "red"
         case .allLevels: return "blue"
-        }
-    }
-}
-
-enum ClassStatus: String, Codable, CaseIterable {
-    case scheduled = "scheduled"
-    case inProgress = "in_progress"
-    case completed = "completed"
-    case cancelled = "cancelled"
-    case postponed = "postponed"
-    
-    var displayName: String {
-        switch self {
-        case .scheduled: return "Scheduled"
-        case .inProgress: return "In Progress"
-        case .completed: return "Completed"
-        case .cancelled: return "Cancelled"
-        case .postponed: return "Postponed"
         }
     }
 }
