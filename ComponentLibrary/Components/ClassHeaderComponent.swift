@@ -5,8 +5,9 @@ import SwiftUI
 struct ClassHeaderComponent: View, DataDisplayComponent {
     typealias Configuration = ClassHeaderConfiguration
     typealias DataType = ClassHeaderData
-    
+
     // MARK: - Properties
+
     let configuration: ClassHeaderConfiguration
     let data: ClassHeaderData
     let isLoading: Bool
@@ -14,12 +15,14 @@ struct ClassHeaderComponent: View, DataDisplayComponent {
     let onFavoriteToggle: ((Bool) -> Void)?
     let onShareTap: (() -> Void)?
     let onBookNow: (() -> Void)?
-    
+
     // MARK: - State
+
     @State private var isFavorited = false
     @State private var showImageGallery = false
-    
+
     // MARK: - Initializer
+
     init(
         classHeaderData: ClassHeaderData,
         isLoading: Bool = false,
@@ -29,21 +32,22 @@ struct ClassHeaderComponent: View, DataDisplayComponent {
         onBookNow: (() -> Void)? = nil,
         configuration: ClassHeaderConfiguration = ClassHeaderConfiguration()
     ) {
-        self.data = classHeaderData
+        data = classHeaderData
         self.isLoading = isLoading
         self.errorState = errorState
         self.onFavoriteToggle = onFavoriteToggle
         self.onShareTap = onShareTap
         self.onBookNow = onBookNow
         self.configuration = configuration
-        self._isFavorited = State(initialValue: classHeaderData.isFavorited)
+        _isFavorited = State(initialValue: classHeaderData.isFavorited)
     }
-    
+
     // MARK: - Body
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         if isLoading {
@@ -74,7 +78,7 @@ struct ClassHeaderContent: View {
     let onShareTap: (() -> Void)?
     let onBookNow: (() -> Void)?
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if configuration.showHeroImage {
@@ -84,7 +88,7 @@ struct ClassHeaderContent: View {
                     configuration: configuration
                 )
             }
-            
+
             ClassInfoSection(
                 classHeaderData: classHeaderData,
                 isFavorited: $isFavorited,
@@ -92,7 +96,7 @@ struct ClassHeaderContent: View {
                 onShareTap: onShareTap,
                 configuration: configuration
             )
-            
+
             if configuration.showActionButtons {
                 ClassActionSection(
                     classHeaderData: classHeaderData,
@@ -111,7 +115,7 @@ struct ClassHeroSection: View {
     let classHeaderData: ClassHeaderData
     @Binding var showImageGallery: Bool
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             ClassHeroImage(
@@ -120,7 +124,7 @@ struct ClassHeroSection: View {
                 onImageTap: { showImageGallery = true }
             )
             .frame(height: configuration.heroImageHeight)
-            
+
             HeroImageOverlay(
                 hasMultipleImages: classHeaderData.additionalImages.count > 1,
                 imageCount: classHeaderData.additionalImages.count + 1
@@ -141,7 +145,7 @@ struct ClassHeroImage: View {
     let imageURL: URL?
     let images: [URL]
     let onImageTap: () -> Void
-    
+
     var body: some View {
         Button(action: onImageTap) {
             AsyncImage(url: imageURL) { image in
@@ -156,7 +160,7 @@ struct ClassHeroImage: View {
                             Image(systemName: "photo")
                                 .font(.largeTitle)
                                 .foregroundColor(.gray)
-                            
+
                             Text("Class Photo")
                                 .font(.caption)
                                 .foregroundColor(.gray)
@@ -174,18 +178,18 @@ struct ClassHeroImage: View {
 struct HeroImageOverlay: View {
     let hasMultipleImages: Bool
     let imageCount: Int
-    
+
     var body: some View {
         VStack {
             HStack {
                 Spacer()
-                
+
                 if hasMultipleImages {
                     ImageCountBadge(count: imageCount)
                 }
             }
             .padding()
-            
+
             Spacer()
         }
     }
@@ -195,12 +199,12 @@ struct HeroImageOverlay: View {
 
 struct ImageCountBadge: View {
     let count: Int
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: "photo.stack")
                 .font(.caption)
-            
+
             Text("\(count)")
                 .font(.caption)
                 .fontWeight(.medium)
@@ -221,7 +225,7 @@ struct ClassInfoSection: View {
     let onFavoriteToggle: ((Bool) -> Void)?
     let onShareTap: (() -> Void)?
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ClassTitleAndActions(
@@ -232,12 +236,12 @@ struct ClassInfoSection: View {
                 onShareTap: onShareTap,
                 configuration: configuration
             )
-            
+
             ClassMetadata(
                 classHeaderData: classHeaderData,
                 configuration: configuration
             )
-            
+
             if configuration.showRating {
                 ClassRatingSection(
                     rating: classHeaderData.rating,
@@ -245,14 +249,14 @@ struct ClassInfoSection: View {
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showDescription && !classHeaderData.shortDescription.isEmpty {
                 ClassDescriptionSection(
                     description: classHeaderData.shortDescription,
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showTags && !classHeaderData.tags.isEmpty {
                 ClassTagsSection(
                     tags: classHeaderData.tags,
@@ -273,7 +277,7 @@ struct ClassTitleAndActions: View {
     let onFavoriteToggle: ((Bool) -> Void)?
     let onShareTap: (() -> Void)?
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
@@ -281,12 +285,12 @@ struct ClassTitleAndActions: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .lineLimit(2)
-                
+
                 CategoryBadge(category: category)
             }
-            
+
             Spacer()
-            
+
             ClassHeaderActions(
                 isFavorited: $isFavorited,
                 onFavoriteToggle: onFavoriteToggle,
@@ -300,12 +304,12 @@ struct ClassTitleAndActions: View {
 
 struct CategoryBadge: View {
     let category: ClassCategory
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: category.iconName)
                 .font(.caption)
-            
+
             Text(category.displayName)
                 .font(.caption)
                 .fontWeight(.medium)
@@ -324,7 +328,7 @@ struct ClassHeaderActions: View {
     @Binding var isFavorited: Bool
     let onFavoriteToggle: ((Bool) -> Void)?
     let onShareTap: (() -> Void)?
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Button(action: {
@@ -339,7 +343,7 @@ struct ClassHeaderActions: View {
                     .scaleEffect(isFavorited ? 1.2 : 1.0)
             }
             .buttonStyle(.plain)
-            
+
             Button(action: { onShareTap?() }) {
                 Image(systemName: "square.and.arrow.up")
                     .font(.title2)
@@ -355,7 +359,7 @@ struct ClassHeaderActions: View {
 struct ClassMetadata: View {
     let classHeaderData: ClassHeaderData
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 16) {
@@ -364,27 +368,27 @@ struct ClassMetadata: View {
                     title: "Duration",
                     value: "\(classHeaderData.duration) min"
                 )
-                
+
                 MetadataItem(
                     icon: "person.2",
                     title: "Capacity",
                     value: "\(classHeaderData.maxCapacity) people"
                 )
-                
+
                 MetadataItem(
                     icon: "flame",
                     title: "Difficulty",
                     value: classHeaderData.difficulty.displayName
                 )
             }
-            
+
             HStack(spacing: 16) {
                 MetadataItem(
                     icon: "location",
                     title: "Location",
                     value: classHeaderData.locationName
                 )
-                
+
                 if let equipment = classHeaderData.equipmentProvided, !equipment.isEmpty {
                     MetadataItem(
                         icon: "dumbbell",
@@ -392,7 +396,7 @@ struct ClassMetadata: View {
                         value: "Provided"
                     )
                 }
-                
+
                 Spacer()
             }
         }
@@ -405,19 +409,19 @@ struct MetadataItem: View {
     let icon: String
     let title: String
     let value: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 Text(title)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
@@ -432,19 +436,19 @@ struct ClassRatingSection: View {
     let rating: Double
     let reviewCount: Int
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         HStack(spacing: 8) {
             RatingStars(rating: rating, size: .medium)
-            
+
             Text(String(format: "%.1f", rating))
                 .font(.subheadline)
                 .fontWeight(.medium)
-            
+
             Text("(\(reviewCount) reviews)")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
+
             Spacer()
         }
     }
@@ -455,17 +459,17 @@ struct ClassRatingSection: View {
 struct RatingStars: View {
     let rating: Double
     let size: StarSize
-    
+
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(1...5, id: \.self) { star in
+            ForEach(1 ... 5, id: \.self) { star in
                 Image(systemName: starIcon(for: star))
                     .font(size.font)
                     .foregroundColor(.yellow)
             }
         }
     }
-    
+
     private func starIcon(for position: Int) -> String {
         let starValue = Double(position)
         if rating >= starValue {
@@ -476,10 +480,10 @@ struct RatingStars: View {
             return "star"
         }
     }
-    
+
     enum StarSize {
         case small, medium, large
-        
+
         var font: Font {
             switch self {
             case .small: return .caption
@@ -495,13 +499,13 @@ struct RatingStars: View {
 struct ClassDescriptionSection: View {
     let description: String
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("About This Class")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             Text(description)
                 .font(.body)
                 .lineLimit(configuration.descriptionLineLimit)
@@ -514,13 +518,13 @@ struct ClassDescriptionSection: View {
 struct ClassTagsSection: View {
     let tags: [ClassTag]
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Tags")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(tags, id: \.id) { tag in
@@ -537,7 +541,7 @@ struct ClassTagsSection: View {
 
 struct TagChip: View {
     let tag: ClassTag
-    
+
     var body: some View {
         Text(tag.name)
             .font(.caption)
@@ -556,7 +560,7 @@ struct ClassActionSection: View {
     let classHeaderData: ClassHeaderData
     let onBookNow: (() -> Void)?
     let configuration: ClassHeaderConfiguration
-    
+
     var body: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
@@ -567,13 +571,13 @@ struct ClassActionSection: View {
                             .strikethrough()
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Text("$\(classHeaderData.price, specifier: "%.0f")")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                 }
-                
+
                 if classHeaderData.spotsLeft <= 5 {
                     Text("\(classHeaderData.spotsLeft) spots left")
                         .font(.caption)
@@ -584,9 +588,9 @@ struct ClassActionSection: View {
                         .foregroundColor(.green)
                 }
             }
-            
+
             Spacer()
-            
+
             BookNowButton(
                 isAvailable: classHeaderData.spotsLeft > 0,
                 isWaitlisted: classHeaderData.spotsLeft == 0,
@@ -610,13 +614,13 @@ struct BookNowButton: View {
     let isAvailable: Bool
     let isWaitlisted: Bool
     let onBookNow: (() -> Void)?
-    
+
     var body: some View {
         Button(action: { onBookNow?() }) {
             HStack(spacing: 8) {
                 Image(systemName: buttonIcon)
                     .font(.subheadline)
-                
+
                 Text(buttonTitle)
                     .font(.subheadline)
                     .fontWeight(.semibold)
@@ -630,7 +634,7 @@ struct BookNowButton: View {
         .buttonStyle(.plain)
         .disabled(!isAvailable && !isWaitlisted)
     }
-    
+
     private var buttonTitle: String {
         if isWaitlisted {
             return "Join Waitlist"
@@ -640,7 +644,7 @@ struct BookNowButton: View {
             return "Unavailable"
         }
     }
-    
+
     private var buttonIcon: String {
         if isWaitlisted {
             return "clock"
@@ -650,7 +654,7 @@ struct BookNowButton: View {
             return "xmark.circle"
         }
     }
-    
+
     private var buttonColor: Color {
         if isWaitlisted {
             return .orange
@@ -668,7 +672,7 @@ struct ClassImageGallery: View {
     let images: [URL?]
     let classTitle: String
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationView {
             TabView {
@@ -710,56 +714,56 @@ struct ClassHeaderLoadingView: View {
             Rectangle()
                 .fill(.gray.opacity(0.3))
                 .frame(height: 250)
-            
+
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 24)
-                    
+
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 16)
                         .frame(width: 120)
                 }
-                
+
                 HStack(spacing: 16) {
-                    ForEach(0..<3, id: \.self) { _ in
+                    ForEach(0 ..< 3, id: \.self) { _ in
                         VStack(alignment: .leading, spacing: 4) {
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(.gray.opacity(0.3))
                                 .frame(height: 12)
-                            
+
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(.gray.opacity(0.3))
                                 .frame(height: 16)
                         }
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 RoundedRectangle(cornerRadius: 4)
                     .fill(.gray.opacity(0.3))
                     .frame(height: 60)
             }
             .padding()
-            
+
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 20)
                         .frame(width: 80)
-                    
+
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 12)
                         .frame(width: 100)
                 }
-                
+
                 Spacer()
-                
+
                 RoundedRectangle(cornerRadius: 25)
                     .fill(.gray.opacity(0.3))
                     .frame(width: 120, height: 50)
@@ -772,16 +776,16 @@ struct ClassHeaderLoadingView: View {
 
 struct ClassHeaderErrorView: View {
     let message: String
-    
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.largeTitle)
                 .foregroundColor(.red)
-            
+
             Text("Unable to Load Class")
                 .font(.headline)
-            
+
             Text(message)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -825,7 +829,7 @@ enum ClassCategory {
     case dance
     case meditation
     case flexibility
-    
+
     var displayName: String {
         switch self {
         case .yoga: return "Yoga"
@@ -838,7 +842,7 @@ enum ClassCategory {
         case .flexibility: return "Flexibility"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .yoga: return "figure.mind.and.body"
@@ -851,7 +855,7 @@ enum ClassCategory {
         case .flexibility: return "figure.flexibility"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .yoga: return .purple
@@ -883,7 +887,7 @@ struct ClassHeaderConfiguration: ComponentConfiguration {
     let showTags: Bool
     let showActionButtons: Bool
     let descriptionLineLimit: Int?
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,

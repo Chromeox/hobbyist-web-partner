@@ -1,15 +1,14 @@
-import Foundation
 import Combine
+import Foundation
 
 public class ASO_OptimizationService {
-    
     private let keywordAnalyzer: KeywordAnalyzer
     private let competitorAnalyzer: CompetitorAnalyzer
     private let metadataOptimizer: MetadataOptimizer
     private let abTestingManager: ABTestingManager
     private let performanceTracker: PerformanceTracker
     private let cancellables = Set<AnyCancellable>()
-    
+
     public init(
         keywordAnalyzer: KeywordAnalyzer = KeywordAnalyzer(),
         competitorAnalyzer: CompetitorAnalyzer = CompetitorAnalyzer(),
@@ -23,15 +22,16 @@ public class ASO_OptimizationService {
         self.abTestingManager = abTestingManager
         self.performanceTracker = performanceTracker
     }
-    
+
     // MARK: - Keyword Optimization
+
     public func analyzeKeywords(for category: AppCategory) -> AnyPublisher<KeywordAnalysisResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.performKeywordAnalysis(category: category)
@@ -43,7 +43,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func optimizeKeywords(
         currentKeywords: [String],
         targetKeywords: [String],
@@ -54,7 +54,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.performKeywordOptimization(
@@ -70,14 +70,14 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func trackKeywordRankings(keywords: [String]) -> AnyPublisher<[KeywordRanking], Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let rankings = try await self.keywordAnalyzer.trackRankings(keywords: keywords)
@@ -89,15 +89,16 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Competitor Analysis
+
     public func analyzeCompetitors(appIDs: [String]) -> AnyPublisher<CompetitorAnalysisResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.performCompetitorAnalysis(appIDs: appIDs)
@@ -109,14 +110,14 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func findCompetitorKeywords(competitorAppID: String) -> AnyPublisher<[CompetitorKeyword], Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let keywords = try await self.competitorAnalyzer.extractKeywords(appID: competitorAppID)
@@ -128,7 +129,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func compareWithCompetitors(
         ourAppID: String,
         competitorAppIDs: [String]
@@ -138,7 +139,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.performCompetitiveComparison(
@@ -153,8 +154,9 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - A/B Testing
+
     public func createABTest(
         testName: String,
         variants: [MetadataVariant],
@@ -165,7 +167,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.setupABTest(
@@ -181,7 +183,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func monitorABTest(testID: String) -> AnyPublisher<ABTestMonitoringResult, Error> {
         return Timer.publish(every: 3600, on: .main, in: .common) // Check every hour
             .autoconnect()
@@ -190,7 +192,7 @@ public class ASO_OptimizationService {
                     return Fail(error: ASOError.serviceUnavailable)
                         .eraseToAnyPublisher()
                 }
-                
+
                 return Future { promise in
                     Task {
                         do {
@@ -205,7 +207,7 @@ public class ASO_OptimizationService {
             }
             .eraseToAnyPublisher()
     }
-    
+
     public func concludeABTest(
         testID: String,
         winningVariant: String
@@ -215,7 +217,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.finalizeABTest(testID: testID, winner: winningVariant)
@@ -227,8 +229,9 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Metadata Optimization
+
     public func optimizeAppTitle(
         currentTitle: String,
         keywords: [String],
@@ -239,7 +242,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.metadataOptimizer.optimizeTitle(
@@ -255,7 +258,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func optimizeDescription(
         currentDescription: String,
         keywords: [String],
@@ -266,7 +269,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.metadataOptimizer.optimizeDescription(
@@ -282,7 +285,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func optimizeScreenshots(
         currentScreenshots: [Screenshot],
         targetAudience: TargetAudience
@@ -292,7 +295,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await self.metadataOptimizer.optimizeScreenshots(
@@ -307,8 +310,9 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Performance Tracking
+
     public func trackASOPerformance(
         timeRange: DateInterval
     ) -> AnyPublisher<ASOPerformanceReport, Error> {
@@ -317,7 +321,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let report = try await self.generateASOPerformanceReport(timeRange: timeRange)
@@ -329,7 +333,7 @@ public class ASO_OptimizationService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func generateOptimizationRecommendations(
         currentMetadata: AppMetadata,
         performanceData: ASOPerformanceData
@@ -339,7 +343,7 @@ public class ASO_OptimizationService {
                 promise(.failure(ASOError.serviceUnavailable))
                 return
             }
-            
+
             Task {
                 do {
                     let recommendations = try await self.analyzeAndGenerateRecommendations(
@@ -357,20 +361,20 @@ public class ASO_OptimizationService {
 }
 
 // MARK: - Private Implementation
+
 private extension ASO_OptimizationService {
-    
     func performKeywordAnalysis(category: AppCategory) async throws -> KeywordAnalysisResult {
         // Get trending keywords for category
         let trendingKeywords = try await keywordAnalyzer.getTrendingKeywords(category: category)
-        
+
         // Analyze keyword difficulty and volume
         let keywordMetrics = try await keywordAnalyzer.analyzeKeywordMetrics(keywords: trendingKeywords)
-        
+
         // Get long-tail keyword suggestions
         let longTailSuggestions = try await keywordAnalyzer.generateLongTailKeywords(
             seedKeywords: trendingKeywords.prefix(5).map { $0.keyword }
         )
-        
+
         return KeywordAnalysisResult(
             category: category,
             trendingKeywords: trendingKeywords,
@@ -379,7 +383,7 @@ private extension ASO_OptimizationService {
             analyzedAt: Date()
         )
     }
-    
+
     func performKeywordOptimization(
         current: [String],
         target: [String],
@@ -387,21 +391,21 @@ private extension ASO_OptimizationService {
     ) async throws -> KeywordOptimizationResult {
         // Analyze current keyword performance
         let currentPerformance = try await keywordAnalyzer.analyzeKeywordPerformance(keywords: current)
-        
+
         // Calculate optimization potential
         let optimizationPotential = try await keywordAnalyzer.calculateOptimizationPotential(
             current: current,
             target: target,
             category: category
         )
-        
+
         // Generate optimized keyword set
         let optimizedKeywords = try await keywordAnalyzer.generateOptimizedKeywordSet(
             current: current,
             target: target,
             maxKeywords: 100 // App Store Connect limit
         )
-        
+
         return KeywordOptimizationResult(
             originalKeywords: current,
             optimizedKeywords: optimizedKeywords,
@@ -411,24 +415,24 @@ private extension ASO_OptimizationService {
             optimizedAt: Date()
         )
     }
-    
+
     func performCompetitorAnalysis(appIDs: [String]) async throws -> CompetitorAnalysisResult {
         var competitorProfiles: [CompetitorProfile] = []
-        
+
         for appID in appIDs {
             let profile = try await competitorAnalyzer.analyzeCompetitor(appID: appID)
             competitorProfiles.append(profile)
         }
-        
+
         // Analyze market positioning
         let marketPositioning = try await competitorAnalyzer.analyzeMarketPositioning(competitors: competitorProfiles)
-        
+
         // Find keyword gaps
         let keywordGaps = try await competitorAnalyzer.findKeywordGaps(competitors: competitorProfiles)
-        
+
         // Identify optimization opportunities
         let opportunities = try await competitorAnalyzer.identifyOptimizationOpportunities(competitors: competitorProfiles)
-        
+
         return CompetitorAnalysisResult(
             competitorProfiles: competitorProfiles,
             marketPositioning: marketPositioning,
@@ -437,37 +441,37 @@ private extension ASO_OptimizationService {
             analyzedAt: Date()
         )
     }
-    
+
     func performCompetitiveComparison(
         ourAppID: String,
         competitors: [String]
     ) async throws -> CompetitiveComparisonResult {
         // Get our app profile
         let ourProfile = try await competitorAnalyzer.analyzeCompetitor(appID: ourAppID)
-        
+
         // Get competitor profiles
         var competitorProfiles: [CompetitorProfile] = []
         for competitorID in competitors {
             let profile = try await competitorAnalyzer.analyzeCompetitor(appID: competitorID)
             competitorProfiles.append(profile)
         }
-        
+
         // Perform competitive analysis
         let strengths = try await competitorAnalyzer.identifyCompetitiveStrengths(
             ourApp: ourProfile,
             competitors: competitorProfiles
         )
-        
+
         let weaknesses = try await competitorAnalyzer.identifyCompetitiveWeaknesses(
             ourApp: ourProfile,
             competitors: competitorProfiles
         )
-        
+
         let marketShare = try await competitorAnalyzer.calculateMarketShareEstimate(
             ourApp: ourProfile,
             competitors: competitorProfiles
         )
-        
+
         return CompetitiveComparisonResult(
             ourApp: ourProfile,
             competitors: competitorProfiles,
@@ -477,7 +481,7 @@ private extension ASO_OptimizationService {
             comparedAt: Date()
         )
     }
-    
+
     func setupABTest(
         name: String,
         variants: [MetadataVariant],
@@ -487,11 +491,11 @@ private extension ASO_OptimizationService {
         guard variants.count == trafficSplit.count else {
             throw ASOError.invalidABTestConfiguration("Variant count must match traffic split count")
         }
-        
+
         guard trafficSplit.reduce(0, +) == 1.0 else {
             throw ASOError.invalidABTestConfiguration("Traffic split must sum to 1.0")
         }
-        
+
         // Create A/B test
         let testID = UUID().uuidString
         let test = try await abTestingManager.createTest(
@@ -500,10 +504,10 @@ private extension ASO_OptimizationService {
             variants: variants,
             trafficSplit: trafficSplit
         )
-        
+
         // Start test
         try await abTestingManager.startTest(testID: testID)
-        
+
         return ABTestResult(
             testID: testID,
             testName: name,
@@ -514,17 +518,17 @@ private extension ASO_OptimizationService {
             startedAt: Date()
         )
     }
-    
+
     func checkABTestPerformance(testID: String) async throws -> ABTestMonitoringResult {
         let testData = try await abTestingManager.getTestData(testID: testID)
         let variantPerformance = try await abTestingManager.getVariantPerformance(testID: testID)
-        
+
         // Check for statistical significance
         let significanceResults = try await abTestingManager.checkStatisticalSignificance(testID: testID)
-        
+
         // Calculate confidence intervals
         let confidenceIntervals = try await abTestingManager.calculateConfidenceIntervals(testID: testID)
-        
+
         return ABTestMonitoringResult(
             testID: testID,
             variantPerformance: variantPerformance,
@@ -534,17 +538,17 @@ private extension ASO_OptimizationService {
             checkedAt: Date()
         )
     }
-    
+
     func finalizeABTest(testID: String, winner: String) async throws -> ABTestConclusionResult {
         // Stop the test
         try await abTestingManager.stopTest(testID: testID)
-        
+
         // Get final results
         let finalResults = try await abTestingManager.getFinalResults(testID: testID)
-        
+
         // Apply winning variant
         try await abTestingManager.applyWinningVariant(testID: testID, winnerID: winner)
-        
+
         return ABTestConclusionResult(
             testID: testID,
             winningVariant: winner,
@@ -553,13 +557,13 @@ private extension ASO_OptimizationService {
             concludedAt: Date()
         )
     }
-    
+
     func generateASOPerformanceReport(timeRange: DateInterval) async throws -> ASOPerformanceReport {
         let keywordPerformance = try await performanceTracker.getKeywordPerformance(timeRange: timeRange)
         let conversionMetrics = try await performanceTracker.getConversionMetrics(timeRange: timeRange)
         let visibilityMetrics = try await performanceTracker.getVisibilityMetrics(timeRange: timeRange)
         let rankingChanges = try await performanceTracker.getRankingChanges(timeRange: timeRange)
-        
+
         return ASOPerformanceReport(
             timeRange: timeRange,
             keywordPerformance: keywordPerformance,
@@ -574,45 +578,45 @@ private extension ASO_OptimizationService {
             generatedAt: Date()
         )
     }
-    
+
     func analyzeAndGenerateRecommendations(
         metadata: AppMetadata,
         performance: ASOPerformanceData
     ) async throws -> [OptimizationRecommendation] {
         var recommendations: [OptimizationRecommendation] = []
-        
+
         // Analyze title optimization opportunities
         if let titleRecommendations = try await analyzeTitleOptimization(metadata: metadata, performance: performance) {
             recommendations.append(contentsOf: titleRecommendations)
         }
-        
+
         // Analyze keyword optimization opportunities
         if let keywordRecommendations = try await analyzeKeywordOptimization(metadata: metadata, performance: performance) {
             recommendations.append(contentsOf: keywordRecommendations)
         }
-        
+
         // Analyze description optimization opportunities
         if let descriptionRecommendations = try await analyzeDescriptionOptimization(metadata: metadata, performance: performance) {
             recommendations.append(contentsOf: descriptionRecommendations)
         }
-        
+
         // Analyze screenshot optimization opportunities
         if let screenshotRecommendations = try await analyzeScreenshotOptimization(metadata: metadata, performance: performance) {
             recommendations.append(contentsOf: screenshotRecommendations)
         }
-        
+
         return recommendations.sorted { $0.impact > $1.impact }
     }
-    
-    func calculateOptimizationConfidence(current: [String], optimized: [String]) -> Double {
+
+    func calculateOptimizationConfidence(current _: [String], optimized _: [String]) -> Double {
         // Implementation would calculate confidence based on keyword overlap,
         // difficulty scores, and historical performance data
         return 0.85
     }
-    
+
     func determineRecommendedAction(significanceResults: [String: StatisticalSignificance]) -> ABTestRecommendedAction {
         let significantResults = significanceResults.values.filter { $0.isSignificant }
-        
+
         if significantResults.isEmpty {
             return .continueTest
         } else if significantResults.count == 1 {
@@ -621,16 +625,17 @@ private extension ASO_OptimizationService {
             return .analyzeResults
         }
     }
-    
+
     func calculateImprovementPercentage(results: [String: ABTestVariantResult], winner: String) -> Double {
         guard let winnerResult = results[winner],
-              let controlResult = results.values.first(where: { $0.isControl }) else {
+              let controlResult = results.values.first(where: { $0.isControl })
+        else {
             return 0.0
         }
-        
+
         return ((winnerResult.conversionRate - controlResult.conversionRate) / controlResult.conversionRate) * 100
     }
-    
+
     func calculateOverallASOScore(
         keywords: [KeywordPerformance],
         conversions: ConversionMetrics,
@@ -639,99 +644,100 @@ private extension ASO_OptimizationService {
         let keywordScore = keywords.map { $0.score }.reduce(0, +) / Double(keywords.count)
         let conversionScore = conversions.overallScore
         let visibilityScore = visibility.overallScore
-        
-        return (keywordScore * 0.4 + conversionScore * 0.35 + visibilityScore * 0.25)
+
+        return keywordScore * 0.4 + conversionScore * 0.35 + visibilityScore * 0.25
     }
-    
-    func analyzeTitleOptimization(metadata: AppMetadata, performance: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
+
+    func analyzeTitleOptimization(metadata _: AppMetadata, performance _: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
         // Implementation would analyze title optimization opportunities
         return nil
     }
-    
-    func analyzeKeywordOptimization(metadata: AppMetadata, performance: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
+
+    func analyzeKeywordOptimization(metadata _: AppMetadata, performance _: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
         // Implementation would analyze keyword optimization opportunities
         return nil
     }
-    
-    func analyzeDescriptionOptimization(metadata: AppMetadata, performance: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
+
+    func analyzeDescriptionOptimization(metadata _: AppMetadata, performance _: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
         // Implementation would analyze description optimization opportunities
         return nil
     }
-    
-    func analyzeScreenshotOptimization(metadata: AppMetadata, performance: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
+
+    func analyzeScreenshotOptimization(metadata _: AppMetadata, performance _: ASOPerformanceData) async throws -> [OptimizationRecommendation]? {
         // Implementation would analyze screenshot optimization opportunities
         return nil
     }
 }
 
 // MARK: - Supporting Classes
+
 public class KeywordAnalyzer {
     public init() {}
-    
-    public func getTrendingKeywords(category: AppCategory) async throws -> [TrendingKeyword] {
+
+    public func getTrendingKeywords(category _: AppCategory) async throws -> [TrendingKeyword] {
         return [
             TrendingKeyword(keyword: "fitness app", volume: 45000, trend: .rising, difficulty: 0.7),
             TrendingKeyword(keyword: "workout tracker", volume: 28000, trend: .stable, difficulty: 0.6),
-            TrendingKeyword(keyword: "health monitoring", volume: 35000, trend: .rising, difficulty: 0.8)
+            TrendingKeyword(keyword: "health monitoring", volume: 35000, trend: .rising, difficulty: 0.8),
         ]
     }
-    
+
     public func analyzeKeywordMetrics(keywords: [TrendingKeyword]) async throws -> [KeywordMetrics] {
         return keywords.map { keyword in
             KeywordMetrics(
                 keyword: keyword.keyword,
                 searchVolume: keyword.volume,
                 difficulty: keyword.difficulty,
-                cpc: Double.random(in: 0.5...3.0),
-                competition: Double.random(in: 0.3...0.9),
-                relevanceScore: Double.random(in: 0.6...1.0)
+                cpc: Double.random(in: 0.5 ... 3.0),
+                competition: Double.random(in: 0.3 ... 0.9),
+                relevanceScore: Double.random(in: 0.6 ... 1.0)
             )
         }
     }
-    
+
     public func generateLongTailKeywords(seedKeywords: [String]) async throws -> [String] {
         return seedKeywords.flatMap { seed in
             ["\(seed) for beginners", "best \(seed)", "\(seed) free", "\(seed) premium"]
         }
     }
-    
+
     public func trackRankings(keywords: [String]) async throws -> [KeywordRanking] {
         return keywords.map { keyword in
             KeywordRanking(
                 keyword: keyword,
-                currentRank: Int.random(in: 1...100),
-                previousRank: Int.random(in: 1...100),
-                bestRank: Int.random(in: 1...50),
+                currentRank: Int.random(in: 1 ... 100),
+                previousRank: Int.random(in: 1 ... 100),
+                bestRank: Int.random(in: 1 ... 50),
                 trackingDate: Date()
             )
         }
     }
-    
+
     public func analyzeKeywordPerformance(keywords: [String]) async throws -> [KeywordPerformance] {
         return keywords.map { keyword in
             KeywordPerformance(
                 keyword: keyword,
-                impressions: Int.random(in: 100...10000),
-                clicks: Int.random(in: 10...1000),
-                conversionRate: Double.random(in: 0.01...0.15),
-                score: Double.random(in: 0.3...1.0)
+                impressions: Int.random(in: 100 ... 10000),
+                clicks: Int.random(in: 10 ... 1000),
+                conversionRate: Double.random(in: 0.01 ... 0.15),
+                score: Double.random(in: 0.3 ... 1.0)
             )
         }
     }
-    
+
     public func calculateOptimizationPotential(
-        current: [String],
-        target: [String],
-        category: AppCategory
+        current _: [String],
+        target _: [String],
+        category _: AppCategory
     ) async throws -> OptimizationPotential {
         return OptimizationPotential(
-            trafficIncrease: Double.random(in: 0.15...0.45),
-            visibilityImprovement: Double.random(in: 0.20...0.50),
-            rankingImprovement: Double.random(in: 0.10...0.35),
+            trafficIncrease: Double.random(in: 0.15 ... 0.45),
+            visibilityImprovement: Double.random(in: 0.20 ... 0.50),
+            rankingImprovement: Double.random(in: 0.10 ... 0.35),
             confidenceLevel: 0.85
         )
     }
-    
+
     public func generateOptimizedKeywordSet(
         current: [String],
         target: [String],
@@ -744,55 +750,55 @@ public class KeywordAnalyzer {
 
 public class CompetitorAnalyzer {
     public init() {}
-    
+
     public func analyzeCompetitor(appID: String) async throws -> CompetitorProfile {
         return CompetitorProfile(
             appID: appID,
             name: "Competitor App",
             category: .health,
-            ranking: Int.random(in: 1...100),
-            rating: Double.random(in: 3.0...5.0),
-            reviewCount: Int.random(in: 100...50000),
+            ranking: Int.random(in: 1 ... 100),
+            rating: Double.random(in: 3.0 ... 5.0),
+            reviewCount: Int.random(in: 100 ... 50000),
             keywords: ["fitness", "health", "workout"],
             metadata: CompetitorMetadata(
                 title: "Competitor Fitness App",
                 description: "Great fitness tracking app",
                 screenshots: []
             ),
-            estimatedDownloads: Int.random(in: 1000...100000)
+            estimatedDownloads: Int.random(in: 1000 ... 100_000)
         )
     }
-    
-    public func extractKeywords(appID: String) async throws -> [CompetitorKeyword] {
+
+    public func extractKeywords(appID _: String) async throws -> [CompetitorKeyword] {
         return [
             CompetitorKeyword(keyword: "fitness tracker", difficulty: 0.6, rank: 15),
             CompetitorKeyword(keyword: "workout app", difficulty: 0.7, rank: 25),
-            CompetitorKeyword(keyword: "health monitor", difficulty: 0.8, rank: 35)
+            CompetitorKeyword(keyword: "health monitor", difficulty: 0.8, rank: 35),
         ]
     }
-    
+
     public func analyzeMarketPositioning(competitors: [CompetitorProfile]) async throws -> MarketPositioning {
         return MarketPositioning(
-            marketSize: 1000000,
+            marketSize: 1_000_000,
             averageRating: competitors.map { $0.rating }.reduce(0, +) / Double(competitors.count),
             pricePoints: [0.0, 2.99, 4.99, 9.99],
             featureGaps: ["Advanced analytics", "Social features", "Wearable integration"],
             marketLeader: competitors.max { $0.estimatedDownloads < $1.estimatedDownloads }
         )
     }
-    
-    public func findKeywordGaps(competitors: [CompetitorProfile]) async throws -> [KeywordGap] {
+
+    public func findKeywordGaps(competitors _: [CompetitorProfile]) async throws -> [KeywordGap] {
         return [
             KeywordGap(
                 keyword: "home workout",
                 opportunity: 0.85,
                 competitorCount: 2,
                 difficulty: 0.6
-            )
+            ),
         ]
     }
-    
-    public func identifyOptimizationOpportunities(competitors: [CompetitorProfile]) async throws -> [OptimizationOpportunity] {
+
+    public func identifyOptimizationOpportunities(competitors _: [CompetitorProfile]) async throws -> [OptimizationOpportunity] {
         return [
             OptimizationOpportunity(
                 type: .keywordGap,
@@ -800,10 +806,10 @@ public class CompetitorAnalyzer {
                 impact: 0.75,
                 effort: 0.3,
                 priority: .high
-            )
+            ),
         ]
     }
-    
+
     public func identifyCompetitiveStrengths(
         ourApp: CompetitorProfile,
         competitors: [CompetitorProfile]
@@ -814,10 +820,10 @@ public class CompetitorAnalyzer {
                 ourValue: ourApp.rating,
                 competitorAverage: competitors.map { $0.rating }.reduce(0, +) / Double(competitors.count),
                 advantage: ourApp.rating > competitors.map { $0.rating }.reduce(0, +) / Double(competitors.count)
-            )
+            ),
         ]
     }
-    
+
     public func identifyCompetitiveWeaknesses(
         ourApp: CompetitorProfile,
         competitors: [CompetitorProfile]
@@ -828,10 +834,10 @@ public class CompetitorAnalyzer {
                 ourValue: Double(ourApp.reviewCount),
                 competitorAverage: competitors.map { Double($0.reviewCount) }.reduce(0, +) / Double(competitors.count),
                 gap: 0.25
-            )
+            ),
         ]
     }
-    
+
     public func calculateMarketShareEstimate(
         ourApp: CompetitorProfile,
         competitors: [CompetitorProfile]
@@ -847,18 +853,18 @@ public class CompetitorAnalyzer {
 
 public class MetadataOptimizer {
     public init() {}
-    
+
     public func optimizeTitle(
         current: String,
         keywords: [String],
-        limit: Int
+        limit _: Int
     ) async throws -> TitleOptimizationResult {
         let suggestions = [
             "HobbyistFit: Workout Tracker",
             "Fitness Hub: Health & Wellness",
-            "ActiveLife: Workout Planner"
+            "ActiveLife: Workout Planner",
         ]
-        
+
         return TitleOptimizationResult(
             originalTitle: current,
             optimizedTitles: suggestions,
@@ -867,24 +873,24 @@ public class MetadataOptimizer {
             seoScore: 0.85
         )
     }
-    
+
     public func optimizeDescription(
         current: String,
-        keywords: [String],
-        ctas: [String]
+        keywords _: [String],
+        ctas _: [String]
     ) async throws -> DescriptionOptimizationResult {
         let optimizedDescription = """
         Transform your fitness journey with our comprehensive workout tracker and health monitoring app.
-        
+
         Features:
         • Track workouts and progress
         • Monitor health metrics
         • Social fitness community
         • Personalized recommendations
-        
+
         Join thousands of users achieving their fitness goals. Download now!
         """
-        
+
         return DescriptionOptimizationResult(
             originalDescription: current,
             optimizedDescription: optimizedDescription,
@@ -893,10 +899,10 @@ public class MetadataOptimizer {
             ctaStrength: 0.85
         )
     }
-    
+
     public func optimizeScreenshots(
         screenshots: [Screenshot],
-        audience: TargetAudience
+        audience _: TargetAudience
     ) async throws -> ScreenshotOptimizationResult {
         return ScreenshotOptimizationResult(
             originalScreenshots: screenshots,
@@ -904,7 +910,7 @@ public class MetadataOptimizer {
             improvements: [
                 "Added feature callouts",
                 "Improved visual hierarchy",
-                "Enhanced call-to-action elements"
+                "Enhanced call-to-action elements",
             ],
             expectedImprovements: ScreenshotImprovements(
                 conversionIncrease: 0.15,
@@ -917,7 +923,7 @@ public class MetadataOptimizer {
 
 public class ABTestingManager {
     public init() {}
-    
+
     public func createTest(
         id: String,
         name: String,
@@ -933,11 +939,11 @@ public class ABTestingManager {
             createdAt: Date()
         )
     }
-    
-    public func startTest(testID: String) async throws {
+
+    public func startTest(testID _: String) async throws {
         // Implementation would start the A/B test
     }
-    
+
     public func getTestData(testID: String) async throws -> ABTestData {
         return ABTestData(
             testID: testID,
@@ -946,8 +952,8 @@ public class ABTestingManager {
             startDate: Date().addingTimeInterval(-86400 * 7)
         )
     }
-    
-    public func getVariantPerformance(testID: String) async throws -> [String: ABTestVariantPerformance] {
+
+    public func getVariantPerformance(testID _: String) async throws -> [String: ABTestVariantPerformance] {
         return [
             "A": ABTestVariantPerformance(
                 variantID: "A",
@@ -962,33 +968,33 @@ public class ABTestingManager {
                 conversions: 300,
                 conversionRate: 0.06,
                 confidence: 0.98
-            )
+            ),
         ]
     }
-    
-    public func checkStatisticalSignificance(testID: String) async throws -> [String: StatisticalSignificance] {
+
+    public func checkStatisticalSignificance(testID _: String) async throws -> [String: StatisticalSignificance] {
         return [
             "B": StatisticalSignificance(
                 variantID: "B",
                 isSignificant: true,
                 pValue: 0.02,
                 confidence: 0.98
-            )
+            ),
         ]
     }
-    
-    public func calculateConfidenceIntervals(testID: String) async throws -> [String: ConfidenceInterval] {
+
+    public func calculateConfidenceIntervals(testID _: String) async throws -> [String: ConfidenceInterval] {
         return [
             "A": ConfidenceInterval(variantID: "A", lowerBound: 0.045, upperBound: 0.055),
-            "B": ConfidenceInterval(variantID: "B", lowerBound: 0.055, upperBound: 0.065)
+            "B": ConfidenceInterval(variantID: "B", lowerBound: 0.055, upperBound: 0.065),
         ]
     }
-    
-    public func stopTest(testID: String) async throws {
+
+    public func stopTest(testID _: String) async throws {
         // Implementation would stop the test
     }
-    
-    public func getFinalResults(testID: String) async throws -> [String: ABTestVariantResult] {
+
+    public func getFinalResults(testID _: String) async throws -> [String: ABTestVariantResult] {
         return [
             "A": ABTestVariantResult(
                 variantID: "A",
@@ -1005,19 +1011,19 @@ public class ABTestingManager {
                 conversions: 300,
                 conversionRate: 0.06,
                 revenue: 1500.0
-            )
+            ),
         ]
     }
-    
-    public func applyWinningVariant(testID: String, winnerID: String) async throws {
+
+    public func applyWinningVariant(testID _: String, winnerID _: String) async throws {
         // Implementation would apply the winning variant
     }
 }
 
 public class PerformanceTracker {
     public init() {}
-    
-    public func getKeywordPerformance(timeRange: DateInterval) async throws -> [KeywordPerformance] {
+
+    public func getKeywordPerformance(timeRange _: DateInterval) async throws -> [KeywordPerformance] {
         return [
             KeywordPerformance(
                 keyword: "fitness app",
@@ -1025,11 +1031,11 @@ public class PerformanceTracker {
                 clicks: 500,
                 conversionRate: 0.08,
                 score: 0.85
-            )
+            ),
         ]
     }
-    
-    public func getConversionMetrics(timeRange: DateInterval) async throws -> ConversionMetrics {
+
+    public func getConversionMetrics(timeRange _: DateInterval) async throws -> ConversionMetrics {
         return ConversionMetrics(
             overallConversionRate: 0.12,
             pageViewToInstall: 0.15,
@@ -1037,8 +1043,8 @@ public class PerformanceTracker {
             overallScore: 0.82
         )
     }
-    
-    public func getVisibilityMetrics(timeRange: DateInterval) async throws -> VisibilityMetrics {
+
+    public func getVisibilityMetrics(timeRange _: DateInterval) async throws -> VisibilityMetrics {
         return VisibilityMetrics(
             averageRank: 25,
             topRankings: 5,
@@ -1046,8 +1052,8 @@ public class PerformanceTracker {
             overallScore: 0.78
         )
     }
-    
-    public func getRankingChanges(timeRange: DateInterval) async throws -> [RankingChange] {
+
+    public func getRankingChanges(timeRange _: DateInterval) async throws -> [RankingChange] {
         return [
             RankingChange(
                 keyword: "fitness tracker",
@@ -1055,12 +1061,13 @@ public class PerformanceTracker {
                 currentRank: 25,
                 change: -5,
                 date: Date()
-            )
+            ),
         ]
     }
 }
 
 // MARK: - Data Models
+
 public struct KeywordAnalysisResult {
     public let category: AppCategory
     public let trendingKeywords: [TrendingKeyword]
@@ -1392,24 +1399,25 @@ public struct ABTestData {
 }
 
 // MARK: - Error Types
+
 public enum ASOError: Error, LocalizedError {
     case serviceUnavailable
     case invalidABTestConfiguration(String)
     case keywordAnalysisFailed(String)
     case competitorAnalysisFailed(String)
     case optimizationFailed(String)
-    
+
     public var errorDescription: String? {
         switch self {
         case .serviceUnavailable:
             return "ASO optimization service is currently unavailable"
-        case .invalidABTestConfiguration(let details):
+        case let .invalidABTestConfiguration(details):
             return "Invalid A/B test configuration: \(details)"
-        case .keywordAnalysisFailed(let details):
+        case let .keywordAnalysisFailed(details):
             return "Keyword analysis failed: \(details)"
-        case .competitorAnalysisFailed(let details):
+        case let .competitorAnalysisFailed(details):
             return "Competitor analysis failed: \(details)"
-        case .optimizationFailed(let details):
+        case let .optimizationFailed(details):
             return "Optimization process failed: \(details)"
         }
     }

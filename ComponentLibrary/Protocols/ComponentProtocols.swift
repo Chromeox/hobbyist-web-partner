@@ -6,9 +6,9 @@ import SwiftUI
 protocol ReusableComponent: View {
     associatedtype Content: View
     associatedtype Configuration: ComponentConfiguration
-    
+
     var configuration: Configuration { get }
-    
+
     @ViewBuilder
     func buildContent() -> Content
 }
@@ -22,14 +22,14 @@ protocol ComponentConfiguration {
 /// Protocol for components that handle user interactions
 protocol InteractiveComponent: ReusableComponent {
     associatedtype Action
-    
+
     var onAction: ((Action) -> Void)? { get }
 }
 
 /// Protocol for components that display data
 protocol DataDisplayComponent: ReusableComponent {
     associatedtype DataType
-    
+
     var data: DataType { get }
     var isLoading: Bool { get }
     var errorState: String? { get }
@@ -55,7 +55,7 @@ enum HeaderStyle {
     case medium
     case compact
     case featured
-    
+
     var font: Font {
         switch self {
         case .large: return .largeTitle
@@ -64,7 +64,7 @@ enum HeaderStyle {
         case .featured: return .title.bold()
         }
     }
-    
+
     var spacing: CGFloat {
         switch self {
         case .large: return 24
@@ -94,7 +94,7 @@ enum SelectionStyle {
 struct DefaultComponentConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(isAccessibilityEnabled: Bool = true, animationDuration: Double = 0.3) {
         self.isAccessibilityEnabled = isAccessibilityEnabled
         self.animationDuration = animationDuration
@@ -107,7 +107,7 @@ struct GridConfiguration: ComponentConfiguration {
     let columns: [GridItem]
     let spacing: CGFloat
     let alignment: HorizontalAlignment
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,
@@ -129,11 +129,10 @@ extension View {
     /// Apply consistent component styling
     @ViewBuilder
     func componentStyle<T: ComponentConfiguration>(_ configuration: T) -> some View {
-        self
-            .accessibilityEnabled(configuration.isAccessibilityEnabled)
+        accessibilityEnabled(configuration.isAccessibilityEnabled)
             .animation(.easeInOut(duration: configuration.animationDuration), value: true)
     }
-    
+
     /// Apply conditional modifiers based on configuration
     @ViewBuilder
     func conditionalModifier<Content: View>(

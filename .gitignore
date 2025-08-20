@@ -1,0 +1,184 @@
+# HobbyistSwiftUI Security Gitignore
+# Protects sensitive information and IP
+
+# Environment Variables - CRITICAL
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.env.local
+*.env.production
+*.env.staging
+
+# API Keys and Secrets
+**/Config/Secrets.swift
+**/Config/APIKeys.swift
+**/Configuration/Production.swift
+GoogleService-Info.plist
+google-services.json
+
+# Certificates and Provisioning
+*.p12
+*.p8
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.dSYM.zip
+*.ipa
+
+# Xcode & Swift
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+*.playground
+timeline.xctimeline
+playground.xcworkspace
+.build/
+Pods/
+Carthage/Build/
+Dependencies/
+.accio/
+Package.resolved
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Node.js / Web
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+.npm
+dist
+dist-ssr
+*.local
+.next/
+out/
+build/
+.vercel
+.turbo
+next-env.d.ts
+
+# Supabase
+supabase/.branches
+supabase/.temp
+**/supabase/functions/**/index.ts
+!**/supabase/functions/**/index.ts.example
+supabase/.env
+supabase/.env.local
+supabase/seed.sql
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+database.json
+
+# Logs & Debug
+*.log
+logs/
+*.log.*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+test-results/
+e2e-results/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+tmp/
+temp/
+cache/
+*.tmp
+*.temp
+*.cache
+
+# Backup Files
+*.backup
+*.bak
+*.orig
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Sensitive Business Logic
+**/Algorithms/Proprietary/
+**/Revenue/Calculations/
+**/Matching/Engine/
+**/ML/Models/
+
+# Customer Data
+**/CustomerData/
+**/Analytics/Raw/
+**/UserProfiles/
+exports/
+
+# Documentation with Sensitive Info
+**/InternalDocs/
+**/ArchitectureDiagrams/Private/
+**/SecurityAudits/
+
+# Monitoring & Performance
+**/Metrics/Production/
+**/PerformanceReports/
+monitoring-data/
+
+# Legal & Compliance
+**/Legal/Contracts/
+**/Compliance/Reports/
+**/GDPR/
+
+# Vendor Files
+vendor/
+third-party/licenses/
+
+# Custom ignores for HobbyistSwiftUI
+HobbyistSwiftUI.xcworkspace/xcuserdata/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+fastlane/.env
+web-partner/.env.local
+web-partner/.env.production
+# Supabase Management
+supabase-management/config/.env.local
+supabase-management/backups/
+*.backup
+*.sql.backup

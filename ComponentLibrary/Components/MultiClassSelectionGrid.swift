@@ -4,19 +4,21 @@ import SwiftUI
 
 struct MultiClassSelectionGrid: View, GridComponent {
     typealias Configuration = MultiClassGridConfiguration
-    
+
     // MARK: - Properties
+
     let configuration: MultiClassGridConfiguration
     let classes: [ClassData]
     let selectedClasses: Set<UUID>
     let onSelectionChange: (UUID) -> Void
-    
+
     // GridComponent Protocol Requirements
     var columns: [GridItem] { configuration.columns }
     var spacing: CGFloat { configuration.spacing }
     var alignment: HorizontalAlignment { configuration.alignment }
-    
+
     // MARK: - Initializer
+
     init(
         classes: [ClassData],
         selectedClasses: Set<UUID>,
@@ -28,12 +30,13 @@ struct MultiClassSelectionGrid: View, GridComponent {
         self.onSelectionChange = onSelectionChange
         self.configuration = configuration
     }
-    
+
     // MARK: - Body
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         LazyVGrid(columns: columns, spacing: spacing, alignment: alignment) {
@@ -55,14 +58,15 @@ struct MultiClassSelectionGrid: View, GridComponent {
 struct ClassSelectionCard: View, ListItemComponent {
     typealias Configuration = ClassSelectionCardConfiguration
     typealias Action = CardAction
-    
+
     // MARK: - Properties
+
     let configuration: ClassSelectionCardConfiguration
     let classData: ClassData
     let isSelected: Bool
     let onAction: ((CardAction) -> Void)?
     let selectionStyle: SelectionStyle
-    
+
     init(
         classData: ClassData,
         isSelected: Bool = false,
@@ -74,7 +78,7 @@ struct ClassSelectionCard: View, ListItemComponent {
         self.isSelected = isSelected
         self.configuration = configuration
         self.selectionStyle = selectionStyle
-        self.onAction = { action in
+        onAction = { action in
             switch action {
             case .tap:
                 onTap?()
@@ -83,11 +87,11 @@ struct ClassSelectionCard: View, ListItemComponent {
             }
         }
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         GridCell(
@@ -114,22 +118,22 @@ struct ClassSelectionCard: View, ListItemComponent {
                 }
                 .frame(height: 120)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     // Class Title
                     Text(classData.title)
                         .font(.headline)
                         .fontWeight(.medium)
                         .lineLimit(2)
-                    
+
                     // Instructor and Duration
                     HStack {
                         Text(classData.instructor)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        
+
                         Spacer()
-                        
+
                         Text("\(classData.duration)min")
                             .font(.caption)
                             .padding(.horizontal, 6)
@@ -137,18 +141,18 @@ struct ClassSelectionCard: View, ListItemComponent {
                             .background(.gray.opacity(0.2))
                             .cornerRadius(4)
                     }
-                    
+
                     // Price and Difficulty
                     HStack {
                         Text("$\(classData.price, specifier: "%.0f")")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                        
+
                         Spacer()
-                        
+
                         DifficultyIndicator(level: classData.difficulty)
                     }
-                    
+
                     // Selection Indicator
                     if isSelected {
                         HStack {
@@ -167,7 +171,7 @@ struct ClassSelectionCard: View, ListItemComponent {
         }
         .componentStyle(configuration)
     }
-    
+
     enum CardAction {
         case tap
         case favorite
@@ -178,10 +182,10 @@ struct ClassSelectionCard: View, ListItemComponent {
 
 struct DifficultyIndicator: View {
     let level: DifficultyLevel
-    
+
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(1...3, id: \.self) { index in
+            ForEach(1 ... 3, id: \.self) { index in
                 Circle()
                     .fill(index <= level.rawValue ? level.color : Color.gray.opacity(0.3))
                     .frame(width: 6, height: 6)
@@ -206,7 +210,7 @@ enum DifficultyLevel: Int, CaseIterable {
     case beginner = 1
     case intermediate = 2
     case advanced = 3
-    
+
     var color: Color {
         switch self {
         case .beginner: return .green
@@ -214,7 +218,7 @@ enum DifficultyLevel: Int, CaseIterable {
         case .advanced: return .red
         }
     }
-    
+
     var description: String {
         switch self {
         case .beginner: return "Beginner"
@@ -232,13 +236,13 @@ struct MultiClassGridConfiguration: ComponentConfiguration {
     let columns: [GridItem]
     let spacing: CGFloat
     let alignment: HorizontalAlignment
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,
         columns: [GridItem] = [
             GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16),
-            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
+            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16),
         ],
         spacing: CGFloat = 16,
         alignment: HorizontalAlignment = .center
@@ -254,7 +258,7 @@ struct MultiClassGridConfiguration: ComponentConfiguration {
 struct ClassSelectionCardConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3

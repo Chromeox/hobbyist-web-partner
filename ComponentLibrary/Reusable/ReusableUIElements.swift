@@ -5,11 +5,11 @@ import SwiftUI
 /// Reusable grid cell component for class selection
 struct GridCell<Content: View>: View, ReusableComponent {
     typealias Configuration = GridCellConfiguration
-    
+
     let configuration: GridCellConfiguration
     let content: Content
     let onTap: (() -> Void)?
-    
+
     init(
         configuration: GridCellConfiguration = GridCellConfiguration(),
         onTap: (() -> Void)? = nil,
@@ -19,11 +19,11 @@ struct GridCell<Content: View>: View, ReusableComponent {
         self.content = content()
         self.onTap = onTap
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         Button(action: { onTap?() }) {
@@ -44,13 +44,13 @@ struct GridCell<Content: View>: View, ReusableComponent {
 /// Reusable requirement row component
 struct RequirementRow: View, ReusableComponent {
     typealias Configuration = RequirementRowConfiguration
-    
+
     let configuration: RequirementRowConfiguration
     let title: String
     let value: String
     let icon: String?
     let isRequired: Bool
-    
+
     init(
         title: String,
         value: String,
@@ -64,11 +64,11 @@ struct RequirementRow: View, ReusableComponent {
         self.isRequired = isRequired
         self.configuration = configuration
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         HStack(spacing: 12) {
@@ -77,19 +77,19 @@ struct RequirementRow: View, ReusableComponent {
                     .foregroundColor(isRequired ? .red : .primary)
                     .frame(width: 20)
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
+
                 Text(value)
                     .font(.body)
                     .fontWeight(isRequired ? .semibold : .regular)
             }
-            
+
             Spacer()
-            
+
             if isRequired {
                 Text("Required")
                     .font(.caption)
@@ -109,12 +109,12 @@ struct RequirementRow: View, ReusableComponent {
 struct ReviewItem: View, DataDisplayComponent {
     typealias Configuration = ReviewItemConfiguration
     typealias DataType = ReviewData
-    
+
     let configuration: ReviewItemConfiguration
     let data: ReviewData
     let isLoading: Bool
     let errorState: String?
-    
+
     init(
         data: ReviewData,
         isLoading: Bool = false,
@@ -126,11 +126,11 @@ struct ReviewItem: View, DataDisplayComponent {
         self.errorState = errorState
         self.configuration = configuration
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -149,34 +149,34 @@ struct ReviewItem: View, DataDisplayComponent {
                 }
                 .frame(width: 40, height: 40)
                 .clipShape(Circle())
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(data.userName)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    
+
                     HStack(spacing: 2) {
-                        ForEach(0..<5, id: \.self) { index in
+                        ForEach(0 ..< 5, id: \.self) { index in
                             Image(systemName: index < data.rating ? "star.fill" : "star")
                                 .foregroundColor(.yellow)
                                 .font(.caption)
                         }
-                        
+
                         Spacer()
-                        
+
                         Text(data.date, style: .date)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
-                
+
                 Spacer()
             }
-            
+
             Text(data.comment)
                 .font(.body)
                 .lineLimit(configuration.maxLines)
-            
+
             if data.isHelpful {
                 HStack {
                     Image(systemName: "hand.thumbsup")
@@ -197,11 +197,11 @@ struct ReviewItem: View, DataDisplayComponent {
 /// Reusable session detail component
 struct SessionDetail: View, ReusableComponent {
     typealias Configuration = SessionDetailConfiguration
-    
+
     let configuration: SessionDetailConfiguration
     let session: SessionData
     let onSelect: ((SessionData) -> Void)?
-    
+
     init(
         session: SessionData,
         onSelect: ((SessionData) -> Void)? = nil,
@@ -211,11 +211,11 @@ struct SessionDetail: View, ReusableComponent {
         self.onSelect = onSelect
         self.configuration = configuration
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         Button(action: { onSelect?(session) }) {
@@ -224,34 +224,34 @@ struct SessionDetail: View, ReusableComponent {
                     Text(session.date.formatted(.dateTime.weekday(.wide)))
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
+
                     Text(session.date.formatted(.dateTime.day()))
                         .font(.title2)
                         .fontWeight(.bold)
-                    
+
                     Text(session.date.formatted(.dateTime.month(.abbreviated)))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .frame(width: 50)
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text(session.time)
                         .font(.headline)
                         .fontWeight(.medium)
-                    
+
                     HStack {
                         Image(systemName: "person.2")
                         Text("\(session.spotsLeft) spots left")
-                        
+
                         Spacer()
-                        
+
                         Text("$\(session.price, specifier: "%.0f")")
                             .fontWeight(.semibold)
                     }
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                    
+
                     if session.isWaitlisted {
                         HStack {
                             Image(systemName: "clock")
@@ -261,9 +261,9 @@ struct SessionDetail: View, ReusableComponent {
                         .foregroundColor(.orange)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
             }
@@ -279,13 +279,13 @@ struct SessionDetail: View, ReusableComponent {
 /// Reusable header component
 struct ModularHeader: View, HeaderComponent {
     typealias Configuration = HeaderConfiguration
-    
+
     let configuration: HeaderConfiguration
     let title: String
     let subtitle: String?
     let headerStyle: HeaderStyle
     let actionButton: (() -> AnyView)?
-    
+
     init(
         title: String,
         subtitle: String? = nil,
@@ -299,11 +299,11 @@ struct ModularHeader: View, HeaderComponent {
         self.configuration = configuration
         self.actionButton = actionButton
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(alignment: .leading, spacing: headerStyle.spacing / 2) {
@@ -312,16 +312,16 @@ struct ModularHeader: View, HeaderComponent {
                     Text(title)
                         .font(headerStyle.font)
                         .fontWeight(headerStyle == .featured ? .bold : .semibold)
-                    
+
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let actionButton = actionButton {
                     actionButton()
                 }
@@ -361,7 +361,7 @@ struct GridCellConfiguration: ComponentConfiguration {
     let borderColor: Color
     let borderWidth: CGFloat
     let cornerRadius: CGFloat
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,
@@ -382,7 +382,7 @@ struct GridCellConfiguration: ComponentConfiguration {
 struct RequirementRowConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3
@@ -396,7 +396,7 @@ struct ReviewItemConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
     let maxLines: Int
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,
@@ -411,7 +411,7 @@ struct ReviewItemConfiguration: ComponentConfiguration {
 struct SessionDetailConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3
@@ -424,7 +424,7 @@ struct SessionDetailConfiguration: ComponentConfiguration {
 struct HeaderConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3

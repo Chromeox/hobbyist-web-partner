@@ -5,8 +5,9 @@ import SwiftUI
 struct ClassInstructorComponent: View, DataDisplayComponent {
     typealias Configuration = ClassInstructorConfiguration
     typealias DataType = InstructorData
-    
+
     // MARK: - Properties
+
     let configuration: ClassInstructorConfiguration
     let data: InstructorData
     let isLoading: Bool
@@ -14,12 +15,14 @@ struct ClassInstructorComponent: View, DataDisplayComponent {
     let onFollowTap: ((InstructorData) -> Void)?
     let onMessageTap: ((InstructorData) -> Void)?
     let onViewProfile: ((InstructorData) -> Void)?
-    
+
     // MARK: - State
+
     @State private var isFollowing = false
     @State private var showFullBio = false
-    
+
     // MARK: - Initializer
+
     init(
         instructorData: InstructorData,
         isLoading: Bool = false,
@@ -29,21 +32,22 @@ struct ClassInstructorComponent: View, DataDisplayComponent {
         onViewProfile: ((InstructorData) -> Void)? = nil,
         configuration: ClassInstructorConfiguration = ClassInstructorConfiguration()
     ) {
-        self.data = instructorData
+        data = instructorData
         self.isLoading = isLoading
         self.errorState = errorState
         self.onFollowTap = onFollowTap
         self.onMessageTap = onMessageTap
         self.onViewProfile = onViewProfile
         self.configuration = configuration
-        self._isFollowing = State(initialValue: instructorData.isFollowing)
+        _isFollowing = State(initialValue: instructorData.isFollowing)
     }
-    
+
     // MARK: - Body
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -51,7 +55,7 @@ struct ClassInstructorComponent: View, DataDisplayComponent {
                 instructorData: data,
                 configuration: configuration
             )
-            
+
             if isLoading {
                 InstructorLoadingView()
             } else if let errorState = errorState {
@@ -77,7 +81,7 @@ struct ClassInstructorComponent: View, DataDisplayComponent {
 struct InstructorHeader: View {
     let instructorData: InstructorData
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         ModularHeader(
             title: "Instructor",
@@ -89,7 +93,7 @@ struct InstructorHeader: View {
                     if configuration.showSocialLinks {
                         SocialLinksButton(socialLinks: instructorData.socialLinks)
                     }
-                    
+
                     Button("View Profile") {
                         // Handle view profile
                     }
@@ -115,7 +119,7 @@ struct InstructorContent: View {
     let onMessageTap: ((InstructorData) -> Void)?
     let onViewProfile: ((InstructorData) -> Void)?
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         VStack(spacing: 16) {
             InstructorProfileCard(
@@ -126,7 +130,7 @@ struct InstructorContent: View {
                 onViewProfile: onViewProfile,
                 configuration: configuration
             )
-            
+
             if configuration.showBio {
                 InstructorBioSection(
                     bio: instructorData.bio,
@@ -134,28 +138,28 @@ struct InstructorContent: View {
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showStats {
                 InstructorStatsSection(
                     stats: instructorData.stats,
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showSpecialties {
                 InstructorSpecialtiesSection(
                     specialties: instructorData.specialties,
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showCertifications {
                 InstructorCertificationsSection(
                     certifications: instructorData.certifications,
                     configuration: configuration
                 )
             }
-            
+
             if configuration.showUpcomingClasses {
                 UpcomingClassesSection(
                     upcomingClasses: instructorData.upcomingClasses,
@@ -171,24 +175,24 @@ struct InstructorContent: View {
 struct InstructorProfileCard: View, InteractiveComponent {
     typealias Configuration = InstructorProfileConfiguration
     typealias Action = InstructorAction
-    
+
     let configuration: InstructorProfileConfiguration
     let instructorData: InstructorData
     @Binding var isFollowing: Bool
     let onAction: ((InstructorAction) -> Void)?
-    
+
     init(
         instructorData: InstructorData,
         isFollowing: Binding<Bool>,
         onFollowTap: ((InstructorData) -> Void)? = nil,
         onMessageTap: ((InstructorData) -> Void)? = nil,
         onViewProfile: ((InstructorData) -> Void)? = nil,
-        configuration: ClassInstructorConfiguration
+        configuration _: ClassInstructorConfiguration
     ) {
         self.instructorData = instructorData
-        self._isFollowing = isFollowing
-        self.configuration = InstructorProfileConfiguration()
-        self.onAction = { action in
+        _isFollowing = isFollowing
+        configuration = InstructorProfileConfiguration()
+        onAction = { action in
             switch action {
             case .follow:
                 onFollowTap?(instructorData)
@@ -199,11 +203,11 @@ struct InstructorProfileCard: View, InteractiveComponent {
             }
         }
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         HStack(spacing: 16) {
@@ -212,20 +216,20 @@ struct InstructorProfileCard: View, InteractiveComponent {
                 isVerified: instructorData.isVerified,
                 size: .large
             )
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 InstructorNameAndTitle(
                     name: instructorData.name,
                     title: instructorData.title,
                     isVerified: instructorData.isVerified
                 )
-                
+
                 InstructorRatingAndExperience(
                     rating: instructorData.rating,
                     reviewCount: instructorData.reviewCount,
                     experienceYears: instructorData.experienceYears
                 )
-                
+
                 InstructorActions(
                     isFollowing: $isFollowing,
                     followerCount: instructorData.followerCount,
@@ -234,7 +238,7 @@ struct InstructorProfileCard: View, InteractiveComponent {
                     configuration: configuration
                 )
             }
-            
+
             Spacer()
         }
         .padding()
@@ -246,7 +250,7 @@ struct InstructorProfileCard: View, InteractiveComponent {
         )
         .componentStyle(configuration)
     }
-    
+
     enum InstructorAction {
         case follow
         case message
@@ -260,7 +264,7 @@ struct InstructorAvatar: View {
     let imageURL: URL?
     let isVerified: Bool
     let size: AvatarSize
-    
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             AsyncImage(url: imageURL) { image in
@@ -282,16 +286,16 @@ struct InstructorAvatar: View {
                 Circle()
                     .stroke(.background, lineWidth: 2)
             )
-            
+
             if isVerified {
                 VerificationBadge(size: size)
             }
         }
     }
-    
+
     enum AvatarSize {
         case small, medium, large
-        
+
         var dimension: CGFloat {
             switch self {
             case .small: return 40
@@ -299,7 +303,7 @@ struct InstructorAvatar: View {
             case .large: return 80
             }
         }
-        
+
         var badgeSize: CGFloat {
             dimension * 0.25
         }
@@ -310,13 +314,13 @@ struct InstructorAvatar: View {
 
 struct VerificationBadge: View {
     let size: InstructorAvatar.AvatarSize
-    
+
     var body: some View {
         ZStack {
             Circle()
                 .fill(.blue)
                 .frame(width: size.badgeSize, height: size.badgeSize)
-            
+
             Image(systemName: "checkmark")
                 .font(.system(size: size.badgeSize * 0.6, weight: .bold))
                 .foregroundColor(.white)
@@ -330,21 +334,21 @@ struct InstructorNameAndTitle: View {
     let name: String
     let title: String?
     let isVerified: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 Text(name)
                     .font(.headline)
                     .fontWeight(.semibold)
-                
+
                 if isVerified {
                     Image(systemName: "checkmark.seal.fill")
                         .font(.caption)
                         .foregroundColor(.blue)
                 }
             }
-            
+
             if let title = title {
                 Text(title)
                     .font(.subheadline)
@@ -360,28 +364,28 @@ struct InstructorRatingAndExperience: View {
     let rating: Double
     let reviewCount: Int
     let experienceYears: Int
-    
+
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 4) {
                 Image(systemName: "star.fill")
                     .font(.caption)
                     .foregroundColor(.yellow)
-                
+
                 Text(String(format: "%.1f", rating))
                     .font(.caption)
                     .fontWeight(.medium)
-                
+
                 Text("(\(reviewCount))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+
             HStack(spacing: 4) {
                 Image(systemName: "clock")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 Text("\(experienceYears) years")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -398,7 +402,7 @@ struct InstructorActions: View {
     let onFollowTap: () -> Void
     let onMessageTap: () -> Void
     let configuration: InstructorProfileConfiguration
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Button(action: {
@@ -421,7 +425,7 @@ struct InstructorActions: View {
                 .cornerRadius(6)
             }
             .buttonStyle(.plain)
-            
+
             Button(action: onMessageTap) {
                 HStack(spacing: 4) {
                     Image(systemName: "message")
@@ -445,24 +449,24 @@ struct InstructorBioSection: View {
     let bio: String?
     @Binding var showFullBio: Bool
     let configuration: ClassInstructorConfiguration
-    
+
     private var shouldShowToggle: Bool {
         guard let bio = bio else { return false }
         return bio.count > 150
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("About")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             if let bio = bio {
                 Text(bio)
                     .font(.subheadline)
                     .lineLimit(showFullBio ? nil : 3)
                     .animation(.easeInOut(duration: configuration.animationDuration), value: showFullBio)
-                
+
                 if shouldShowToggle {
                     Button(action: { showFullBio.toggle() }) {
                         Text(showFullBio ? "Show Less" : "Show More")
@@ -487,26 +491,26 @@ struct InstructorBioSection: View {
 struct InstructorStatsSection: View {
     let stats: InstructorStats
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Statistics")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             HStack(spacing: 16) {
                 StatItem(
                     title: "Classes Taught",
                     value: "\(stats.classesTaught)",
                     icon: "graduationcap"
                 )
-                
+
                 StatItem(
                     title: "Students",
                     value: "\(stats.totalStudents)",
                     icon: "person.2"
                 )
-                
+
                 StatItem(
                     title: "Avg Rating",
                     value: String(format: "%.1f", stats.averageRating),
@@ -530,17 +534,17 @@ struct StatItem: View {
     let title: String
     let value: String
     let icon: String
-    
+
     var body: some View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundColor(.accentColor)
-            
+
             Text(value)
                 .font(.headline)
                 .fontWeight(.bold)
-            
+
             Text(title)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -555,13 +559,13 @@ struct StatItem: View {
 struct InstructorSpecialtiesSection: View {
     let specialties: [Specialty]
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Specialties")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                 ForEach(specialties, id: \.id) { specialty in
                     SpecialtyChip(specialty: specialty)
@@ -582,17 +586,17 @@ struct InstructorSpecialtiesSection: View {
 
 struct SpecialtyChip: View {
     let specialty: Specialty
-    
+
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: specialty.iconName)
                 .font(.caption)
                 .foregroundColor(specialty.color)
-            
+
             Text(specialty.name)
                 .font(.caption)
                 .fontWeight(.medium)
-            
+
             Spacer()
         }
         .padding(.horizontal, 10)
@@ -608,13 +612,13 @@ struct SpecialtyChip: View {
 struct InstructorCertificationsSection: View {
     let certifications: [Certification]
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Certifications")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             VStack(spacing: 8) {
                 ForEach(certifications, id: \.id) { certification in
                     CertificationRow(certification: certification)
@@ -635,31 +639,31 @@ struct InstructorCertificationsSection: View {
 
 struct CertificationRow: View {
     let certification: Certification
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "rosette")
                 .font(.title3)
                 .foregroundColor(.orange)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(certification.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                
+
                 Text(certification.organization)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 if let expiryDate = certification.expiryDate {
                     Text("Expires: \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundColor(.orange)
                 }
             }
-            
+
             Spacer()
-            
+
             if certification.isVerified {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.caption)
@@ -675,13 +679,13 @@ struct CertificationRow: View {
 struct UpcomingClassesSection: View {
     let upcomingClasses: [UpcomingClass]
     let configuration: ClassInstructorConfiguration
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Upcoming Classes")
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             if upcomingClasses.isEmpty {
                 Text("No upcoming classes scheduled")
                     .font(.subheadline)
@@ -692,7 +696,7 @@ struct UpcomingClassesSection: View {
                     ForEach(upcomingClasses.prefix(3), id: \.id) { upcomingClass in
                         UpcomingClassRow(upcomingClass: upcomingClass)
                     }
-                    
+
                     if upcomingClasses.count > 3 {
                         Button("View All Classes") {
                             // Handle view all action
@@ -718,42 +722,42 @@ struct UpcomingClassesSection: View {
 
 struct UpcomingClassRow: View {
     let upcomingClass: UpcomingClass
-    
+
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .center, spacing: 2) {
                 Text(upcomingClass.date.formatted(.dateTime.day()))
                     .font(.headline)
                     .fontWeight(.bold)
-                
+
                 Text(upcomingClass.date.formatted(.dateTime.month(.abbreviated)))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             .frame(width: 40)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(upcomingClass.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                
+
                 Text(upcomingClass.time)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 HStack(spacing: 8) {
                     Text("\(upcomingClass.spotsLeft) spots left")
                         .font(.caption2)
                         .foregroundColor(.orange)
-                    
+
                     Text("$\(upcomingClass.price, specifier: "%.0f")")
                         .font(.caption2)
                         .fontWeight(.medium)
                 }
             }
-            
+
             Spacer()
-            
+
             Button("Book") {
                 // Handle booking
             }
@@ -773,7 +777,7 @@ struct UpcomingClassRow: View {
 struct SocialLinksButton: View {
     let socialLinks: [SocialLink]
     @State private var showingSocialLinks = false
-    
+
     var body: some View {
         Button(action: { showingSocialLinks.toggle() }) {
             Image(systemName: "link")
@@ -790,22 +794,22 @@ struct SocialLinksButton: View {
 
 struct SocialLinksPopover: View {
     let socialLinks: [SocialLink]
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Social Links")
                 .font(.headline)
                 .padding(.bottom, 4)
-            
+
             ForEach(socialLinks, id: \.id) { link in
                 Button(action: { /* Open link */ }) {
                     HStack(spacing: 8) {
                         Image(systemName: link.platform.iconName)
                             .foregroundColor(link.platform.color)
-                        
+
                         Text(link.platform.displayName)
                             .foregroundColor(.primary)
-                        
+
                         Spacer()
                     }
                 }
@@ -826,29 +830,29 @@ struct InstructorLoadingView: View {
                 Circle()
                     .fill(.gray.opacity(0.3))
                     .frame(width: 80, height: 80)
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 16)
-                    
+
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 12)
                         .frame(width: 100)
-                    
+
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 12)
                         .frame(width: 120)
                 }
-                
+
                 Spacer()
             }
             .padding()
-            
+
             VStack(spacing: 12) {
-                ForEach(0..<3, id: \.self) { _ in
+                ForEach(0 ..< 3, id: \.self) { _ in
                     RoundedRectangle(cornerRadius: 12)
                         .fill(.gray.opacity(0.3))
                         .frame(height: 60)
@@ -861,16 +865,16 @@ struct InstructorLoadingView: View {
 
 struct InstructorErrorView: View {
     let message: String
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "person.slash")
                 .font(.largeTitle)
                 .foregroundColor(.red)
-            
+
             Text("Unable to Load Instructor")
                 .font(.headline)
-            
+
             Text(message)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -938,7 +942,7 @@ enum SocialPlatform {
     case youtube
     case tiktok
     case linkedin
-    
+
     var displayName: String {
         switch self {
         case .instagram: return "Instagram"
@@ -949,7 +953,7 @@ enum SocialPlatform {
         case .linkedin: return "LinkedIn"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .instagram: return "camera"
@@ -960,7 +964,7 @@ enum SocialPlatform {
         case .linkedin: return "person.badge.plus"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .instagram: return .pink
@@ -993,7 +997,7 @@ struct ClassInstructorConfiguration: ComponentConfiguration {
     let showCertifications: Bool
     let showUpcomingClasses: Bool
     let showSocialLinks: Bool
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,
@@ -1018,7 +1022,7 @@ struct ClassInstructorConfiguration: ComponentConfiguration {
 struct InstructorProfileConfiguration: ComponentConfiguration {
     let isAccessibilityEnabled: Bool
     let animationDuration: Double
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3

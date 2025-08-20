@@ -5,40 +5,43 @@ import SwiftUI
 struct MultiClassBookingFlow: View, InteractiveComponent {
     typealias Configuration = BookingFlowConfiguration
     typealias Action = BookingFlowAction
-    
+
     // MARK: - Properties
+
     let configuration: BookingFlowConfiguration
     let onAction: ((BookingFlowAction) -> Void)?
-    
+
     @State private var currentStep: BookingStep = .classSelection
     @State private var selectedClasses: Set<UUID> = []
     @State private var bookingData = BookingData()
     @State private var isProcessing = false
-    
+
     // MARK: - Initializer
+
     init(
         onBookingComplete: ((BookingData) -> Void)? = nil,
         onStepChange: ((BookingStep) -> Void)? = nil,
         configuration: BookingFlowConfiguration = BookingFlowConfiguration()
     ) {
         self.configuration = configuration
-        self.onAction = { action in
+        onAction = { action in
             switch action {
-            case .stepChanged(let step):
+            case let .stepChanged(step):
                 onStepChange?(step)
-            case .bookingCompleted(let data):
+            case let .bookingCompleted(data):
                 onBookingComplete?(data)
             case .cancelled:
                 break
             }
         }
     }
-    
+
     // MARK: - Body
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(spacing: 0) {
@@ -47,7 +50,7 @@ struct MultiClassBookingFlow: View, InteractiveComponent {
                 totalSteps: BookingStep.allCases.count,
                 configuration: configuration
             )
-            
+
             BookingStepContainer(
                 currentStep: currentStep,
                 selectedClasses: $selectedClasses,
@@ -67,7 +70,7 @@ struct MultiClassBookingFlow: View, InteractiveComponent {
         }
         .componentStyle(configuration)
     }
-    
+
     enum BookingFlowAction {
         case stepChanged(BookingStep)
         case bookingCompleted(BookingData)
@@ -81,29 +84,29 @@ struct BookingProgressBar: View {
     let currentStep: BookingStep
     let totalSteps: Int
     let configuration: BookingFlowConfiguration
-    
+
     private var progress: Double {
         Double(currentStep.stepNumber) / Double(totalSteps)
     }
-    
+
     var body: some View {
         VStack(spacing: 12) {
             HStack {
                 Text("Step \(currentStep.stepNumber) of \(totalSteps)")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 Spacer()
-                
+
                 Text(currentStep.title)
                     .font(.caption)
                     .fontWeight(.medium)
             }
-            
+
             ProgressView(value: progress)
                 .progressViewStyle(LinearProgressViewStyle(tint: .accentColor))
                 .scaleEffect(y: 2)
-            
+
             HStack(spacing: 8) {
                 ForEach(BookingStep.allCases, id: \.self) { step in
                     StepIndicator(
@@ -126,16 +129,16 @@ struct StepIndicator: View {
     let step: BookingStep
     let currentStep: BookingStep
     let isCompleted: Bool
-    
+
     private var isActive: Bool { step == currentStep }
-    
+
     var body: some View {
         VStack(spacing: 4) {
             ZStack {
                 Circle()
                     .fill(indicatorColor)
                     .frame(width: 24, height: 24)
-                
+
                 if isCompleted {
                     Image(systemName: "checkmark")
                         .font(.caption)
@@ -148,7 +151,7 @@ struct StepIndicator: View {
                         .foregroundColor(isActive ? .white : .secondary)
                 }
             }
-            
+
             Text(step.shortTitle)
                 .font(.caption2)
                 .foregroundColor(isActive ? .primary : .secondary)
@@ -156,7 +159,7 @@ struct StepIndicator: View {
         }
         .frame(maxWidth: .infinity)
     }
-    
+
     private var indicatorColor: Color {
         if isCompleted {
             return .green
@@ -178,12 +181,12 @@ struct BookingStepContainer: View {
     let onStepChange: (BookingStep) -> Void
     let onBookingComplete: (BookingData) -> Void
     let configuration: BookingFlowConfiguration
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 stepContent
-                
+
                 BookingStepActions(
                     currentStep: currentStep,
                     canProceed: canProceedToNextStep,
@@ -196,7 +199,7 @@ struct BookingStepContainer: View {
             .padding()
         }
     }
-    
+
     @ViewBuilder
     private var stepContent: some View {
         switch currentStep {
@@ -223,7 +226,7 @@ struct BookingStepContainer: View {
             BookingCompletionStep(bookingData: bookingData)
         }
     }
-    
+
     private var canProceedToNextStep: Bool {
         switch currentStep {
         case .classSelection:
@@ -240,7 +243,7 @@ struct BookingStepContainer: View {
             return false
         }
     }
-    
+
     private func proceedToNextStep() {
         guard let nextStep = currentStep.nextStep else {
             // Complete booking
@@ -251,10 +254,10 @@ struct BookingStepContainer: View {
             }
             return
         }
-        
+
         onStepChange(nextStep)
     }
-    
+
     private func goToPreviousStep() {
         guard let previousStep = currentStep.previousStep else { return }
         onStepChange(previousStep)
@@ -270,7 +273,7 @@ struct BookingStepActions: View {
     let onNext: () -> Void
     let onBack: () -> Void
     let configuration: BookingFlowConfiguration
-    
+
     var body: some View {
         HStack(spacing: 16) {
             if currentStep != .classSelection {
@@ -283,7 +286,7 @@ struct BookingStepActions: View {
                 .foregroundColor(.primary)
                 .cornerRadius(12)
             }
-            
+
             Button(nextButtonTitle) {
                 onNext()
             }
@@ -305,12 +308,12 @@ struct BookingStepActions: View {
         }
         .padding(.top)
     }
-    
+
     private var nextButtonTitle: String {
         if isProcessing {
             return ""
         }
-        
+
         switch currentStep {
         case .classSelection:
             return "Select Time Slots"
@@ -333,7 +336,7 @@ struct BookingStepActions: View {
 struct ClassSelectionStep: View {
     @Binding var selectedClasses: Set<UUID>
     @Binding var bookingData: BookingData
-    
+
     // Sample data - in real implementation, this would come from ViewModel
     private let availableClasses: [ClassData] = [
         ClassData(
@@ -359,9 +362,9 @@ struct ClassSelectionStep: View {
             price: 28,
             difficulty: .intermediate,
             imageURL: nil
-        )
+        ),
     ]
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ModularHeader(
@@ -369,7 +372,7 @@ struct ClassSelectionStep: View {
                 subtitle: "Choose the classes you'd like to book",
                 headerStyle: .medium
             )
-            
+
             MultiClassSelectionGrid(
                 classes: availableClasses,
                 selectedClasses: selectedClasses,
@@ -381,7 +384,7 @@ struct ClassSelectionStep: View {
                     }
                 }
             )
-            
+
             if !selectedClasses.isEmpty {
                 BookingSummaryCard(
                     selectedClasses: selectedClasses,
@@ -395,7 +398,7 @@ struct ClassSelectionStep: View {
 struct TimeSlotSelectionStep: View {
     let selectedClasses: Set<UUID>
     @Binding var bookingData: BookingData
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ModularHeader(
@@ -403,7 +406,7 @@ struct TimeSlotSelectionStep: View {
                 subtitle: "Choose when you'd like to attend each class",
                 headerStyle: .medium
             )
-            
+
             ForEach(Array(selectedClasses), id: \.self) { classId in
                 TimeSlotSelector(
                     classId: classId,
@@ -419,7 +422,7 @@ struct TimeSlotSelectionStep: View {
 
 struct PersonalDetailsStep: View {
     @Binding var bookingData: BookingData
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ModularHeader(
@@ -427,7 +430,7 @@ struct PersonalDetailsStep: View {
                 subtitle: "We need some information to complete your booking",
                 headerStyle: .medium
             )
-            
+
             PersonalDetailsForm(personalDetails: $bookingData.personalDetails)
         }
     }
@@ -435,7 +438,7 @@ struct PersonalDetailsStep: View {
 
 struct PaymentMethodStep: View {
     @Binding var bookingData: BookingData
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ModularHeader(
@@ -443,7 +446,7 @@ struct PaymentMethodStep: View {
                 subtitle: "Choose how you'd like to pay",
                 headerStyle: .medium
             )
-            
+
             PaymentMethodSelector(paymentMethod: $bookingData.paymentMethod)
         }
     }
@@ -452,7 +455,7 @@ struct PaymentMethodStep: View {
 struct BookingConfirmationStep: View {
     let bookingData: BookingData
     let selectedClasses: Set<UUID>
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             ModularHeader(
@@ -460,7 +463,7 @@ struct BookingConfirmationStep: View {
                 subtitle: "Please review your booking details",
                 headerStyle: .medium
             )
-            
+
             BookingConfirmationCard(
                 bookingData: bookingData,
                 selectedClasses: selectedClasses
@@ -471,24 +474,24 @@ struct BookingConfirmationStep: View {
 
 struct BookingCompletionStep: View {
     let bookingData: BookingData
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
                 .foregroundColor(.green)
-            
+
             VStack(spacing: 8) {
                 Text("Booking Confirmed!")
                     .font(.title)
                     .fontWeight(.bold)
-                
+
                 Text("Your classes have been successfully booked")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
-            
+
             BookingReceiptCard(bookingData: bookingData)
         }
         .padding(.top, 40)
@@ -500,41 +503,41 @@ struct BookingCompletionStep: View {
 struct BookingSummaryCard: View {
     let selectedClasses: Set<UUID>
     let availableClasses: [ClassData]
-    
+
     private var totalPrice: Double {
         availableClasses
             .filter { selectedClasses.contains($0.id) }
             .reduce(0) { $0 + $1.price }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Selected Classes (\(selectedClasses.count))")
                 .font(.headline)
                 .fontWeight(.medium)
-            
+
             ForEach(availableClasses.filter { selectedClasses.contains($0.id) }, id: \.id) { classData in
                 HStack {
                     Text(classData.title)
                         .font(.subheadline)
-                    
+
                     Spacer()
-                    
+
                     Text("$\(classData.price, specifier: "%.0f")")
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
             }
-            
+
             Divider()
-            
+
             HStack {
                 Text("Total")
                     .font(.headline)
                     .fontWeight(.bold)
-                
+
                 Spacer()
-                
+
                 Text("$\(totalPrice, specifier: "%.0f")")
                     .font(.headline)
                     .fontWeight(.bold)
@@ -551,21 +554,21 @@ struct TimeSlotSelector: View {
     let classId: UUID
     let selectedTimeSlot: Date?
     let onTimeSlotSelect: (Date) -> Void
-    
+
     // Sample time slots - in real implementation, this would come from API
     private var availableTimeSlots: [Date] {
         let calendar = Calendar.current
         let today = Date()
-        return (0..<7).compactMap { dayOffset in
+        return (0 ..< 7).compactMap { dayOffset in
             calendar.date(byAdding: .day, value: dayOffset, to: today)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Class \(classId.uuidString.prefix(8))")
                 .font(.headline)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(availableTimeSlots, id: \.self) { timeSlot in
@@ -589,17 +592,17 @@ struct TimeSlotChip: View {
     let date: Date
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 4) {
                 Text(date.formatted(.dateTime.weekday(.abbreviated)))
                     .font(.caption)
-                
+
                 Text(date.formatted(.dateTime.day()))
                     .font(.headline)
                     .fontWeight(.bold)
-                
+
                 Text("9:00 AM") // Sample time
                     .font(.caption)
             }
@@ -615,19 +618,19 @@ struct TimeSlotChip: View {
 
 struct PersonalDetailsForm: View {
     @Binding var personalDetails: PersonalDetails
-    
+
     var body: some View {
         VStack(spacing: 16) {
             TextField("First Name", text: $personalDetails.firstName)
                 .textFieldStyle(.roundedBorder)
-            
+
             TextField("Last Name", text: $personalDetails.lastName)
                 .textFieldStyle(.roundedBorder)
-            
+
             TextField("Email", text: $personalDetails.email)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.emailAddress)
-            
+
             TextField("Phone", text: $personalDetails.phone)
                 .textFieldStyle(.roundedBorder)
                 .keyboardType(.phonePad)
@@ -637,7 +640,7 @@ struct PersonalDetailsForm: View {
 
 struct PaymentMethodSelector: View {
     @Binding var paymentMethod: PaymentMethod?
-    
+
     var body: some View {
         VStack(spacing: 12) {
             ForEach(PaymentMethod.allCases, id: \.self) { method in
@@ -655,18 +658,18 @@ struct PaymentMethodOption: View {
     let method: PaymentMethod
     let isSelected: Bool
     let onSelect: () -> Void
-    
+
     var body: some View {
         Button(action: onSelect) {
             HStack {
                 Image(systemName: method.iconName)
                     .foregroundColor(.accentColor)
-                
+
                 Text(method.displayName)
                     .font(.subheadline)
-                
+
                 Spacer()
-                
+
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.accentColor)
@@ -687,13 +690,13 @@ struct PaymentMethodOption: View {
 struct BookingConfirmationCard: View {
     let bookingData: BookingData
     let selectedClasses: Set<UUID>
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Booking Summary")
                 .font(.headline)
                 .fontWeight(.bold)
-            
+
             // Add confirmation details here
             Text("Confirmation details would go here")
                 .font(.subheadline)
@@ -707,13 +710,13 @@ struct BookingConfirmationCard: View {
 
 struct BookingReceiptCard: View {
     let bookingData: BookingData
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Receipt")
                 .font(.headline)
                 .fontWeight(.bold)
-            
+
             // Add receipt details here
             Text("Receipt details would go here")
                 .font(.subheadline)
@@ -734,9 +737,9 @@ enum BookingStep: Int, CaseIterable {
     case paymentMethod = 4
     case confirmation = 5
     case completion = 6
-    
+
     var stepNumber: Int { rawValue }
-    
+
     var title: String {
         switch self {
         case .classSelection: return "Select Classes"
@@ -747,7 +750,7 @@ enum BookingStep: Int, CaseIterable {
         case .completion: return "Complete"
         }
     }
-    
+
     var shortTitle: String {
         switch self {
         case .classSelection: return "Classes"
@@ -758,12 +761,12 @@ enum BookingStep: Int, CaseIterable {
         case .completion: return "Done"
         }
     }
-    
+
     var nextStep: BookingStep? {
         guard let nextRawValue = BookingStep(rawValue: rawValue + 1) else { return nil }
         return nextRawValue
     }
-    
+
     var previousStep: BookingStep? {
         guard rawValue > 1, let previousRawValue = BookingStep(rawValue: rawValue - 1) else { return nil }
         return previousRawValue
@@ -783,7 +786,7 @@ struct PersonalDetails {
     var lastName: String = ""
     var email: String = ""
     var phone: String = ""
-    
+
     var isValid: Bool {
         !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty && !phone.isEmpty
     }
@@ -794,7 +797,7 @@ enum PaymentMethod: CaseIterable {
     case applePay
     case paypal
     case credits
-    
+
     var displayName: String {
         switch self {
         case .creditCard: return "Credit Card"
@@ -803,7 +806,7 @@ enum PaymentMethod: CaseIterable {
         case .credits: return "Class Credits"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .creditCard: return "creditcard"
@@ -821,7 +824,7 @@ struct BookingFlowConfiguration: ComponentConfiguration {
     let animationDuration: Double
     let showProgress: Bool
     let allowBackNavigation: Bool
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.4,

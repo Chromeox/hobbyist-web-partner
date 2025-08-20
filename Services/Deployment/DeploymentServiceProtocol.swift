@@ -1,7 +1,8 @@
-import Foundation
 import Combine
+import Foundation
 
 // MARK: - Deployment Models
+
 public struct AppStoreSubmission {
     public let buildNumber: String
     public let versionString: String
@@ -9,7 +10,7 @@ public struct AppStoreSubmission {
     public let screenshots: [Screenshot]
     public let metadata: AppMetadata
     public let stagingStrategy: StagingStrategy
-    
+
     public init(
         buildNumber: String,
         versionString: String,
@@ -32,7 +33,7 @@ public struct Screenshot {
     public let imagePath: String
     public let order: Int
     public let locale: String
-    
+
     public init(deviceType: DeviceType, imagePath: String, order: Int, locale: String) {
         self.deviceType = deviceType
         self.imagePath = imagePath
@@ -60,7 +61,7 @@ public struct AppMetadata {
     public let privacyPolicyURL: String
     public let category: AppCategory
     public let contentRating: ContentRating
-    
+
     public init(
         title: String,
         subtitle: String? = nil,
@@ -103,7 +104,7 @@ public struct StagingStrategy {
     public let percentages: [Int]
     public let durationBetweenStages: TimeInterval
     public let rollbackThreshold: Double
-    
+
     public init(
         type: StagingType,
         percentages: [Int],
@@ -118,10 +119,10 @@ public struct StagingStrategy {
 }
 
 public enum StagingType: String, CaseIterable {
-    case immediate = "immediate"
-    case staged = "staged"
-    case beta = "beta"
-    case phased = "phased"
+    case immediate
+    case staged
+    case beta
+    case phased
 }
 
 public struct ReleaseStatus {
@@ -132,7 +133,7 @@ public struct ReleaseStatus {
     public let userRating: Double
     public let downloadCount: Int
     public let lastUpdated: Date
-    
+
     public init(
         buildNumber: String,
         status: ReleaseState,
@@ -153,14 +154,14 @@ public struct ReleaseStatus {
 }
 
 public enum ReleaseState: String, CaseIterable {
-    case preparing = "preparing"
+    case preparing
     case inReview = "in_review"
-    case rejected = "rejected"
+    case rejected
     case readyForSale = "ready_for_sale"
     case processingForAppStore = "processing_for_app_store"
     case pendingDeveloperRelease = "pending_developer_release"
     case stagingInProgress = "staging_in_progress"
-    case released = "released"
+    case released
     case rollbackInProgress = "rollback_in_progress"
 }
 
@@ -169,7 +170,7 @@ public struct ComplianceResult {
     public let violations: [ComplianceViolation]
     public let warnings: [String]
     public let checkedAt: Date
-    
+
     public init(isCompliant: Bool, violations: [ComplianceViolation], warnings: [String], checkedAt: Date) {
         self.isCompliant = isCompliant
         self.violations = violations
@@ -183,7 +184,7 @@ public struct ComplianceViolation {
     public let severity: ViolationSeverity
     public let message: String
     public let recommendation: String
-    
+
     public init(category: ComplianceCategory, severity: ViolationSeverity, message: String, recommendation: String) {
         self.category = category
         self.severity = severity
@@ -194,55 +195,62 @@ public struct ComplianceViolation {
 
 public enum ComplianceCategory: String, CaseIterable {
     case appStoreGuidelines = "app_store_guidelines"
-    case accessibility = "accessibility"
-    case privacy = "privacy"
-    case performance = "performance"
-    case security = "security"
+    case accessibility
+    case privacy
+    case performance
+    case security
 }
 
 public enum ViolationSeverity: String, CaseIterable {
-    case critical = "critical"
-    case warning = "warning"
-    case info = "info"
+    case critical
+    case warning
+    case info
 }
 
 // MARK: - Deployment Service Protocol
+
 public protocol DeploymentServiceProtocol {
-    
     // MARK: - App Store Submission
+
     func submitToAppStore(_ submission: AppStoreSubmission) -> AnyPublisher<String, Error>
     func updateMetadata(_ metadata: AppMetadata) -> AnyPublisher<Void, Error>
     func uploadScreenshots(_ screenshots: [Screenshot]) -> AnyPublisher<Void, Error>
-    
+
     // MARK: - Release Management
+
     func getReleaseStatus(for buildNumber: String) -> AnyPublisher<ReleaseStatus, Error>
     func startPhasedRelease(buildNumber: String, strategy: StagingStrategy) -> AnyPublisher<Void, Error>
     func pausePhasedRelease(buildNumber: String) -> AnyPublisher<Void, Error>
     func resumePhasedRelease(buildNumber: String) -> AnyPublisher<Void, Error>
     func rollbackRelease(buildNumber: String, reason: String) -> AnyPublisher<Void, Error>
-    
+
     // MARK: - Compliance Validation
+
     func validateCompliance() -> AnyPublisher<ComplianceResult, Error>
     func validateAccessibility() -> AnyPublisher<ComplianceResult, Error>
     func validatePrivacyCompliance() -> AnyPublisher<ComplianceResult, Error>
-    
+
     // MARK: - Analytics and Monitoring
+
     func getAppStoreMetrics(for dateRange: DateInterval) -> AnyPublisher<AppStoreMetrics, Error>
     func getReviewAnalytics() -> AnyPublisher<ReviewAnalytics, Error>
     func getCrashReports(for buildNumber: String) -> AnyPublisher<[CrashReport], Error>
-    
+
     // MARK: - Feature Flag Management
+
     func getFeatureFlags() -> AnyPublisher<[FeatureFlag], Error>
     func updateFeatureFlag(_ flag: FeatureFlag) -> AnyPublisher<Void, Error>
     func emergencyDisableFeature(flagName: String) -> AnyPublisher<Void, Error>
-    
+
     // MARK: - Build Management
+
     func promoteBuildToProduction(buildNumber: String) -> AnyPublisher<Void, Error>
     func createHotfixBuild(baseVersion: String, fixes: [String]) -> AnyPublisher<String, Error>
     func validateBuild(buildNumber: String) -> AnyPublisher<BuildValidationResult, Error>
 }
 
 // MARK: - Supporting Models
+
 public struct AppStoreMetrics {
     public let impressions: Int
     public let pageViews: Int
@@ -252,7 +260,7 @@ public struct AppStoreMetrics {
     public let totalRatings: Int
     public let crashRate: Double
     public let retentionRate: Double
-    
+
     public init(
         impressions: Int,
         pageViews: Int,
@@ -280,7 +288,7 @@ public struct ReviewAnalytics {
     public let sentimentScore: Double
     public let keyTopics: [String]
     public let responseRate: Double
-    
+
     public init(averageRating: Double, totalReviews: Int, sentimentScore: Double, keyTopics: [String], responseRate: Double) {
         self.averageRating = averageRating
         self.totalReviews = totalReviews
@@ -300,7 +308,7 @@ public struct CrashReport {
     public let affectedUsers: Int
     public let firstOccurrence: Date
     public let lastOccurrence: Date
-    
+
     public init(
         crashID: String,
         buildNumber: String,
@@ -331,7 +339,7 @@ public struct FeatureFlag {
     public let targetAudience: [String]
     public let description: String
     public let lastModified: Date
-    
+
     public init(name: String, isEnabled: Bool, rolloutPercentage: Int, targetAudience: [String], description: String, lastModified: Date) {
         self.name = name
         self.isEnabled = isEnabled
@@ -348,7 +356,7 @@ public struct BuildValidationResult {
     public let testResults: [TestResult]
     public let performanceMetrics: PerformanceMetrics
     public let securityScan: SecurityScanResult
-    
+
     public init(
         isValid: Bool,
         buildNumber: String,
@@ -370,7 +378,7 @@ public struct TestResult {
     public let failed: Int
     public let skipped: Int
     public let duration: TimeInterval
-    
+
     public init(testSuite: String, passed: Int, failed: Int, skipped: Int, duration: TimeInterval) {
         self.testSuite = testSuite
         self.passed = passed
@@ -385,7 +393,7 @@ public struct PerformanceMetrics {
     public let memoryUsage: Int
     public let cpuUsage: Double
     public let batteryImpact: BatteryImpact
-    
+
     public init(launchTime: TimeInterval, memoryUsage: Int, cpuUsage: Double, batteryImpact: BatteryImpact) {
         self.launchTime = launchTime
         self.memoryUsage = memoryUsage
@@ -395,17 +403,17 @@ public struct PerformanceMetrics {
 }
 
 public enum BatteryImpact: String, CaseIterable {
-    case minimal = "minimal"
-    case low = "low"
-    case moderate = "moderate"
-    case high = "high"
+    case minimal
+    case low
+    case moderate
+    case high
 }
 
 public struct SecurityScanResult {
     public let vulnerabilities: [SecurityVulnerability]
     public let overallScore: Double
     public let recommendations: [String]
-    
+
     public init(vulnerabilities: [SecurityVulnerability], overallScore: Double, recommendations: [String]) {
         self.vulnerabilities = vulnerabilities
         self.overallScore = overallScore
@@ -418,7 +426,7 @@ public struct SecurityVulnerability {
     public let severity: SecuritySeverity
     public let description: String
     public let recommendation: String
-    
+
     public init(id: String, severity: SecuritySeverity, description: String, recommendation: String) {
         self.id = id
         self.severity = severity
@@ -428,9 +436,9 @@ public struct SecurityVulnerability {
 }
 
 public enum SecuritySeverity: String, CaseIterable {
-    case critical = "critical"
-    case high = "high"
-    case medium = "medium"
-    case low = "low"
-    case info = "info"
+    case critical
+    case high
+    case medium
+    case low
+    case info
 }

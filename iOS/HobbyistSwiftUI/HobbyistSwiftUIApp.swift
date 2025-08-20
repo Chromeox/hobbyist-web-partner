@@ -1,39 +1,253 @@
 import SwiftUI
+import Firebase
+import FirebaseCrashlytics
 
 @main
 struct HobbyistSwiftUIApp: App {
-    @StateObject private var authManager = AuthManager()
-    @StateObject private var navigationManager = NavigationManager()
+    @StateObject private var appCoordinator = AppCoordinator()
+    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var notificationManager = NotificationManager()
+    @StateObject private var errorHandler = ErrorHandler()
+    
+    init() {
+        // Configure Firebase for crash reporting
+        FirebaseApp.configure()
+        
+        // Configure Crashlytics
+        configureCrashlytics()
+        
+        // Configure app appearance
+        configureAppearance()
+        
+        // Setup service container
+        ServiceContainer.shared.configure()
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(authManager)
-                .environmentObject(navigationManager)
+                .environmentObject(appCoordinator)
+                .environmentObject(authViewModel)
+                .environmentObject(notificationManager)
+                .environmentObject(errorHandler)
+                .onAppear {
+                    setupInitialState()
+                }
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
+        }
+    }
+    
+    private func configureCrashlytics() {
+        // Configure Crashlytics settings
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        
+        // Set custom keys for better crash context
+        Crashlytics.crashlytics().setCustomValue(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown", forKey: "app_version")
+        Crashlytics.crashlytics().setCustomValue(UIDevice.current.systemVersion, forKey: "ios_version")
+        Crashlytics.crashlytics().setCustomValue(UIDevice.current.modelName, forKey: "device_model")
+    }
+    
+    private func configureAppearance() {
+        // Configure navigation bar appearance
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.systemBackground
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        
+        // Configure tab bar appearance
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor.systemBackground
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+    }
+    
+    private func setupInitialState() {
+        // Request notification permissions
+        notificationManager.requestAuthorization()
+        
+        // Check authentication state
+        authViewModel.checkAuthenticationState()
+        
+        // Initialize analytics
+        ServiceContainer.shared.analyticsService.trackAppLaunch()
+        
+        // Setup crash reporting user context
+        if let userId = authViewModel.currentUser?.id {
+            Crashlytics.crashlytics().setUserID(userId)
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        // Handle deep links for TestFlight invitations, class bookings, etc.
+        appCoordinator.handleDeepLink(url)
+    }
+}
+
+// MARK: - App Coordinator
+
+class AppCoordinator: ObservableObject {
+    @Published var currentTab: MainTab = .home
+    @Published var selectedClass: ClassModel?
+    @Published var showBookingFlow = false
+    @Published var showFeedback = false
+    @Published var pendingDeepLink: URL?
+    
+    enum MainTab: String, CaseIterable {
+        case home = "Home"
+        case search = "Search"
+        case bookings = "Bookings"
+        case profile = "Profile"
+        
+        var icon: String {
+            switch self {
+            case .home: return "house.fill"
+            case .search: return "magnifyingglass"
+            case .bookings: return "calendar"
+            case .profile: return "person.fill"
+            }
+        }
+    }
+    
+    func handleDeepLink(_ url: URL) {
+        // Parse and handle deep links
+        pendingDeepLink = url
+        
+        if url.pathComponents.contains("class") {
+            // Handle class deep link
+            if let classId = url.pathComponents.last {
+                loadAndShowClass(classId: classId)
+            }
+        } else if url.pathComponents.contains("booking") {
+            // Handle booking deep link
+            currentTab = .bookings
+        } else if url.pathComponents.contains("feedback") {
+            // Show feedback form
+            showFeedback = true
+        }
+    }
+    
+    private func loadAndShowClass(classId: String) {
+        Task {
+            do {
+                let classModel = try await ServiceContainer.shared.classService.getClass(by: classId)
+                await MainActor.run {
+                    self.selectedClass = classModel
+                    self.showBookingFlow = true
+                }
+            } catch {
+                ServiceContainer.shared.crashReportingService.recordError(error, context: ["action": "deep_link_class_load", "class_id": classId])
+            }
         }
     }
 }
 
-class AuthManager: ObservableObject {
-    @Published var isAuthenticated = false
-    @Published var currentUser: User?
+// MARK: - Error Handler
+
+class ErrorHandler: ObservableObject {
+    @Published var currentError: AppError?
+    @Published var showErrorAlert = false
     
-    func login(email: String, password: String) async throws {
-        // Will integrate with Supabase auth
+    func handle(_ error: Error, context: [String: Any]? = nil) {
+        // Log to crash reporting
+        ServiceContainer.shared.crashReportingService.recordError(error, context: context)
+        
+        // Convert to app error
+        if let appError = error as? AppError {
+            currentError = appError
+        } else {
+            currentError = AppError.unknown(error.localizedDescription)
+        }
+        
+        showErrorAlert = true
     }
     
-    func logout() {
-        isAuthenticated = false
-        currentUser = nil
+    func clearError() {
+        currentError = nil
+        showErrorAlert = false
     }
 }
 
-class NavigationManager: ObservableObject {
-    @Published var selectedTab = 0
-    @Published var navigationPath = NavigationPath()
+// MARK: - Notification Manager
+
+class NotificationManager: ObservableObject {
+    @Published var hasNotificationPermission = false
+    @Published var pendingNotifications: [NotificationModel] = []
     
-    func navigateToHome() {
-        selectedTab = 0
-        navigationPath = NavigationPath()
+    func requestAuthorization() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                self.hasNotificationPermission = granted
+                
+                if let error = error {
+                    ServiceContainer.shared.crashReportingService.recordError(error, context: ["action": "notification_permission"])
+                }
+            }
+        }
+    }
+    
+    func scheduleClassReminder(for classModel: ClassModel) {
+        guard hasNotificationPermission else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Class Reminder"
+        content.body = "Your \(classModel.title) class starts in 1 hour"
+        content.sound = .default
+        content.categoryIdentifier = "CLASS_REMINDER"
+        content.userInfo = ["class_id": classModel.id]
+        
+        // Schedule 1 hour before class
+        if let triggerDate = Calendar.current.date(byAdding: .hour, value: -1, to: classModel.startTime) {
+            let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate), repeats: false)
+            
+            let request = UNNotificationRequest(identifier: "class_\(classModel.id)", content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    ServiceContainer.shared.crashReportingService.recordError(error, context: ["action": "schedule_notification", "class_id": classModel.id])
+                }
+            }
+        }
+    }
+}
+
+// MARK: - UIDevice Extension
+
+extension UIDevice {
+    var modelName: String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
+        return identifier
+    }
+}
+
+// MARK: - Notification Model
+
+struct NotificationModel: Identifiable {
+    let id = UUID()
+    let title: String
+    let body: String
+    let timestamp: Date
+    let type: NotificationType
+    let metadata: [String: Any]?
+    
+    enum NotificationType {
+        case classReminder
+        case bookingConfirmation
+        case promotionalOffer
+        case systemUpdate
     }
 }

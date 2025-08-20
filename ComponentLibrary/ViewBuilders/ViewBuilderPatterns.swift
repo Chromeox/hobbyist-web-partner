@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - Conditional Content Builder
 
-struct ConditionalContentBuilder {
+enum ConditionalContentBuilder {
     /// Build content conditionally based on multiple criteria
     @ViewBuilder
     static func buildContent<Content: View>(
@@ -37,7 +37,7 @@ struct ConditionalContentBuilder {
             }
         }
     }
-    
+
     /// Build content with optional sections
     @ViewBuilder
     static func buildOptionalSections<Header: View, Content: View, Footer: View>(
@@ -52,11 +52,11 @@ struct ConditionalContentBuilder {
             if showHeader {
                 header()
             }
-            
+
             if showContent {
                 content()
             }
-            
+
             if showFooter {
                 footer()
             }
@@ -66,7 +66,7 @@ struct ConditionalContentBuilder {
 
 // MARK: - Layout Builder
 
-struct LayoutBuilder {
+enum LayoutBuilder {
     /// Build adaptive layouts based on screen size and content
     @ViewBuilder
     static func buildAdaptiveLayout<Content: View>(
@@ -77,7 +77,7 @@ struct LayoutBuilder {
     ) -> some View {
         GeometryReader { geometry in
             let isCompact = geometry.size.width < 600
-            
+
             Group {
                 if isCompact {
                     buildLayout(direction: compactLayout, spacing: spacing, content: content)
@@ -87,7 +87,7 @@ struct LayoutBuilder {
             }
         }
     }
-    
+
     @ViewBuilder
     private static func buildLayout<Content: View>(
         direction: LayoutDirection,
@@ -103,13 +103,13 @@ struct LayoutBuilder {
             VStack(spacing: spacing) {
                 content()
             }
-        case .grid(let columns):
+        case let .grid(columns):
             LazyVGrid(columns: columns, spacing: spacing) {
                 content()
             }
         }
     }
-    
+
     enum LayoutDirection {
         case horizontal
         case vertical
@@ -119,7 +119,7 @@ struct LayoutBuilder {
 
 // MARK: - Collection Builder
 
-struct CollectionBuilder {
+enum CollectionBuilder {
     /// Build collections with flexible item rendering
     @ViewBuilder
     static func buildCollection<Item: Identifiable, ItemView: View>(
@@ -131,12 +131,12 @@ struct CollectionBuilder {
     ) -> some View {
         let displayedItems = Array(items.prefix(maxItems ?? items.count))
         let hasMoreItems = items.count > (maxItems ?? items.count)
-        
+
         VStack(spacing: 8) {
             ForEach(displayedItems, id: \.id) { item in
                 itemBuilder(item)
             }
-            
+
             if hasMoreItems && showSeeMore {
                 Button("See More (\(items.count - displayedItems.count) more)") {
                     onSeeMore?()
@@ -147,7 +147,7 @@ struct CollectionBuilder {
             }
         }
     }
-    
+
     /// Build horizontal scrolling collection
     @ViewBuilder
     static func buildHorizontalCollection<Item: Identifiable, ItemView: View>(
@@ -165,7 +165,7 @@ struct CollectionBuilder {
             .padding(.horizontal)
         }
     }
-    
+
     /// Build grid collection with adaptive sizing
     @ViewBuilder
     static func buildGridCollection<Item: Identifiable, ItemView: View>(
@@ -187,7 +187,7 @@ struct CollectionBuilder {
 
 // MARK: - Card Builder
 
-struct CardBuilder {
+enum CardBuilder {
     /// Build cards with flexible content and styling
     @ViewBuilder
     static func buildCard<Content: View>(
@@ -209,7 +209,7 @@ struct CardBuilder {
                     .stroke(style.borderColor, lineWidth: style.borderWidth)
             )
     }
-    
+
     /// Build expandable card
     @ViewBuilder
     static func buildExpandableCard<Header: View, Content: View>(
@@ -222,9 +222,9 @@ struct CardBuilder {
             Button(action: { isExpanded.wrappedValue.toggle() }) {
                 HStack {
                     header()
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .foregroundColor(.secondary)
                         .rotationEffect(.degrees(isExpanded.wrappedValue ? 90 : 0))
@@ -233,7 +233,7 @@ struct CardBuilder {
                 .padding(style.padding)
             }
             .buttonStyle(.plain)
-            
+
             if isExpanded.wrappedValue {
                 content()
                     .padding([.horizontal, .bottom], style.padding)
@@ -252,7 +252,7 @@ struct CardBuilder {
             y: style.shadowOffset.y
         )
     }
-    
+
     struct CardStyle {
         let backgroundColor: Color
         let cornerRadius: CGFloat
@@ -262,7 +262,7 @@ struct CardBuilder {
         let shadowColor: Color
         let shadowRadius: CGFloat
         let shadowOffset: CGSize
-        
+
         static let `default` = CardStyle(
             backgroundColor: .background,
             cornerRadius: 12,
@@ -273,7 +273,7 @@ struct CardBuilder {
             shadowRadius: 2,
             shadowOffset: CGSize(width: 0, height: 1)
         )
-        
+
         static let elevated = CardStyle(
             backgroundColor: .background,
             cornerRadius: 16,
@@ -284,7 +284,7 @@ struct CardBuilder {
             shadowRadius: 8,
             shadowOffset: CGSize(width: 0, height: 4)
         )
-        
+
         static let minimal = CardStyle(
             backgroundColor: .background,
             cornerRadius: 8,
@@ -300,7 +300,7 @@ struct CardBuilder {
 
 // MARK: - Form Builder
 
-struct FormBuilder {
+enum FormBuilder {
     /// Build forms with flexible field arrangement
     @ViewBuilder
     static func buildForm<Content: View>(
@@ -322,7 +322,7 @@ struct FormBuilder {
             }
         }
     }
-    
+
     /// Build form section with title
     @ViewBuilder
     static func buildFormSection<Content: View>(
@@ -333,13 +333,13 @@ struct FormBuilder {
             Text(title)
                 .font(.headline)
                 .fontWeight(.semibold)
-            
+
             VStack(spacing: 8) {
                 content()
             }
         }
     }
-    
+
     enum FormStyle {
         case grouped
         case inline
@@ -349,7 +349,7 @@ struct FormBuilder {
 
 // MARK: - Navigation Builder
 
-struct NavigationBuilder {
+enum NavigationBuilder {
     /// Build navigation with flexible back button and actions
     @ViewBuilder
     static func buildNavigationHeader<Actions: View>(
@@ -370,26 +370,26 @@ struct NavigationBuilder {
                     .foregroundColor(.accentColor)
                 }
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.headline)
                     .fontWeight(.semibold)
-                
+
                 if let subtitle = subtitle {
                     Text(subtitle)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             actions()
         }
         .padding()
     }
-    
+
     /// Build tab-style navigation
     @ViewBuilder
     static func buildTabNavigation<Content: View>(
@@ -411,28 +411,28 @@ struct NavigationBuilder {
                 .padding(.horizontal)
             }
             .padding(.bottom, 16)
-            
+
             content(selectedTab.wrappedValue)
         }
     }
-    
+
     struct TabItem {
         let title: String
         let icon: String?
         let badge: String?
-        
+
         init(title: String, icon: String? = nil, badge: String? = nil) {
             self.title = title
             self.icon = icon
             self.badge = badge
         }
     }
-    
+
     private struct TabButton: View {
         let tab: TabItem
         let isSelected: Bool
         let action: () -> Void
-        
+
         var body: some View {
             Button(action: action) {
                 HStack(spacing: 6) {
@@ -440,11 +440,11 @@ struct NavigationBuilder {
                         Image(systemName: icon)
                             .font(.subheadline)
                     }
-                    
+
                     Text(tab.title)
                         .font(.subheadline)
                         .fontWeight(isSelected ? .semibold : .regular)
-                    
+
                     if let badge = tab.badge {
                         Text(badge)
                             .font(.caption2)
@@ -470,7 +470,7 @@ struct NavigationBuilder {
 
 // MARK: - State Builder
 
-struct StateBuilder {
+enum StateBuilder {
     /// Build content based on loading state
     @ViewBuilder
     static func buildLoadingState<Content: View, Loading: View, Error: View>(
@@ -490,7 +490,7 @@ struct StateBuilder {
             }
         }
     }
-    
+
     /// Build content with empty state
     @ViewBuilder
     static func buildEmptyState<Content: View, Empty: View>(
@@ -510,7 +510,7 @@ struct StateBuilder {
 
 // MARK: - Animation Builder
 
-struct AnimationBuilder {
+enum AnimationBuilder {
     /// Build content with entrance animations
     @ViewBuilder
     static func buildWithEntranceAnimation<Content: View>(
@@ -527,7 +527,7 @@ struct AnimationBuilder {
                 value: true
             )
     }
-    
+
     /// Build staggered animations for collections
     @ViewBuilder
     static func buildStaggeredAnimation<Item: Identifiable, ItemView: View>(
@@ -551,7 +551,7 @@ struct AnimationBuilder {
 
 // MARK: - Composition Examples
 
-struct ComponentCompositionExamples {
+enum ComponentCompositionExamples {
     /// Example of complex component composition using @ViewBuilder
     @ViewBuilder
     static func buildClassDetailView(
@@ -571,7 +571,7 @@ struct ComponentCompositionExamples {
                         showActionButtons: true
                     )
                 )
-                
+
                 // Content sections with conditional display
                 ConditionalContentBuilder.buildOptionalSections(
                     showHeader: true,
@@ -594,7 +594,7 @@ struct ComponentCompositionExamples {
                                 displayStyle: .grid
                             )
                         )
-                        
+
                         ClassReviewsComponent(
                             reviewsData: reviewsData,
                             configuration: ClassReviewsConfiguration(
@@ -615,7 +615,7 @@ struct ComponentCompositionExamples {
             .padding()
         }
     }
-    
+
     /// Example of multi-step booking flow composition
     @ViewBuilder
     static func buildBookingFlow() -> some View {
@@ -624,7 +624,7 @@ struct ComponentCompositionExamples {
             tabs: [
                 .init(title: "Classes", icon: "list.bullet"),
                 .init(title: "Times", icon: "clock"),
-                .init(title: "Payment", icon: "creditcard")
+                .init(title: "Payment", icon: "creditcard"),
             ]
         ) { selectedTab in
             switch selectedTab {

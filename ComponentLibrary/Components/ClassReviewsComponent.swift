@@ -5,16 +5,18 @@ import SwiftUI
 struct ClassReviewsComponent: View, DataDisplayComponent {
     typealias Configuration = ClassReviewsConfiguration
     typealias DataType = ReviewsData
-    
+
     // MARK: - Properties
+
     let configuration: ClassReviewsConfiguration
     let data: ReviewsData
     let isLoading: Bool
     let errorState: String?
     let onWriteReview: (() -> Void)?
     let onSeeAllReviews: (() -> Void)?
-    
+
     // MARK: - Initializer
+
     init(
         reviewsData: ReviewsData,
         isLoading: Bool = false,
@@ -23,19 +25,20 @@ struct ClassReviewsComponent: View, DataDisplayComponent {
         onSeeAllReviews: (() -> Void)? = nil,
         configuration: ClassReviewsConfiguration = ClassReviewsConfiguration()
     ) {
-        self.data = reviewsData
+        data = reviewsData
         self.isLoading = isLoading
         self.errorState = errorState
         self.onWriteReview = onWriteReview
         self.onSeeAllReviews = onSeeAllReviews
         self.configuration = configuration
     }
-    
+
     // MARK: - Body
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -44,7 +47,7 @@ struct ClassReviewsComponent: View, DataDisplayComponent {
                 onWriteReview: onWriteReview,
                 configuration: configuration
             )
-            
+
             if isLoading {
                 ReviewsLoadingView()
             } else if let errorState = errorState {
@@ -67,7 +70,7 @@ struct ReviewsHeader: View {
     let reviewsData: ReviewsData
     let onWriteReview: (() -> Void)?
     let configuration: ClassReviewsConfiguration
-    
+
     var body: some View {
         ModularHeader(
             title: "Reviews (\(reviewsData.totalCount))",
@@ -86,7 +89,7 @@ struct ReviewsHeader: View {
             )
         }
     }
-    
+
     private var formattedAverageRating: String {
         "\(reviewsData.averageRating, specifier: "%.1f") ★ average"
     }
@@ -98,18 +101,18 @@ struct ReviewsContent: View {
     let reviewsData: ReviewsData
     let onSeeAllReviews: (() -> Void)?
     let configuration: ClassReviewsConfiguration
-    
+
     var body: some View {
         VStack(spacing: 16) {
             if !reviewsData.ratingBreakdown.isEmpty {
                 RatingBreakdown(breakdown: reviewsData.ratingBreakdown)
             }
-            
+
             ReviewsList(
                 reviews: reviewsData.recentReviews,
                 maxItems: configuration.maxVisibleReviews
             )
-            
+
             if reviewsData.totalCount > configuration.maxVisibleReviews {
                 SeeAllButton(
                     totalCount: reviewsData.totalCount,
@@ -125,17 +128,17 @@ struct ReviewsContent: View {
 
 struct RatingBreakdown: View {
     let breakdown: [Int: Int] // [rating: count]
-    
+
     private var totalReviews: Int {
         breakdown.values.reduce(0, +)
     }
-    
+
     var body: some View {
         VStack(spacing: 8) {
-            ForEach((1...5).reversed(), id: \.self) { rating in
+            ForEach((1 ... 5).reversed(), id: \.self) { rating in
                 let count = breakdown[rating] ?? 0
                 let percentage = totalReviews > 0 ? Double(count) / Double(totalReviews) : 0
-                
+
                 RatingBreakdownRow(
                     rating: rating,
                     count: count,
@@ -159,24 +162,24 @@ struct RatingBreakdownRow: View {
     let rating: Int
     let count: Int
     let percentage: Double
-    
+
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 2) {
-                ForEach(1...5, id: \.self) { star in
+                ForEach(1 ... 5, id: \.self) { star in
                     Image(systemName: star <= rating ? "star.fill" : "star")
                         .foregroundColor(.yellow)
                         .font(.caption)
                 }
             }
             .frame(width: 80, alignment: .leading)
-            
+
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.gray.opacity(0.2))
                         .frame(height: 8)
-                    
+
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.yellow)
                         .frame(width: geometry.size.width * percentage, height: 8)
@@ -184,7 +187,7 @@ struct RatingBreakdownRow: View {
                 }
             }
             .frame(height: 8)
-            
+
             Text("\(count)")
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -198,7 +201,7 @@ struct RatingBreakdownRow: View {
 struct ReviewsList: View {
     let reviews: [ReviewData]
     let maxItems: Int
-    
+
     var body: some View {
         VStack(spacing: 12) {
             ForEach(Array(reviews.prefix(maxItems).enumerated()), id: \.offset) { index, review in
@@ -216,15 +219,15 @@ struct ReviewsList: View {
 struct EnhancedReviewItem: View, InteractiveComponent {
     typealias Configuration = ReviewItemConfiguration
     typealias Action = ReviewAction
-    
+
     let configuration: ReviewItemConfiguration
     let review: ReviewData
     let showDivider: Bool
     let onAction: ((ReviewAction) -> Void)?
-    
+
     @State private var isExpanded = false
     @State private var isHelpful = false
-    
+
     init(
         review: ReviewData,
         showDivider: Bool = false,
@@ -233,20 +236,20 @@ struct EnhancedReviewItem: View, InteractiveComponent {
         self.review = review
         self.showDivider = showDivider
         self.configuration = configuration
-        self.onAction = nil
-        self._isHelpful = State(initialValue: review.isHelpful)
+        onAction = nil
+        _isHelpful = State(initialValue: review.isHelpful)
     }
-    
+
     var body: some View {
         buildContent()
     }
-    
+
     @ViewBuilder
     func buildContent() -> some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 12) {
                 ReviewHeader(review: review)
-                
+
                 ReviewContent(
                     review: review,
                     isExpanded: isExpanded,
@@ -256,11 +259,11 @@ struct EnhancedReviewItem: View, InteractiveComponent {
                         isExpanded.toggle()
                     }
                 }
-                
+
                 ReviewActions(
                     review: review,
                     isHelpful: $isHelpful,
-                    onHelpfulTap: { 
+                    onHelpfulTap: {
                         onAction?(.markHelpful(!isHelpful))
                         isHelpful.toggle()
                     },
@@ -274,7 +277,7 @@ struct EnhancedReviewItem: View, InteractiveComponent {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(.gray.opacity(0.1), lineWidth: 1)
             )
-            
+
             if showDivider {
                 Divider()
                     .padding(.vertical, 8)
@@ -282,7 +285,7 @@ struct EnhancedReviewItem: View, InteractiveComponent {
         }
         .componentStyle(configuration)
     }
-    
+
     enum ReviewAction {
         case markHelpful(Bool)
         case reply
@@ -294,7 +297,7 @@ struct EnhancedReviewItem: View, InteractiveComponent {
 
 struct ReviewHeader: View {
     let review: ReviewData
-    
+
     var body: some View {
         HStack(spacing: 12) {
             AsyncImage(url: review.userImageURL) { image in
@@ -311,29 +314,29 @@ struct ReviewHeader: View {
             }
             .frame(width: 40, height: 40)
             .clipShape(Circle())
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(review.userName)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    
+
                     if review.isVerifiedPurchase {
                         Image(systemName: "checkmark.seal.fill")
                             .foregroundColor(.blue)
                             .font(.caption)
                     }
-                    
+
                     Spacer()
-                    
+
                     Text(review.date, style: .date)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
+
                 HStack(spacing: 4) {
                     RatingStars(rating: review.rating)
-                    
+
                     if review.attendedClasses > 1 {
                         Text("• \(review.attendedClasses) classes")
                             .font(.caption)
@@ -352,18 +355,18 @@ struct ReviewContent: View {
     let isExpanded: Bool
     let maxLines: Int
     let onToggle: () -> Void
-    
+
     private var shouldShowToggle: Bool {
         review.comment.count > 200 // Approximate character limit for truncation
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(review.comment)
                 .font(.body)
                 .lineLimit(isExpanded ? nil : maxLines)
                 .animation(.easeInOut(duration: 0.3), value: isExpanded)
-            
+
             if shouldShowToggle {
                 Button(action: onToggle) {
                     Text(isExpanded ? "Show Less" : "Show More")
@@ -371,7 +374,7 @@ struct ReviewContent: View {
                         .foregroundColor(.accentColor)
                 }
             }
-            
+
             if !review.images.isEmpty {
                 ReviewImages(images: review.images)
             }
@@ -383,7 +386,7 @@ struct ReviewContent: View {
 
 struct ReviewImages: View {
     let images: [URL]
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -412,7 +415,7 @@ struct ReviewActions: View {
     @Binding var isHelpful: Bool
     let onHelpfulTap: () -> Void
     let onReply: () -> Void
-    
+
     var body: some View {
         HStack {
             Button(action: onHelpfulTap) {
@@ -423,9 +426,9 @@ struct ReviewActions: View {
                 .font(.caption)
                 .foregroundColor(isHelpful ? .accentColor : .secondary)
             }
-            
+
             Spacer()
-            
+
             Button(action: onReply) {
                 HStack(spacing: 4) {
                     Image(systemName: "arrowshape.turn.up.left")
@@ -442,10 +445,10 @@ struct ReviewActions: View {
 
 struct RatingStars: View {
     let rating: Int
-    
+
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(1...5, id: \.self) { star in
+            ForEach(1 ... 5, id: \.self) { star in
                 Image(systemName: star <= rating ? "star.fill" : "star")
                     .foregroundColor(.yellow)
                     .font(.caption)
@@ -460,15 +463,15 @@ struct SeeAllButton: View {
     let totalCount: Int
     let visibleCount: Int
     let onTap: (() -> Void)?
-    
+
     var body: some View {
         Button(action: { onTap?() }) {
             HStack {
                 Text("See All \(totalCount) Reviews")
                     .fontWeight(.medium)
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .font(.caption)
             }
@@ -486,21 +489,21 @@ struct SeeAllButton: View {
 struct ReviewsLoadingView: View {
     var body: some View {
         VStack(spacing: 12) {
-            ForEach(0..<3, id: \.self) { _ in
+            ForEach(0 ..< 3, id: \.self) { _ in
                 HStack(spacing: 12) {
                     Circle()
                         .fill(.gray.opacity(0.3))
                         .frame(width: 40, height: 40)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(.gray.opacity(0.3))
                             .frame(height: 12)
-                        
+
                         RoundedRectangle(cornerRadius: 4)
                             .fill(.gray.opacity(0.3))
                             .frame(height: 16)
-                        
+
                         RoundedRectangle(cornerRadius: 4)
                             .fill(.gray.opacity(0.3))
                             .frame(height: 60)
@@ -517,16 +520,16 @@ struct ReviewsLoadingView: View {
 
 struct ReviewsErrorView: View {
     let message: String
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.largeTitle)
                 .foregroundColor(.orange)
-            
+
             Text("Unable to Load Reviews")
                 .font(.headline)
-            
+
             Text(message)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -559,7 +562,7 @@ struct ReviewData: Identifiable {
     let isVerifiedPurchase: Bool
     let attendedClasses: Int
     let images: [URL]
-    
+
     init(
         userName: String,
         userImageURL: URL? = nil,
@@ -593,7 +596,7 @@ struct ClassReviewsConfiguration: ComponentConfiguration {
     let maxVisibleReviews: Int
     let showRatingBreakdown: Bool
     let allowReviewActions: Bool
-    
+
     init(
         isAccessibilityEnabled: Bool = true,
         animationDuration: Double = 0.3,

@@ -1,23 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import OnboardingWizard from './onboarding/OnboardingWizard';
 import DashboardLayout from './dashboard/DashboardLayout';
 import DashboardOverview from './dashboard/DashboardOverview';
+import { ProtectedRoute } from '@/lib/components/ProtectedRoute';
+import { useAuthContext } from '@/lib/context/AuthContext';
+import { useUserProfile } from '@/lib/hooks/useAuth';
 
 export default function HomePage() {
-  // In a real app, this would check authentication and onboarding status
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { profile, isLoading: profileLoading } = useUserProfile();
   const [isOnboarded, setIsOnboarded] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
 
-  if (showOnboarding || !isOnboarded) {
-    return <OnboardingWizard />;
+  useEffect(() => {
+    // Redirect to sign in if not authenticated
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    // Check onboarding status from profile
+    if (!profileLoading && profile) {
+      const onboarded = profile.instructor?.businessName ? true : false;
+      setIsOnboarded(onboarded);
+    }
+  }, [authLoading, isAuthenticated, profileLoading, profile, router]);
+
+  // Show loading while checking auth
+  if (authLoading || profileLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
+  // Show onboarding if not completed
+  if (isAuthenticated && !isOnboarded) {
+    return (
+      <ProtectedRoute>
+        <OnboardingWizard />
+      </ProtectedRoute>
+    );
+  }
+
+  // Show dashboard if onboarded
   return (
-    <DashboardLayout studioName="Zenith Wellness Studio" userName="Studio Owner">
-      <DashboardOverview />
-    </DashboardLayout>
+    <ProtectedRoute>
+      <DashboardLayout 
+        studioName={profile?.instructor?.businessName || "Studio"} 
+        userName={`${profile?.profile?.firstName || ''} ${profile?.profile?.lastName || ''}`.trim() || profile?.email || 'User'}
+      >
+        <DashboardOverview />
+      </DashboardLayout>
+    </ProtectedRoute>
   );
 }
 

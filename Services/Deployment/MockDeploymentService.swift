@@ -1,31 +1,33 @@
-import Foundation
 import Combine
+import Foundation
 
 public class MockDeploymentService: DeploymentServiceProtocol {
-    
     // MARK: - Mock Configuration
+
     public var shouldSimulateFailure = false
     public var simulatedDelay: TimeInterval = 0.5
     public var simulatedBuildNumbers: [String] = []
-    
+
     // MARK: - Mock Data Storage
+
     private var mockReleaseStatuses: [String: ReleaseStatus] = [:]
     private var mockFeatureFlags: [FeatureFlag] = []
     private var mockABTests: [String: ABTestResult] = [:]
     private var mockValidationResults: [String: BuildValidationResult] = [:]
-    
+
     public init() {
         setupMockData()
     }
-    
+
     // MARK: - App Store Submission
-    public func submitToAppStore(_ submission: AppStoreSubmission) -> AnyPublisher<String, Error> {
+
+    public func submitToAppStore(_: AppStoreSubmission) -> AnyPublisher<String, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.submissionFailed))
@@ -37,14 +39,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func updateMetadata(_ metadata: AppMetadata) -> AnyPublisher<Void, Error> {
+
+    public func updateMetadata(_: AppMetadata) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.metadataUpdateFailed))
@@ -55,14 +57,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func uploadScreenshots(_ screenshots: [Screenshot]) -> AnyPublisher<Void, Error> {
+
+    public func uploadScreenshots(_: [Screenshot]) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.screenshotUploadFailed))
@@ -73,15 +75,16 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Release Management
+
     public func getReleaseStatus(for buildNumber: String) -> AnyPublisher<ReleaseStatus, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.releaseStatusFailed))
@@ -93,14 +96,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func startPhasedRelease(buildNumber: String, strategy: StagingStrategy) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.phasedReleaseFailed))
@@ -123,14 +126,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func pausePhasedRelease(buildNumber: String) -> AnyPublisher<Void, Error> {
+
+    public func pausePhasedRelease(buildNumber _: String) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.phasedReleaseFailed))
@@ -141,14 +144,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func resumePhasedRelease(buildNumber: String) -> AnyPublisher<Void, Error> {
+
+    public func resumePhasedRelease(buildNumber _: String) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.phasedReleaseFailed))
@@ -159,14 +162,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func rollbackRelease(buildNumber: String, reason: String) -> AnyPublisher<Void, Error> {
+
+    public func rollbackRelease(buildNumber: String, reason _: String) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.rollbackFailed))
@@ -190,15 +193,16 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Compliance Validation
+
     public func validateCompliance() -> AnyPublisher<ComplianceResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.complianceValidationFailed))
@@ -215,14 +219,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func validateAccessibility() -> AnyPublisher<ComplianceResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.accessibilityValidationFailed))
@@ -239,14 +243,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func validatePrivacyCompliance() -> AnyPublisher<ComplianceResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.privacyValidationFailed))
@@ -263,28 +267,29 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Analytics and Monitoring
-    public func getAppStoreMetrics(for dateRange: DateInterval) -> AnyPublisher<AppStoreMetrics, Error> {
+
+    public func getAppStoreMetrics(for _: DateInterval) -> AnyPublisher<AppStoreMetrics, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.analyticsDataFailed))
                 } else {
                     let metrics = AppStoreMetrics(
-                        impressions: Int.random(in: 10000...100000),
-                        pageViews: Int.random(in: 5000...20000),
-                        downloads: Int.random(in: 500...5000),
-                        conversionRate: Double.random(in: 0.05...0.25),
-                        averageRating: Double.random(in: 3.5...5.0),
-                        totalRatings: Int.random(in: 50...1000),
-                        crashRate: Double.random(in: 0.001...0.05),
-                        retentionRate: Double.random(in: 0.4...0.8)
+                        impressions: Int.random(in: 10000 ... 100_000),
+                        pageViews: Int.random(in: 5000 ... 20000),
+                        downloads: Int.random(in: 500 ... 5000),
+                        conversionRate: Double.random(in: 0.05 ... 0.25),
+                        averageRating: Double.random(in: 3.5 ... 5.0),
+                        totalRatings: Int.random(in: 50 ... 1000),
+                        crashRate: Double.random(in: 0.001 ... 0.05),
+                        retentionRate: Double.random(in: 0.4 ... 0.8)
                     )
                     promise(.success(metrics))
                 }
@@ -292,24 +297,24 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func getReviewAnalytics() -> AnyPublisher<ReviewAnalytics, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.analyticsDataFailed))
                 } else {
                     let analytics = ReviewAnalytics(
-                        averageRating: Double.random(in: 3.5...5.0),
-                        totalReviews: Int.random(in: 50...500),
-                        sentimentScore: Double.random(in: 0.3...0.9),
+                        averageRating: Double.random(in: 3.5 ... 5.0),
+                        totalReviews: Int.random(in: 50 ... 500),
+                        sentimentScore: Double.random(in: 0.3 ... 0.9),
                         keyTopics: ["Great app", "Easy to use", "Could improve notifications"],
-                        responseRate: Double.random(in: 0.7...1.0)
+                        responseRate: Double.random(in: 0.7 ... 1.0)
                     )
                     promise(.success(analytics))
                 }
@@ -317,14 +322,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func getCrashReports(for buildNumber: String) -> AnyPublisher<[CrashReport], Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.crashReportsFailed))
@@ -336,15 +341,16 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Feature Flag Management
+
     public func getFeatureFlags() -> AnyPublisher<[FeatureFlag], Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.featureFlagsFailed))
@@ -355,14 +361,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func updateFeatureFlag(_ flag: FeatureFlag) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.featureFlagUpdateFailed))
@@ -379,14 +385,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func emergencyDisableFeature(flagName: String) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.emergencyDisableFailed))
@@ -409,15 +415,16 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Build Management
+
     public func promoteBuildToProduction(buildNumber: String) -> AnyPublisher<Void, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.buildPromotionFailed))
@@ -441,14 +448,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
-    public func createHotfixBuild(baseVersion: String, fixes: [String]) -> AnyPublisher<String, Error> {
+
+    public func createHotfixBuild(baseVersion: String, fixes _: [String]) -> AnyPublisher<String, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.hotfixCreationFailed))
@@ -461,14 +468,14 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     public func validateBuild(buildNumber: String) -> AnyPublisher<BuildValidationResult, Error> {
         return Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(MockDeploymentError.serviceUnavailable))
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + self.simulatedDelay) {
                 if self.shouldSimulateFailure {
                     promise(.failure(MockDeploymentError.buildValidationFailed))
@@ -480,36 +487,37 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Mock Configuration Methods
+
     public func configureForSuccess() {
         shouldSimulateFailure = false
         simulatedDelay = 0.1
     }
-    
+
     public func configureForFailure() {
         shouldSimulateFailure = true
         simulatedDelay = 0.1
     }
-    
+
     public func configureForSlowResponse() {
         shouldSimulateFailure = false
         simulatedDelay = 3.0
     }
-    
+
     public func addMockBuild(buildNumber: String, status: ReleaseState = .readyForSale) {
         let releaseStatus = ReleaseStatus(
             buildNumber: buildNumber,
             status: status,
             currentStagePercentage: status == .released ? 100 : 50,
-            crashRate: Double.random(in: 0.001...0.03),
-            userRating: Double.random(in: 3.5...5.0),
-            downloadCount: Int.random(in: 100...10000),
+            crashRate: Double.random(in: 0.001 ... 0.03),
+            userRating: Double.random(in: 3.5 ... 5.0),
+            downloadCount: Int.random(in: 100 ... 10000),
             lastUpdated: Date()
         )
         mockReleaseStatuses[buildNumber] = releaseStatus
     }
-    
+
     public func addMockFeatureFlag(name: String, enabled: Bool = true, rollout: Int = 100) {
         let flag = FeatureFlag(
             name: name,
@@ -521,69 +529,70 @@ public class MockDeploymentService: DeploymentServiceProtocol {
         )
         mockFeatureFlags.append(flag)
     }
-    
+
     // MARK: - Private Helper Methods
+
     private func setupMockData() {
         // Add default mock feature flags
         addMockFeatureFlag(name: "enhanced_search", enabled: true, rollout: 100)
         addMockFeatureFlag(name: "premium_features", enabled: false, rollout: 0)
         addMockFeatureFlag(name: "new_ui_design", enabled: true, rollout: 50)
-        
+
         // Add default mock builds
         addMockBuild(buildNumber: "1.0.0-alpha.1", status: .released)
         addMockBuild(buildNumber: "1.0.0-alpha.2", status: .stagingInProgress)
         addMockBuild(buildNumber: "1.0.0-beta.1", status: .inReview)
     }
-    
+
     private func generateMockReleaseStatus(buildNumber: String) -> ReleaseStatus {
         return ReleaseStatus(
             buildNumber: buildNumber,
             status: .readyForSale,
-            currentStagePercentage: Int.random(in: 50...100),
-            crashRate: Double.random(in: 0.001...0.03),
-            userRating: Double.random(in: 3.5...5.0),
-            downloadCount: Int.random(in: 100...10000),
+            currentStagePercentage: Int.random(in: 50 ... 100),
+            crashRate: Double.random(in: 0.001 ... 0.03),
+            userRating: Double.random(in: 3.5 ... 5.0),
+            downloadCount: Int.random(in: 100 ... 10000),
             lastUpdated: Date()
         )
     }
-    
+
     private func generateMockCrashReports(buildNumber: String) -> [CrashReport] {
-        let crashCount = Int.random(in: 0...3)
-        return (0..<crashCount).map { index in
+        let crashCount = Int.random(in: 0 ... 3)
+        return (0 ..< crashCount).map { index in
             CrashReport(
                 crashID: "crash_\(buildNumber)_\(index)",
                 buildNumber: buildNumber,
                 deviceModel: ["iPhone14,2", "iPhone13,1", "iPad13,1"].randomElement()!,
                 osVersion: ["16.0", "16.1", "17.0"].randomElement()!,
                 stackTrace: "Mock stack trace for crash \(index)",
-                occurrenceCount: Int.random(in: 1...10),
-                affectedUsers: Int.random(in: 1...50),
-                firstOccurrence: Date().addingTimeInterval(-Double.random(in: 3600...86400)),
-                lastOccurrence: Date().addingTimeInterval(-Double.random(in: 60...3600))
+                occurrenceCount: Int.random(in: 1 ... 10),
+                affectedUsers: Int.random(in: 1 ... 50),
+                firstOccurrence: Date().addingTimeInterval(-Double.random(in: 3600 ... 86400)),
+                lastOccurrence: Date().addingTimeInterval(-Double.random(in: 60 ... 3600))
             )
         }
     }
-    
+
     private func generateMockBuildValidation(buildNumber: String) -> BuildValidationResult {
         let testResults = [
             TestResult(testSuite: "UnitTests", passed: 145, failed: 0, skipped: 5, duration: 35.2),
             TestResult(testSuite: "UITests", passed: 48, failed: 0, skipped: 2, duration: 125.8),
-            TestResult(testSuite: "IntegrationTests", passed: 25, failed: 0, skipped: 1, duration: 65.1)
+            TestResult(testSuite: "IntegrationTests", passed: 25, failed: 0, skipped: 1, duration: 65.1),
         ]
-        
+
         let performanceMetrics = PerformanceMetrics(
-            launchTime: Double.random(in: 0.5...1.5),
-            memoryUsage: Int.random(in: 30000000...80000000),
-            cpuUsage: Double.random(in: 5.0...25.0),
+            launchTime: Double.random(in: 0.5 ... 1.5),
+            memoryUsage: Int.random(in: 30_000_000 ... 80_000_000),
+            cpuUsage: Double.random(in: 5.0 ... 25.0),
             batteryImpact: BatteryImpact.allCases.randomElement()!
         )
-        
+
         let securityScan = SecurityScanResult(
             vulnerabilities: [],
-            overallScore: Double.random(in: 90.0...100.0),
+            overallScore: Double.random(in: 90.0 ... 100.0),
             recommendations: ["Keep dependencies updated", "Regular security audits"]
         )
-        
+
         return BuildValidationResult(
             isValid: true,
             buildNumber: buildNumber,
@@ -595,6 +604,7 @@ public class MockDeploymentService: DeploymentServiceProtocol {
 }
 
 // MARK: - Mock Error Types
+
 public enum MockDeploymentError: Error, LocalizedError {
     case serviceUnavailable
     case submissionFailed
@@ -614,7 +624,7 @@ public enum MockDeploymentError: Error, LocalizedError {
     case buildPromotionFailed
     case hotfixCreationFailed
     case buildValidationFailed
-    
+
     public var errorDescription: String? {
         switch self {
         case .serviceUnavailable:
