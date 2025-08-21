@@ -1,12 +1,11 @@
 import Foundation
 import Supabase
-import FirebaseCrashlytics
 
 final class ServiceContainer {
     static let shared = ServiceContainer()
     
     private(set) var supabaseClient: SupabaseClient!
-    private(set) var authService: AuthService!
+    private(set) var authManager: AuthenticationManager!
     private(set) var userService: UserService!
     private(set) var classService: ClassService!
     private(set) var bookingService: BookingService!
@@ -38,7 +37,7 @@ final class ServiceContainer {
     
     private func setupServices() {
         // Core services
-        authService = AuthService(supabase: supabaseClient)
+        authManager = AuthenticationManager.shared
         userService = UserService(supabase: supabaseClient)
         classService = ClassService(supabase: supabaseClient)
         bookingService = BookingService(supabase: supabaseClient)

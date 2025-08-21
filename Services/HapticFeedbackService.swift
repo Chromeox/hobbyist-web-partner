@@ -117,6 +117,78 @@ class HapticFeedbackService: HapticFeedbackServiceProtocol {
         notificationFeedback.prepare()
     }
     
+    // MARK: - Convenience Methods
+    
+    func playLight() {
+        impactFeedback.impactOccurred(intensity: 0.3)
+    }
+    
+    func playMedium() {
+        impactFeedback.impactOccurred(intensity: 0.5)
+    }
+    
+    func playHeavy() {
+        impactFeedback.impactOccurred(intensity: 0.8)
+    }
+    
+    func playSelection() {
+        selectionFeedback.selectionChanged()
+    }
+    
+    func playSuccess() {
+        notificationFeedback.notificationOccurred(.success)
+    }
+    
+    func playWarning() {
+        notificationFeedback.notificationOccurred(.warning)
+    }
+    
+    func playError() {
+        notificationFeedback.notificationOccurred(.error)
+    }
+    
+    func playNotification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        notificationFeedback.notificationOccurred(type)
+    }
+    
+    func playGrandSuccess() {
+        // Multi-stage celebration pattern
+        playSuccess()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.playMedium()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.playLight()
+        }
+    }
+    
+    func playPaymentMilestone() {
+        playMedium()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.playLight()
+        }
+    }
+    
+    func playPasswordStrength(_ strength: PasswordStrength) {
+        playPasswordStrengthChange(strength: strength)
+    }
+    
+    func playOnboardingProgress(_ progress: Double) {
+        playOnboardingProgress(progress: Float(progress))
+    }
+    
+    func playOnboardingMilestone(_ milestone: OnboardingMilestone) {
+        playOnboardingMilestone(milestone: milestone)
+    }
+    
+    func playOnboardingComplete() {
+        playOnboardingComplete()
+    }
+    
+    func playBookingSuccess() {
+        playBookingConfirmation()
+    }
+    
     // MARK: - Authentication Haptics
     
     func playLoginSuccess() {

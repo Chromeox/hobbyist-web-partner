@@ -1,113 +1,160 @@
 import Foundation
 import SwiftUI
 import Combine
+import Supabase
 
+@MainActor
 class AuthenticationManager: ObservableObject {
     static let shared = AuthenticationManager()
     
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isLoading = false
-    @Published var authError: AuthError?
+    @Published var authError: Error?
     
-    private let authService: AuthServiceProtocol
-    private var cancellables = Set<AnyCancellable>()
+    private var supabase: SupabaseClient? {
+        return ServiceContainer.shared.supabaseClient
+    }
     
     private init() {
-        self.authService = AuthService()
-        setupBindings()
+        Task {
+            await checkAuthStatus()
+        }
     }
     
-    private func setupBindings() {
-        authService.isAuthenticated
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isAuthenticated in
-                self?.isAuthenticated = isAuthenticated
-            }
-            .store(in: &cancellables)
-        
-        authService.currentUser
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] user in
-                self?.currentUser = user
-            }
-            .store(in: &cancellables)
-    }
-    
-    @MainActor
-    func signIn(email: String, password: String) async {
-        isLoading = true
-        authError = nil
+    func checkAuthStatus() async {
+        guard let supabase = supabase else { return }
         
         do {
-            _ = try await authService.signIn(email: email, password: password)
-        } catch let error as AuthError {
-            authError = error
+            let session = try await supabase.auth.session
+            await MainActor.run {
+                self.isAuthenticated = session.user != nil
+                if let user = session.user {
+                    self.currentUser = User(
+                        id: UUID(uuidString: user.id.uuidString) ?? UUID(),
+                        email: user.email ?? "",
+                        name: user.userMetadata["name"]?.description ?? "",
+                        createdAt: user.createdAt
+                    )
+                }
+            }
         } catch {
-            authError = .unknownError(error.localizedDescription)
+            await MainActor.run {
+                self.isAuthenticated = false
+                self.currentUser = nil
+            }
         }
-        
-        isLoading = false
     }
     
-    @MainActor
-    func signUp(email: String, password: String, fullName: String? = nil) async {
-        isLoading = true
-        authError = nil
+    func signIn(email: String, password: String) async throws {
+        guard let supabase = supabase else {
+            throw AuthError.configurationError
+        }
         
-        var metadata: [String: Any]?
-        if let fullName = fullName {
-            metadata = ["full_name": fullName]
+        await MainActor.run {
+            self.isLoading = true
+            self.authError = nil
         }
         
         do {
-            _ = try await authService.signUp(
+            let response = try await supabase.auth.signIn(
+                email: email,
+                password: password
+            )
+            
+            await MainActor.run {
+                self.isAuthenticated = true
+                self.currentUser = User(
+                    id: UUID(uuidString: response.user.id.uuidString) ?? UUID(),
+                    email: response.user.email ?? email,
+                    name: response.user.userMetadata["name"]?.description ?? "",
+                    createdAt: response.user.createdAt
+                )
+                self.isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                self.authError = error
+                self.isLoading = false
+            }
+            throw error
+        }
+    }
+    
+    func signUp(email: String, password: String, name: String) async throws {
+        guard let supabase = supabase else {
+            throw AuthError.configurationError
+        }
+        
+        await MainActor.run {
+            self.isLoading = true
+            self.authError = nil
+        }
+        
+        do {
+            let response = try await supabase.auth.signUp(
                 email: email,
                 password: password,
-                metadata: metadata
+                data: ["name": .string(name)]
             )
-        } catch let error as AuthError {
-            authError = error
+            
+            await MainActor.run {
+                self.isAuthenticated = true
+                self.currentUser = User(
+                    id: UUID(uuidString: response.user?.id.uuidString ?? "") ?? UUID(),
+                    email: response.user?.email ?? email,
+                    name: name,
+                    createdAt: response.user?.createdAt ?? Date()
+                )
+                self.isLoading = false
+            }
         } catch {
-            authError = .unknownError(error.localizedDescription)
+            await MainActor.run {
+                self.authError = error
+                self.isLoading = false
+            }
+            throw error
         }
-        
-        isLoading = false
     }
     
-    @MainActor
-    func signOut() async {
-        isLoading = true
+    func signOut() async throws {
+        guard let supabase = supabase else {
+            throw AuthError.configurationError
+        }
         
         do {
-            try await authService.signOut()
+            try await supabase.auth.signOut()
+            await MainActor.run {
+                self.isAuthenticated = false
+                self.currentUser = nil
+            }
         } catch {
-            print("Sign out error: \(error)")
+            await MainActor.run {
+                self.authError = error
+            }
+            throw error
         }
-        
-        isLoading = false
     }
+}
+
+// MARK: - Auth Error
+
+enum AuthError: LocalizedError {
+    case configurationError
+    case invalidCredentials
+    case networkError
+    case unknown
     
-    @MainActor
-    func resetPassword(email: String) async {
-        isLoading = true
-        authError = nil
-        
-        do {
-            try await authService.resetPassword(email: email)
-        } catch let error as AuthError {
-            authError = error
-        } catch {
-            authError = .unknownError(error.localizedDescription)
+    var errorDescription: String? {
+        switch self {
+        case .configurationError:
+            return "App configuration error. Please try again later."
+        case .invalidCredentials:
+            return "Invalid email or password."
+        case .networkError:
+            return "Network error. Please check your connection."
+        case .unknown:
+            return "An unknown error occurred."
         }
-        
-        isLoading = false
-    }
-    
-    @MainActor
-    func checkAuthStatus() async {
-        isLoading = true
-        await authService.checkAuthStatus()
-        isLoading = false
     }
 }

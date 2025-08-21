@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import UIKit
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()

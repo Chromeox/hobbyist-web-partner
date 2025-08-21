@@ -1,21 +1,11 @@
 import SwiftUI
-import Firebase
-import FirebaseCrashlytics
 
 @main
 struct HobbyistSwiftUIApp: App {
-    @StateObject private var appCoordinator = AppCoordinator()
-    @StateObject private var authViewModel = AuthViewModel()
-    @StateObject private var notificationManager = NotificationManager()
-    @StateObject private var errorHandler = ErrorHandler()
+    @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var navigationManager = NavigationManager.shared
     
     init() {
-        // Configure Firebase for crash reporting
-        FirebaseApp.configure()
-        
-        // Configure Crashlytics
-        configureCrashlytics()
-        
         // Configure app appearance
         configureAppearance()
         
@@ -26,10 +16,8 @@ struct HobbyistSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(appCoordinator)
-                .environmentObject(authViewModel)
-                .environmentObject(notificationManager)
-                .environmentObject(errorHandler)
+                .environmentObject(authManager)
+                .environmentObject(navigationManager)
                 .onAppear {
                     setupInitialState()
                 }
@@ -39,15 +27,6 @@ struct HobbyistSwiftUIApp: App {
         }
     }
     
-    private func configureCrashlytics() {
-        // Configure Crashlytics settings
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
-        
-        // Set custom keys for better crash context
-        Crashlytics.crashlytics().setCustomValue(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown", forKey: "app_version")
-        Crashlytics.crashlytics().setCustomValue(UIDevice.current.systemVersion, forKey: "ios_version")
-        Crashlytics.crashlytics().setCustomValue(UIDevice.current.modelName, forKey: "device_model")
-    }
     
     private func configureAppearance() {
         // Configure navigation bar appearance

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var navigationManager: NavigationManager
     
     var body: some View {

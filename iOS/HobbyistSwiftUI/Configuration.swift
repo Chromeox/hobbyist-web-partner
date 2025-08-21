@@ -9,10 +9,11 @@ struct Configuration {
         // In production, use a more secure method like fetching from a secure backend
         #if DEBUG
         // Development key (starts with pk_test_)
-        return ProcessInfo.processInfo.environment["STRIPE_PUBLISHABLE_KEY"] ?? "pk_test_YOUR_TEST_KEY_HERE"
+        // TO GET TEST KEY: Go to Stripe Dashboard → Toggle to "Test mode" → Copy the publishable key
+        return ProcessInfo.processInfo.environment["STRIPE_PUBLISHABLE_KEY"] ?? "pk_test_51RJSNjRvf7VmvkGVoYatuSYDjHX8qYl6awxc1j3V65mMOuUMWKjAHteLDe04jqV9yiC0S1Mgelen8e29gZWcGA5400J4YAcsZX"
         #else
         // Production key (starts with pk_live_)
-        return ProcessInfo.processInfo.environment["STRIPE_PUBLISHABLE_KEY"] ?? "pk_live_YOUR_LIVE_KEY_HERE"
+        return ProcessInfo.processInfo.environment["STRIPE_PUBLISHABLE_KEY"] ?? "pk_live_51RJSNjRvf7VmvkGVEGJg6H6KzwOb6dKKWtFcGTFdzqGLqx7RuJSiuyu0KIywYm4CZoFDmEb9NIC2hw3vse3p3ew000jyYkjNc5"
         #endif
     }
     
