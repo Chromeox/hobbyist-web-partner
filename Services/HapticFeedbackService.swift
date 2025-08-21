@@ -24,9 +24,24 @@ protocol HapticFeedbackServiceProtocol {
     func playOnboardingComplete()
     func playFeatureHighlight()
     
+    // Booking Flow Haptics
+    func playBookingStepTransition()
+    func playBookingValidation(isValid: Bool)
+    func playPaymentProcessing()
+    func playPaymentSuccess()
+    func playBookingConfirmation()
+    func playBookingError()
+    func playPriceUpdate()
+    func playCouponApplied()
+    
     // Core Haptics Patterns
     func playCustomPattern(_ pattern: HapticPattern)
     func prepareHaptics()
+    
+    // Feedback Generators (exposed for direct use)
+    var impactFeedback: UIImpactFeedbackGenerator { get }
+    var selectionFeedback: UISelectionFeedbackGenerator { get }
+    var notificationFeedback: UINotificationFeedbackGenerator { get }
 }
 
 // MARK: - Supporting Types
@@ -56,9 +71,9 @@ class HapticFeedbackService: HapticFeedbackServiceProtocol {
     
     // MARK: - Properties
     private var hapticEngine: CHHapticEngine?
-    private let impactFeedback = UIImpactFeedbackGenerator()
-    private let selectionFeedback = UISelectionFeedbackGenerator()
-    private let notificationFeedback = UINotificationFeedbackGenerator()
+    let impactFeedback = UIImpactFeedbackGenerator()
+    let selectionFeedback = UISelectionFeedbackGenerator()
+    let notificationFeedback = UINotificationFeedbackGenerator()
     private var audioPlayer: AVAudioPlayer?
     
     // MARK: - Singleton
@@ -344,6 +359,109 @@ class HapticFeedbackService: HapticFeedbackServiceProtocol {
         selectionFeedback.selectionChanged()
     }
     
+    // MARK: - Booking Flow Haptics
+    
+    func playBookingStepTransition() {
+        // Smooth transition between booking steps
+        let pattern = createMultiStagePattern([
+            (intensity: 0.3, sharpness: 0.2, delay: 0.0),
+            (intensity: 0.5, sharpness: 0.4, delay: 0.05),
+            (intensity: 0.3, sharpness: 0.2, delay: 0.1)
+        ])
+        playCustomPattern(pattern)
+        selectionFeedback.selectionChanged()
+    }
+    
+    func playBookingValidation(isValid: Bool) {
+        if isValid {
+            // Positive validation
+            let pattern = createMultiStagePattern([
+                (intensity: 0.4, sharpness: 0.5, delay: 0.0),
+                (intensity: 0.6, sharpness: 0.7, delay: 0.08)
+            ])
+            playCustomPattern(pattern)
+        } else {
+            // Validation error
+            playFormValidationError()
+        }
+    }
+    
+    func playPaymentProcessing() {
+        // Continuous subtle haptic during payment processing
+        let pattern = createProcessingPattern()
+        playCustomPattern(pattern)
+    }
+    
+    func playPaymentSuccess() {
+        // Grand success pattern for payment completion
+        let pattern = createMultiStagePattern([
+            // Build-up
+            (intensity: 0.2, sharpness: 0.3, delay: 0.0),
+            (intensity: 0.4, sharpness: 0.5, delay: 0.1),
+            (intensity: 0.6, sharpness: 0.7, delay: 0.2),
+            // Success burst
+            (intensity: 0.9, sharpness: 0.9, delay: 0.3),
+            (intensity: 0.7, sharpness: 0.7, delay: 0.4),
+            // Settle
+            (intensity: 0.4, sharpness: 0.4, delay: 0.5)
+        ])
+        playCustomPattern(pattern)
+        notificationFeedback.notificationOccurred(.success)
+        
+        // Play success sound
+        playSystemSound("payment_success")
+    }
+    
+    func playBookingConfirmation() {
+        // Ultimate celebration pattern for booking confirmation
+        let pattern = createBookingConfirmationPattern()
+        playCustomPattern(pattern)
+        
+        // Add extra celebration haptics
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            self.notificationFeedback.notificationOccurred(.success)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            self.impactFeedback.impactOccurred(intensity: 0.7)
+        }
+        
+        playSystemSound("celebration")
+    }
+    
+    func playBookingError() {
+        // Error pattern for booking failures
+        let pattern = createMultiStagePattern([
+            (intensity: 0.8, sharpness: 0.9, delay: 0.0),
+            (intensity: 0.6, sharpness: 0.7, delay: 0.1),
+            (intensity: 0.8, sharpness: 0.9, delay: 0.2)
+        ])
+        playCustomPattern(pattern)
+        notificationFeedback.notificationOccurred(.error)
+    }
+    
+    func playPriceUpdate() {
+        // Subtle feedback for price changes
+        let pattern = createMultiStagePattern([
+            (intensity: 0.3, sharpness: 0.4, delay: 0.0),
+            (intensity: 0.2, sharpness: 0.3, delay: 0.05)
+        ])
+        playCustomPattern(pattern)
+        selectionFeedback.selectionChanged()
+    }
+    
+    func playCouponApplied() {
+        // Success pattern for coupon application
+        let pattern = createMultiStagePattern([
+            (intensity: 0.4, sharpness: 0.5, delay: 0.0),
+            (intensity: 0.6, sharpness: 0.7, delay: 0.1),
+            (intensity: 0.5, sharpness: 0.6, delay: 0.2)
+        ])
+        playCustomPattern(pattern)
+        impactFeedback.impactOccurred(intensity: 0.6)
+        
+        playSystemSound("coupon_applied")
+    }
+    
     // MARK: - Custom Pattern Playback
     
     func playCustomPattern(_ pattern: HapticPattern) {
@@ -500,6 +618,52 @@ class HapticFeedbackService: HapticFeedbackServiceProtocol {
         ])
     }
     
+    private func createProcessingPattern() -> HapticPattern {
+        // Continuous gentle pulse for processing states
+        var events: [CHHapticEvent] = []
+        
+        for i in 0..<10 {
+            let intensity = CHHapticEventParameter(
+                parameterID: .hapticIntensity,
+                value: 0.3 + Float(i % 2) * 0.2
+            )
+            let sharpness = CHHapticEventParameter(
+                parameterID: .hapticSharpness,
+                value: 0.2
+            )
+            
+            let event = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [intensity, sharpness],
+                relativeTime: Double(i) * 0.3
+            )
+            events.append(event)
+        }
+        
+        return HapticPattern(events: events, duration: 3.0)
+    }
+    
+    private func createBookingConfirmationPattern() -> HapticPattern {
+        // Grand celebration pattern for booking success
+        return createMultiStagePattern([
+            // Initial acknowledgment
+            (intensity: 0.3, sharpness: 0.3, delay: 0.0),
+            (intensity: 0.4, sharpness: 0.4, delay: 0.1),
+            // Build excitement
+            (intensity: 0.5, sharpness: 0.5, delay: 0.2),
+            (intensity: 0.6, sharpness: 0.6, delay: 0.3),
+            (intensity: 0.7, sharpness: 0.7, delay: 0.4),
+            // Celebration burst
+            (intensity: 1.0, sharpness: 0.9, delay: 0.5),
+            (intensity: 0.8, sharpness: 0.8, delay: 0.6),
+            (intensity: 0.9, sharpness: 0.9, delay: 0.7),
+            // Happy ending
+            (intensity: 0.6, sharpness: 0.5, delay: 0.8),
+            (intensity: 0.4, sharpness: 0.3, delay: 0.9),
+            (intensity: 0.3, sharpness: 0.2, delay: 1.0)
+        ])
+    }
+    
     // MARK: - Sound Coordination
     
     private func playSystemSound(_ soundName: String) {
@@ -512,6 +676,8 @@ class HapticFeedbackService: HapticFeedbackServiceProtocol {
             AudioServicesPlaySystemSound(1522) // Bloom
         case "onboarding_complete":
             AudioServicesPlaySystemSound(1521) // Calypso
+        case "coupon_applied":
+            AudioServicesPlaySystemSound(1520) // Chime
         default:
             break
         }
@@ -524,6 +690,11 @@ class MockHapticFeedbackService: HapticFeedbackServiceProtocol {
     var hapticEvents: [String] = []
     var lastPattern: HapticPattern?
     var prepareHapticsCallCount = 0
+    
+    // Expose feedback generators for mock
+    let impactFeedback = UIImpactFeedbackGenerator()
+    let selectionFeedback = UISelectionFeedbackGenerator()
+    let notificationFeedback = UINotificationFeedbackGenerator()
     
     func playLoginSuccess() {
         hapticEvents.append("loginSuccess")
@@ -579,6 +750,39 @@ class MockHapticFeedbackService: HapticFeedbackServiceProtocol {
     
     func playFeatureHighlight() {
         hapticEvents.append("featureHighlight")
+    }
+    
+    // Booking Flow Haptics
+    func playBookingStepTransition() {
+        hapticEvents.append("bookingStepTransition")
+    }
+    
+    func playBookingValidation(isValid: Bool) {
+        hapticEvents.append("bookingValidation:\(isValid)")
+    }
+    
+    func playPaymentProcessing() {
+        hapticEvents.append("paymentProcessing")
+    }
+    
+    func playPaymentSuccess() {
+        hapticEvents.append("paymentSuccess")
+    }
+    
+    func playBookingConfirmation() {
+        hapticEvents.append("bookingConfirmation")
+    }
+    
+    func playBookingError() {
+        hapticEvents.append("bookingError")
+    }
+    
+    func playPriceUpdate() {
+        hapticEvents.append("priceUpdate")
+    }
+    
+    func playCouponApplied() {
+        hapticEvents.append("couponApplied")
     }
     
     func playCustomPattern(_ pattern: HapticPattern) {

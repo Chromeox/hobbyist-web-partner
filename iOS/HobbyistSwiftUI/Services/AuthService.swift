@@ -39,7 +39,7 @@ final class AuthService: ObservableObject {
         authError = nil
         
         do {
-            let response = try await supabase.auth.signIn(
+            let response = try await supabase.auth.signInWithPassword(
                 email: email,
                 password: password
             )

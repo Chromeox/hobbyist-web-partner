@@ -15,15 +15,14 @@ class PaymentService: NSObject, PaymentServiceProtocol {
     
     private func configureStripe() {
         // Configure Stripe with publishable key
-        let stripePublishableKey = ProcessInfo.processInfo.environment["STRIPE_PUBLISHABLE_KEY"] ?? ""
-        if !stripePublishableKey.isEmpty {
+        let stripePublishableKey = Configuration.shared.stripePublishableKey
+        if !stripePublishableKey.isEmpty && !stripePublishableKey.contains("YOUR_") {
             StripeAPI.defaultPublishableKey = stripePublishableKey
         }
         
         // Configure Apple Pay
         if isApplePayAvailable() {
-            let merchantId = ProcessInfo.processInfo.environment["APPLE_PAY_MERCHANT_ID"] ?? "merchant.com.hobbyist.app"
-            StripeAPI.defaultAppleMerchantIdentifier = merchantId
+            StripeAPI.defaultAppleMerchantIdentifier = Configuration.shared.appleMerchantId
         }
     }
     
