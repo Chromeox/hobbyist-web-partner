@@ -85,11 +85,57 @@ iOS/HobbyistSwiftUI/
 Data structures that represent the app's domain entities:
 
 ```swift
-struct User: Identifiable, Codable {
+// User.swift - Complete example with all properties
+struct User: Identifiable, Codable, Equatable {
     let id: String
     let email: String
     let fullName: String
-    // ...
+    let createdAt: Date
+    var profileImageUrl: String?
+    var phoneNumber: String?
+    var bio: String?
+    var isEmailVerified: Bool = false
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case fullName = "full_name"
+        case createdAt = "created_at"
+        case profileImageUrl = "profile_image_url"
+        case phoneNumber = "phone_number"
+        case bio
+        case isEmailVerified = "is_email_verified"
+    }
+}
+
+// Booking.swift - Example with computed properties
+struct Booking: Identifiable, Codable {
+    let id: String
+    let classId: String
+    let userId: String
+    let status: BookingStatus
+    let confirmationCode: String
+    let classStartDate: Date
+    let totalAmount: Double
+    
+    // Computed properties for business logic
+    var canBeCancelled: Bool {
+        status == .confirmed && 
+        classStartDate.timeIntervalSinceNow > 24 * 60 * 60
+    }
+    
+    var refundAmount: Double {
+        guard canBeCancelled else { return 0 }
+        let hoursUntilClass = classStartDate.timeIntervalSinceNow / 3600
+        
+        if hoursUntilClass > 72 {
+            return totalAmount // Full refund
+        } else if hoursUntilClass > 48 {
+            return totalAmount * 0.75 // 75% refund
+        } else {
+            return totalAmount * 0.5 // 50% refund
+        }
+    }
 }
 ```
 
@@ -98,11 +144,121 @@ struct User: Identifiable, Codable {
 SwiftUI views that define the UI:
 
 ```swift
+// HomeView.swift - Complete view with error handling and loading states
 struct HomeView: View {
-    @StateObject private var viewModel: HomeViewModel
+    @StateObject private var viewModel = HomeViewModel()
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var selectedCategory: ClassCategory?
+    @State private var showingFilters = false
     
     var body: some View {
-        // UI implementation
+        NavigationStack {
+            ScrollView {
+                if viewModel.isLoading {
+                    ProgressView("Loading classes...")
+                        .frame(maxWidth: .infinity, minHeight: 300)
+                } else if let error = viewModel.error {
+                    ErrorView(error: error) {
+                        Task { await viewModel.loadClasses() }
+                    }
+                } else {
+                    LazyVStack(spacing: 16) {
+                        CategoryFilterView(
+                            selectedCategory: $selectedCategory,
+                            onCategorySelected: { category in
+                                viewModel.filterByCategory(category)
+                            }
+                        )
+                        
+                        ForEach(viewModel.filteredClasses) { classItem in
+                            NavigationLink(value: classItem) {
+                                ClassCardView(classItem: classItem)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Discover Classes")
+            .navigationDestination(for: ClassItem.self) { classItem in
+                ClassDetailView(classItem: classItem)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingFilters = true }) {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingFilters) {
+                FilterView(viewModel: viewModel)
+            }
+            .refreshable {
+                await viewModel.refreshClasses()
+            }
+        }
+        .task {
+            await viewModel.loadClasses()
+        }
+    }
+}
+
+// ClassCardView.swift - Reusable component
+struct ClassCardView: View {
+    let classItem: ClassItem
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Image with gradient overlay
+            AsyncImage(url: URL(string: classItem.imageUrl ?? "")) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.2))
+                    .overlay(ProgressView())
+            }
+            .frame(height: 200)
+            .clipped()
+            .overlay(alignment: .topTrailing) {
+                PriceTag(price: classItem.price, credits: classItem.creditCost)
+                    .padding(8)
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text(classItem.title)
+                    .font(.headline)
+                    .lineLimit(2)
+                
+                HStack {
+                    Label(classItem.instructor.name, systemImage: "person")
+                    Spacer()
+                    Label("\(classItem.duration) min", systemImage: "clock")
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+                
+                HStack {
+                    DifficultyBadge(level: classItem.difficulty)
+                    Spacer()
+                    AvailabilityIndicator(
+                        available: classItem.availableSpots,
+                        total: classItem.maxParticipants
+                    )
+                }
+            }
+            .padding()
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(
+            color: colorScheme == .dark ? .clear : .black.opacity(0.1),
+            radius: 8,
+            y: 4
+        )
     }
 }
 ```
@@ -112,19 +268,117 @@ struct HomeView: View {
 Business logic and state management:
 
 ```swift
+// HomeViewModel.swift - Complete implementation with filtering and error handling
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var classes: [ClassItem] = []
+    @Published var filteredClasses: [ClassItem] = []
     @Published var isLoading = false
+    @Published var error: AppError?
+    @Published var selectedFilters = FilterOptions()
     
     private let dataService: DataServiceProtocol
+    private let analyticsService: AnalyticsServiceProtocol
+    private var loadTask: Task<Void, Never>?
     
-    init(dataService: DataServiceProtocol) {
+    init(
+        dataService: DataServiceProtocol = ServiceContainer.shared.dataService,
+        analyticsService: AnalyticsServiceProtocol = ServiceContainer.shared.analyticsService
+    ) {
         self.dataService = dataService
+        self.analyticsService = analyticsService
     }
     
     func loadClasses() async {
-        // Business logic
+        // Cancel any existing load task
+        loadTask?.cancel()
+        
+        loadTask = Task {
+            isLoading = true
+            error = nil
+            
+            do {
+                let fetchedClasses = try await dataService.fetchClasses()
+                
+                // Check for task cancellation
+                guard !Task.isCancelled else { return }
+                
+                self.classes = fetchedClasses
+                self.applyFilters()
+                
+                // Track analytics
+                analyticsService.track("classes_loaded", properties: [
+                    "count": fetchedClasses.count,
+                    "source": "home_screen"
+                ])
+            } catch let error as AppError {
+                self.error = error
+            } catch {
+                self.error = .unknown(error.localizedDescription)
+            }
+            
+            isLoading = false
+        }
+    }
+    
+    func refreshClasses() async {
+        // Force refresh from server
+        await loadClasses()
+    }
+    
+    func filterByCategory(_ category: ClassCategory?) {
+        selectedFilters.category = category
+        applyFilters()
+    }
+    
+    private func applyFilters() {
+        filteredClasses = classes.filter { classItem in
+            // Category filter
+            if let category = selectedFilters.category,
+               classItem.category != category {
+                return false
+            }
+            
+            // Price filter
+            if let maxPrice = selectedFilters.maxPrice,
+               classItem.price > maxPrice {
+                return false
+            }
+            
+            // Difficulty filter
+            if let difficulty = selectedFilters.difficulty,
+               classItem.difficulty != difficulty {
+                return false
+            }
+            
+            // Availability filter
+            if selectedFilters.showOnlyAvailable && !classItem.isAvailable {
+                return false
+            }
+            
+            return true
+        }
+    }
+    
+    deinit {
+        loadTask?.cancel()
+    }
+}
+
+// FilterOptions.swift - Filtering model
+struct FilterOptions {
+    var category: ClassCategory?
+    var maxPrice: Double?
+    var difficulty: DifficultyLevel?
+    var showOnlyAvailable = true
+    var sortBy: SortOption = .dateAscending
+    
+    enum SortOption {
+        case dateAscending
+        case dateDescending
+        case priceAscending
+        case priceDescending
+        case popularity
     }
 }
 ```
