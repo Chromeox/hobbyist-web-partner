@@ -1,8 +1,8 @@
 # Hobbyist Development Memory
 
-## Current Status (2025-08-19)
+## Current Status (2024-08-21)
 
-**Latest Achievement**: Comprehensive Supabase security and performance optimization completed via 3-window parallel execution.
+**Latest Achievement**: Repository cleaned and reorganized with single source of truth. GitHub remote configured and comprehensive documentation added.
 
 ---
 
@@ -35,19 +35,28 @@
 
 ---
 
-## 🏗️ Current Project Structure
+## 🏗️ Current Project Structure (CLEANED 2024-08-21)
+
+### **Repository Organization**
+- **GitHub Remote**: https://github.com/Chromeox/HobbyistSwiftUI (private)
+- **Single Source of Truth**: All iOS code in `iOS/` directory
+- **Clean Structure**: Removed 22,693 lines of duplicate code
 
 ### **Core Components**
-- **Supabase Backend**: Complete database with migrations, edge functions, and config
-  - **Security**: All RLS policies enabled and optimized
-  - **Performance**: Query optimization achieved 50-70% improvement
-  - **Migrations**: Ready to deploy (3 new security/performance migrations)
-- **Web Partner Portal**: Next.js application for studio management
+- **iOS Application** (`iOS/`): Complete SwiftUI app with MVVM architecture
+  - Models, Views, ViewModels, Services
+  - Package.swift with dependencies (Supabase, Stripe, Kingfisher)
+  - Gamification system with achievements
+  - Authentication and payment integration
+- **Supabase Backend** (`supabase/`): Complete database with migrations and edge functions
+  - Security: All RLS policies enabled and optimized
+  - Performance: Query optimization achieved 50-70% improvement
+  - Migrations: 6 migration files ready to deploy
+- **Web Partner Portal** (`web-partner/`): Next.js application for studio management
   - OAuth setup configured (Google Sign-In ready)
-  - Bundle IDs documented: `com.hobbyist.app`
-- **iOS Services**: Deployment and compliance validation utilities
-- **Component Library**: MVVM architecture with full validation
-- **Essential Scripts**: Credit pricing validation and testing utilities
+  - Bundle ID: `com.hobbyist.app`
+- **Documentation**: Comprehensive README, CONTRIBUTING, and ARCHITECTURE docs
+- **Fastlane**: iOS deployment automation configured
 - **Fastlane**: iOS deployment automation
 
 ### **Recent Additions**
