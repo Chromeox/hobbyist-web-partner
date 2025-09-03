@@ -5,8 +5,8 @@
 CREATE TABLE IF NOT EXISTS class_reviews (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    instructor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    instructor_id UUID NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     review_text TEXT,
     verified_booking BOOLEAN DEFAULT FALSE,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS review_media (
 CREATE TABLE IF NOT EXISTS review_votes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     review_id UUID NOT NULL REFERENCES class_reviews(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     vote_type VARCHAR(20) NOT NULL CHECK (vote_type IN ('helpful', 'not_helpful')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS review_votes (
 CREATE TABLE IF NOT EXISTS instructor_responses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     review_id UUID NOT NULL REFERENCES class_reviews(id) ON DELETE CASCADE,
-    instructor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    instructor_id UUID NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
     response_text TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS instructor_responses (
 CREATE TABLE IF NOT EXISTS review_moderation (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     review_id UUID NOT NULL REFERENCES class_reviews(id) ON DELETE CASCADE,
-    moderator_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    moderator_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     status VARCHAR(20) NOT NULL CHECK (status IN ('approved', 'rejected', 'flagged', 'under_review')),
     reason TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
