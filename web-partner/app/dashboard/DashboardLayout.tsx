@@ -25,7 +25,9 @@ import {
   Zap,
   MapPin,
   GraduationCap,
-  Crown
+  Crown,
+  Wallet,
+  MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -38,9 +40,11 @@ const navigationItems = [
   { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
   { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' },
   { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
+  { id: 'reviews', label: 'Reviews', icon: Star, href: '/dashboard/reviews' },
   { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' },
   { id: 'credits', label: 'Credits & Payments', icon: CreditCard, href: '/dashboard/credits' },
   { id: 'subscriptions', label: 'Subscriptions', icon: Crown, href: '/dashboard/subscriptions' },
+  { id: 'payouts', label: 'Payouts', icon: Wallet, href: '/dashboard/payouts' },
   { id: 'pricing', label: 'Dynamic Pricing', icon: Zap, href: '/dashboard/pricing' },
   { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' },
   { id: 'revenue', label: 'Revenue', icon: DollarSign, href: '/dashboard/revenue' },
