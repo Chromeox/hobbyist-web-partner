@@ -173,7 +173,7 @@ export default function AdvancedAnalytics() {
                   <div
                     key={i}
                     className="flex-1 bg-purple-500/50 rounded-t"
-                    style={{ height: `${(value / Math.max(...metric.sparkline)) * 100}%` }}
+                    style={{ height: `${(value / Math.max(...metric.sparkline!)) * 100}%` }}
                   />
                 ))}
               </div>
