@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS public.studio_locations (
 ALTER TABLE public.classes 
     ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES public.studio_locations(id);
 
-ALTER TABLE public.instructors 
+ALTER TABLE public.studio_staff 
     ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES public.studio_locations(id);
 
 ALTER TABLE public.bookings 
@@ -269,10 +269,12 @@ CREATE POLICY "Studio locations viewable by everyone"
     ON public.studio_locations FOR SELECT 
     USING (is_active = true);
 
-CREATE POLICY "Studio owners can manage their locations" 
+CREATE POLICY "Studio owners and admins can manage their locations" 
     ON public.studio_locations FOR ALL 
     USING (studio_id IN (
-        SELECT id FROM public.studios WHERE owner_id = auth.uid()
+        SELECT studio_id FROM public.studio_staff 
+        WHERE user_id = auth.uid() 
+        AND role IN ('owner', 'admin', 'manager')
     ));
 
 -- Instructor Profiles
