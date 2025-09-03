@@ -44,17 +44,17 @@ CREATE TABLE IF NOT EXISTS commission_conditions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Venue-specific commission assignments
-CREATE TABLE IF NOT EXISTS venue_commissions (
+-- Studio-specific commission assignments
+CREATE TABLE IF NOT EXISTS studio_commissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+    studio_id UUID NOT NULL REFERENCES studios(id) ON DELETE CASCADE,
     structure_id UUID NOT NULL REFERENCES commission_structures(id),
     override_rate DECIMAL(5,2) CHECK (override_rate >= 0 AND override_rate <= 100),
     effective_date DATE NOT NULL,
     expiry_date DATE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(venue_id, effective_date)
+    UNIQUE(studio_id, effective_date)
 );
 
 -- =====================================================
@@ -82,11 +82,11 @@ CREATE TABLE IF NOT EXISTS payout_schedules (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Association between schedules and venues
-CREATE TABLE IF NOT EXISTS schedule_venues (
+-- Association between schedules and studios
+CREATE TABLE IF NOT EXISTS schedule_studios (
     schedule_id UUID NOT NULL REFERENCES payout_schedules(id) ON DELETE CASCADE,
-    venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
-    PRIMARY KEY (schedule_id, venue_id)
+    studio_id UUID NOT NULL REFERENCES studios(id) ON DELETE CASCADE,
+    PRIMARY KEY (schedule_id, studio_id)
 );
 
 -- =====================================================
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS schedule_venues (
 -- Individual payouts to instructors
 CREATE TABLE IF NOT EXISTS payout_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    instructor_id UUID NOT NULL REFERENCES users(id),
+    instructor_id UUID NOT NULL REFERENCES auth.users(id),
     schedule_id UUID REFERENCES payout_schedules(id),
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
@@ -154,8 +154,8 @@ CREATE TABLE IF NOT EXISTS financial_reports (
     year INTEGER NOT NULL,
     quarter INTEGER CHECK (quarter >= 1 AND quarter <= 4),
     month INTEGER CHECK (month >= 1 AND month <= 12),
-    instructor_id UUID REFERENCES users(id),
-    venue_id UUID REFERENCES venues(id),
+    instructor_id UUID REFERENCES auth.users(id),
+    studio_id UUID REFERENCES studios(id),
     status VARCHAR(50) NOT NULL CHECK (status IN ('draft', 'generated', 'sent', 'acknowledged')),
     document_url TEXT,
     generated_at TIMESTAMPTZ,
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS financial_reports (
 -- Tax document collection tracking
 CREATE TABLE IF NOT EXISTS tax_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    instructor_id UUID NOT NULL REFERENCES users(id),
+    instructor_id UUID NOT NULL REFERENCES auth.users(id),
     document_type VARCHAR(50) NOT NULL CHECK (document_type IN ('w9', 'w8ben', 'tax_id', 'ein')),
     status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'submitted', 'verified', 'expired', 'rejected')),
     document_url TEXT,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS report_templates (
 -- Instructor payment method preferences
 CREATE TABLE IF NOT EXISTS instructor_payment_methods (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    instructor_id UUID NOT NULL REFERENCES users(id),
+    instructor_id UUID NOT NULL REFERENCES auth.users(id),
     method_type VARCHAR(50) NOT NULL CHECK (method_type IN ('stripe', 'bank_transfer', 'paypal', 'check')),
     is_default BOOLEAN DEFAULT false,
     is_verified BOOLEAN DEFAULT false,
@@ -228,8 +228,8 @@ CREATE TABLE IF NOT EXISTS instructor_payment_methods (
 CREATE TABLE IF NOT EXISTS earnings_breakdown (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id),
-    instructor_id UUID NOT NULL REFERENCES users(id),
-    venue_id UUID NOT NULL REFERENCES venues(id),
+    instructor_id UUID NOT NULL REFERENCES auth.users(id),
+    studio_id UUID NOT NULL REFERENCES studios(id),
     class_date DATE NOT NULL,
     gross_amount DECIMAL(10,2) NOT NULL,
     commission_rate DECIMAL(5,2) NOT NULL,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS earnings_breakdown (
 -- =====================================================
 
 CREATE INDEX idx_commission_structures_active ON commission_structures(is_active, effective_date);
-CREATE INDEX idx_venue_commissions_venue ON venue_commissions(venue_id, effective_date);
+CREATE INDEX idx_studio_commissions_venue ON studio_commissions(studio_id, effective_date);
 CREATE INDEX idx_payout_history_instructor ON payout_history(instructor_id, status, period_start);
 CREATE INDEX idx_payout_history_status ON payout_history(status, scheduled_date);
 CREATE INDEX idx_financial_reports_instructor ON financial_reports(instructor_id, year, report_type);
@@ -289,9 +289,8 @@ CREATE POLICY "Instructors can view own earnings" ON earnings_breakdown
 CREATE POLICY "Admins have full access to commission structures" ON commission_structures
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM users 
-            WHERE id = auth.uid() 
-            AND role = 'admin'
+            SELECT 1 FROM auth.users 
+            WHERE id = auth.uid()
         )
     );
 
@@ -339,7 +338,7 @@ CREATE TRIGGER trigger_calculate_payout_net
 CREATE TRIGGER update_commission_structures_updated_at BEFORE UPDATE ON commission_structures
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_venue_commissions_updated_at BEFORE UPDATE ON venue_commissions
+CREATE TRIGGER update_studio_commissions_updated_at BEFORE UPDATE ON studio_commissions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_payout_schedules_updated_at BEFORE UPDATE ON payout_schedules
