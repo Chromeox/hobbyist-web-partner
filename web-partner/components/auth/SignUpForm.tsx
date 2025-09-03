@@ -18,7 +18,6 @@ interface FormState {
   firstName: string
   lastName: string
   businessName: string
-  role: 'instructor' | 'student'
   isLoading: boolean
   error: string | null
   success: boolean
@@ -35,7 +34,6 @@ export const SignUpForm = memo(function SignUpForm() {
     firstName: '',
     lastName: '',
     businessName: '',
-    role: 'instructor',
     isLoading: false,
     error: null,
     success: false
@@ -64,12 +62,12 @@ export const SignUpForm = memo(function SignUpForm() {
 
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-    // Prepare metadata
+    // Prepare metadata - always instructor/studio owner
     const metadata = {
       first_name: state.firstName,
       last_name: state.lastName,
-      role: state.role,
-      ...(state.role === 'instructor' && { business_name: state.businessName })
+      role: 'instructor',
+      business_name: state.businessName
     }
 
     const { error } = await signUp(state.email, state.password, metadata)
@@ -94,12 +92,10 @@ export const SignUpForm = memo(function SignUpForm() {
     }
   }, [state, signUp, router])
 
-  const handleInputChange = useCallback((
-    field: keyof FormState
-  ) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = useCallback((field: keyof FormState, value: string) => {
     setState(prev => ({
       ...prev,
-      [field]: e.target.value,
+      [field]: value,
       error: null // Clear error on input change
     }))
   }, [])
@@ -107,7 +103,7 @@ export const SignUpForm = memo(function SignUpForm() {
   if (state.success) {
     return (
       <div className="w-full max-w-md">
-        <div className="bg-white shadow-lg rounded-lg p-8">
+        <div className="glass-modal rounded-lg p-8">
           <div className="text-center">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -127,7 +123,7 @@ export const SignUpForm = memo(function SignUpForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-white shadow-lg rounded-lg p-8">
+      <div className="glass-modal rounded-lg p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Create Partner Account
         </h2>
@@ -151,10 +147,10 @@ export const SignUpForm = memo(function SignUpForm() {
                   id="firstName"
                   type="text"
                   value={state.firstName}
-                  onChange={handleInputChange('firstName')}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
                   required
                   disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
                   placeholder="John"
                 />
               </div>
@@ -170,10 +166,10 @@ export const SignUpForm = memo(function SignUpForm() {
                   id="lastName"
                   type="text"
                   value={state.lastName}
-                  onChange={handleInputChange('lastName')}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
                   required
                   disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
                   placeholder="Doe"
                 />
               </div>
@@ -181,41 +177,23 @@ export const SignUpForm = memo(function SignUpForm() {
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-              Account Type
+            <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+              Business Name
             </label>
-            <select
-              id="role"
-              value={state.role}
-              onChange={handleInputChange('role')}
-              disabled={state.isLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
-            >
-              <option value="instructor">Studio Partner / Instructor</option>
-              <option value="student">Student</option>
-            </select>
-          </div>
-
-          {state.role === 'instructor' && (
-            <div>
-              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-                Business Name
-              </label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="businessName"
-                  type="text"
-                  value={state.businessName}
-                  onChange={handleInputChange('businessName')}
-                  required={state.role === 'instructor'}
-                  disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  placeholder="Wellness Studio"
-                />
-              </div>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                id="businessName"
+                type="text"
+                value={state.businessName}
+                onChange={(e) => handleInputChange('businessName', e.target.value)}
+                required
+                disabled={state.isLoading}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                placeholder="Wellness Studio"
+              />
             </div>
-          )}
+          </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -227,7 +205,7 @@ export const SignUpForm = memo(function SignUpForm() {
                 id="email"
                 type="email"
                 value={state.email}
-                onChange={handleInputChange('email')}
+                onChange={(e) => handleInputChange('email', e.target.value)}
                 required
                 disabled={state.isLoading}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
@@ -246,7 +224,7 @@ export const SignUpForm = memo(function SignUpForm() {
                 id="password"
                 type="password"
                 value={state.password}
-                onChange={handleInputChange('password')}
+                onChange={(e) => handleInputChange('password', e.target.value)}
                 required
                 disabled={state.isLoading}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
@@ -268,7 +246,7 @@ export const SignUpForm = memo(function SignUpForm() {
                 id="confirmPassword"
                 type="password"
                 value={state.confirmPassword}
-                onChange={handleInputChange('confirmPassword')}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 required
                 disabled={state.isLoading}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"

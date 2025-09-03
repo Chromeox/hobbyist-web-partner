@@ -68,22 +68,35 @@ export const SignInForm = memo(function SignInForm() {
     // OAuth will redirect automatically
   }, [signInWithOAuth])
 
-  const handleInputChange = useCallback((
-    field: 'email' | 'password'
-  ) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({
       ...prev,
-      [field]: e.target.value,
-      error: null // Clear error on input change
+      email: e.target.value,
+      error: null
+    }))
+  }, [])
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setState(prev => ({
+      ...prev,
+      password: e.target.value,
+      error: null
     }))
   }, [])
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-white shadow-lg rounded-lg p-8">
+      <div className="glass-modal rounded-lg p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Sign In to Partner Portal
         </h2>
+
+        {/* Demo credentials info */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm font-medium text-blue-900 mb-1">Demo Account Available:</p>
+          <p className="text-xs text-blue-700">Email: demo@hobbyist.com</p>
+          <p className="text-xs text-blue-700">Password: demo123456</p>
+        </div>
 
         {state.error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
@@ -103,10 +116,10 @@ export const SignInForm = memo(function SignInForm() {
                 id="email"
                 type="email"
                 value={state.email}
-                onChange={handleInputChange('email')}
+                onChange={handleEmailChange}
                 required
                 disabled={state.isLoading}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
                 placeholder="studio@example.com"
               />
             </div>
@@ -122,10 +135,10 @@ export const SignInForm = memo(function SignInForm() {
                 id="password"
                 type="password"
                 value={state.password}
-                onChange={handleInputChange('password')}
+                onChange={handlePasswordChange}
                 required
                 disabled={state.isLoading}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
                 placeholder="••••••••"
               />
             </div>

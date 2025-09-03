@@ -310,7 +310,32 @@ export default function BookingManagement() {
             Refresh
           </button>
           
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+          <button 
+            onClick={() => {
+              // Export bookings to CSV
+              const csvContent = [
+                ['Booking ID', 'Student', 'Class', 'Date', 'Time', 'Status', 'Payment', 'Amount'],
+                ...filteredBookings.map(booking => [
+                  booking.id,
+                  booking.studentName,
+                  booking.className,
+                  booking.classDate,
+                  booking.classTime,
+                  booking.status,
+                  booking.paymentStatus,
+                  `$${booking.paymentAmount}`
+                ])
+              ].map(row => row.join(',')).join('\n');
+              
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
+              a.click();
+              window.URL.revokeObjectURL(url);
+            }}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
             <Download className="h-4 w-4 mr-2" />
             Export
           </button>
@@ -533,7 +558,7 @@ export default function BookingManagement() {
                           <p className="font-medium text-gray-900">{booking.studentName}</p>
                           <p className="text-sm text-gray-600">{booking.studentEmail}</p>
                           {booking.isFirstTime && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 mt-1">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-700 mt-1">
                               <Star className="h-3 w-3 mr-1" />
                               First Time
                             </span>
@@ -567,13 +592,13 @@ export default function BookingManagement() {
                           booking.status === 'cancelled' ? 'text-red-600' :
                           'text-gray-600'
                         }`} />
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+                        <span className={`px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
                       </div>
                       {booking.hasSpecialRequirements && (
                         <div className="mt-1">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-700">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Special Requirements
                           </span>
@@ -587,7 +612,7 @@ export default function BookingManagement() {
                           <DollarSign className="h-4 w-4 text-gray-500 mr-1" />
                           <span className="font-medium">${booking.paymentAmount}</span>
                         </div>
-                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full mt-1 ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                        <span className={`inline-block px-2 py-1 text-sm font-medium rounded-full mt-1 ${getPaymentStatusColor(booking.paymentStatus)}`}>
                           {booking.paymentStatus}
                         </span>
                       </div>

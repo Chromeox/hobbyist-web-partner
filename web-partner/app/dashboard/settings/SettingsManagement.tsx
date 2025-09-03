@@ -26,7 +26,12 @@ import {
   Info,
   Crown,
   Zap,
-  BarChart3
+  BarChart3,
+  FileSpreadsheet,
+  Square,
+  Coins,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 
 interface StudioSettings {
@@ -40,7 +45,7 @@ interface StudioSettings {
   address: {
     street: string;
     city: string;
-    state: string;
+    province: string;
     zipCode: string;
     country: string;
   };
@@ -59,6 +64,17 @@ interface StudioSettings {
     waitlistEnabled: boolean;
     requirePayment: boolean;
     allowSameDay: boolean;
+  };
+  
+  // Payment Model Settings
+  paymentModel: {
+    mode: 'credits' | 'cash' | 'hybrid';
+    creditPacksEnabled: boolean;
+    cashPaymentsEnabled: boolean;
+    defaultCreditsPerClass: number;
+    allowMixedPayments: boolean;
+    creditExpiration: number | null; // days, null for no expiration
+    commissionRate: number; // percentage
   };
   
   // Notification Settings
@@ -170,7 +186,7 @@ const mockSettings: StudioSettings = {
   address: {
     street: '123 Wellness Ave',
     city: 'San Francisco',
-    state: 'CA',
+    province: 'BC',
     zipCode: '94102',
     country: 'US'
   },
@@ -205,6 +221,15 @@ const mockSettings: StudioSettings = {
     showCapacity: true,
     allowReviews: true,
     publicProfile: true
+  },
+  paymentModel: {
+    mode: 'hybrid' as const,
+    creditPacksEnabled: true,
+    cashPaymentsEnabled: true,
+    defaultCreditsPerClass: 2,
+    allowMixedPayments: true,
+    creditExpiration: 365,
+    commissionRate: 15
   }
 };
 
@@ -218,6 +243,7 @@ export default function SettingsManagement() {
 
   const tabs = [
     { id: 'general', label: 'General', icon: Building2 },
+    { id: 'payment', label: 'Payment Model', icon: Coins },
     { id: 'billing', label: 'Billing & Plans', icon: CreditCard },
     { id: 'bookings', label: 'Booking Policy', icon: Calendar },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -427,12 +453,12 @@ export default function SettingsManagement() {
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        State
+                        Province
                       </label>
                       <input
                         type="text"
-                        value={settings.address.state}
-                        onChange={(e) => handleSettingsChange('address', 'state', e.target.value)}
+                        value={settings.address.province}
+                        onChange={(e) => handleSettingsChange('address', 'province', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -473,6 +499,220 @@ export default function SettingsManagement() {
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
                       </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment Model Settings */}
+            {activeTab === 'payment' && (
+              <div className="p-6 space-y-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Model Configuration</h2>
+                  <p className="text-gray-600 mb-6">Configure how your studio accepts payments from students</p>
+                  
+                  {/* Payment Mode Selection */}
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Payment Model
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button
+                          onClick={() => handleSettingsChange('paymentModel', 'mode', 'credits')}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${
+                            settings.paymentModel.mode === 'credits'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <Coins className="h-8 w-8 mb-2 text-blue-600" />
+                          <h3 className="font-semibold text-gray-900">Credits Only</h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Students purchase credit packs and use credits for classes
+                          </p>
+                          {settings.paymentModel.mode === 'credits' && (
+                            <Check className="absolute top-2 right-2 h-5 w-5 text-blue-600" />
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={() => handleSettingsChange('paymentModel', 'mode', 'cash')}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${
+                            settings.paymentModel.mode === 'cash'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <DollarSign className="h-8 w-8 mb-2 text-green-600" />
+                          <h3 className="font-semibold text-gray-900">Cash Only</h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Traditional payment per class with cash or card
+                          </p>
+                          {settings.paymentModel.mode === 'cash' && (
+                            <Check className="absolute top-2 right-2 h-5 w-5 text-blue-600" />
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={() => handleSettingsChange('paymentModel', 'mode', 'hybrid')}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${
+                            settings.paymentModel.mode === 'hybrid'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <CreditCard className="h-8 w-8 mb-2 text-purple-600" />
+                          <h3 className="font-semibold text-gray-900">Hybrid</h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Accept both credits and traditional payments
+                          </p>
+                          {settings.paymentModel.mode === 'hybrid' && (
+                            <Check className="absolute top-2 right-2 h-5 w-5 text-blue-600" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Credit Settings - Show when credits or hybrid is selected */}
+                    {(settings.paymentModel.mode === 'credits' || settings.paymentModel.mode === 'hybrid') && (
+                      <div className="border-t pt-6 space-y-4">
+                        <h3 className="font-medium text-gray-900 mb-4">Credit Settings</h3>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Default Credits Per Class
+                          </label>
+                          <input
+                            type="number"
+                            value={settings.paymentModel.defaultCreditsPerClass}
+                            onChange={(e) => handleSettingsChange('paymentModel', 'defaultCreditsPerClass', parseInt(e.target.value))}
+                            className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            min="1"
+                            max="10"
+                          />
+                          <p className="text-sm text-gray-500 mt-1">
+                            Standard number of credits required for most classes
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Credit Expiration (days)
+                          </label>
+                          <input
+                            type="number"
+                            value={settings.paymentModel.creditExpiration || ''}
+                            onChange={(e) => handleSettingsChange('paymentModel', 'creditExpiration', 
+                              e.target.value ? parseInt(e.target.value) : null)}
+                            className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="No expiration"
+                          />
+                          <p className="text-sm text-gray-500 mt-1">
+                            Leave empty for credits that never expire
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-gray-900">Enable Credit Packs</p>
+                            <p className="text-sm text-gray-600">Allow bulk purchase of credits at discounted rates</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={settings.paymentModel.creditPacksEnabled}
+                              onChange={(e) => handleSettingsChange('paymentModel', 'creditPacksEnabled', e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hybrid Settings - Show only when hybrid is selected */}
+                    {settings.paymentModel.mode === 'hybrid' && (
+                      <div className="border-t pt-6 space-y-4">
+                        <h3 className="font-medium text-gray-900 mb-4">Hybrid Payment Settings</h3>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-gray-900">Allow Mixed Payments</p>
+                            <p className="text-sm text-gray-600">Let students combine credits with cash for a single booking</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={settings.paymentModel.allowMixedPayments}
+                              onChange={(e) => handleSettingsChange('paymentModel', 'allowMixedPayments', e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-gray-900">Accept Cash Payments</p>
+                            <p className="text-sm text-gray-600">Allow traditional per-class payments</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={settings.paymentModel.cashPaymentsEnabled}
+                              onChange={(e) => handleSettingsChange('paymentModel', 'cashPaymentsEnabled', e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Commission Settings */}
+                    <div className="border-t pt-6">
+                      <h3 className="font-medium text-gray-900 mb-4">Platform Commission</h3>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Commission Rate (%)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={settings.paymentModel.commissionRate}
+                            onChange={(e) => handleSettingsChange('paymentModel', 'commissionRate', parseFloat(e.target.value))}
+                            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            min="0"
+                            max="30"
+                            step="0.5"
+                          />
+                          <span className="text-gray-600">%</span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Platform fee charged on all transactions
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info Box */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex">
+                        <Info className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
+                        <div>
+                          <h4 className="font-medium text-blue-900">Payment Model Impact</h4>
+                          <p className="text-sm text-blue-700 mt-1">
+                            {settings.paymentModel.mode === 'credits' && 
+                              "Credit-only mode encourages bulk purchases and improves cash flow. Students buy credits upfront and spend them over time."}
+                            {settings.paymentModel.mode === 'cash' && 
+                              "Cash-only mode uses traditional per-class payments. Simple and familiar for most studios and students."}
+                            {settings.paymentModel.mode === 'hybrid' && 
+                              "Hybrid mode offers maximum flexibility. Perfect for transitioning to credits or serving diverse customer preferences."}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -774,6 +1014,40 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Zapier</h3>
                             <p className="text-sm text-gray-600">Automate workflows with thousands of apps</p>
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                          Connect
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                            <FileSpreadsheet className="h-5 w-5 text-yellow-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">Google Sheets</h3>
+                            <p className="text-sm text-gray-600">Sync bookings and student data to spreadsheets</p>
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                          Connect
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                            <Square className="h-5 w-5 text-indigo-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">Square Appointments</h3>
+                            <p className="text-sm text-gray-600">Sync with Square's booking and payment system</p>
                           </div>
                         </div>
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">

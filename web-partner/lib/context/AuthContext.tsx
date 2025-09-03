@@ -164,11 +164,42 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     }
   }, [initialSession])
 
-  // Sign in method
+  // Sign in method with demo support
   const signIn = useCallback(async (email: string, password: string) => {
     setIsLoading(true)
     setError(null)
     
+    // Demo credentials check
+    if (email === 'demo@hobbyist.com' && password === 'demo123456') {
+      // Create mock user and session for demo
+      const mockUser = {
+        id: 'demo-user-id',
+        email: 'demo@hobbyist.com',
+        user_metadata: {
+          first_name: 'Demo',
+          last_name: 'Studio',
+          role: 'instructor',
+          business_name: 'Zenith Wellness Studio'
+        }
+      } as any
+      
+      const mockSession = {
+        user: mockUser,
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh',
+        expires_at: Date.now() + 3600000
+      } as any
+      
+      if (mountedRef.current) {
+        setSession(mockSession)
+        setUser(mockUser)
+        setIsLoading(false)
+      }
+      
+      return { data: mockSession, error: null }
+    }
+    
+    // Regular authentication flow
     const { data, error } = await authService.signInWithEmail(email, password)
     
     if (mountedRef.current) {

@@ -266,7 +266,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
               >
                 <div className="text-center">
                   <Camera className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-xs text-gray-500">Add Photo</p>
+                  <p className="text-sm text-gray-500">Add Photo</p>
                 </div>
               </div>
             ))}
@@ -283,7 +283,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Website</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Website</label>
               <input
                 type="url"
                 value={formData.socialMedia.website}
@@ -296,7 +296,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Instagram</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Instagram</label>
               <input
                 type="text"
                 value={formData.socialMedia.instagram}
@@ -309,7 +309,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Facebook</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Facebook</label>
               <input
                 type="text"
                 value={formData.socialMedia.facebook}
@@ -322,7 +322,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Twitter</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Twitter</label>
               <input
                 type="text"
                 value={formData.socialMedia.twitter}

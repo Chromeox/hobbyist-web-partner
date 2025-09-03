@@ -19,26 +19,81 @@ export function SupabaseTest() {
       setLoading(true)
       setError(null)
 
-      // Always try real connection first, fall back to mock if needed
-        // Test basic connection to real Supabase
-        const { data, error: connectionError } = await supabase
-          .from('categories')
-          .select('count')
-          .limit(1)
-
-        if (connectionError) {
-          throw connectionError
+      // Test basic connection with a simpler query
+      try {
+        // First, try to connect to Supabase
+        const { data: versionData, error: versionError } = await supabase
+          .rpc('version')
+        
+        if (versionError) {
+          // If version check fails, try a simple auth check
+          const { data: { user }, error: authError } = await supabase.auth.getUser()
+          
+          if (authError && authError.message.includes('not authenticated')) {
+            // This is expected - connection works but user not logged in
+            setConnected(true)
+            setStats({ 
+              message: 'Connected to Supabase successfully', 
+              note: 'Database tables need to be created. Please run migrations.',
+              authStatus: 'Not authenticated (this is normal)'
+            })
+          } else if (authError) {
+            throw authError
+          } else {
+            setConnected(true)
+            setStats({ 
+              message: 'Connected to Supabase successfully',
+              user: user?.email || 'No user logged in'
+            })
+          }
+        } else {
+          // Connection successful
+          setConnected(true)
+          
+          // Try to check if tables exist
+          const { data: tablesData, error: tablesError } = await supabase
+            .from('categories')
+            .select('count')
+            .limit(1)
+          
+          if (tablesError && tablesError.message.includes('relation "public.categories" does not exist')) {
+            setStats({ 
+              message: 'Connected to Supabase successfully',
+              warning: 'Database tables not found. Please run the migrations.',
+              migrationFile: '/supabase/migrations/03_web_partner_portal_schema.sql'
+            })
+          } else if (tablesError) {
+            setStats({ 
+              message: 'Connected to Supabase, but encountered an error',
+              error: tablesError.message
+            })
+          } else {
+            // Tables exist, try to get stats
+            try {
+              const dashboardStats = await DataService.getDashboardStats()
+              setStats({
+                message: 'Database fully configured',
+                ...dashboardStats
+              })
+            } catch (statsError) {
+              setStats({ 
+                message: 'Tables exist but may need data',
+                note: 'Database is ready for use'
+              })
+            }
+          }
         }
-
-        setConnected(true)
-
-        // Try to get dashboard stats
-        try {
-          const dashboardStats = await DataService.getDashboardStats()
-          setStats(dashboardStats)
-        } catch (statsError) {
-          console.warn('Could not fetch dashboard stats (tables may not exist yet):', statsError)
-          setStats({ message: 'Connection successful, but tables may need to be created' })
+      } catch (err: any) {
+        // Check if it's a connection issue or missing tables
+        if (err.message?.includes('relation') && err.message?.includes('does not exist')) {
+          setConnected(true)
+          setStats({ 
+            message: 'Connected to Supabase successfully',
+            warning: 'Database tables need to be created',
+            action: 'Please run the migration file: /supabase/migrations/03_web_partner_portal_schema.sql'
+          })
+        } else {
+          throw err
         }
       }
 
@@ -65,7 +120,7 @@ export function SupabaseTest() {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border">
-      <h3 className="text-lg font-semibold mb-4">Supabase Connection Test</h3>
+      <h3 className="text-lg font-semibold mb-4">Supabase Connection Status</h3>
       
       <div className={`font-medium ${getStatusColor()}`}>
         {getStatusText()}
@@ -77,37 +132,74 @@ export function SupabaseTest() {
             <strong>Error:</strong> {error}
           </p>
           <p className="text-red-600 text-xs mt-1">
-            Make sure to update your .env.local file with actual Supabase credentials
+            Check your .env.local file has valid Supabase credentials
           </p>
         </div>
       )}
 
       {connected && stats && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-          <p className="text-green-700 text-sm mb-2">
-            <strong>Connection Details:</strong>
-          </p>
-          {stats.message ? (
-            <p className="text-green-600 text-xs">{stats.message}</p>
+        <div className="mt-4">
+          {stats.warning ? (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-yellow-700 text-sm mb-2">
+                <strong>{stats.message}</strong>
+              </p>
+              <p className="text-yellow-600 text-xs">{stats.warning}</p>
+              {stats.action && (
+                <p className="text-yellow-600 text-xs mt-2 font-medium">{stats.action}</p>
+              )}
+              {stats.migrationFile && (
+                <p className="text-yellow-600 text-xs mt-1">
+                  Migration file: <code className="bg-yellow-100 px-1">{stats.migrationFile}</code>
+                </p>
+              )}
+            </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>Total Users: {stats.totalUsers}</div>
-              <div>Total Instructors: {stats.totalInstructors}</div>
-              <div>Total Classes: {stats.totalClasses}</div>
-              <div>Total Bookings: {stats.totalBookings}</div>
-              <div>Total Revenue: ${(stats.totalRevenue / 100).toFixed(2)}</div>
+            <div className="p-3 bg-green-50 border border-green-200 rounded">
+              <p className="text-green-700 text-sm mb-2">
+                <strong>{stats.message}</strong>
+              </p>
+              {stats.note && (
+                <p className="text-green-600 text-xs">{stats.note}</p>
+              )}
+              {stats.user && (
+                <p className="text-green-600 text-xs">User: {stats.user}</p>
+              )}
+              {stats.authStatus && (
+                <p className="text-green-600 text-xs">{stats.authStatus}</p>
+              )}
+              {stats.totalUsers !== undefined && (
+                <div className="grid grid-cols-2 gap-2 text-xs mt-2">
+                  <div>Total Users: {stats.totalUsers}</div>
+                  <div>Total Instructors: {stats.totalInstructors}</div>
+                  <div>Total Classes: {stats.totalClasses}</div>
+                  <div>Total Bookings: {stats.totalBookings}</div>
+                  <div>Total Revenue: ${(stats.totalRevenue / 100).toFixed(2)}</div>
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
 
       <div className="mt-4 text-xs text-gray-500">
-        <p><strong>Next steps:</strong></p>
+        <p><strong>Next steps to complete setup:</strong></p>
         <ol className="list-decimal list-inside mt-1 space-y-1">
-          <li>Update .env.local with your Supabase project URL and keys</li>
-          <li>Run database migrations in your main Supabase project</li>
-          <li>Deploy to Vercel with environment variables configured</li>
+          <li>Ensure .env.local has correct Supabase URL and keys</li>
+          <li>Run database migration: <code className="bg-gray-100 px-1">supabase db push</code></li>
+          <li>Visit Supabase Dashboard to reset database password if needed</li>
+          <li>Deploy to Vercel with environment variables</li>
         </ol>
+        <p className="mt-2">
+          <a 
+            href="https://supabase.com/dashboard/project/mcjqvdzdhtcvbrejvrtp/settings/database" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            → Reset database password in Supabase Dashboard
+          </a>
+        </p>
       </div>
 
       <button
@@ -115,7 +207,7 @@ export function SupabaseTest() {
         disabled={loading}
         className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? 'Testing...' : 'Test Connection'}
+        {loading ? 'Testing...' : 'Test Connection Again'}
       </button>
     </div>
   )

@@ -295,6 +295,28 @@ export function useUserProfile() {
         })
         return
       }
+      
+      // Handle demo user
+      if (user.id === 'demo-user-id') {
+        setState({
+          profile: {
+            id: 'demo-user-id',
+            email: 'demo@hobbyist.com',
+            profile: {
+              firstName: 'Demo',
+              lastName: 'Studio'
+            },
+            instructor: {
+              businessName: 'Zenith Wellness Studio',
+              verified: true
+            },
+            role: 'instructor'
+          },
+          isLoading: false,
+          error: null
+        })
+        return
+      }
 
       fetchingRef.current = true
 

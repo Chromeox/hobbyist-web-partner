@@ -255,7 +255,7 @@ function PricingOverview({
         <div className="flex items-start space-x-3">
           <Info className="h-5 w-5 text-blue-600 mt-0.5" />
           <div>
-            <h3 className="text-lg font-semibold text-blue-900">Simplified Credit-Based Pricing</h3>
+            <h3 className="text-xl font-semibold text-blue-900">Simplified Credit-Based Pricing</h3>
             <p className="text-blue-800 mt-1">
               Our streamlined pricing system uses a 3-tier credit pack structure with a flat 15% commission rate. 
               Students purchase credit packs and use credits to book classes, providing predictable revenue and 
@@ -286,7 +286,7 @@ function PricingOverview({
       {/* Current Credit Packs Preview */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Current Credit Packs</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Current Credit Packs</h3>
           <p className="text-gray-600">Active credit packs available for purchase</p>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -313,7 +313,7 @@ function PricingOverview({
                 </div>
                 {pack.savings_percentage > 0 && (
                   <div className="mt-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
                       {pack.savings_percentage}% savings
                     </span>
                   </div>
@@ -338,7 +338,7 @@ function CreditPacksManagement({
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Credit Pack Configuration</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Credit Pack Configuration</h3>
           <p className="text-gray-600">Current credit packs are optimized for maximum conversion and simplicity</p>
         </div>
         <div className="p-6">
@@ -460,7 +460,7 @@ function CommissionSettings({
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Commission & Payout Settings</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Commission & Payout Settings</h3>
           <p className="text-gray-600">Simplified 15% flat rate commission structure</p>
         </div>
         <div className="p-6">

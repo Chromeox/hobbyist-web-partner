@@ -126,7 +126,7 @@ export default function VerificationStep({ onNext, onPrevious, data }: Verificat
             }
           </label>
           
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-sm text-gray-500 mt-2">
             Supported formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function VerificationStep({ onNext, onPrevious, data }: Verificat
                   {formData.certifications.map((cert: string, index: number) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
                     >
                       <FileText className="h-3 w-3 mr-1" />
                       {cert}

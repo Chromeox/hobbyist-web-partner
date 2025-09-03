@@ -55,39 +55,38 @@ final class AppConfiguration {
     }
     
     private func loadDevelopmentConfig() {
-        // In development, we can use environment variables or a local config file
-        // Never commit actual values to source control
-        if let configPath = Bundle.main.path(forResource: "Config-Dev", ofType: "plist"),
-           let config = NSDictionary(contentsOfFile: configPath) {
-            current = Configuration(
-                supabaseURL: config["SUPABASE_URL"] as? String ?? "",
-                supabaseAnonKey: config["SUPABASE_ANON_KEY"] as? String ?? "",
-                environment: .development,
-                apiVersion: "v1",
-                certificatePins: []
-            )
+        // Use secure loader with multiple fallback options
+        current = SecureConfigurationLoader.loadConfiguration(for: .development)
+        
+        if current == nil {
+            print("❌ Failed to load development configuration")
+            print("Please set up Config-Dev.plist or environment variables")
         }
     }
     
     private func loadStagingConfig() {
-        // Load from secure storage or remote configuration service
-        loadSecureConfiguration(for: .staging)
+        // Use secure loader for staging
+        current = SecureConfigurationLoader.loadConfiguration(for: .staging)
+        
+        if current == nil {
+            print("❌ Failed to load staging configuration")
+            fatalError("Staging environment requires valid configuration")
+        }
     }
     
     private func loadProductionConfig() {
-        // Load from secure storage or remote configuration service
-        loadSecureConfiguration(for: .production)
+        // Use secure loader for production
+        current = SecureConfigurationLoader.loadConfiguration(for: .production)
+        
+        if current == nil {
+            print("❌ Failed to load production configuration")
+            fatalError("Production environment requires valid configuration")
+        }
     }
     
     private func loadSecureConfiguration(for environment: Environment) {
-        // Try to load from Keychain first
-        if let savedConfig = loadFromKeychain(environment: environment) {
-            current = savedConfig
-            return
-        }
-        
-        // If not in Keychain, fetch from secure remote configuration service
-        fetchRemoteConfiguration(environment: environment)
+        // Delegate to SecureConfigurationLoader
+        current = SecureConfigurationLoader.loadConfiguration(for: environment)
     }
     
     private func loadFromKeychain(environment: Environment) -> Configuration? {

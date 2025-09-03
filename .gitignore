@@ -14,6 +14,12 @@
 **/Config/Secrets.swift
 **/Config/APIKeys.swift
 **/Configuration/Production.swift
+**/Config-Dev.plist
+**/Config-Staging.plist
+**/Config-Prod.plist
+!**/Config-Dev.plist.template
+!**/Config-Staging.plist.template
+!**/Config-Prod.plist.template
 GoogleService-Info.plist
 google-services.json
 

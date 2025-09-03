@@ -141,7 +141,7 @@ export interface ClassImage {
   order: number;
 };
 
-export interface ClassLocation {;
+export interface ClassLocation {
   type: 'in_person' | 'online' | 'hybrid';
   address?: Address;
   online_link?: string;
@@ -183,7 +183,7 @@ export interface GeoFenceFallbackOptions {
   emergency_bypass: boolean;
 };
 
-export interface ClassSchedule {;
+export interface ClassSchedule {
   type: 'single' | 'recurring';
   start_date: string;
   end_date?: string;
@@ -329,7 +329,7 @@ export interface ChatMessage {
   created_at: string;
 };
 
-export interface MessageAttachment {;
+export interface MessageAttachment {
   type: 'image' | 'file' | 'location';
   url: string;
   name?: string;
@@ -381,7 +381,7 @@ export interface WebhookEvent {
   signature?: string;
 };
 
-export interface StripeWebhookEvent extends WebhookEvent {;
+export interface StripeWebhookEvent extends WebhookEvent {
   type: 
     | 'payment_intent.succeeded'
     | 'payment_intent.failed'

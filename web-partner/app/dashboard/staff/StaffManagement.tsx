@@ -24,7 +24,13 @@ import {
   XCircle,
   AlertCircle,
   Settings,
-  Download
+  Download,
+  DollarSign,
+  TrendingUp,
+  BarChart3,
+  CreditCard,
+  CalendarCheck,
+  Activity
 } from 'lucide-react';
 import StaffInviteModal from './StaffInviteModal';
 import StaffDetailsModal from './StaffDetailsModal';
@@ -57,6 +63,29 @@ interface Staff {
     canManageStudents: boolean;
   };
   lastActive: string;
+  // Enhanced features for Phase 3
+  payroll: {
+    monthlyEarnings: number;
+    totalEarnings: number;
+    hoursWorked: number;
+    commissionRate: number; // percentage
+    bonusEligible: boolean;
+    nextPayDate: string;
+  };
+  performance: {
+    attendanceRate: number; // percentage
+    studentRetention: number; // percentage
+    classCapacityAvg: number; // percentage
+    cancellationRate: number; // percentage
+    monthlyGoal: number;
+    currentProgress: number;
+  };
+  schedule: {
+    upcomingClasses: number;
+    weeklyHours: number;
+    preferredSlots: string[];
+    blackoutDates: string[];
+  };
 }
 
 const mockStaff: Staff[] = [
@@ -89,7 +118,29 @@ const mockStaff: Staff[] = [
       canViewAnalytics: false,
       canManageStudents: false
     },
-    lastActive: '2025-08-08T14:30:00Z'
+    lastActive: '2025-08-08T14:30:00Z',
+    payroll: {
+      monthlyEarnings: 4875,
+      totalEarnings: 28650,
+      hoursWorked: 65,
+      commissionRate: 70,
+      bonusEligible: true,
+      nextPayDate: '2025-09-15'
+    },
+    performance: {
+      attendanceRate: 96,
+      studentRetention: 89,
+      classCapacityAvg: 85,
+      cancellationRate: 3,
+      monthlyGoal: 5000,
+      currentProgress: 4875
+    },
+    schedule: {
+      upcomingClasses: 12,
+      weeklyHours: 16,
+      preferredSlots: ['morning', 'afternoon'],
+      blackoutDates: ['2025-09-20', '2025-09-21']
+    }
   },
   {
     id: '2',
@@ -120,7 +171,29 @@ const mockStaff: Staff[] = [
       canViewAnalytics: false,
       canManageStudents: false
     },
-    lastActive: '2025-08-08T12:15:00Z'
+    lastActive: '2025-08-08T12:15:00Z',
+    payroll: {
+      monthlyEarnings: 3840,
+      totalEarnings: 18720,
+      hoursWorked: 48,
+      commissionRate: 70,
+      bonusEligible: true,
+      nextPayDate: '2025-09-15'
+    },
+    performance: {
+      attendanceRate: 94,
+      studentRetention: 85,
+      classCapacityAvg: 78,
+      cancellationRate: 5,
+      monthlyGoal: 4000,
+      currentProgress: 3840
+    },
+    schedule: {
+      upcomingClasses: 8,
+      weeklyHours: 20,
+      preferredSlots: ['late-morning', 'afternoon'],
+      blackoutDates: []
+    }
   },
   {
     id: '3',
@@ -459,7 +532,7 @@ export default function StaffManagement() {
                     </td>
                     
                     <td className="py-4 px-6">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)}`}>
+                      <span className={`px-2 py-1 text-sm font-medium rounded-full ${getRoleColor(member.role)}`}>
                         {member.role}
                       </span>
                     </td>
@@ -486,7 +559,7 @@ export default function StaffManagement() {
                           member.status === 'pending' ? 'text-yellow-600' :
                           'text-gray-600'
                         }`} />
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(member.status)}`}>
+                        <span className={`px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(member.status)}`}>
                           {member.status}
                         </span>
                       </div>
@@ -500,7 +573,7 @@ export default function StaffManagement() {
                             <span className="text-sm font-medium">{member.rating}</span>
                             <span className="text-sm text-gray-500 ml-1">({member.reviewCount})</span>
                           </div>
-                          <p className="text-xs text-gray-600 mt-1">{member.totalClasses} classes</p>
+                          <p className="text-sm text-gray-600 mt-1">{member.totalClasses} classes</p>
                         </div>
                       ) : (
                         <span className="text-sm text-gray-400">No data</span>
@@ -605,7 +678,7 @@ export default function StaffManagement() {
             >
               <div className="flex items-center mb-4">
                 <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">Remove Staff Member</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Remove Staff Member</h3>
               </div>
               
               <p className="text-gray-600 mb-6">

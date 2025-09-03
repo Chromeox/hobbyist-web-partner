@@ -23,7 +23,8 @@ import {
   AlertCircle,
   CheckCircle,
   X,
-  BookOpen
+  BookOpen,
+  CreditCard
 } from 'lucide-react';
 import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
@@ -39,6 +40,7 @@ interface Class {
   duration: number;
   capacity: number;
   price: number;
+  creditCost: number; // Credits required for this class
   image: string;
   tags: string[];
   location: string;
@@ -57,43 +59,45 @@ interface Class {
 const mockClasses: Class[] = [
   {
     id: '1',
-    name: 'Morning Yoga Flow',
-    description: 'Start your day with energizing yoga poses and breathing exercises',
+    name: 'Pottery Wheel Basics',
+    description: 'Learn wheel throwing techniques and create your first ceramic pieces',
     instructor: 'Sarah Johnson',
     instructorId: 'inst_1',
-    category: 'Yoga',
+    category: 'Pottery',
     level: 'beginner',
-    duration: 60,
-    capacity: 15,
-    price: 25,
-    image: '/images/yoga-flow.jpg',
-    tags: ['morning', 'energizing', 'beginner-friendly'],
-    location: 'Studio A',
+    duration: 120,
+    capacity: 8,
+    price: 65,
+    creditCost: 3,
+    image: '/images/pottery.jpg',
+    tags: ['hands-on', 'creative', 'beginner-friendly'],
+    location: 'Ceramics Studio',
     status: 'active',
     rating: 4.8,
     totalBookings: 124,
     nextSession: {
       date: '2025-08-09',
       time: '09:00',
-      enrolled: 12
+      enrolled: 7
     },
     createdAt: '2025-07-01T10:00:00Z',
     updatedAt: '2025-08-08T14:30:00Z'
   },
   {
     id: '2',
-    name: 'Advanced Pilates',
-    description: 'Challenging pilates workout for experienced practitioners',
+    name: 'Watercolor Landscapes',
+    description: 'Master watercolor techniques while painting beautiful landscapes',
     instructor: 'Mike Chen',
     instructorId: 'inst_2',
-    category: 'Pilates',
-    level: 'advanced',
-    duration: 75,
-    capacity: 10,
-    price: 35,
-    image: '/images/pilates.jpg',
-    tags: ['challenging', 'core-strength', 'advanced'],
-    location: 'Studio B',
+    category: 'Painting',
+    level: 'intermediate',
+    duration: 90,
+    capacity: 12,
+    price: 45,
+    creditCost: 2,
+    image: '/images/watercolor.jpg',
+    tags: ['artistic', 'relaxing', 'landscapes'],
+    location: 'Art Studio',
     status: 'active',
     rating: 4.9,
     totalBookings: 89,
@@ -107,28 +111,107 @@ const mockClasses: Class[] = [
   },
   {
     id: '3',
-    name: 'Contemporary Dance',
-    description: 'Express yourself through fluid contemporary dance movements',
+    name: 'Flower Bouquet Workshop',
+    description: 'Create stunning floral arrangements and learn bouquet design principles',
     instructor: 'Emily Davis',
     instructorId: 'inst_3',
-    category: 'Dance',
-    level: 'intermediate',
+    category: 'Flower Arranging',
+    level: 'beginner',
     duration: 90,
-    capacity: 20,
-    price: 30,
-    image: '/images/dance.jpg',
-    tags: ['creative', 'expressive', 'choreography'],
-    location: 'Main Studio',
+    capacity: 10,
+    price: 55,
+    creditCost: 2,
+    image: '/images/flowers.jpg',
+    tags: ['creative', 'relaxing', 'seasonal'],
+    location: 'Garden Room',
     status: 'active',
-    rating: 4.7,
+    rating: 4.9,
     totalBookings: 156,
     nextSession: {
       date: '2025-08-09',
       time: '14:00',
-      enrolled: 15
+      enrolled: 9
     },
     createdAt: '2025-05-20T12:00:00Z',
     updatedAt: '2025-08-08T09:15:00Z'
+  },
+  {
+    id: '4',
+    name: 'DJ Mixing Fundamentals',
+    description: 'Learn beat matching, mixing techniques, and DJ equipment basics',
+    instructor: 'Alex Rivera',
+    instructorId: 'inst_4',
+    category: 'DJ Workshops',
+    level: 'beginner',
+    duration: 120,
+    capacity: 6,
+    price: 75,
+    creditCost: 3,
+    image: '/images/dj.jpg',
+    tags: ['music', 'electronic', 'hands-on'],
+    location: 'Music Lab',
+    status: 'active',
+    rating: 4.8,
+    totalBookings: 67,
+    nextSession: {
+      date: '2025-08-10',
+      time: '18:00',
+      enrolled: 5
+    },
+    createdAt: '2025-06-15T10:00:00Z',
+    updatedAt: '2025-08-08T11:30:00Z'
+  },
+  {
+    id: '5',
+    name: 'Introduction to Fencing',
+    description: 'Learn the basics of foil fencing - footwork, attacks, and defense',
+    instructor: 'Marcus Thompson',
+    instructorId: 'inst_5',
+    category: 'Fencing',
+    level: 'beginner',
+    duration: 90,
+    capacity: 8,
+    price: 60,
+    creditCost: 2,
+    image: '/images/fencing.jpg',
+    tags: ['sport', 'strategic', 'unique'],
+    location: 'Sports Hall',
+    status: 'active',
+    rating: 4.7,
+    totalBookings: 45,
+    nextSession: {
+      date: '2025-08-11',
+      time: '10:00',
+      enrolled: 6
+    },
+    createdAt: '2025-07-01T08:00:00Z',
+    updatedAt: '2025-08-07T14:20:00Z'
+  },
+  {
+    id: '6',
+    name: 'Jewelry Making: Wire Wrapping',
+    description: 'Create beautiful pendants and rings using wire wrapping techniques',
+    instructor: 'Lisa Chang',
+    instructorId: 'inst_6',
+    category: 'Jewelry Making',
+    level: 'beginner',
+    duration: 150,
+    capacity: 8,
+    price: 70,
+    creditCost: 3,
+    image: '/images/jewelry.jpg',
+    tags: ['crafts', 'detailed', 'take-home'],
+    location: 'Craft Workshop',
+    status: 'active',
+    rating: 4.9,
+    totalBookings: 92,
+    nextSession: {
+      date: '2025-08-09',
+      time: '13:00',
+      enrolled: 8
+    },
+    createdAt: '2025-06-10T09:00:00Z',
+    updatedAt: '2025-08-08T10:00:00Z'
   }
 ];
 
@@ -364,13 +447,13 @@ export default function ClassManagement() {
               </div>
               
               <div className="absolute top-3 right-3 flex items-center gap-2">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(cls.status)}`}>
+                <span className={`px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(cls.status)}`}>
                   {cls.status}
                 </span>
               </div>
               
               <div className="absolute top-3 left-3">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getLevelColor(cls.level)}`}>
+                <span className={`px-2 py-1 text-sm font-medium rounded-full ${getLevelColor(cls.level)}`}>
                   {cls.level}
                 </span>
               </div>
@@ -408,6 +491,11 @@ export default function ClassManagement() {
                 <div className="flex items-center text-sm text-gray-600">
                   <DollarSign className="h-4 w-4 mr-2" />
                   ${cls.price} per class
+                </div>
+                
+                <div className="flex items-center text-sm font-medium text-blue-600">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  {cls.creditCost} credits required
                 </div>
                 
                 <div className="flex items-center text-sm text-gray-600">
@@ -520,7 +608,7 @@ export default function ClassManagement() {
             >
               <div className="flex items-center mb-4">
                 <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">Delete Class</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Delete Class</h3>
               </div>
               
               <p className="text-gray-600 mb-6">

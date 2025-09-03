@@ -19,19 +19,32 @@ import {
   BarChart3,
   Clock,
   Star,
-  UserPlus
+  UserPlus,
+  CreditCard,
+  Megaphone,
+  Zap,
+  MapPin,
+  GraduationCap,
+  Crown
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navigationItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, href: '/dashboard' },
+  { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' },
   { id: 'classes', label: 'Classes', icon: BookOpen, href: '/dashboard/classes' },
-  { id: 'bookings', label: 'Bookings', icon: Calendar, href: '/dashboard/bookings' },
+  { id: 'instructors', label: 'Instructors', icon: GraduationCap, href: '/dashboard/instructors' },
+  { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
+  { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' },
   { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
   { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' },
+  { id: 'credits', label: 'Credits & Payments', icon: CreditCard, href: '/dashboard/credits' },
+  { id: 'subscriptions', label: 'Subscriptions', icon: Crown, href: '/dashboard/subscriptions' },
+  { id: 'pricing', label: 'Dynamic Pricing', icon: Zap, href: '/dashboard/pricing' },
   { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' },
   { id: 'revenue', label: 'Revenue', icon: DollarSign, href: '/dashboard/revenue' },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone, href: '/dashboard/marketing' },
   { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/dashboard/messages' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' }
 ];
@@ -55,8 +68,8 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ${
+      {/* Sidebar with Glassmorphism */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 glass-sidebar shadow-xl transform transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0`}>
         <div className="flex flex-col h-full">
@@ -79,8 +92,8 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
             </div>
           </div>
 
-          {/* Studio Info */}
-          <div className="px-6 py-4 border-b bg-blue-50">
+          {/* Studio Info with Glass Effect */}
+          <div className="px-6 py-4 border-b glass-blue">
             <h3 className="font-semibold text-gray-900">{studioName}</h3>
             <p className="text-sm text-gray-600 mt-1">Premium Partner</p>
           </div>
@@ -133,8 +146,8 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
 
       {/* Main Content */}
       <div className="lg:pl-64">
-        {/* Top Bar */}
-        <header className="bg-white shadow-sm border-b">
+        {/* Top Bar with Glassmorphism */}
+        <header className="glass-nav sticky top-0 z-40">
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -153,7 +166,7 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                 {/* Quick Stats */}
                 <div className="hidden md:flex items-center space-x-6">
                   <div className="text-sm">
-                    <span className="text-gray-500">Today\'s Revenue:</span>
+                    <span className="text-gray-500">Today's Revenue:</span>
                     <span className="ml-2 font-semibold text-green-600">$1,234</span>
                   </div>
                   <div className="text-sm">

@@ -277,7 +277,7 @@ function RevenueOverview({ metrics }: { metrics: RevenueMetrics | null }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Payment Methods</h3>
+            <h3 className="text-xl font-semibold text-gray-900">Payment Methods</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -323,7 +323,7 @@ function RevenueOverview({ metrics }: { metrics: RevenueMetrics | null }) {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Revenue Breakdown</h3>
+            <h3 className="text-xl font-semibold text-gray-900">Revenue Breakdown</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -356,7 +356,7 @@ function BookingTrendsView({ trends }: { trends: BookingTrend[] }) {
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Daily Booking Trends</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Daily Booking Trends</h3>
           <p className="text-gray-600">Booking volume and payment methods over time</p>
         </div>
         <div className="p-6">
@@ -401,25 +401,25 @@ function BookingTrendsView({ trends }: { trends: BookingTrend[] }) {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Detailed Booking Data</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Detailed Booking Data</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Total Bookings
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Credit Bookings
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Card Bookings
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Revenue
                 </th>
               </tr>
@@ -459,7 +459,7 @@ function CommissionDetails({ metrics }: { metrics: RevenueMetrics | null }) {
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Commission Structure</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Commission Structure</h3>
           <p className="text-gray-600">Transparent 15% flat rate commission on all transactions</p>
         </div>
         <div className="p-6">
@@ -483,7 +483,7 @@ function CommissionDetails({ metrics }: { metrics: RevenueMetrics | null }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Commission Breakdown</h3>
+            <h3 className="text-xl font-semibold text-gray-900">Commission Breakdown</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -513,7 +513,7 @@ function CommissionDetails({ metrics }: { metrics: RevenueMetrics | null }) {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Payout Summary</h3>
+            <h3 className="text-xl font-semibold text-gray-900">Payout Summary</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
