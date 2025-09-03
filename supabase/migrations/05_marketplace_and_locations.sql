@@ -8,7 +8,7 @@
 
 -- Studio locations table
 CREATE TABLE IF NOT EXISTS public.studio_locations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     studio_id UUID NOT NULL REFERENCES public.studios(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL,
     slug VARCHAR(200) NOT NULL,
@@ -43,13 +43,13 @@ CREATE TABLE IF NOT EXISTS public.studio_locations (
 );
 
 -- Add location_id to existing tables
-ALTER TABLE public.studio_classes 
+ALTER TABLE public.classes 
     ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES public.studio_locations(id);
 
-ALTER TABLE public.studio_staff 
+ALTER TABLE public.instructors 
     ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES public.studio_locations(id);
 
-ALTER TABLE public.reservations 
+ALTER TABLE public.bookings 
     ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES public.studio_locations(id);
 
 -- =====================================================
@@ -58,7 +58,7 @@ ALTER TABLE public.reservations
 
 -- Independent instructor profiles
 CREATE TABLE IF NOT EXISTS public.instructor_profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     
     -- Profile information
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS public.instructor_profiles (
 
 -- Instructor-Studio relationships
 CREATE TABLE IF NOT EXISTS public.instructor_studio_partnerships (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     instructor_id UUID NOT NULL REFERENCES public.instructor_profiles(id) ON DELETE CASCADE,
     studio_id UUID NOT NULL REFERENCES public.studios(id) ON DELETE CASCADE,
     location_id UUID REFERENCES public.studio_locations(id),
@@ -143,10 +143,10 @@ CREATE TABLE IF NOT EXISTS public.instructor_studio_partnerships (
 
 -- Instructor reviews
 CREATE TABLE IF NOT EXISTS public.instructor_reviews (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     instructor_id UUID NOT NULL REFERENCES public.instructor_profiles(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES auth.users(id),
-    reservation_id UUID REFERENCES public.reservations(id),
+    booking_id UUID REFERENCES public.bookings(id),
     
     -- Review content
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
@@ -165,12 +165,12 @@ CREATE TABLE IF NOT EXISTS public.instructor_reviews (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     
-    UNIQUE(instructor_id, student_id, reservation_id)
+    UNIQUE(instructor_id, student_id, booking_id)
 );
 
 -- Students following instructors
 CREATE TABLE IF NOT EXISTS public.instructor_followers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     instructor_id UUID NOT NULL REFERENCES public.instructor_profiles(id) ON DELETE CASCADE,
     follower_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS public.instructor_followers (
 
 -- Instructor availability calendar
 CREATE TABLE IF NOT EXISTS public.instructor_availability (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     instructor_id UUID NOT NULL REFERENCES public.instructor_profiles(id) ON DELETE CASCADE,
     location_id UUID REFERENCES public.studio_locations(id),
     
@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS public.instructor_availability (
 
 -- Instructor specialties lookup table
 CREATE TABLE IF NOT EXISTS public.instructor_specialties (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
     slug VARCHAR(100) NOT NULL UNIQUE,
     category VARCHAR(50),
@@ -298,8 +298,8 @@ CREATE POLICY "Students can write reviews for verified bookings"
     WITH CHECK (
         student_id = auth.uid() AND
         EXISTS (
-            SELECT 1 FROM public.reservations 
-            WHERE id = reservation_id 
+            SELECT 1 FROM public.bookings 
+            WHERE id = booking_id 
             AND user_id = auth.uid()
             AND status = 'completed'
         )
@@ -379,19 +379,19 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     SELECT 
-        sc.id,
-        sc.name,
+        c.id,
+        c.name,
         s.name,
         sl.name,
-        cs.start_time,
-        cs.end_time,
-        cs.total_spots - COALESCE(cs.booked_spots, 0) as available_spots
-    FROM public.studio_classes sc
-    JOIN public.class_sessions cs ON cs.class_id = sc.id
-    JOIN public.studios s ON s.id = sc.studio_id
-    LEFT JOIN public.studio_locations sl ON sl.id = sc.location_id
-    WHERE sc.instructor_id = p_instructor_id
-    AND cs.start_time::DATE BETWEEN p_start_date AND p_end_date
+        cs.scheduled_for as start_time,
+        cs.scheduled_for + INTERVAL '1 hour' as end_time,
+        cs.spots_total - cs.spots_used as available_spots
+    FROM public.classes c
+    JOIN public.class_schedules cs ON cs.class_id = c.id
+    JOIN public.studios s ON s.id = c.studio_id
+    LEFT JOIN public.studio_locations sl ON sl.id = c.location_id
+    WHERE c.instructor_id = p_instructor_id
+    AND cs.scheduled_for::DATE BETWEEN p_start_date AND p_end_date
     AND cs.status = 'scheduled'
     ORDER BY cs.start_time;
 END;
