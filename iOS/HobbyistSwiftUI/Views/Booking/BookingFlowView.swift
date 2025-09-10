@@ -215,12 +215,16 @@ struct BookingFlowView: View {
     }
     
     private var buttonTitle: String {
-        switch currentStep {
-        case 0: return "Continue to Details"
-        case 1: return "Continue to Payment"
-        case 2: return "Review Booking"
-        case 3: return "Pay \(viewModel.formattedTotalPrice)"
-        default: return "Continue"
+        if currentStep == 3 && viewModel.selectedPaymentMethod == .credits && viewModel.totalPrice <= viewModel.userCredits {
+            return "Confirm Booking"
+        } else {
+            switch currentStep {
+            case 0: return "Continue to Details"
+            case 1: return "Continue to Payment"
+            case 2: return "Review Booking"
+            case 3: return "Pay \(viewModel.formattedTotalPrice)"
+            default: return "Continue"
+            }
         }
     }
     
@@ -240,36 +244,12 @@ struct BookingFlowView: View {
         if currentStep == 3 {
             // Process payment
             Task {
-                await processPayment()
+                await viewModel.processPayment()
             }
         } else {
             withAnimation {
                 currentStep += 1
             }
-        }
-    }
-    
-    private func processPayment() async {
-        viewModel.isProcessing = true
-        viewModel.processingMessage = "Processing payment..."
-        
-        // Simulate payment stages with Watch sync
-        for progress in stride(from: 0.0, through: 1.0, by: 0.1) {
-            viewModel.processingProgress = progress
-            watchSync.updatePaymentProgress(Float(progress))
-            
-            if progress == 0.25 || progress == 0.5 || progress == 0.75 {
-                hapticService.playPaymentMilestone()
-            }
-            
-            try? await Task.sleep(nanoseconds: 200_000_000)
-        }
-        
-        // Complete booking
-        await MainActor.run {
-            viewModel.bookingComplete = true
-            viewModel.isProcessing = false
-            currentStep = 4
         }
     }
 }
@@ -291,8 +271,7 @@ struct BookingProgressBar: View {
                         .frame(height: 4)
                     
                     // Progress line
-                    Rectangle()
-                        .fill(Color.accentColor)
+                    Rectangle()n                        .fill(Color.accentColor)
                         .frame(
                             width: geometry.size.width * (Double(currentStep + 1) / Double(totalSteps)),
                             height: 4
@@ -721,7 +700,7 @@ struct PaymentSelectionStep: View {
                             .foregroundColor(.accentColor)
                     }
                 }
-                .padding()
+                .padding())
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
             }
@@ -882,8 +861,7 @@ struct BookingConfirmationStep: View {
             VStack(spacing: 24) {
                 // Success Animation
                 ZStack {
-                    Circle()
-                        .fill(Color.green.opacity(0.1))
+                    Circle()n                        .fill(Color.green.opacity(0.1))
                         .frame(width: 120, height: 120)
                         .scaleEffect(showConfetti ? 1.2 : 0.8)
                         .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showConfetti)
