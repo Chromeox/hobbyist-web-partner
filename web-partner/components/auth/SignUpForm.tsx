@@ -8,7 +8,7 @@
 import React, { useState, useCallback, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/lib/context/AuthContext'
-import { Mail, Lock, User, Building, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
+import { Mail, Lock, User, Building, Loader2, AlertCircle, CheckCircle, Users, Briefcase } from 'lucide-react'
 
 // Stable form state shape
 interface FormState {
@@ -18,6 +18,7 @@ interface FormState {
   firstName: string
   lastName: string
   businessName: string
+  accountType: 'studio' | 'instructor' // Added accountType
   isLoading: boolean
   error: string | null
   success: boolean
@@ -34,6 +35,7 @@ export const SignUpForm = memo(function SignUpForm() {
     firstName: '',
     lastName: '',
     businessName: '',
+    accountType: 'studio', // Default to studio
     isLoading: false,
     error: null,
     success: false
@@ -60,14 +62,23 @@ export const SignUpForm = memo(function SignUpForm() {
       return
     }
 
+    // Validate business name for studio type
+    if (state.accountType === 'studio' && !state.businessName) {
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Business Name is required for Studio accounts' 
+      }))
+      return
+    }
+
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-    // Prepare metadata - always instructor/studio owner
+    // Prepare metadata based on account type
     const metadata = {
       first_name: state.firstName,
       last_name: state.lastName,
-      role: 'instructor',
-      business_name: state.businessName
+      role: state.accountType, // Use selected accountType as role
+      ...(state.accountType === 'studio' && { business_name: state.businessName }) // Only include businessName for studio
     }
 
     const { error } = await signUp(state.email, state.password, metadata)
@@ -136,6 +147,43 @@ export const SignUpForm = memo(function SignUpForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Account Type Selection */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">I am signing up as a:</label>
+            <div className="flex space-x-4">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                  name="accountType"
+                  value="studio"
+                  checked={state.accountType === 'studio'}
+                  onChange={() => setState(prev => ({ ...prev, accountType: 'studio' }))}
+                  disabled={state.isLoading}
+                />
+                <div className="ml-2 flex items-center">
+                  <Building className="h-5 w-5 text-gray-500 mr-1" />
+                  <span className="text-gray-900">Studio</span>
+                </div>
+              </label>
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                  name="accountType"
+                  value="instructor"
+                  checked={state.accountType === 'instructor'}
+                  onChange={() => setState(prev => ({ ...prev, accountType: 'instructor' }))}
+                  disabled={state.isLoading}
+                />
+                <div className="ml-2 flex items-center">
+                  <Users className="h-5 w-5 text-gray-500 mr-1" />
+                  <span className="text-gray-900">Independent Instructor</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -176,24 +224,26 @@ export const SignUpForm = memo(function SignUpForm() {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-              Business Name
-            </label>
-            <div className="relative">
-              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                id="businessName"
-                type="text"
-                value={state.businessName}
-                onChange={(e) => handleInputChange('businessName', e.target.value)}
-                required
-                disabled={state.isLoading}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
-                placeholder="Wellness Studio"
-              />
+          {state.accountType === 'studio' && (
+            <div>
+              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                Business Name
+              </label>
+              <div className="relative">
+                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  id="businessName"
+                  type="text"
+                  value={state.businessName}
+                  onChange={(e) => handleInputChange('businessName', e.target.value)}
+                  required={state.accountType === 'studio'} // Required only for studio
+                  disabled={state.isLoading}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  placeholder="Wellness Studio"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -267,7 +317,8 @@ export const SignUpForm = memo(function SignUpForm() {
               <a href="/terms" className="text-blue-600 hover:text-blue-500">
                 Terms and Conditions
               </a>
-              {' '}and{' '}
+              {' '}
+              and{' '}
               <a href="/privacy" className="text-blue-600 hover:text-blue-500">
                 Privacy Policy
               </a>
