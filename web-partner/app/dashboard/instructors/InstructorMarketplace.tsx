@@ -27,7 +27,8 @@ import {
   X,
   ChevronRight,
   Badge,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 
 interface Instructor {
@@ -95,6 +96,8 @@ export default function InstructorMarketplace() {
   const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [activeTab, setActiveTab] = useState('discover');
+  const [invitingInstructorId, setInvitingInstructorId] = useState<string | null>(null);
+  const [inviteStatus, setInviteStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const specialties = [
     'All Specialties',
@@ -253,6 +256,38 @@ export default function InstructorMarketplace() {
     return matchesSearch && matchesSpecialty;
   });
 
+  const handleInviteInstructor = async (instructorId: string) => {
+    setInvitingInstructorId(instructorId);
+    setInviteStatus('sending');
+    try {
+      // In a real app, you'd get the studioId from the authenticated user's session
+      const studioId = 'current_studio_id'; // Placeholder
+
+      const response = await fetch('/api/instructors/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ studioId, instructorId }),
+      });
+
+      if (response.ok) {
+        setInviteStatus('sent');
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to send invite:', errorData.error);
+        setInviteStatus('error');
+      }
+    } catch (error) {
+      console.error('Error sending invite:', error);
+      setInviteStatus('error');
+    } finally {
+      setInvitingInstructorId(null);
+      // Reset status after a short delay to show feedback
+      setTimeout(() => setInviteStatus('idle'), 2000);
+    }
+  };
+
   const renderInstructorCard = (instructor: Instructor) => (
     <motion.div
       key={instructor.id}
@@ -344,12 +379,19 @@ export default function InstructorMarketplace() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setShowInviteModal(true);
+                handleInviteInstructor(instructor.id);
               }}
-              className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center gap-1"
+              disabled={invitingInstructorId === instructor.id || inviteStatus === 'sent'}
+              className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center gap-1 disabled:opacity-50"
             >
-              <Send className="w-3 h-3" />
-              Invite
+              {invitingInstructorId === instructor.id ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : inviteStatus === 'sent' ? (
+                <Check className="w-3 h-3" />
+              ) : (
+                <Send className="w-3 h-3" />
+              )}
+              {invitingInstructorId === instructor.id ? 'Sending...' : inviteStatus === 'sent' ? 'Sent!' : 'Invite'}
             </button>
           </div>
         </div>
@@ -409,14 +451,14 @@ export default function InstructorMarketplace() {
                         <div className="flex items-center gap-1 px-2 py-1 bg-yellow-500/20 rounded-full">
                           <Sparkles className="w-4 h-4 text-yellow-400" />
                           <span className="text-xs text-yellow-400">Featured</span>
-                        </div>
-                      )}
-                    </div>
+                        }
+                      </div>
+                    }
                     <p className="text-gray-200 mt-1">{selectedInstructor.tagline}</p>
                   </div>
-                </div>
+                }
               </div>
-            </div>
+            }
 
             {/* Content */}
             <div className="p-6">
@@ -428,19 +470,19 @@ export default function InstructorMarketplace() {
                     {selectedInstructor.rating}
                   </div>
                   <p className="text-sm text-gray-400">{selectedInstructor.totalReviews} reviews</p>
-                </div>
+                }
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">{selectedInstructor.totalStudents}</div>
                   <p className="text-sm text-gray-400">Students taught</p>
-                </div>
+                }
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">{selectedInstructor.yearsExperience}</div>
                   <p className="text-sm text-gray-400">Years experience</p>
-                </div>
+                }
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">${selectedInstructor.hourlyRate}</div>
                   <p className="text-sm text-gray-400">Per hour</p>
-                </div>
+                }
               </div>
 
               {/* Tabs */}
@@ -466,7 +508,7 @@ export default function InstructorMarketplace() {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">About</h3>
                     <p className="text-gray-300">{selectedInstructor.bio}</p>
-                  </div>
+                  }
 
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Specialties</h3>
@@ -479,7 +521,7 @@ export default function InstructorMarketplace() {
                           {specialty}
                         </span>
                       ))}
-                    </div>
+                    }
                   </div>
 
                   <div>
@@ -491,11 +533,10 @@ export default function InstructorMarketplace() {
                           <div>
                             <p className="text-white">{cert.name}</p>
                             <p className="text-sm text-gray-400">{cert.issuer} • {cert.year}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                          }
+                        }
+                      </div>
+                    }
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -505,14 +546,13 @@ export default function InstructorMarketplace() {
                           <span key={lang} className="text-gray-300">{lang}</span>
                         ))}
                       </div>
-                    </div>
+                    }
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-3">Travel Radius</h3>
                       <p className="text-gray-300">{selectedInstructor.travelRadius} km</p>
-                    </div>
+                    }
                   </div>
-                </div>
-              )}
+                }
 
               {activeTab === 'reviews' && (
                 <div className="space-y-4">
@@ -532,16 +572,16 @@ export default function InstructorMarketplace() {
                               ))}
                             </div>
                             <span className="text-white font-medium">{review.studentName}</span>
-                          </div>
+                          }
                           <span className="text-sm text-gray-400">{review.date}</span>
-                        </div>
+                        }
                         <p className="text-gray-300">{review.comment}</p>
-                      </div>
+                      }
                     ))
                   ) : (
                     <p className="text-gray-400 text-center py-8">No reviews yet</p>
-                  )}
-                </div>
+                  }
+                }
               )}
 
               {/* Action Buttons */}
@@ -558,9 +598,9 @@ export default function InstructorMarketplace() {
                   <Heart className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            }
           </motion.div>
-        </div>
+        }
       </motion.div>
     );
   };
@@ -570,7 +610,7 @@ export default function InstructorMarketplace() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Instructor Marketplace</h1>
         <p className="text-gray-400">Discover and invite talented instructors to teach at your studio</p>
-      </div>
+      }
 
       {/* Search and Filters */}
       <div className="flex flex-col lg:flex-row gap-4 mb-8">
@@ -583,7 +623,7 @@ export default function InstructorMarketplace() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
-        </div>
+        }
         
         <select
           value={selectedSpecialty}
@@ -600,7 +640,7 @@ export default function InstructorMarketplace() {
           <Filter className="w-5 h-5" />
           More Filters
         </button>
-      </div>
+      }
 
       {/* Featured Badge */}
       <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30">
@@ -609,8 +649,8 @@ export default function InstructorMarketplace() {
           <div>
             <p className="text-white font-medium">Featured Instructors</p>
             <p className="text-sm text-gray-400">Top-rated professionals verified by our team</p>
-          </div>
-        </div>
+          }
+        }
       </div>
 
       {/* Instructor Grid */}
@@ -622,6 +662,6 @@ export default function InstructorMarketplace() {
       <AnimatePresence>
         {selectedInstructor && renderInstructorProfile()}
       </AnimatePresence>
-    </div>
+    }
   );
 }
