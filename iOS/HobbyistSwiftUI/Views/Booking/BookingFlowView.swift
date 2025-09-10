@@ -232,7 +232,15 @@ struct BookingFlowView: View {
         switch currentStep {
         case 0: return viewModel.participantCount > 0
         case 1: return true // Details are optional
-        case 2: return viewModel.selectedPaymentMethod != nil
+        case 2: 
+            // Payment method must be selected
+            guard viewModel.selectedPaymentMethod != nil else { return false }
+            
+            // If paying with credits, ensure sufficient balance
+            if viewModel.selectedPaymentMethod == .credits {
+                return viewModel.userCredits >= viewModel.totalPrice
+            }
+            return true
         case 3: return viewModel.agreedToTerms
         default: return true
         }
@@ -271,7 +279,8 @@ struct BookingProgressBar: View {
                         .frame(height: 4)
                     
                     // Progress line
-                    Rectangle()n                        .fill(Color.accentColor)
+                    Rectangle()
+                        .fill(Color.accentColor)
                         .frame(
                             width: geometry.size.width * (Double(currentStep + 1) / Double(totalSteps)),
                             height: 4
@@ -557,6 +566,20 @@ struct PaymentSelectionStep: View {
                     Text("Payment Method")
                         .font(.headline)
                     
+                    // Option: Pay with Credits
+                    if viewModel.userCredits >= viewModel.totalPrice {
+                        PaymentMethodRow(
+                            icon: "dollarsign.circle.fill",
+                            title: "Pay with Credits",
+                            subtitle: "Balance: \(String(format: "$%.2f", viewModel.userCredits))",
+                            isSelected: viewModel.selectedPaymentMethod == .credits,
+                            action: {
+                                viewModel.selectedPaymentMethod = .credits
+                                hapticService.playSelection()
+                            }
+                        )
+                    }
+                    
                     // Apple Pay
                     PaymentMethodRow(
                         icon: "apple.logo",
@@ -700,7 +723,7 @@ struct PaymentSelectionStep: View {
                             .foregroundColor(.accentColor)
                     }
                 }
-                .padding())
+                .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
             }
@@ -861,7 +884,8 @@ struct BookingConfirmationStep: View {
             VStack(spacing: 24) {
                 // Success Animation
                 ZStack {
-                    Circle()n                        .fill(Color.green.opacity(0.1))
+                    Circle()
+                        .fill(Color.green.opacity(0.1))
                         .frame(width: 120, height: 120)
                         .scaleEffect(showConfetti ? 1.2 : 0.8)
                         .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showConfetti)

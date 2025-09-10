@@ -4,6 +4,7 @@ import SwiftUI
 enum PaymentMethod: Equatable {
     case applePay
     case card(String)
+    case credits // Added for credit payment
 }
 
 struct SavedCard: Identifiable {
@@ -32,6 +33,7 @@ class BookingViewModel: ObservableObject {
     @Published var selectedPaymentMethod: PaymentMethod?
     @Published var savedCards: [SavedCard] = []
     @Published var appliedDiscount: Discount?
+    @Published var userCredits: Double = 0.0 // Mock user credits for now
     
     // Processing State
     @Published var isProcessing = false
@@ -47,6 +49,7 @@ class BookingViewModel: ObservableObject {
     
     init() {
         loadSavedCards()
+        fetchUserCredits() // Fetch user credits on init
     }
     
     private func loadSavedCards() {
@@ -56,12 +59,21 @@ class BookingViewModel: ObservableObject {
             SavedCard(id: "2", brand: "Mastercard", last4: "5555")
         ]
     }
+
+    private func fetchUserCredits() {
+        // In a real app, this would fetch the user's credit balance from Supabase
+        // For now, it's mocked.
+        userCredits = 150.0 // Example: user has 150 credits
+    }
     
     func initializeBooking(for classItem: ClassItem) {
         // Parse price from string
-        if let priceString = classItem.price.replacingOccurrences(of: "$", with: "").first,
-           let price = Double(String(priceString) + "5") {
+        if let price = Double(classItem.price.replacingOccurrences(of: "$", with: "")) {
             basePrice = price
+        } else {
+            // Handle error if price cannot be parsed
+            print("Error: Could not parse price from classItem.price: \(classItem.price)")
+            basePrice = 0.0 // Default to 0 or handle appropriately
         }
     }
     
@@ -83,6 +95,10 @@ class BookingViewModel: ObservableObject {
     }
     
     var processingFee: Double {
+        // Processing fee only applies to cash payments
+        if selectedPaymentMethod == .credits {
+            return 0
+        }
         return (subtotal + equipmentTotal - discountAmount) * processingFeeRate
     }
     
@@ -120,6 +136,8 @@ class BookingViewModel: ObservableObject {
                 return "\(card.brand) •••• \(card.last4)"
             }
             return "Card"
+        case .credits:
+            return "Credits"
         case .none:
             return "Not selected"
         }
@@ -142,6 +160,17 @@ class BookingViewModel: ObservableObject {
         for progress in stride(from: 0.0, through: 1.0, by: 0.1) {
             processingProgress = progress
             try? await Task.sleep(nanoseconds: 200_000_000)
+        }
+        
+        if selectedPaymentMethod == .credits {
+            // Deduct credits from user's balance in Supabase
+            // In a real app, this would involve a Supabase call to update the user's credit balance
+            print("Deducting \(totalPrice) credits from user's balance.")
+            userCredits -= totalPrice // Deduct from mock balance
+            processingMessage = "Credits deducted!"
+        } else {
+            // Process payment via Stripe (existing logic)
+            processingMessage = "Payment processed via Stripe!"
         }
         
         // Generate confirmation code
