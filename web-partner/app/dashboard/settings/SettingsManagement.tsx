@@ -31,7 +31,8 @@ import {
   Square,
   Coins,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Upload
 } from 'lucide-react';
 
 interface StudioSettings {
@@ -240,6 +241,8 @@ export default function SettingsManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
 
   const tabs = [
     { id: 'general', label: 'General', icon: Building2 },
@@ -268,6 +271,43 @@ export default function SettingsManagement() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     setHasChanges(false);
     setIsSaving(false);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+      setUploadStatus('idle');
+    }
+  };
+
+  const handleUploadCSV = async () => {
+    if (!selectedFile) {
+      setUploadStatus('error');
+      return;
+    }
+
+    setUploadStatus('uploading');
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch('/api/data-import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        setUploadStatus('success');
+        setSelectedFile(null);
+      } else {
+        const errorData = await response.json();
+        console.error('CSV upload failed:', errorData.error);
+        setUploadStatus('error');
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      setUploadStatus('error');
+    }
   };
 
   const handlePlanChange = (planId: string) => {
@@ -573,7 +613,7 @@ export default function SettingsManagement() {
                           )}
                         </button>
                       </div>
-                    </div>
+                    }
 
                     {/* Credit Settings - Show when credits or hybrid is selected */}
                     {(settings.paymentModel.mode === 'credits' || settings.paymentModel.mode === 'hybrid') && (
@@ -628,7 +668,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        </div>
+                        }
                       </div>
                     )}
 
@@ -651,7 +691,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        </div>
+                        }
                         
                         <div className="flex items-center justify-between">
                           <div>
@@ -667,7 +707,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        </div>
+                        }
                       </div>
                     )}
 
@@ -695,7 +735,7 @@ export default function SettingsManagement() {
                           Platform fee charged on all transactions
                         </p>
                       </div>
-                    </div>
+                    }
 
                     {/* Info Box */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -785,14 +825,14 @@ export default function SettingsManagement() {
                         <div>
                           <p className="font-medium">•••• •••• •••• 4242</p>
                           <p className="text-sm text-gray-600">Expires 12/2027</p>
-                        </div>
+                        }
                       </div>
                       <button className="text-blue-600 hover:text-blue-700 font-medium">
                         Update
                       </button>
-                    </div>
+                    }
                   </div>
-                </div>
+                }
               </div>
             )}
 
@@ -816,7 +856,7 @@ export default function SettingsManagement() {
                       <p className="text-sm text-gray-500 mt-1">
                         Students can cancel up to this many hours before class starts
                       </p>
-                    </div>
+                    }
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -831,14 +871,14 @@ export default function SettingsManagement() {
                         <option value="partial">Partial Refund</option>
                         <option value="none">No Refund</option>
                       </select>
-                    </div>
+                    }
                     
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Enable Waitlist</p>
                           <p className="text-sm text-gray-600">Allow students to join waitlist when classes are full</p>
-                        </div>
+                        }
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -848,13 +888,13 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      </div>
+                      }
                       
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Require Payment</p>
                           <p className="text-sm text-gray-600">Require payment at time of booking</p>
-                        </div>
+                        }
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -864,13 +904,13 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      </div>
+                      }
                       
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Allow Same-Day Booking</p>
                           <p className="text-sm text-gray-600">Allow students to book classes on the same day</p>
-                        </div>
+                        }
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -879,11 +919,12 @@ export default function SettingsManagement() {
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
+                          </label>
+                        }
                       </div>
-                    </div>
+                    }
                   </div>
-                </div>
+                }
               </div>
             )}
 
@@ -909,7 +950,7 @@ export default function SettingsManagement() {
                             {key === 'lowCapacity' && 'Get notified when class capacity is low'}
                             {key === 'staffUpdates' && 'Get notified about staff-related updates'}
                           </p>
-                        </div>
+                        }
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -919,10 +960,10 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      </div>
+                      }
                     ))}
                   </div>
-                </div>
+                }
               </div>
             )}
 
@@ -946,7 +987,7 @@ export default function SettingsManagement() {
                             {key === 'allowReviews' && 'Allow students to leave reviews and ratings'}
                             {key === 'publicProfile' && 'Make studio profile visible in public directory'}
                           </p>
-                        </div>
+                        }
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -956,10 +997,10 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      </div>
+                      }
                     ))}
                   </div>
-                </div>
+                }
               </div>
             )}
 
@@ -971,6 +1012,7 @@ export default function SettingsManagement() {
                   <p className="text-gray-600 mb-6">Connect with third-party services to enhance your studio</p>
                   
                   <div className="space-y-4">
+                    {/* Existing Integrations */}
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -981,12 +1023,12 @@ export default function SettingsManagement() {
                             <h3 className="font-medium text-gray-900">Google Analytics</h3>
                             <p className="text-sm text-gray-600">Track website visitors and booking conversions</p>
                           </div>
-                        </div>
+                        }
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      </div>
-                    </div>
+                      }
+                    }
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -997,13 +1039,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Mailchimp</h3>
                             <p className="text-sm text-gray-600">Send automated emails and newsletters</p>
-                          </div>
-                        </div>
+                          }
+                        }
                         <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                           Connected
                         </button>
-                      </div>
-                    </div>
+                      }
+                    }
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1014,13 +1056,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Zapier</h3>
                             <p className="text-sm text-gray-600">Automate workflows with thousands of apps</p>
-                          </div>
-                        </div>
+                          }
+                        }
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      </div>
-                    </div>
+                      }
+                    }
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1031,13 +1073,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Google Sheets</h3>
                             <p className="text-sm text-gray-600">Sync bookings and student data to spreadsheets</p>
-                          </div>
-                        </div>
+                          }
+                        }
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      </div>
-                    </div>
+                      }
+                    }
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1048,19 +1090,59 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Square Appointments</h3>
                             <p className="text-sm text-gray-600">Sync with Square's booking and payment system</p>
-                          </div>
-                        </div>
+                          }
+                        }
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
+                      }
+                    }
+
+                    {/* New Data Import Section */}
+                    <div className="border-t pt-6 mt-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Import</h3>
+                      <p className="text-gray-600 mb-4">Upload CSV files to import your existing class schedules or student lists.</p>
+                      
+                      <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <input
+                          type="file"
+                          accept=".csv"
+                          onChange={handleFileChange}
+                          className="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100"
+                        />
+                        <button
+                          onClick={handleUploadCSV}
+                          disabled={!selectedFile || uploadStatus === 'uploading'}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+                        >
+                          {uploadStatus === 'uploading' ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                          ) : (
+                            <Upload className="h-4 w-4 mr-2" />
+                          )}
+                          {uploadStatus === 'uploading' ? 'Uploading...' :
+                           uploadStatus === 'success' ? 'Uploaded!' :
+                           uploadStatus === 'error' ? 'Error!' : 'Upload CSV'}
+                        </button>
                       </div>
-                    </div>
+                      {uploadStatus === 'success' && (
+                        <p className="text-sm text-green-600 mt-2">File uploaded successfully!</p>
+                      )}
+                      {uploadStatus === 'error' && (
+                        <p className="text-sm text-red-600 mt-2">Failed to upload file. Please try again.</p>
+                      )}
+                    }
                   </div>
-                </div>
+                }
               </div>
             )}
           </div>
-        </div>
+        }
       </div>
     </div>
   );
