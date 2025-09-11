@@ -256,8 +256,10 @@ struct SearchResultsList: View {
     var body: some View {
         List {
             ForEach(viewModel.searchResults) { result in
-                SearchResultRow(result: result)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                NavigationLink(destination: destinationView(for: result)) {
+                    SearchResultRow(result: result)
+                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
             
             if viewModel.hasMoreResults {
@@ -283,6 +285,18 @@ struct SearchResultsList: View {
         .listStyle(PlainListStyle())
         .refreshable {
             viewModel.performSearch()
+        }
+    }
+    
+    @ViewBuilder
+    private func destinationView(for result: SearchResult) -> some View {
+        switch result {
+        case .hobbyClass(let hobbyClass):
+            ClassDetailView(classItem: ClassItem.sample) // Using sample for now
+        case .instructor(let instructor):
+            InstructorDetailView(instructor: instructor)
+        case .venue(let venue):
+            VenueDetailView(venue: venue)
         }
     }
 }
@@ -517,4 +531,21 @@ enum ClassCategory: String, CaseIterable {
     case technology = "Technology"
     case language = "Language"
     case photography = "Photography"
+}
+
+// Placeholder for detail views
+struct InstructorDetailView: View {
+    let instructor: Instructor
+    
+    var body: some View {
+        Text("Instructor Detail: \(instructor.name)")
+    }
+}
+
+struct VenueDetailView: View {
+    let venue: Venue
+    
+    var body: some View {
+        Text("Venue Detail: \(venue.name)")
+    }
 }

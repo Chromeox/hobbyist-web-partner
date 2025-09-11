@@ -76,7 +76,7 @@ class ClassListViewModel: ObservableObject {
             classes = try await classService.fetchClasses()
             applyFilters()
         } catch {
-            errorMessage = "Failed to load classes: \(error.localizedDescription)"
+            errorMessage = handleError(error)
             classes = []
             filteredClasses = []
         }
@@ -156,7 +156,7 @@ class ClassListViewModel: ObservableObject {
         do {
             try await favoritesService.toggleFavorite(classId: classId)
         } catch {
-            errorMessage = "Failed to update favorite: \(error.localizedDescription)"
+            errorMessage = handleError(error)
         }
     }
     
@@ -180,10 +180,27 @@ class ClassListViewModel: ObservableObject {
             classes.append(contentsOf: moreClasses)
             applyFilters()
         } catch {
-            errorMessage = "Failed to load more classes: \(error.localizedDescription)"
+            errorMessage = handleError(error)
         }
         
         isLoading = false
+    }
+
+    private func handleError(_ error: Error) -> String {
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet:
+                return "No internet connection. Please check your connection and try again."
+            case .timedOut:
+                return "The request timed out. Please try again."
+            default:
+                return "An unexpected network error occurred. Please try again later."
+            }
+        }
+        
+        // For other errors, you can add more specific handling here
+        
+        return "An unexpected error occurred. Please try again."
     }
 }
 

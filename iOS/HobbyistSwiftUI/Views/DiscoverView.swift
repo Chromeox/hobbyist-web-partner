@@ -7,7 +7,7 @@ struct DiscoverView: View {
     let categories = ["Fitness", "Arts", "Music", "Cooking", "Dance", "Technology", "Language", "Photography"]
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Search Bar
@@ -15,7 +15,7 @@ struct DiscoverView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
                         
-                        TextField("Search classes...", text: $searchText)
+                        TextField(NSLocalizedString("search_classes", comment: ""), text: $searchText)
                             .textFieldStyle(PlainTextFieldStyle())
                     }
                     .padding()
@@ -41,20 +41,23 @@ struct DiscoverView: View {
                     
                     // Featured Classes
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Featured Classes")
+                        Text(NSLocalizedString("featured_classes", comment: ""))
                             .font(.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
                         
                         ForEach(0..<5) { _ in
-                            ClassListItem()
-                                .padding(.horizontal)
+                            NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
+                                ClassListItem()
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
                         }
                     }
                 }
                 .padding(.vertical)
             }
-            .navigationTitle("Discover")
+            .navigationTitle(NSLocalizedString("discover", comment: ""))
         }
     }
 }

@@ -16,6 +16,12 @@ final class ServiceContainer {
     private(set) var cacheService: CacheService!
     private(set) var networkMonitor: NetworkMonitor!
     
+    // Convenience accessors for legacy code
+    var authService: AuthenticationManager? { authManager }
+    var dataService: DataService? { nil } // To be implemented if needed
+    var notificationService: NotificationService? { nil } // To be implemented if needed
+    var appCoordinator: AppCoordinator? { nil } // To be implemented if needed
+    
     private init() {}
     
     func configure() {
@@ -24,15 +30,21 @@ final class ServiceContainer {
     }
     
     private func setupSupabase() {
-        guard let supabaseURL = ProcessInfo.processInfo.environment["SUPABASE_URL"] ?? getDefaultSupabaseURL(),
-              let supabaseKey = ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"] ?? getDefaultSupabaseKey() else {
-            fatalError("Missing Supabase configuration")
+        // Use the secure configuration system
+        guard let config = AppConfiguration.shared.current else {
+            fatalError("Supabase configuration not loaded. Please check Config-Dev.plist")
+        }
+        
+        guard let url = URL(string: config.supabaseURL) else {
+            fatalError("Invalid Supabase URL: \(config.supabaseURL)")
         }
         
         supabaseClient = SupabaseClient(
-            supabaseURL: URL(string: supabaseURL)!,
-            supabaseKey: supabaseKey
+            supabaseURL: url,
+            supabaseKey: config.supabaseAnonKey
         )
+        
+        print("✅ Supabase client initialized with URL: \(config.supabaseURL)")
     }
     
     private func setupServices() {
@@ -52,23 +64,6 @@ final class ServiceContainer {
         
         // Start monitoring
         networkMonitor.startMonitoring()
-    }
-    
-    private func getDefaultSupabaseURL() -> String? {
-        #if DEBUG
-        return "https://mcjqvdzdhtcvbrejvrtp.supabase.co"
-        #else
-        return nil
-        #endif
-    }
-    
-    private func getDefaultSupabaseKey() -> String? {
-        #if DEBUG
-        // This is the anon key (safe for client-side)
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janF2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwOTI4MzMsImV4cCI6MjAzODY2ODgzM30.example"
-        #else
-        return nil
-        #endif
     }
 }
 
@@ -147,24 +142,36 @@ final class AnalyticsService {
 
 final class CrashReportingService {
     func recordError(_ error: Error, context: [String: Any]? = nil) {
-        Crashlytics.crashlytics().record(error: error)
-        
+        // Log to console in debug mode
+        #if DEBUG
+        print("🚨 Error recorded: \(error)")
         if let context = context {
-            for (key, value) in context {
-                Crashlytics.crashlytics().setCustomValue(value, forKey: key)
-            }
+            print("Context: \(context)")
         }
+        #endif
+        
+        // TODO: Integrate with crash reporting service (Sentry, etc.)
+        // For now, just log locally
     }
     
     func log(_ message: String) {
-        Crashlytics.crashlytics().log(message)
+        #if DEBUG
+        print("📝 Log: \(message)")
+        #endif
+        // TODO: Send to logging service
     }
     
     func setUserIdentifier(_ userId: String) {
-        Crashlytics.crashlytics().setUserID(userId)
+        #if DEBUG
+        print("👤 User ID set: \(userId)")
+        #endif
+        // TODO: Set user context in crash reporting
     }
     
     func setCustomValue(_ value: Any, forKey key: String) {
-        Crashlytics.crashlytics().setCustomValue(value, forKey: key)
+        #if DEBUG
+        print("🏷️ Custom value set: \(key) = \(value)")
+        #endif
+        // TODO: Set custom values in crash reporting
     }
 }

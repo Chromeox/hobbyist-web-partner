@@ -5,7 +5,7 @@ struct AuthenticationView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 // Logo and Welcome
                 VStack(spacing: 16) {

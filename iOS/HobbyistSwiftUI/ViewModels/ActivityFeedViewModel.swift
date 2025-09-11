@@ -60,7 +60,7 @@ class ActivityFeedViewModel: ObservableObject {
             do {
                 try await activityService.markAsRead(activityId: activity.id)
             } catch {
-                print("Error marking activity as read: \(error)")
+                ServiceContainer.shared.crashReportingService.recordError(error, context: ["activityId": activity.id.uuidString])
             }
         }
     }

@@ -1,10 +1,11 @@
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 // Profile Header
                 Section {
@@ -29,43 +30,43 @@ struct ProfileView: View {
                 }
                 
                 // Account Settings
-                Section("Account") {
-                    NavigationLink(destination: Text("Edit Profile")) {
-                        Label("Edit Profile", systemImage: "person.fill")
+                Section(NSLocalizedString("account", comment: "")) {
+                    NavigationLink(destination: EditProfileView()) {
+                        Label(NSLocalizedString("edit_profile", comment: ""), systemImage: "person.fill")
                     }
                     
-                    NavigationLink(destination: Text("Payment Methods")) {
-                        Label("Payment Methods", systemImage: "creditcard.fill")
+                    NavigationLink(destination: PaymentMethodsView()) {
+                        Label(NSLocalizedString("payment_methods", comment: ""), systemImage: "creditcard.fill")
                     }
                     
-                    NavigationLink(destination: Text("Credits")) {
-                        Label("My Credits", systemImage: "dollarsign.circle.fill")
+                    NavigationLink(destination: CreditsView()) {
+                        Label(NSLocalizedString("my_credits", comment: ""), systemImage: "dollarsign.circle.fill")
                     }
                 }
                 
                 // Preferences
-                Section("Preferences") {
-                    NavigationLink(destination: Text("Notifications")) {
-                        Label("Notifications", systemImage: "bell.fill")
+                Section(NSLocalizedString("preferences", comment: "")) {
+                    NavigationLink(destination: NotificationsView()) {
+                        Label(NSLocalizedString("notifications", comment: ""), systemImage: "bell.fill")
                     }
                     
                     NavigationLink(destination: SettingsView()) {
-                        Label("Settings", systemImage: "gear")
+                        Label(NSLocalizedString("settings", comment: ""), systemImage: "gear")
                     }
                     
-                    NavigationLink(destination: Text("Privacy")) {
-                        Label("Privacy", systemImage: "lock.fill")
+                    NavigationLink(destination: PrivacyView()) {
+                        Label(NSLocalizedString("privacy", comment: ""), systemImage: "lock.fill")
                     }
                 }
                 
                 // Support
-                Section("Support") {
-                    NavigationLink(destination: Text("Help Center")) {
-                        Label("Help Center", systemImage: "questionmark.circle.fill")
+                Section(NSLocalizedString("support", comment: "")) {
+                    NavigationLink(destination: HelpCenterView()) {
+                        Label(NSLocalizedString("help_center", comment: ""), systemImage: "questionmark.circle.fill")
                     }
                     
-                    NavigationLink(destination: Text("Contact Us")) {
-                        Label("Contact Us", systemImage: "envelope.fill")
+                    NavigationLink(destination: ContactUsView()) {
+                        Label(NSLocalizedString("contact_us", comment: ""), systemImage: "envelope.fill")
                     }
                 }
                 
@@ -74,14 +75,14 @@ struct ProfileView: View {
                     Button(action: signOut) {
                         HStack {
                             Spacer()
-                            Text("Sign Out")
+                            Text(NSLocalizedString("sign_out", comment: ""))
                                 .foregroundColor(.red)
                             Spacer()
                         }
                     }
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle(NSLocalizedString("profile", comment: ""))
         }
     }
     
@@ -89,6 +90,109 @@ struct ProfileView: View {
         Task {
             await authManager.signOut()
         }
+    }
+}
+
+struct EditProfileView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var fullName: String = ""
+    @State private var bio: String = ""
+    @State private var phoneNumber: String = ""
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var selectedPhotoData: Data?
+
+    var body: some View {
+        Form {
+            Section(header: Text("Profile Picture")) {
+                HStack {
+                    Spacer()
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        VStack {
+                            if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(.gray)
+                            }
+                            Text("Change Photo")
+                        }
+                    }
+                    Spacer()
+                }
+                .onChange(of: selectedPhoto) {
+                    Task {
+                        if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
+                            selectedPhotoData = data
+                        }
+                    }
+                }
+            }
+
+            Section(header: Text("Personal Information")) {
+                TextField("Full Name", text: $fullName)
+                TextField("Phone Number", text: $phoneNumber)
+            }
+
+            Section(header: Text("About Me")) {
+                TextEditor(text: $bio)
+                    .frame(height: 100)
+            }
+        }
+        .onAppear {
+            if let user = authManager.currentUser {
+                fullName = user.fullName ?? ""
+                // These will need to be adjusted based on your User model
+                // bio = user.profile?.bio ?? ""
+                // phoneNumber = user.profile?.phoneNumber ?? ""
+            }
+        }
+        .navigationTitle("Edit Profile")
+        .navigationBarItems(trailing: Button("Save") {
+            // Save action
+        })
+    }
+}
+
+struct PaymentMethodsView: View {
+    var body: some View {
+        Text("Payment Methods View")
+    }
+}
+
+struct CreditsView: View {
+    var body: some View {
+        Text("Credits View")
+    }
+}
+
+struct NotificationsView: View {
+    var body: some View {
+        Text("Notifications View")
+    }
+}
+
+struct PrivacyView: View {
+    var body: some View {
+        Text("Privacy View")
+    }
+}
+
+struct HelpCenterView: View {
+    var body: some View {
+        Text("Help Center View")
+    }
+}
+
+struct ContactUsView: View {
+    var body: some View {
+        Text("Contact Us View")
     }
 }
 

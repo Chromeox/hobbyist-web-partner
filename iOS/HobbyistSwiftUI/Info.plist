@@ -44,5 +44,58 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>HobbyistSwiftUI uses your location to find nearby classes and studios in your area.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>HobbyistSwiftUI uses your location to find nearby classes and studios in your area.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>HobbyistSwiftUI needs camera access to let you take photos for your profile and share class experiences.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>HobbyistSwiftUI needs photo library access to let you upload profile pictures and share class memories.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>HobbyistSwiftUI can access your contacts to help you invite friends to classes and build your hobby community.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>HobbyistSwiftUI can add your booked classes to your calendar to help you stay organized.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>HobbyistSwiftUI can create reminders for your upcoming classes and important hobby events.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>HobbyistSwiftUI sends notifications about class reminders, booking confirmations, and special offers from your favorite studios.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>HobbyistSwiftUI uses Face ID to securely authenticate your account and protect your payment information.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.hobbyistswiftui.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hobbyistswiftui</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.hobbyistswiftui.stripe</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hobbyistswiftui-stripe</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>background-processing</string>
+		<string>remote-notification</string>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>maps</string>
+		<string>instagram</string>
+		<string>fb</string>
+		<string>twitter</string>
+	</array>
 </dict>
 </plist>

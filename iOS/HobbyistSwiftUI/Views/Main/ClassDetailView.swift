@@ -63,13 +63,13 @@ struct ClassDetailView: View {
                     
                     // Action Buttons
                     HStack(spacing: 12) {
-                        ActionButton(icon: isFavorite ? "heart.fill" : "heart") {
+                        ActionButton(icon: isFavorite ? "heart.fill" : "heart", accessibilityLabel: isFavorite ? "Remove from favorites" : "Add to favorites") {
                             isFavorite.toggle()
                             hapticService.playLight()
                         }
                         .foregroundColor(isFavorite ? .red : .white)
                         
-                        ActionButton(icon: "square.and.arrow.up") {
+                        ActionButton(icon: "square.and.arrow.up", accessibilityLabel: "Share class") {
                             hapticService.playLight()
                             showShareSheet = true
                         }
@@ -274,6 +274,7 @@ struct ClassDetailView: View {
 // Action Button Component
 struct ActionButton: View {
     let icon: String
+    let accessibilityLabel: String
     let action: () -> Void
     
     var body: some View {
@@ -285,6 +286,7 @@ struct ActionButton: View {
                 .background(Color.black.opacity(0.3))
                 .clipShape(Circle())
         }
+        .accessibilityLabel(Text(accessibilityLabel))
     }
 }
 

@@ -1,16 +1,44 @@
 import SwiftUI
+import Supabase
+import UserNotifications
+
+// MARK: - Type Aliases
+typealias ClassModel = HobbyClass
 
 @main
 struct HobbyistSwiftUIApp: App {
     @StateObject private var authManager = AuthenticationManager.shared
     @StateObject private var navigationManager = NavigationManager.shared
+    @StateObject private var errorHandler = ErrorHandler()
+    @StateObject private var notificationManager = NotificationManager()
     
     init() {
+        // Initialize Supabase configuration first
+        initializeSupabase()
+        
         // Configure app appearance
         configureAppearance()
         
         // Setup service container
         ServiceContainer.shared.configure()
+        
+        // Migrate any old configuration
+        SecureConfigurationLoader.migrateConfiguration()
+    }
+    
+    private func initializeSupabase() {
+        // Ensure configuration is loaded
+        let appConfig = AppConfiguration.shared
+        
+        if !appConfig.validateConfiguration() {
+            #if DEBUG
+            print("⚠️ Supabase configuration validation failed. Please check Config-Dev.plist")
+            #else
+            fatalError("Invalid Supabase configuration")
+            #endif
+        } else {
+            print("✅ Supabase configuration loaded successfully")
+        }
     }
     
     var body: some Scene {
@@ -18,11 +46,19 @@ struct HobbyistSwiftUIApp: App {
             ContentView()
                 .environmentObject(authManager)
                 .environmentObject(navigationManager)
+                .environmentObject(errorHandler)
                 .onAppear {
                     setupInitialState()
                 }
                 .onOpenURL { url in
                     handleDeepLink(url)
+                }
+                .alert("Error", isPresented: $errorHandler.showErrorAlert) {
+                    Button("OK") {
+                        errorHandler.clearError()
+                    }
+                } message: {
+                    Text(errorHandler.currentError?.localizedDescription ?? "An unknown error occurred")
                 }
         }
     }
@@ -54,20 +90,20 @@ struct HobbyistSwiftUIApp: App {
         notificationManager.requestAuthorization()
         
         // Check authentication state
-        authViewModel.checkAuthenticationState()
+        authManager.checkAuthenticationState()
         
         // Initialize analytics
         ServiceContainer.shared.analyticsService.trackAppLaunch()
         
         // Setup crash reporting user context
-        if let userId = authViewModel.currentUser?.id {
-            Crashlytics.crashlytics().setUserID(userId)
+        if let userId = authManager.currentUser?.id {
+            ServiceContainer.shared.crashReportingService.setUserIdentifier(userId)
         }
     }
     
     private func handleDeepLink(_ url: URL) {
         // Handle deep links for TestFlight invitations, class bookings, etc.
-        appCoordinator.handleDeepLink(url)
+        navigationManager.handleDeepLink(url)
     }
 }
 

@@ -4,11 +4,11 @@ struct BookingsView: View {
     @State private var selectedSegment = 0
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Picker("", selection: $selectedSegment) {
-                    Text("Upcoming").tag(0)
-                    Text("Past").tag(1)
+                    Text(NSLocalizedString("upcoming", comment: "")).tag(0)
+                    Text(NSLocalizedString("past", comment: "")).tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
@@ -37,7 +37,7 @@ struct BookingsView: View {
                 
                 Spacer()
             }
-            .navigationTitle("My Bookings")
+            .navigationTitle(NSLocalizedString("my_bookings", comment: ""))
         }
     }
 }
@@ -49,10 +49,10 @@ struct BookingCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Pottery Making Workshop")
+                    Text(NSLocalizedString("pottery_workshop", comment: ""))
                         .font(.headline)
                     
-                    Text(isPast ? "Completed on Dec 15, 2024" : "Tomorrow at 2:00 PM")
+                    Text(isPast ? String(format: NSLocalizedString("completed_on", comment: ""), "Dec 15, 2024") : String(format: NSLocalizedString("tomorrow_at", comment: ""), "2:00 PM"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -60,7 +60,7 @@ struct BookingCard: View {
                 Spacer()
                 
                 if isPast {
-                    Button("Rate") {
+                    Button(NSLocalizedString("rate", comment: "")) {
                         // Rate action
                     }
                     .font(.caption)
@@ -70,7 +70,7 @@ struct BookingCard: View {
                     .foregroundColor(.white)
                     .cornerRadius(6)
                 } else {
-                    Text("Confirmed")
+                    Text(NSLocalizedString("confirmed", comment: ""))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
@@ -80,18 +80,18 @@ struct BookingCard: View {
             Divider()
             
             HStack {
-                Label("Central Studio", systemImage: "location.fill")
+                Label(NSLocalizedString("central_studio", comment: ""), systemImage: "location.fill")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 if !isPast {
-                    Button("View Details") {
-                        // View details action
+                    NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
+                        Text(NSLocalizedString("view_details", comment: ""))
+                            .font(.caption)
+                            .foregroundColor(.accentColor)
                     }
-                    .font(.caption)
-                    .foregroundColor(.accentColor)
                 }
             }
         }

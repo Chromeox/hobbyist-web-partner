@@ -46,6 +46,12 @@ class AuthenticationManager: ObservableObject {
         }
     }
     
+    func checkAuthenticationState() {
+        Task {
+            await checkAuthStatus()
+        }
+    }
+    
     func signIn(email: String, password: String) async throws {
         guard let supabase = supabase else {
             throw AuthError.configurationError
