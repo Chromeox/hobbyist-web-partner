@@ -15,12 +15,12 @@ final class ServiceContainer {
     private(set) var crashReportingService: CrashReportingService!
     private(set) var cacheService: CacheService!
     private(set) var networkMonitor: NetworkMonitor!
+    private(set) var notificationService: NotificationService!
+    private(set) var dataService: DataService!
+    private(set) var appCoordinator: AppCoordinator!
     
     // Convenience accessors for legacy code
     var authService: AuthenticationManager? { authManager }
-    var dataService: DataService? { nil } // To be implemented if needed
-    var notificationService: NotificationService? { nil } // To be implemented if needed
-    var appCoordinator: AppCoordinator? { nil } // To be implemented if needed
     
     private init() {}
     
@@ -61,6 +61,9 @@ final class ServiceContainer {
         crashReportingService = CrashReportingService()
         cacheService = CacheService()
         networkMonitor = NetworkMonitor()
+        notificationService = NotificationService()
+        dataService = DataService(supabase: supabaseClient)
+        appCoordinator = AppCoordinator()
         
         // Start monitoring
         networkMonitor.startMonitoring()
@@ -140,7 +143,43 @@ final class AnalyticsService {
 
 // MARK: - Crash Reporting Service
 
+import Sentry
+
 final class CrashReportingService {
+    private var isInitialized = false
+    
+    init() {
+        initializeSentry()
+    }
+    
+    private func initializeSentry() {
+        SentrySDK.start { options in
+            options.dsn = "https://your-sentry-dsn@sentry.io/project-id" // TODO: Replace with actual DSN
+            options.environment = AppConfiguration.shared.isProduction ? "production" : "development"
+            options.enableCrashHandler = true
+            options.enableMetricKit = true
+            options.enableWatchdogTerminationTracking = true
+            options.enableAppHangTracking = true
+            options.enableNetworkTracking = true
+            options.enableFileIOTracking = true
+            options.enableUserInteractionTracing = true
+            options.enableUIViewControllerTracking = true
+            options.enableNetworkBreadcrumbs = true
+            options.enableAutoBreadcrumbTracking = true
+            options.attachStacktrace = true
+            options.enableAutoSessionTracking = true
+            
+            // Set sample rates
+            options.tracesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
+            options.profilesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
+            
+            #if DEBUG
+            options.debug = true
+            #endif
+        }
+        isInitialized = true
+    }
+    
     func recordError(_ error: Error, context: [String: Any]? = nil) {
         // Log to console in debug mode
         #if DEBUG
@@ -150,28 +189,127 @@ final class CrashReportingService {
         }
         #endif
         
-        // TODO: Integrate with crash reporting service (Sentry, etc.)
-        // For now, just log locally
+        if isInitialized {
+            SentrySDK.capture(error: error) { scope in
+                if let context = context {
+                    for (key, value) in context {
+                        scope.setContext(value: [key: value], key: "custom_context")
+                    }
+                }
+            }
+        }
     }
     
     func log(_ message: String) {
         #if DEBUG
         print("📝 Log: \(message)")
         #endif
-        // TODO: Send to logging service
+        
+        if isInitialized {
+            SentrySDK.addBreadcrumb(Breadcrumb(level: .info, category: "app.log", message: message))
+        }
     }
     
-    func setUserIdentifier(_ userId: String) {
+    func setUserID(_ userId: String) {
         #if DEBUG
         print("👤 User ID set: \(userId)")
         #endif
-        // TODO: Set user context in crash reporting
+        
+        if isInitialized {
+            SentrySDK.setUser(Sentry.User(userId: userId))
+        }
+    }
+    
+    func setUserIdentifier(_ userId: String) {
+        setUserID(userId)
     }
     
     func setCustomValue(_ value: Any, forKey key: String) {
         #if DEBUG
         print("🏷️ Custom value set: \(key) = \(value)")
         #endif
-        // TODO: Set custom values in crash reporting
+        
+        if isInitialized {
+            SentrySDK.setTag(value: "\(value)", key: key)
+        }
+    }
+    
+    func recordPerformance(operationName: String, description: String? = nil, operation: () throws -> Void) rethrows {
+        if isInitialized {
+            let transaction = SentrySDK.startTransaction(name: operationName, operation: "performance")
+            if let description = description {
+                transaction.setData(value: description, key: "description")
+            }
+            
+            do {
+                try operation()
+                transaction.finish(status: .ok)
+            } catch {
+                transaction.finish(status: .internalError)
+                recordError(error, context: ["operation": operationName])
+                throw error
+            }
+        } else {
+            try operation()
+        }
+    }
+}
+
+// MARK: - App Coordinator
+
+final class AppCoordinator: ObservableObject {
+    @Published var currentTab: MainTab = .home
+    @Published var selectedClass: ClassModel?
+    @Published var showBookingFlow = false
+    @Published var showFeedback = false
+    @Published var pendingDeepLink: URL?
+    
+    enum MainTab: String, CaseIterable {
+        case home = "Home"
+        case discover = "Discover"
+        case bookings = "Bookings"
+        case profile = "Profile"
+        
+        var icon: String {
+            switch self {
+            case .home: return "house.fill"
+            case .discover: return "magnifyingglass"
+            case .bookings: return "calendar"
+            case .profile: return "person.fill"
+            }
+        }
+    }
+    
+    func handleDeepLink(_ url: URL) {
+        // Parse and handle deep links
+        pendingDeepLink = url
+        
+        if url.pathComponents.contains("class") {
+            // Handle class deep link
+            if let classId = url.pathComponents.last {
+                loadAndShowClass(classId: classId)
+            }
+        } else if url.pathComponents.contains("booking") {
+            // Handle booking deep link
+            currentTab = .bookings
+        } else if url.pathComponents.contains("feedback") {
+            // Show feedback form
+            showFeedback = true
+        }
+    }
+    
+    private func loadAndShowClass(classId: String) {
+        Task {
+            do {
+                let classModel = try await ServiceContainer.shared.classService.getClass(by: classId)
+                await MainActor.run {
+                    // Convert to ClassModel if needed
+                    // self.selectedClass = classModel
+                    self.showBookingFlow = true
+                }
+            } catch {
+                ServiceContainer.shared.crashReportingService.recordError(error, context: ["action": "deep_link_class_load", "class_id": classId])
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
 import Foundation
 
-// MARK: - User Model
+// MARK: - User Profile Model (Extended)
 
-struct User: Identifiable, Codable, Equatable {
+struct UserProfile: Identifiable, Codable, Equatable {
     let id: String
     let email: String
     let fullName: String

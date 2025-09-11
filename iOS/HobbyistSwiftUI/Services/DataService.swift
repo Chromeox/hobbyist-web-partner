@@ -3,12 +3,15 @@ import Supabase
 import Combine
 
 class DataService: DataServiceProtocol {
-    private let supabase = SupabaseManager.shared.client
+    private let supabase: SupabaseClient
+    
+    init(supabase: SupabaseClient) {
+        self.supabase = supabase
+    }
     
     // MARK: - Classes
     
     func fetchClasses(filters: ClassFilters?) async throws -> [HobbyClass] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
         var query = supabase.database
             .from("classes")

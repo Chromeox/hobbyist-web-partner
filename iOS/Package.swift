@@ -35,6 +35,11 @@ let package = Package(
         .package(
             url: "https://github.com/onevcat/Kingfisher.git",
             exact: "8.5.0"
+        ),
+        // Sentry for crash reporting and performance monitoring
+        .package(
+            url: "https://github.com/getsentry/sentry-cocoa.git",
+            exact: "8.36.0"
         )
     ],
     targets: [
@@ -50,7 +55,8 @@ let package = Package(
                 .product(name: "StripePaymentSheet", package: "stripe-ios"),
                 .product(name: "StripePayments", package: "stripe-ios"),
                 .product(name: "StripeCore", package: "stripe-ios"),
-                .product(name: "Kingfisher", package: "Kingfisher")
+                .product(name: "Kingfisher", package: "Kingfisher"),
+                .product(name: "Sentry", package: "sentry-cocoa")
             ],
             path: "Sources"
         ),
