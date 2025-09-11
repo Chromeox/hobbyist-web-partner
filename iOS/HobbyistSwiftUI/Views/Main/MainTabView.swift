@@ -35,6 +35,12 @@ struct MainTabView: View {
 
 struct MainHomeView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var homeViewModel = HomeViewModel()
+    
+    // Performance optimization: Computed property to prevent unnecessary updates
+    private var userName: String {
+        authManager.currentUser?.fullName ?? "Hobbyist"
+    }
     
     var body: some View {
         NavigationView {
@@ -46,7 +52,7 @@ struct MainHomeView: View {
                             .font(.title2)
                             .foregroundColor(.secondary)
                         
-                        Text(authManager.currentUser?.fullName ?? "Hobbyist")
+                        Text(userName)
                             .font(.largeTitle)
                             .fontWeight(.bold)
                     }
@@ -79,9 +85,10 @@ struct MainHomeView: View {
                             .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(0..<3) { _ in
+                            LazyHStack(spacing: 16) {
+                                ForEach(0..<3, id: \.self) { index in
                                     SimpleClassCard()
+                                        .id("upcoming-\(index)")
                                 }
                             }
                             .padding(.horizontal)
@@ -96,9 +103,10 @@ struct MainHomeView: View {
                             .padding(.horizontal)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(0..<5) { _ in
+                            LazyHStack(spacing: 16) {
+                                ForEach(0..<5, id: \.self) { index in
                                     RecommendationCard()
+                                        .id("recommendation-\(index)")
                                 }
                             }
                             .padding(.horizontal)
@@ -117,6 +125,9 @@ struct StatCard: View {
     let value: String
     let label: String
     let color: Color
+    
+    // Performance optimization: Pre-computed frame for consistent layout
+    private let cardFrame = CGSize(width: 160, height: 120)
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

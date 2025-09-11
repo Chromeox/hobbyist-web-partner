@@ -10,6 +10,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleDisplayName</key>
+	<string>Hobbyist</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -45,25 +47,51 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>HobbyistSwiftUI uses your location to find nearby classes and studios in your area.</string>
+	<string>Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>HobbyistSwiftUI uses your location to find nearby classes and studios in your area.</string>
+	<string>Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>HobbyistSwiftUI needs camera access to let you take photos for your profile and share class experiences.</string>
+	<string>Hobbyist needs camera access to let you take profile photos and capture memories from your classes to share with the community.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>HobbyistSwiftUI needs photo library access to let you upload profile pictures and share class memories.</string>
+	<string>Hobbyist needs photo library access to let you select profile pictures and upload photos from your creative classes and workshops.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>HobbyistSwiftUI can access your contacts to help you invite friends to classes and build your hobby community.</string>
+	<string>Hobbyist can access your contacts to help you invite friends to join classes together and build connections in your local creative community.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>HobbyistSwiftUI can add your booked classes to your calendar to help you stay organized.</string>
+	<string>Hobbyist can add your booked classes and workshops to your calendar, ensuring you never miss a session and can plan your creative schedule.</string>
 	<key>NSRemindersUsageDescription</key>
-	<string>HobbyistSwiftUI can create reminders for your upcoming classes and important hobby events.</string>
+	<string>Hobbyist can create reminders for your upcoming classes, workshop deadlines, and important events so you stay engaged with your hobbies.</string>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>HobbyistSwiftUI sends notifications about class reminders, booking confirmations, and special offers from your favorite studios.</string>
+	<string>Hobbyist sends helpful notifications about class reminders, booking confirmations, last-minute availability, and exclusive offers from studios you follow.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>HobbyistSwiftUI uses Face ID to securely authenticate your account and protect your payment information.</string>
+	<string>Hobbyist uses Face ID and Touch ID to securely authenticate your account access and protect your payment information during checkout.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>supabase.co</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>stripe.com</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -5,6 +5,9 @@ struct SearchView: View {
     @State private var showingFilters = false
     @FocusState private var isSearchFocused: Bool
     
+    // Performance optimization: Debounce search input
+    @State private var searchDebounceTimer: Timer?
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -17,6 +20,18 @@ struct SearchView: View {
                         
                         TextField("Search classes, instructors, venues...", text: $viewModel.searchQuery)
                             .focused($isSearchFocused)
+                            .onSubmit {
+                                viewModel.performSearch()
+                            }
+                            .onChange(of: viewModel.searchQuery) { newValue in
+                                // Debounce search to improve performance
+                                searchDebounceTimer?.invalidate()
+                                searchDebounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                                    if !newValue.isEmpty {
+                                        viewModel.performSearch()
+                                    }
+                                }
+                            }
                         
                         if !viewModel.searchQuery.isEmpty {
                             Button {
