@@ -42,6 +42,7 @@ import {
   AreaChart
 } from 'recharts';
 
+// Interfaces for data structures used in the dashboard
 interface PayoutSummary {
   totalEarnings: number;
   pendingPayouts: number;
@@ -75,131 +76,112 @@ interface EarningsBreakdown {
   studentCount: number;
 }
 
+// Main PayoutDashboard component
 const PayoutDashboard: React.FC = () => {
+  // Hooks for authentication, payment model, and Supabase client
   const { user } = useAuth();
-  const { paymentModel } = usePaymentModel();
+  const { paymentModel } = usePaymentModel(); // Assuming this context provides payment-related info
   const supabase = createClientComponentClient();
   
+  // State variables for loading, date range, and fetched data
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30');
   const [summary, setSummary] = useState<PayoutSummary | null>(null);
   const [payoutHistory, setPayoutHistory] = useState<PayoutHistory[]>([]);
   const [earningsBreakdown, setEarningsBreakdown] = useState<EarningsBreakdown[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
-  const [selectedVenue, setSelectedVenue] = useState<string>('all');
+  const [selectedVenue, setSelectedVenue] = useState<string>('all'); // For future filtering by venue
 
+  // Effect hook to fetch payout data when user, dateRange, or selectedVenue changes
   useEffect(() => {
     if (user) {
       fetchPayoutData();
     }
   }, [user, dateRange, selectedVenue]);
 
+  // Function to fetch payout data from Supabase
   const fetchPayoutData = async () => {
     try {
       setLoading(true);
 
-      // Fetch summary data
-      const summaryData: PayoutSummary = {
-        totalEarnings: 48750.00,
-        pendingPayouts: 3250.00,
-        completedPayouts: 45500.00,
-        nextPayoutDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        nextPayoutAmount: 3250.00,
-        totalStudents: 1247,
-        averageClassValue: 85.50,
-        growthRate: 12.5
-      };
+      // Ensure user is authenticated before fetching data
+      if (!user?.id) {
+        console.error('User not authenticated. Cannot fetch payout data.');
+        setLoading(false);
+        return;
+      }
+
+      // --- Fetch Summary Data ---
+      // Queries the 'payout_summaries' table for the user's overall payout summary.
+      const { data: summaryData, error: summaryError } = await supabase
+        .from('payout_summaries')
+        .select('*')
+        .eq('user_id', user.id) // Filter by the logged-in user's ID
+        .single(); // Expecting a single summary record per user
+
+      if (summaryError) throw summaryError;
       setSummary(summaryData);
 
-      // Fetch payout history
-      const history: PayoutHistory[] = [
-        {
-          id: '1',
-          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          amount: 2850.00,
-          status: 'completed',
-          method: 'stripe',
-          transactionId: 'pi_1234567890',
-          classCount: 42,
-          commissionRate: 20,
-          netAmount: 2280.00
-        },
-        {
-          id: '2',
-          date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-          amount: 3100.00,
-          status: 'completed',
-          method: 'bank_transfer',
-          transactionId: 'bt_0987654321',
-          classCount: 38,
-          commissionRate: 20,
-          netAmount: 2480.00
-        },
-        {
-          id: '3',
-          date: new Date(),
-          amount: 3250.00,
-          status: 'pending',
-          method: 'stripe',
-          classCount: 45,
-          commissionRate: 20,
-          netAmount: 2600.00
-        }
-      ];
-      setPayoutHistory(history);
+      // --- Fetch Payout History ---
+      // Retrieves historical payout records for the user.
+      const { data: historyData, error: historyError } = await supabase
+        .from('payout_history')
+        .select('*')
+        .eq('user_id', user.id) // Filter by user ID
+        .order('date', { ascending: false }); // Order by date, newest first
 
-      // Fetch earnings breakdown by venue
-      const breakdown: EarningsBreakdown[] = [
-        {
-          venue: 'Downtown Yoga Studio',
-          venueId: 'venue_1',
-          totalRevenue: 18500.00,
-          commission: 3700.00,
-          netEarnings: 14800.00,
-          classCount: 124,
-          studentCount: 520
-        },
-        {
-          venue: 'Westside Fitness Center',
-          venueId: 'venue_2',
-          totalRevenue: 15250.00,
-          commission: 3050.00,
-          netEarnings: 12200.00,
-          classCount: 98,
-          studentCount: 412
-        },
-        {
-          venue: 'Beach Wellness Hub',
-          venueId: 'venue_3',
-          totalRevenue: 15000.00,
-          commission: 3000.00,
-          netEarnings: 12000.00,
-          classCount: 88,
-          studentCount: 315
-        }
-      ];
-      setEarningsBreakdown(breakdown);
+      if (historyError) throw historyError;
+      setPayoutHistory(historyData);
 
-      // Generate chart data
-      const days = parseInt(dateRange);
-      const chart = Array.from({ length: days }, (_, i) => {
-        const date = subDays(new Date(), days - i - 1);
-        return {
-          date: format(date, 'MMM dd'),
-          earnings: Math.floor(Math.random() * 500) + 200,
-          classes: Math.floor(Math.random() * 5) + 1,
-          students: Math.floor(Math.random() * 20) + 5
-        };
-      });
+      // --- Fetch Earnings Breakdown by Venue ---
+      // Gets a breakdown of earnings, potentially filtered by venue.
+      const { data: breakdownData, error: breakdownError } = await supabase
+        .from('earnings_breakdown')
+        .select('*')
+        .eq('user_id', user.id); // Filter by user ID
+
+      if (breakdownError) throw breakdownError;
+      setEarningsBreakdown(breakdownData);
+
+      // --- Generate Chart Data ---
+      // Fetches class data to populate the earnings, classes, and students charts.
+      const startDate = subDays(new Date(), parseInt(dateRange)); // Calculate start date based on selected range
+      const endDate = new Date();
+
+      const { data: classesData, error: classesError } = await supabase
+        .from('classes')
+        .select('created_at, total_bookings, revenue') // Select relevant columns for charting
+        .eq('instructor_id', user.id) // Filter by instructor ID
+        .gte('created_at', startDate.toISOString()) // Filter by date range (greater than or equal to start date)
+        .lte('created_at', endDate.toISOString()) // Filter by date range (less than or equal to end date)
+        .order('created_at', { ascending: true }); // Order by creation date for chart display
+
+      if (classesError) throw classesError;
+
+      // Process fetched class data into a format suitable for the charts
+      const chart = classesData.map(cls => ({
+        date: format(new Date(cls.created_at), 'MMM dd'), // Format date for X-axis
+        earnings: cls.revenue || 0, // Use revenue for earnings chart
+        classes: cls.total_bookings || 0, // Use total bookings for classes chart
+        students: 0 // Placeholder: Actual student count per class would need a more complex query
+      }));
       setChartData(chart);
 
-    } catch (error) {
-      console.error('Error fetching payout data:', error);
+    } catch (error: any) {
+      // --- Error Handling ---
+      // Logs the error and resets data states to empty/null.
+      // In a production app, you would display a user-friendly error message in the UI.
+      console.error('Error fetching payout data:', error.message);
+      setSummary(null);
+      setPayoutHistory([]);
+      setEarningsBreakdown([]);
+      setChartData([]);
     } finally {
-      setLoading(false);
+      setLoading(false); // Always set loading to false after data fetch attempt
     }
   };
 
+  // Helper function to determine the icon for payout status
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
@@ -215,6 +197,7 @@ const PayoutDashboard: React.FC = () => {
     }
   };
 
+  // Helper function to determine the color for payout status badge
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
@@ -225,6 +208,7 @@ const PayoutDashboard: React.FC = () => {
     }
   };
 
+  // Display a loading spinner while data is being fetched
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -233,9 +217,50 @@ const PayoutDashboard: React.FC = () => {
     );
   }
 
+  // Function to handle updating payment method (Stripe Connect onboarding)
+  const handleUpdatePaymentMethod = async () => {
+    if (!user?.id) {
+      console.error('User not authenticated. Cannot create Stripe account link.');
+      // In a production app, you would show a user-friendly error message here.
+      return;
+    }
+
+    try {
+      setLoading(true); // Show loading state during API call
+      // Call your backend API route to create a Stripe Connect Account Link.
+      // This API route (e.g., /api/stripe/create-account-link) would:
+      // 1. Verify the authenticated user.
+      // 2. Create or retrieve a Stripe Connect Account for the user.
+      // 3. Create an Account Link for that Stripe Connect Account.
+      // 4. Return the URL of the Account Link to the frontend.
+      const response = await fetch('/api/stripe/create-account-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id }), // Pass user ID to backend for association
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        // Redirect the user to the Stripe onboarding URL to complete the process.
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create Stripe account link:', data.error || 'Unknown error');
+        // Display an error message to the user if the link creation fails.
+      }
+    } catch (error: any) {
+      console.error('Error creating Stripe account link:', error.message);
+      // Display a generic error message to the user for unexpected errors.
+    } finally {
+      setLoading(false); // Hide loading state
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {/* Header Section: Displays page title, description, and global filters/actions */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Payout Dashboard</h2>
@@ -244,6 +269,7 @@ const PayoutDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          {/* Date Range Selector */}
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select period" />
@@ -255,6 +281,7 @@ const PayoutDashboard: React.FC = () => {
               <SelectItem value="365">Last year</SelectItem>
             </SelectContent>
           </Select>
+          {/* Export Report Button */}
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export Report
@@ -262,8 +289,9 @@ const PayoutDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards: Displays key financial metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Total Earnings Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
@@ -288,6 +316,7 @@ const PayoutDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Pending Payouts Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
@@ -301,6 +330,7 @@ const PayoutDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Total Students Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Students</CardTitle>
@@ -314,6 +344,7 @@ const PayoutDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Average Class Value Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Class Value</CardTitle>
@@ -328,7 +359,7 @@ const PayoutDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Charts Section */}
+      {/* Charts Section: Visual representation of earnings, classes, and students data */}
       <Card>
         <CardHeader>
           <CardTitle>Earnings Overview</CardTitle>
@@ -395,7 +426,7 @@ const PayoutDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Earnings by Venue */}
+      {/* Earnings by Venue: Provides a detailed breakdown of earnings per venue */}
       <Card>
         <CardHeader>
           <CardTitle>Earnings by Venue</CardTitle>
@@ -426,7 +457,7 @@ const PayoutDashboard: React.FC = () => {
                       <span className="ml-2 font-medium text-green-600">${venue.netEarnings.toLocaleString()}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>{venue.studentCount} students</span>
                     <span>${(venue.totalRevenue / venue.classCount).toFixed(2)} avg/class</span>
                   </div>
@@ -438,7 +469,7 @@ const PayoutDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Payout History */}
+      {/* Payout History: Lists recent and upcoming payout transactions */}
       <Card>
         <CardHeader>
           <CardTitle>Payout History</CardTitle>
@@ -489,7 +520,7 @@ const PayoutDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Next Payout Card */}
+      {/* Next Payout Card: Highlights the next scheduled payout */}
       {summary?.nextPayoutAmount > 0 && (
         <Card className="border-primary">
           <CardHeader>
@@ -510,7 +541,8 @@ const PayoutDashboard: React.FC = () => {
                   Will be processed automatically via Stripe
                 </p>
               </div>
-              <Button>
+              {/* Button to update payment method, initiating Stripe Connect onboarding */}
+              <Button onClick={handleUpdatePaymentMethod}>
                 <CreditCard className="mr-2 h-4 w-4" />
                 Update Payment Method
               </Button>

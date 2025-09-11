@@ -188,3 +188,4 @@ supabase-management/config/.env.local
 supabase-management/backups/
 *.backup
 *.sql.backup
+.env.instagram

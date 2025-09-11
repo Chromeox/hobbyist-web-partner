@@ -17,7 +17,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SupabaseTest } from '../../components/SupabaseTest';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
@@ -37,7 +37,8 @@ import {
   ChevronRight,
   Download,
   RefreshCw,
-  Filter
+  Filter,
+  Plus
 } from 'lucide-react';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -51,7 +52,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  Chart
 } from 'chart.js';
 
 ChartJS.register(
@@ -76,10 +78,41 @@ interface KPICard {
   color: string;
 }
 
+const SkeletonCard = () => (
+    <div className="relative overflow-hidden bg-gray-100 border rounded-xl p-4 animate-pulse">
+        <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+        <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-full"></div>
+    </div>
+);
+
+const EmptyState = ({ title, message, actionText, onAction }: { title: string, message: string, actionText?: string, onAction?: () => void }) => (
+    <div className="text-center py-12">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
+            <BookOpen className="h-6 w-6 text-gray-400" />
+        </div>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">{title}</h3>
+        <p className="mt-1 text-sm text-gray-500">{message}</p>
+        {actionText && onAction && (
+            <div className="mt-6">
+                <button
+                    type="button"
+                    onClick={onAction}
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                    <Plus className="-ml-1 mr-2 h-5 w-5" />
+                    {actionText}
+                </button>
+            </div>
+        )}
+    </div>
+);
+
 export default function DashboardOverview() {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [studioClasses, setStudioClasses] = useState<any>(null);
+  const chartRef = useRef<ChartJS>(null);
 
   // KPI Data
   const kpiData: KPICard[] = [
@@ -135,6 +168,7 @@ export default function DashboardOverview() {
   // Fetch real studio classes data
   useEffect(() => {
     const fetchStudioClasses = async () => {
+      setIsLoading(true);
       try {
         // In production, this would fetch from your Supabase database
         // Example of how it would work with real data:
@@ -160,10 +194,13 @@ export default function DashboardOverview() {
         
         // For demonstration, using mock data that represents what would come from the database
         // This will be replaced with actual studio classes when connected to production
-        setStudioClasses({
-          labels: ['Power Yoga', 'Beginner Pilates', 'Advanced HIIT', 'Zen Meditation', 'Dance Flow'],
-          data: [85, 72, 64, 45, 38]
-        });
+        setTimeout(() => {
+            setStudioClasses({
+              labels: ['Power Yoga', 'Beginner Pilates', 'Advanced HIIT', 'Zen Meditation', 'Dance Flow'],
+              data: [85, 72, 64, 45, 38]
+            });
+            setIsLoading(false);
+        }, 1500)
       } catch (error) {
         console.error('Error fetching classes:', error);
         // Fallback to default data
@@ -171,6 +208,7 @@ export default function DashboardOverview() {
           labels: ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'],
           data: [50, 40, 30, 20, 10]
         });
+        setIsLoading(false);
       }
     };
     
@@ -208,24 +246,27 @@ export default function DashboardOverview() {
   };
 
   // Upcoming Classes
-  const upcomingClasses = [
-    { id: 1, name: 'Morning Yoga Flow', time: '9:00 AM', enrolled: 12, capacity: 15, instructor: 'Sarah Johnson' },
-    { id: 2, name: 'Advanced Pilates', time: '10:30 AM', enrolled: 8, capacity: 10, instructor: 'Mike Chen' },
-    { id: 3, name: 'Contemporary Dance', time: '2:00 PM', enrolled: 15, capacity: 20, instructor: 'Emily Davis' },
-    { id: 4, name: 'Meditation & Mindfulness', time: '4:00 PM', enrolled: 18, capacity: 18, instructor: 'David Kim' }
-  ];
+  const upcomingClasses: any[] = []; // Empty for demo
 
   // Recent Activities
-  const recentActivities = [
-    { id: 1, type: 'booking', message: 'New booking for Yoga Class by Jane Smith', time: '10 minutes ago' },
-    { id: 2, type: 'review', message: '5-star review from Michael Brown', time: '1 hour ago' },
-    { id: 3, type: 'payment', message: 'Payment received: $150 from Alex Johnson', time: '2 hours ago' },
-    { id: 4, type: 'cancellation', message: 'Cancellation: Dance Class by Emma Wilson', time: '3 hours ago' }
-  ];
+  const recentActivities: any[] = []; // Empty for demo
 
   const handleRefresh = () => {
     setIsLoading(true);
     setTimeout(() => setIsLoading(false), 1000);
+  };
+
+  const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (chartRef.current) {
+        const chart = chartRef.current;
+        const elements = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, true);
+        if (elements.length > 0) {
+            const element = elements[0];
+            const data = revenueChartData.datasets[element.datasetIndex].data[element.index];
+            const label = revenueChartData.labels[element.index];
+            alert(`Revenue for ${label}: $${data}`);
+        }
+    }
   };
 
   return (
@@ -265,83 +306,92 @@ export default function DashboardOverview() {
 
       {/* KPI Cards - Redesigned for better space utilization */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiData.map((kpi, index) => {
-          const Icon = kpi.icon;
-          const colorClasses = {
-            green: 'from-green-50 to-green-100 border-green-200',
-            blue: 'from-blue-50 to-blue-100 border-blue-200',
-            purple: 'from-purple-50 to-purple-100 border-purple-200',
-            yellow: 'from-yellow-50 to-yellow-100 border-yellow-200'
-          };
-          const iconColors = {
-            green: 'text-green-600 bg-green-100',
-            blue: 'text-blue-600 bg-blue-100',
-            purple: 'text-purple-600 bg-purple-100',
-            yellow: 'text-yellow-600 bg-yellow-100'
-          };
-          
-          return (
-            <motion.div
-              key={kpi.title}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              className={`relative overflow-hidden bg-gradient-to-br ${colorClasses[kpi.color as keyof typeof colorClasses]} 
-                         border rounded-xl p-4 hover:shadow-lg transition-all duration-300 group`}
-            >
-              {/* Background Pattern */}
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
-                <Icon className="h-24 w-24" />
-              </div>
+        {isLoading ? (
+            <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+            </>
+        ) : (
+            kpiData.map((kpi, index) => {
+              const Icon = kpi.icon;
+              const colorClasses = {
+                green: 'from-green-50 to-green-100 border-green-200',
+                blue: 'from-blue-50 to-blue-100 border-blue-200',
+                purple: 'from-purple-50 to-purple-100 border-purple-200',
+                yellow: 'from-yellow-50 to-yellow-100 border-yellow-200'
+              };
+              const iconColors = {
+                green: 'text-green-600 bg-green-100',
+                blue: 'text-blue-600 bg-blue-100',
+                purple: 'text-purple-600 bg-purple-100',
+                yellow: 'text-yellow-600 bg-yellow-100'
+              };
               
-              {/* Content */}
-              <div className="relative">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className={`inline-flex p-2 rounded-lg ${iconColors[kpi.color as keyof typeof iconColors]} mb-2`}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider">{kpi.title}</h3>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
+              return (
+                <motion.div
+                  key={kpi.title}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`relative overflow-hidden bg-gradient-to-br ${colorClasses[kpi.color as keyof typeof colorClasses]} 
+                             border rounded-xl p-4 hover:shadow-lg transition-all duration-300 group`}
+                >
+                  {/* Background Pattern */}
+                  <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
+                    <Icon className="h-24 w-24" />
                   </div>
                   
-                  {/* Change indicator */}
-                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
-                    ${kpi.changeType === 'increase' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'}`}>
-                    {kpi.changeType === 'increase' ? (
-                      <TrendingUp className="h-3 w-3" />
-                    ) : (
-                      <TrendingDown className="h-3 w-3" />
-                    )}
-                    <span>{Math.abs(kpi.change)}%</span>
+                  {/* Content */}
+                  <div className="relative">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className={`inline-flex p-2 rounded-lg ${iconColors[kpi.color as keyof typeof iconColors]} mb-2`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider">{kpi.title}</h3>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
+                      </div>
+                      
+                      {/* Change indicator */}
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
+                        ${kpi.changeType === 'increase' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'}`}>
+                        {kpi.changeType === 'increase' ? (
+                          <TrendingUp className="h-3 w-3" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3" />
+                        )}
+                        <span>{Math.abs(kpi.change)}%</span>
+                      </div>
+                    </div>
+                    
+                    {/* Mini Chart or Progress Bar */}
+                    <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+                      <motion.div 
+                        className={`h-full bg-gradient-to-r ${
+                          kpi.color === 'green' ? 'from-green-400 to-green-600' :
+                          kpi.color === 'blue' ? 'from-blue-400 to-blue-600' :
+                          kpi.color === 'purple' ? 'from-purple-400 to-purple-600' :
+                          'from-yellow-400 to-yellow-600'
+                        }`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(100, Math.abs(kpi.change) * 5)}%` }}
+                        transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                      />
+                    </div>
+                    
+                    {/* Period comparison */}
+                    <p className="text-xs text-gray-500 mt-2">
+                      vs last {selectedPeriod === 'today' ? 'day' : selectedPeriod}
+                    </p>
                   </div>
-                </div>
-                
-                {/* Mini Chart or Progress Bar */}
-                <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
-                  <motion.div 
-                    className={`h-full bg-gradient-to-r ${
-                      kpi.color === 'green' ? 'from-green-400 to-green-600' :
-                      kpi.color === 'blue' ? 'from-blue-400 to-blue-600' :
-                      kpi.color === 'purple' ? 'from-purple-400 to-purple-600' :
-                      'from-yellow-400 to-yellow-600'
-                    }`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, Math.abs(kpi.change) * 5)}%` }}
-                    transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                  />
-                </div>
-                
-                {/* Period comparison */}
-                <p className="text-xs text-gray-500 mt-2">
-                  vs last {selectedPeriod === 'today' ? 'day' : selectedPeriod}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+                </motion.div>
+              );
+            })
+        )}
       </div>
 
       {/* Charts Row */}
@@ -360,7 +410,9 @@ export default function DashboardOverview() {
           </div>
           <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
             <Line
+              ref={chartRef}
               data={revenueChartData}
+              onClick={handleChartClick}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
@@ -432,7 +484,7 @@ export default function DashboardOverview() {
             <span className="text-xs text-gray-500">Your studio's top performers</span>
           </div>
           <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
-            {classPopularityData ? (
+            {classPopularityData && classPopularityData.datasets[0].data.length > 0 ? (
               <Bar
                 data={classPopularityData}
                 options={{
@@ -458,12 +510,12 @@ export default function DashboardOverview() {
                 }}
               />
             ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-                  <p className="text-sm text-gray-500">Loading your classes...</p>
-                </div>
-              </div>
+                <EmptyState 
+                    title="No class data available" 
+                    message="Once you have bookings, you will see your most popular classes here."
+                    actionText="Create a Class"
+                    onAction={() => { /* Navigate to create class page */ }}
+                />
             )}
           </div>
         </div>
@@ -475,28 +527,35 @@ export default function DashboardOverview() {
             <span className="text-sm text-gray-500">{upcomingClasses.length} classes</span>
           </div>
           <div className="space-y-4">
-            {upcomingClasses.map(cls => (
-              <div key={cls.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">{cls.time}</span>
+            {upcomingClasses.length > 0 ? (
+                upcomingClasses.map(cls => (
+                  <div key={cls.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">{cls.time}</span>
+                      </div>
+                      <h3 className="font-medium text-gray-900 mt-1">{cls.name}</h3>
+                      <p className="text-sm text-gray-600">{cls.instructor}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-sm font-medium ${
+                        cls.enrolled === cls.capacity ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                        {cls.enrolled}/{cls.capacity}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {cls.enrolled === cls.capacity ? 'Full' : `${cls.capacity - cls.enrolled} spots`}
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-medium text-gray-900 mt-1">{cls.name}</h3>
-                  <p className="text-sm text-gray-600">{cls.instructor}</p>
-                </div>
-                <div className="text-right">
-                  <div className={`text-sm font-medium ${
-                    cls.enrolled === cls.capacity ? 'text-red-600' : 'text-green-600'
-                  }`}>
-                    {cls.enrolled}/{cls.capacity}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {cls.enrolled === cls.capacity ? 'Full' : `${cls.capacity - cls.enrolled} spots`}
-                  </div>
-                </div>
-              </div>
-            ))}
+                ))
+            ) : (
+                <EmptyState 
+                    title="No upcoming classes" 
+                    message="You have no classes scheduled for today."
+                />
+            )}
           </div>
         </div>
       </div>
@@ -515,22 +574,29 @@ export default function DashboardOverview() {
           </button>
         </div>
         <div className="space-y-3">
-          {recentActivities.map(activity => (
-            <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-              <div className={`p-2 rounded-lg ${
-                activity.type === 'booking' ? 'bg-blue-100 text-blue-600' :
-                activity.type === 'review' ? 'bg-yellow-100 text-yellow-600' :
-                activity.type === 'payment' ? 'bg-green-100 text-green-600' :
-                'bg-red-100 text-red-600'
-              }`}>
-                <Activity className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-900">{activity.message}</p>
-                <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
-              </div>
-            </div>
-          ))}
+            {recentActivities.length > 0 ? (
+                recentActivities.map(activity => (
+                  <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className={`p-2 rounded-lg ${
+                      activity.type === 'booking' ? 'bg-blue-100 text-blue-600' :
+                      activity.type === 'review' ? 'bg-yellow-100 text-yellow-600' :
+                      activity.type === 'payment' ? 'bg-green-100 text-green-600' :
+                      'bg-red-100 text-red-600'
+                    }`}>
+                      <Activity className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-gray-900">{activity.message}</p>
+                      <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
+                    </div>
+                  </div>
+                ))
+            ) : (
+                <EmptyState 
+                    title="No recent activity" 
+                    message="Recent bookings, reviews, and payments will appear here."
+                />
+            )}
         </div>
       </div>
     </div>
