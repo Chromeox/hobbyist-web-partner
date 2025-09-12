@@ -1,0 +1,35 @@
+{
+  "name": "hobby-directory-airtable-automation",
+  "version": "1.0.0",
+  "description": "Automated Airtable base creation and validation for Hobby Classes Directory",
+  "main": "airtable-base-creator.js",
+  "scripts": {
+    "create-base": "node airtable-base-creator.js",
+    "validate-base": "node airtable-validator.js",
+    "integration-test": "node integration-helper.js",
+    "setup": "echo 'Run: npm run create-base to get started'"
+  },
+  "keywords": [
+    "airtable",
+    "automation",
+    "hobby-classes",
+    "vancouver",
+    "whalesync",
+    "webflow"
+  ],
+  "author": "Hobby Directory Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chromeox/HobbyistSwiftUI"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "bin": {
+    "create-hobby-base": "./airtable-base-creator.js",
+    "validate-hobby-base": "./airtable-validator.js"
+  }
+}
