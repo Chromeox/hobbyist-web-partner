@@ -170,3 +170,9 @@
 - August 19: OAuth bundle IDs documented
 - August 10: Fresh start with streamlined architecture
 - Previous: MVVM refactoring with 73% code reduction
+
+---
+
+## ⚠️ Critical Reminder
+
+**NEVER FABRICATE COMPLETED WORK**: Always verify actual completion before claiming tasks are done. If unsure what has been accomplished, check files/status first. Do not provide hypothetical summaries of work that hasn't been performed.
