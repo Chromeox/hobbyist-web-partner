@@ -12,6 +12,7 @@ struct ClassItem: Identifiable, Codable {
     let duration: String
     let difficulty: String
     let price: String
+    let creditsRequired: Int
     let startTime: Date
     let endTime: Date
     let location: String
@@ -45,6 +46,7 @@ struct ClassItem: Identifiable, Codable {
             duration: "60 min",
             difficulty: "All Levels",
             price: "$25",
+            creditsRequired: 8,
             startTime: Date().addingTimeInterval(86400),
             endTime: Date().addingTimeInterval(90000),
             location: "Downtown Studio",

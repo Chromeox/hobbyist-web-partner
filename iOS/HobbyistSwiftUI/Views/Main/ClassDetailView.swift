@@ -122,7 +122,7 @@ struct ClassDetailView: View {
                     .cornerRadius(12)
                     
                     // Key Details Grid
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         DetailCard(
                             icon: "calendar",
                             title: "Date",
@@ -145,6 +145,12 @@ struct ClassDetailView: View {
                             icon: "dollarsign.circle",
                             title: "Price",
                             value: classItem.price
+                        )
+                        
+                        DetailCard(
+                            icon: "creditcard",
+                            title: "Credits",
+                            value: "\(classItem.creditsRequired) credits"
                         )
                     }
                 }
@@ -228,10 +234,10 @@ struct ClassDetailView: View {
                 
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(classItem.price)
+                        Text("\(classItem.creditsRequired) Credits")
                             .font(.title2)
                             .fontWeight(.bold)
-                        Text("per session")
+                        Text(classItem.price + " • per session")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

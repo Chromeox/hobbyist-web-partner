@@ -56,12 +56,12 @@ struct PricingView: View {
     
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Text("Save 30-65% on Vancouver Classes")
+            Text("Discover Vancouver's Creative Scene")
                 .font(.title2)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
             
-            Text("From $10 community yoga to $85 gourmet cooking")
+            Text("From $15 pottery classes to $95 intensive workshops")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -322,7 +322,7 @@ struct CreditPackageCard: View {
                 .fontWeight(.heavy)
             
             // Per credit price
-            Text("$\(package.pricePerCredit, specifier: "%.2f") per class")
+            Text("$\(package.pricePerCredit, specifier: "%.2f") per credit")
                 .font(.caption)
                 .foregroundColor(.secondary)
             

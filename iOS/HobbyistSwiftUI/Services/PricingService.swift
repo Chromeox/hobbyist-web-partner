@@ -4,39 +4,39 @@ import Combine
 // MARK: - Pricing Models
 
 enum ClassTier: String, CaseIterable, Codable {
-    case community = "community"      // 0.5 credits ($10-15 classes)
-    case standard = "standard"        // 1.0 credits ($20-30 classes)
-    case premium = "premium"          // 2.0 credits ($35-50 classes)
-    case exclusive = "exclusive"      // 3.0 credits ($60-80 classes)
-    case masterclass = "masterclass"  // 4.0 credits ($85-105 classes)
+    case creativeStarter = "creative_starter"     // 6 credits ($15-25 classes)
+    case hobbyExplorer = "hobby_explorer"         // 8 credits ($25-35 classes)
+    case skillBuilder = "skill_builder"           // 10 credits ($35-50 classes)
+    case masterWorkshop = "master_workshop"       // 12 credits ($50-70 classes)
+    case intensiveExperience = "intensive_experience" // 15 credits ($70-95 classes)
     
     var creditRequired: Double {
         switch self {
-        case .community: return 0.5
-        case .standard: return 1.0
-        case .premium: return 2.0
-        case .exclusive: return 3.0
-        case .masterclass: return 4.0
+        case .creativeStarter: return 6.0
+        case .hobbyExplorer: return 8.0
+        case .skillBuilder: return 10.0
+        case .masterWorkshop: return 12.0
+        case .intensiveExperience: return 15.0
         }
     }
     
     var priceRange: ClosedRange<Double> {
         switch self {
-        case .community: return 10...15
-        case .standard: return 20...30
-        case .premium: return 35...50
-        case .exclusive: return 60...80
-        case .masterclass: return 85...105
+        case .creativeStarter: return 15...25
+        case .hobbyExplorer: return 25...35
+        case .skillBuilder: return 35...50
+        case .masterWorkshop: return 50...70
+        case .intensiveExperience: return 70...95
         }
     }
     
     var studioCommission: Double {
         switch self {
-        case .community: return 0.75  // 75% to studio
-        case .standard: return 0.70   // 70% to studio
-        case .premium: return 0.72    // 72% to studio
-        case .exclusive: return 0.75  // 75% to studio
-        case .masterclass: return 0.75 // 75% to studio
+        case .creativeStarter: return 0.85   // 85% to studio (15% platform fee)
+        case .hobbyExplorer: return 0.85     // 85% to studio (15% platform fee)
+        case .skillBuilder: return 0.85      // 85% to studio (15% platform fee)
+        case .masterWorkshop: return 0.85    // 85% to studio (15% platform fee)
+        case .intensiveExperience: return 0.85 // 85% to studio (15% platform fee)
         }
     }
 }
@@ -57,48 +57,48 @@ struct CreditPackage: Identifiable, Codable {
     static let packages = [
         CreditPackage(
             id: "starter",
-            name: "Starter",
-            credits: 10,
+            name: "Try It",
+            credits: 20,
             price: 25.00,
             savings: nil,
             popular: false,
-            description: "Perfect for trying out"
+            description: "Perfect for testing the waters"
         ),
         CreditPackage(
             id: "explorer",
-            name: "Explorer",
-            credits: 25,
+            name: "Explore More",
+            credits: 45,
             price: 55.00,
             savings: 12,
             popular: false,
-            description: "1-2 classes per week"
+            description: "Multi-class exploration"
         ),
         CreditPackage(
             id: "regular",
-            name: "Regular",
-            credits: 50,
+            name: "Get Serious",
+            credits: 80,
             price: 95.00,
             savings: 24,
             popular: true,
-            description: "Most popular choice"
+            description: "Regular creative practice"
         ),
         CreditPackage(
             id: "enthusiast",
-            name: "Enthusiast",
-            credits: 100,
+            name: "Go Deep",
+            credits: 145,
             price: 170.00,
             savings: 32,
             popular: false,
-            description: "4-5 classes per week"
+            description: "Intensive learning"
         ),
         CreditPackage(
             id: "power",
-            name: "Power User",
-            credits: 200,
+            name: "Unlimited Creativity",
+            credits: 260,
             price: 300.00,
             savings: 40,
             popular: false,
-            description: "Best value for daily users"
+            description: "Try everything Vancouver has to offer"
         )
     ]
 }
@@ -115,38 +115,38 @@ struct Subscription: Identifiable, Codable {
     static let plans = [
         Subscription(
             id: "casual",
-            name: "Casual",
+            name: "Creative Explorer",
             monthlyPrice: 39.00,
-            monthlyCredits: 20,
-            rolloverLimit: 5,
-            perks: ["Basic access"],
+            monthlyCredits: 40,
+            rolloverLimit: 20,
+            perks: ["50% rollover (20 credits max)", "Community access", "Basic app features"],
             popular: false
         ),
         Subscription(
             id: "active",
-            name: "Active",
+            name: "Hobby Regular",
             monthlyPrice: 69.00,
-            monthlyCredits: 40,
-            rolloverLimit: 10,
-            perks: ["Priority booking", "1 guest pass/month"],
+            monthlyCredits: 75,
+            rolloverLimit: 45,
+            perks: ["60% rollover (45 credits max)", "Priority booking", "Guest passes", "Workshop discounts"],
             popular: true
         ),
         Subscription(
             id: "premium",
-            name: "Premium",
+            name: "Creative Enthusiast",
             monthlyPrice: 119.00,
-            monthlyCredits: 80,
-            rolloverLimit: 20,
-            perks: ["All perks", "Equipment rental", "Exclusive classes"],
+            monthlyCredits: 150,
+            rolloverLimit: 112,
+            perks: ["75% rollover (112 credits max)", "Premium support", "Exclusive workshops", "Multi-studio access"],
             popular: false
         ),
         Subscription(
             id: "elite",
-            name: "Elite",
+            name: "Master Creator",
             monthlyPrice: 179.00,
-            monthlyCredits: 150,
-            rolloverLimit: 30,
-            perks: ["VIP treatment", "Personal trainer consultation", "3 guest passes"],
+            monthlyCredits: 250,
+            rolloverLimit: 1000,
+            perks: ["100% unlimited rollover", "Concierge service", "Private workshop access", "All premium features"],
             popular: false
         )
     ]
