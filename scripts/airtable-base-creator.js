@@ -79,27 +79,17 @@ class AirtableBaseCreator {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // Step 1: Create Base
-    async createBase() {
-        console.log('🏗️  Creating Hobby Classes Directory base...');
+    // Step 1: Get existing base (manual creation required)
+    async getExistingBase(baseId) {
+        console.log('🔍 Connecting to existing Hobby Classes Directory base...');
         
-        const baseData = {
-            name: "Hobby Classes Directory",
-            tables: [
-                {
-                    name: "Classes",
-                    description: "Main table for hobby class listings"
-                }
-            ]
-        };
-
         try {
-            const response = await this.makeRequest('POST', '/v0/bases', baseData);
-            this.createdBaseId = response.id;
-            console.log(`✅ Base created successfully: ${this.createdBaseId}`);
+            const response = await this.makeRequest('GET', `/v0/bases/${baseId}/tables`);
+            this.createdBaseId = baseId;
+            console.log(`✅ Connected to base: ${baseId}`);
             return response;
         } catch (error) {
-            throw new Error(`Failed to create base: ${error.message}`);
+            throw new Error(`Failed to connect to base: ${error.message}`);
         }
     }
 
