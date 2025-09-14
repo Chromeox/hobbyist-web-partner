@@ -125,5 +125,10 @@
 		<string>fb</string>
 		<string>twitter</string>
 	</array>
+	<!-- StoreKit Configuration -->
+	<key>SKStorefront</key>
+	<string>USA</string>
+	<key>SKPaymentDisallowApplePaySetup</key>
+	<false/>
 </dict>
 </plist>

@@ -308,7 +308,7 @@ struct SearchResultsList: View {
     @ViewBuilder
     private func destinationView(for result: SearchResult) -> some View {
         switch result {
-        case .hobbyClass(let hobbyClass):
+        case .hobbyClass(_):
             ClassDetailView(classItem: ClassItem.sample) // Using sample for now
         case .instructor(let instructor):
             InstructorDetailView(instructor: instructor)
@@ -396,7 +396,7 @@ struct SearchResultRow: View {
     private var metadataForResult: String? {
         switch result {
         case .hobbyClass(let hobbyClass):
-            return "\(hobbyClass.price) • \(hobbyClass.duration)"
+            return "\(hobbyClass.formattedPrice) • \(hobbyClass.formattedDuration)"
         case .instructor(let instructor):
             return "\(instructor.rating)⭐ • \(instructor.totalStudents) students"
         case .venue(let venue):
@@ -435,14 +435,14 @@ struct SuggestedClassRow: View {
                     .foregroundColor(.secondary)
                 
                 HStack {
-                    Text(hobbyClass.price)
+                    Text(hobbyClass.formattedPrice)
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
                     
                     Spacer()
                     
-                    Label("\(hobbyClass.rating)", systemImage: "star.fill")
+                    Label("\(hobbyClass.averageRating, specifier: "%.1f")", systemImage: "star.fill")
                         .font(.caption2)
                         .foregroundColor(.orange)
                 }

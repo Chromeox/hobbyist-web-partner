@@ -405,6 +405,99 @@ class PricingService: ObservableObject, PricingServiceProtocol {
             return SeasonalAdjustment()
         }
     }
+    
+    // MARK: - IAP Integration Methods
+    
+    func addCredits(_ amount: Int, source: String, transactionId: String) async {
+        userCredits += amount
+        
+        let transaction = CreditTransaction(
+            date: Date(),
+            type: .purchase,
+            amount: amount,
+            description: "Credits purchased via \(source)",
+            balance: userCredits
+        )
+        creditHistory.append(transaction)
+        
+        // Sync with backend
+        await syncCreditsWithBackend(credits: userCredits, transactionId: transactionId)
+        
+        print("Added \(amount) credits. New balance: \(userCredits)")
+    }
+    
+    func activateSubscription(planId: String, transactionId: String) async {
+        // Activate subscription in backend
+        await syncSubscriptionWithBackend(planId: planId, transactionId: transactionId)
+        print("Subscription \(planId) activated with transaction: \(transactionId)")
+    }
+    
+    func activateInsurance(planId: String, transactionId: String) async {
+        // Activate insurance in backend
+        await syncInsuranceWithBackend(planId: planId, transactionId: transactionId)
+        print("Insurance \(planId) activated with transaction: \(transactionId)")
+    }
+    
+    // MARK: - Backend Sync Methods
+    
+    private func syncCreditsWithBackend(credits: Int, transactionId: String) async {
+        guard let userId = try? await SupabaseManager.shared.client.auth.session.user.id else { return }
+        
+        do {
+            let _ = try await SupabaseManager.shared.client
+                .database
+                .from("user_credits")
+                .upsert([
+                    "user_id": userId.uuidString,
+                    "balance": credits,
+                    "last_transaction_id": transactionId,
+                    "updated_at": Date().ISO8601Format()
+                ])
+                .execute()
+        } catch {
+            print("Failed to sync credits with backend: \(error)")
+        }
+    }
+    
+    private func syncSubscriptionWithBackend(planId: String, transactionId: String) async {
+        guard let userId = try? await SupabaseManager.shared.client.auth.session.user.id else { return }
+        
+        do {
+            let _ = try await SupabaseManager.shared.client
+                .database
+                .from("user_subscriptions")
+                .upsert([
+                    "user_id": userId.uuidString,
+                    "plan_id": planId,
+                    "transaction_id": transactionId,
+                    "status": "active",
+                    "activated_at": Date().ISO8601Format()
+                ])
+                .execute()
+        } catch {
+            print("Failed to sync subscription with backend: \(error)")
+        }
+    }
+    
+    private func syncInsuranceWithBackend(planId: String, transactionId: String) async {
+        guard let userId = try? await SupabaseManager.shared.client.auth.session.user.id else { return }
+        
+        do {
+            let _ = try await SupabaseManager.shared.client
+                .database
+                .from("user_insurance")
+                .upsert([
+                    "user_id": userId.uuidString,
+                    "plan_id": planId,
+                    "transaction_id": transactionId,
+                    "status": "active",
+                    "activated_at": Date().ISO8601Format()
+                ])
+                .execute()
+        } catch {
+            print("Failed to sync insurance with backend: \(error)")
+        }
+    }
 }
 
 // MARK: - Supporting Models

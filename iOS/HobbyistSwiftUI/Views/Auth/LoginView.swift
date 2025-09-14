@@ -44,12 +44,12 @@ struct LoginView: View {
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
                                 .focused($focusedField, equals: .email)
-                                .onChange(of: focusedField) { _, newValue in
+                                .onChange(of: focusedField) { newValue in
                                     if newValue == .email {
                                         hapticService.playSelection()
                                     }
                                 }
-                                .onChange(of: viewModel.email) { _, _ in
+                                .onChange(of: viewModel.email) { _ in
                                     viewModel.validateEmail()
                                 }
                             
@@ -89,7 +89,7 @@ struct LoginView: View {
                             }
                             .textFieldStyle(RoundedTextFieldStyle())
                             .focused($focusedField, equals: .password)
-                            .onChange(of: focusedField) { _, newValue in
+                            .onChange(of: focusedField) { newValue in
                                 if newValue == .password {
                                     hapticService.playSelection()
                                 }
@@ -232,7 +232,7 @@ struct LoginView: View {
             .sheet(isPresented: $viewModel.showForgotPassword) {
                 ForgotPasswordView()
             }
-            .onChange(of: viewModel.loginSuccess) { _, success in
+            .onChange(of: viewModel.loginSuccess) { success in
                 if success {
                     hapticService.playSuccess()
                 }

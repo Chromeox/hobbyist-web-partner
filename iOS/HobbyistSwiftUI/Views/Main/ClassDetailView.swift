@@ -269,7 +269,7 @@ struct ClassDetailView: View {
             ShareSheet(items: ["Check out this class: \(classItem.name)"])
         }
         .fullScreenCover(isPresented: $showBookingFlow) {
-            BookingFlowView(classItem: classItem)
+            Text("Book Class - \(classItem.name)")
         }
         .task {
             await viewModel.loadClassDetails(for: classItem)

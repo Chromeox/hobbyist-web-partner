@@ -19,7 +19,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        // Supabase Swift SDK - Latest stable with security updates
+        // Supabase Swift SDK - Latest stable version with TestFlight compatibility
         .package(
             url: "https://github.com/supabase/supabase-swift.git",
             exact: "2.31.2"
@@ -47,9 +47,6 @@ let package = Package(
             dependencies: [
                 .product(name: "Supabase", package: "supabase-swift"),
                 .product(name: "Auth", package: "supabase-swift"),
-                .product(name: "Realtime", package: "supabase-swift"),
-                .product(name: "Storage", package: "supabase-swift"),
-                .product(name: "Functions", package: "supabase-swift"),
                 .product(name: "StripePaymentSheet", package: "stripe-ios"),
                 .product(name: "StripePayments", package: "stripe-ios"),
                 .product(name: "Kingfisher", package: "Kingfisher"),

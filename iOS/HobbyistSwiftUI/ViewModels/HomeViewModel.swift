@@ -26,31 +26,93 @@ class HomeViewModel: ObservableObject {
     
     private func loadCategories() {
         categories = [
-            ClassItem.Category(name: "Yoga", icon: "figure.yoga"),
-            ClassItem.Category(name: "Pilates", icon: "figure.pilates"),
-            ClassItem.Category(name: "Cycling", icon: "figure.outdoor.cycle"),
-            ClassItem.Category(name: "Swimming", icon: "figure.pool.swim"),
+            ClassItem.Category(name: "Ceramics", icon: "paintpalette"),
+            ClassItem.Category(name: "Pottery", icon: "cup.and.saucer"),
+            ClassItem.Category(name: "Painting", icon: "paintbrush"),
+            ClassItem.Category(name: "Photography", icon: "camera"),
+            ClassItem.Category(name: "Woodworking", icon: "hammer"),
+            ClassItem.Category(name: "Jewelry Making", icon: "diamond"),
+            ClassItem.Category(name: "Cooking", icon: "chef.hat"),
             ClassItem.Category(name: "Dance", icon: "figure.dance"),
-            ClassItem.Category(name: "Boxing", icon: "figure.boxing"),
-            ClassItem.Category(name: "CrossFit", icon: "figure.strengthtraining.functional"),
-            ClassItem.Category(name: "Running", icon: "figure.run")
+            ClassItem.Category(name: "Music", icon: "music.note"),
+            ClassItem.Category(name: "Writing", icon: "pencil"),
+            ClassItem.Category(name: "Rumble Boxing", icon: "figure.boxing")
         ]
     }
     
     private func loadInitialData() {
-        // Load sample data
-        featuredClasses = [ClassItem.sample]
-        nearbyClasses = [ClassItem.sample]
-        upcomingClasses = [ClassItem.sample]
-        recommendedClasses = [ClassItem.sample]
+        // Load hobby-focused sample data
+        let allClasses = ClassItem.hobbyClassSamples
+
+        featuredClasses = allClasses.filter { $0.isFeatured }
+        nearbyClasses = Array(allClasses.prefix(5))
+        upcomingClasses = Array(allClasses.prefix(3))
+        recommendedClasses = allClasses.shuffled().prefix(4).map { $0 }
+
         popularInstructors = [
             InstructorCard(
                 id: "1",
-                name: "Sarah Johnson",
-                initials: "SJ",
+                name: "Maria Chen",
+                initials: "MC",
                 rating: "4.9",
-                specialties: ["Yoga", "Meditation"],
-                bio: "Certified yoga instructor with 10 years experience"
+                specialties: ["Ceramics", "Pottery"],
+                bio: "Master ceramicist with 15 years teaching experience"
+            ),
+            InstructorCard(
+                id: "2",
+                name: "David Park",
+                initials: "DP",
+                rating: "4.8",
+                specialties: ["Woodworking", "Furniture"],
+                bio: "Sustainable woodworking artist and craftsman"
+            ),
+            InstructorCard(
+                id: "3",
+                name: "Sofia Rodriguez",
+                initials: "SR",
+                rating: "4.7",
+                specialties: ["Painting", "Watercolor"],
+                bio: "Fine arts painter specializing in botanical watercolors"
+            ),
+            InstructorCard(
+                id: "4",
+                name: "Alex Thompson",
+                initials: "AT",
+                rating: "4.9",
+                specialties: ["Rumble Boxing"],
+                bio: "Former competitive boxer, certified Rumble instructor"
+            ),
+            InstructorCard(
+                id: "5",
+                name: "Elena Kovač",
+                initials: "EK",
+                rating: "4.7",
+                specialties: ["Jewelry Making", "Wire Work"],
+                bio: "Traditional European jewelry artisan and silversmith"
+            ),
+            InstructorCard(
+                id: "6",
+                name: "Carlos Mendoza",
+                initials: "CM",
+                rating: "4.8",
+                specialties: ["Dance", "Salsa"],
+                bio: "International salsa champion and dance instructor"
+            ),
+            InstructorCard(
+                id: "7",
+                name: "Maya Thompson",
+                initials: "MT",
+                rating: "4.9",
+                specialties: ["Music", "Guitar"],
+                bio: "Professional musician and certified music educator"
+            ),
+            InstructorCard(
+                id: "8",
+                name: "Rachel Bennett",
+                initials: "RB",
+                rating: "4.6",
+                specialties: ["Writing", "Creative Writing"],
+                bio: "Published author and creative writing workshop leader"
             )
         ]
     }

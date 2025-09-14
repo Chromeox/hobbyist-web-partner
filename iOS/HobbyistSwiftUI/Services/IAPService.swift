@@ -1,6 +1,8 @@
 import Foundation
 import StoreKit
 import Combine
+import UserNotifications
+import UIKit
 
 // MARK: - In-App Purchase Service
 @MainActor
