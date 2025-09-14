@@ -289,7 +289,7 @@ struct PreferencesPage: View {
             
             Spacer()
         }
-        .onChange(of: viewModel.selectedInterests.count) { _, count in
+        .onChange(of: viewModel.selectedInterests.count) { count in
             if count >= 3 && !viewModel.preferencesSet {
                 viewModel.preferencesSet = true
                 viewModel.milestoneReached = .preferencesSet
@@ -331,7 +331,7 @@ struct NotificationsPage: View {
                         .font(.subheadline)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                .onChange(of: viewModel.classReminders) { _, _ in
+                .onChange(of: viewModel.classReminders) { _ in
                     hapticService.playLight()
                 }
                 
@@ -340,7 +340,7 @@ struct NotificationsPage: View {
                         .font(.subheadline)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                .onChange(of: viewModel.newClassAlerts) { _, _ in
+                .onChange(of: viewModel.newClassAlerts) { _ in
                     hapticService.playLight()
                 }
                 
@@ -349,7 +349,7 @@ struct NotificationsPage: View {
                         .font(.subheadline)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .accentColor))
-                .onChange(of: viewModel.promotionalOffers) { _, _ in
+                .onChange(of: viewModel.promotionalOffers) { _ in
                     hapticService.playLight()
                 }
             }
@@ -738,7 +738,7 @@ extension HapticFeedbackService {
         case .firstClassViewed:
             playMedium()
         case .notificationsEnabled, .paymentAdded:
-            playNotification(.success)
+            playSuccess()
         }
     }
     

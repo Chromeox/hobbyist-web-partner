@@ -116,7 +116,7 @@ struct SignUpView: View {
     
     private func signUp() {
         Task {
-            await authManager.signUp(email: email, password: password, fullName: fullName)
+            try? await authManager.signUp(email: email, password: password, fullName: fullName)
         }
     }
 }

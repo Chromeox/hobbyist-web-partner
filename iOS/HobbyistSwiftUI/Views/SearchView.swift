@@ -28,7 +28,9 @@ struct SearchView: View {
                                 searchDebounceTimer?.invalidate()
                                 searchDebounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                                     if !newValue.isEmpty {
-                                        viewModel.performSearch()
+                                        Task { @MainActor in
+                                            viewModel.performSearch()
+                                        }
                                     }
                                 }
                             }
@@ -372,7 +374,7 @@ struct SearchResultRow: View {
     private var titleForResult: String {
         switch result {
         case .hobbyClass(let hobbyClass):
-            return hobbyClass.name
+            return hobbyClass.title
         case .instructor(let instructor):
             return instructor.name
         case .venue(let venue):
@@ -396,9 +398,9 @@ struct SearchResultRow: View {
         case .hobbyClass(let hobbyClass):
             return "\(hobbyClass.price) • \(hobbyClass.duration)"
         case .instructor(let instructor):
-            return "\(instructor.rating)⭐ • \(instructor.reviewCount) reviews"
+            return "\(instructor.rating)⭐ • \(instructor.totalStudents) students"
         case .venue(let venue):
-            return "\(venue.classCount) classes available"
+            return venue.city + ", " + venue.state
         }
     }
 }
@@ -423,12 +425,12 @@ struct SuggestedClassRow: View {
                 )
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(hobbyClass.name)
+                Text(hobbyClass.title)
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
                 
-                Text(hobbyClass.instructor)
+                Text(hobbyClass.instructor.name)
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
