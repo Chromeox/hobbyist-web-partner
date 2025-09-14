@@ -174,21 +174,21 @@
 
 		/* Views - Main */
 		E2E73E321234567890ABCDEF /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Main/MainTabView.swift"; sourceTree = "<group>"; };
-		E2E73E341234567890ABCDEF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		E2E73E341234567890ABCDEF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Main/HomeView.swift"; sourceTree = "<group>"; };
 		E2E73E361234567890ABCDEF /* ClassListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassListView.swift; sourceTree = "<group>"; };
 		E2E73E381234567890ABCDEF /* ClassDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Main/ClassDetailView.swift"; sourceTree = "<group>"; };
 
 		/* Views - Auth */
-		E2E73E3A1234567890ABCDEF /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		E2E73E3C1234567890ABCDEF /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		E2E73E3A1234567890ABCDEF /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Auth/LoginView.swift"; sourceTree = "<group>"; };
+		E2E73E3C1234567890ABCDEF /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Auth/SignUpView.swift"; sourceTree = "<group>"; };
 		E2E73E3E1234567890ABCDEF /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		E2E73E401234567890ABCDEF /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
-		E2E73E421234567890ABCDEF /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		E2E73E421234567890ABCDEF /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/Auth/OnboardingView.swift"; sourceTree = "<group>"; };
 
 		/* Views - Other */
 		E2E73E441234567890ABCDEF /* BookingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/BookingsView.swift"; sourceTree = "<group>"; };
 		E2E73E461234567890ABCDEF /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/ProfileView.swift"; sourceTree = "<group>"; };
-		E2E73E481234567890ABCDEF /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		E2E73E481234567890ABCDEF /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/SearchView.swift"; sourceTree = "<group>"; };
 		E2E73E4A1234567890ABCDEF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E2E73E4C1234567890ABCDEF /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HobbyistSwiftUI/Views/DiscoverView.swift"; sourceTree = "<group>"; };
 		E2E73E4E1234567890ABCDEF /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
@@ -412,15 +412,19 @@
 				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
 				7A1234561234567890ABCDEF /* HobbyistSwiftUIApp.swift in Sources */,
 				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
-				E2E73E511234567890ABCDEF /* HapticFeedbackService.swift in Sources */,
 				E2E73E091234567890ABCDEF /* HomeViewModel.swift in Sources */,
 				E2E73E131234567890ABCDEF /* ProfileViewModel.swift in Sources */,
 				E2E73E291234567890ABCDEF /* UserProfile.swift in Sources */,
 				E2E73E251234567890ABCDEF /* Booking.swift in Sources */,
 				E2E73E2B1234567890ABCDEF /* ClassItem.swift in Sources */,
 				E2E73E331234567890ABCDEF /* MainTabView.swift in Sources */,
+				E2E73E351234567890ABCDEF /* HomeView.swift in Sources */,
 				E2E73E391234567890ABCDEF /* ClassDetailView.swift in Sources */,
+				E2E73E3B1234567890ABCDEF /* LoginView.swift in Sources */,
+				E2E73E3D1234567890ABCDEF /* SignUpView.swift in Sources */,
+				E2E73E431234567890ABCDEF /* OnboardingView.swift in Sources */,
 				E2E73E4D1234567890ABCDEF /* DiscoverView.swift in Sources */,
+				E2E73E491234567890ABCDEF /* SearchView.swift in Sources */,
 				E2E73E451234567890ABCDEF /* BookingsView.swift in Sources */,
 				E2E73E471234567890ABCDEF /* ProfileView.swift in Sources */,
 			);
