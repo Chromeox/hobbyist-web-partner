@@ -9,7 +9,7 @@ final class NavigationManager: ObservableObject {
     @Published var selectedTab: Tab = .home
     @Published var navigationPath = NavigationPath()
     @Published var isShowingDetail = false
-    @Published var selectedClass: Class?
+    @Published var selectedClass: HobbyClass?
     
     enum Tab: String, CaseIterable {
         case home = "Home"
@@ -27,13 +27,13 @@ final class NavigationManager: ObservableObject {
         }
     }
     
-    private init() {}
+    init() {}
     
     func navigateToTab(_ tab: Tab) {
         selectedTab = tab
     }
     
-    func navigateToClass(_ classItem: Class) {
+    func navigateToClass(_ classItem: HobbyClass) {
         selectedClass = classItem
         isShowingDetail = true
     }

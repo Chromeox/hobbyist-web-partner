@@ -11,6 +11,16 @@
 		7A1234581234567890ABCDEF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1234571234567890ABCDEF /* ContentView.swift */; };
 		7A12345A1234567890ABCDEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A1234591234567890ABCDEF /* Assets.xcassets */; };
 		7A12345D1234567890ABCDEF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A12345C1234567890ABCDEF /* Preview Assets.xcassets */; };
+		E2E73DEE2E764B4800994856 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DED2E764B4800994856 /* Auth */; };
+		E2E73DF02E764B4800994856 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DEF2E764B4800994856 /* Functions */; };
+		E2E73DF22E764B4800994856 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF12E764B4800994856 /* PostgREST */; };
+		E2E73DF42E764B4800994856 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF32E764B4800994856 /* Realtime */; };
+		E2E73DF62E764B4800994856 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF52E764B4800994856 /* Storage */; };
+		E2E73DF92E764DF500994856 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF82E764DF500994856 /* Supabase */; };
+		E2E73DFB2E7650E600994856 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFA2E7650E600994856 /* Class.swift */; };
+		E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */; };
+		E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFE2E7651EC00994856 /* NavigationManager.swift */; };
+		E2E73E012E76521100994856 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E002E76521100994856 /* AppError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +30,10 @@
 		7A1234591234567890ABCDEF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7A12345C1234567890ABCDEF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7A12345E1234567890ABCDEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2E73DFA2E7650E600994856 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
+		E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		E2E73DFE2E7651EC00994856 /* NavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationManager.swift; sourceTree = "<group>"; };
+		E2E73E002E76521100994856 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +41,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2E73DF22E764B4800994856 /* PostgREST in Frameworks */,
+				E2E73DF02E764B4800994856 /* Functions in Frameworks */,
+				E2E73DF92E764DF500994856 /* Supabase in Frameworks */,
+				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
+				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
+				E2E73DF42E764B4800994856 /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,6 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				7A1234541234567890ABCDEF /* HobbyistSwiftUI */,
+				E2E73DF72E764DF500994856 /* Frameworks */,
 				7A1234531234567890ABCDEF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +75,8 @@
 			children = (
 				7A1234551234567890ABCDEF /* HobbyistSwiftUIApp.swift */,
 				7A1234571234567890ABCDEF /* ContentView.swift */,
+				E2E73E032E76522A00994856 /* Models */,
+				E2E73E042E76522F00994856 /* Services */,
 				7A1234591234567890ABCDEF /* Assets.xcassets */,
 				7A12345E1234567890ABCDEF /* Info.plist */,
 				7A12345B1234567890ABCDEF /* Preview Content */,
@@ -67,6 +90,31 @@
 				7A12345C1234567890ABCDEF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		E2E73DF72E764DF500994856 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E2E73E032E76522A00994856 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E2E73E002E76521100994856 /* AppError.swift */,
+				E2E73DFA2E7650E600994856 /* Class.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E2E73E042E76522F00994856 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */,
+				E2E73DFE2E7651EC00994856 /* NavigationManager.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -97,7 +145,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					7A1234511234567890ABCDEF = {
 						CreatedOnToolsVersion = 15.0;
@@ -113,6 +161,9 @@
 				Base,
 			);
 			mainGroup = 7A1234491234567890ABCDEF;
+			packageReferences = (
+				E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			productRefGroup = 7A1234531234567890ABCDEF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -139,8 +190,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2E73DFB2E7650E600994856 /* Class.swift in Sources */,
+				E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */,
+				E2E73E012E76521100994856 /* AppError.swift in Sources */,
 				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
 				7A1234561234567890ABCDEF /* HobbyistSwiftUIApp.swift in Sources */,
+				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +237,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 594BDWKT53;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -205,6 +261,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -245,6 +302,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 594BDWKT53;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -261,6 +319,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -348,6 +407,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E2E73DED2E764B4800994856 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		E2E73DEF2E764B4800994856 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		E2E73DF12E764B4800994856 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		E2E73DF32E764B4800994856 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		E2E73DF52E764B4800994856 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		E2E73DF82E764DF500994856 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7A12344A1234567890ABCDEF /* Project object */;
 }

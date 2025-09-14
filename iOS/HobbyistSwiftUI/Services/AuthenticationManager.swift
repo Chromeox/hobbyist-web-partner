@@ -69,7 +69,12 @@ class AuthenticationManager: ObservableObject {
     @Published var fullName = ""
     
     private var supabase: SupabaseClient? {
-        return ServiceContainer.shared.supabaseClient
+        // Simple direct initialization for now
+        guard let url = URL(string: "https://mcjqvdzdhtcvbrejvrtp.supabase.co") else { return nil }
+        return SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jamd2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwNjAyNzUsImV4cCI6MjAzODYzNjI3NX0.MvWUo3JJ0mVy9wCBRNVUJhNXYdNV69yRCaVkflY1HvI"
+        )
     }
     
     private var cancellables = Set<AnyCancellable>()
@@ -88,15 +93,14 @@ class AuthenticationManager: ObservableObject {
         do {
             let session = try await supabase.auth.session
             await MainActor.run {
-                self.isAuthenticated = session.user != nil
-                if let user = session.user {
-                    self.currentUser = AppUser(
-                        id: user.id.uuidString,
-                        email: user.email ?? "",
-                        name: user.userMetadata["full_name"]?.description ?? "",
-                        createdAt: user.createdAt
-                    )
-                }
+                let user = session.user
+                self.isAuthenticated = true
+                self.currentUser = AppUser(
+                    id: user.id.uuidString,
+                    email: user.email ?? "",
+                    name: user.userMetadata["full_name"]?.description ?? "",
+                    createdAt: user.createdAt
+                )
             }
         } catch {
             await MainActor.run {
@@ -124,15 +128,14 @@ class AuthenticationManager: ObservableObject {
         do {
             let response = try await supabase.auth.signIn(email: email, password: password)
             
-            if let user = response.user {
-                currentUser = AppUser(
-                    id: user.id.uuidString,
-                    email: user.email ?? "",
-                    name: user.userMetadata["full_name"]?.description ?? "",
-                    createdAt: user.createdAt
-                )
-                isAuthenticated = true
-            }
+            let user = response.user
+            currentUser = AppUser(
+                id: user.id.uuidString,
+                email: user.email ?? "",
+                name: user.userMetadata["full_name"]?.description ?? "",
+                createdAt: user.createdAt
+            )
+            isAuthenticated = true
         } catch {
             authError = mapSupabaseError(error)
             throw authError!
@@ -156,15 +159,14 @@ class AuthenticationManager: ObservableObject {
                 data: ["full_name": .string(fullName)]
             )
             
-            if let user = response.user {
-                currentUser = AppUser(
-                    id: user.id.uuidString,
-                    email: user.email ?? "",
-                    name: fullName,
-                    createdAt: user.createdAt
-                )
-                isAuthenticated = true
-            }
+            let user = response.user
+            currentUser = AppUser(
+                id: user.id.uuidString,
+                email: user.email ?? "",
+                name: fullName,
+                createdAt: user.createdAt
+            )
+            isAuthenticated = true
         } catch {
             authError = mapSupabaseError(error)
             throw authError!
@@ -226,19 +228,18 @@ class AuthenticationManager: ObservableObject {
                 credentials: .init(provider: .apple, idToken: identityTokenString)
             )
             
-            if let user = response.user {
-                let fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
-                    .compactMap { $0 }
-                    .joined(separator: " ")
-                
-                currentUser = AppUser(
-                    id: user.id.uuidString,
-                    email: user.email ?? credential.email ?? "",
-                    name: fullName.isEmpty ? nil : fullName,
-                    createdAt: user.createdAt
-                )
-                isAuthenticated = true
-            }
+            let user = response.user
+            let fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+
+            currentUser = AppUser(
+                id: user.id.uuidString,
+                email: user.email ?? credential.email ?? "",
+                name: fullName.isEmpty ? nil : fullName,
+                createdAt: user.createdAt
+            )
+            isAuthenticated = true
         } catch {
             authError = mapSupabaseError(error)
             throw authError!

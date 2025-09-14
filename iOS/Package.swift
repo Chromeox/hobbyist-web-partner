@@ -54,7 +54,6 @@ let package = Package(
                 .product(name: "Functions", package: "supabase-swift"),
                 .product(name: "StripePaymentSheet", package: "stripe-ios"),
                 .product(name: "StripePayments", package: "stripe-ios"),
-                .product(name: "StripeCore", package: "stripe-ios"),
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "Sentry", package: "sentry-cocoa")
             ],
