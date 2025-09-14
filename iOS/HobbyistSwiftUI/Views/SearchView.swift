@@ -511,42 +511,8 @@ struct SearchView_Previews: PreviewProvider {
 }
 
 // MARK: - Extensions for Missing Models
-extension ClassCategory {
-    var icon: String {
-        switch self {
-        case .fitness:
-            return "figure.run"
-        case .arts:
-            return "paintbrush"
-        case .music:
-            return "music.note"
-        case .cooking:
-            return "fork.knife"
-        case .dance:
-            return "figure.dance"
-        case .technology:
-            return "laptopcomputer"
-        case .language:
-            return "textformat.abc"
-        case .photography:
-            return "camera"
-        default:
-            return "star"
-        }
-    }
-}
+// ClassCategory.icon is already defined in Class.swift
 
-// Mock enum for compilation
-enum ClassCategory: String, CaseIterable {
-    case fitness = "Fitness"
-    case arts = "Arts"
-    case music = "Music" 
-    case cooking = "Cooking"
-    case dance = "Dance"
-    case technology = "Technology"
-    case language = "Language"
-    case photography = "Photography"
-}
 
 // Placeholder for detail views
 struct InstructorDetailView: View {

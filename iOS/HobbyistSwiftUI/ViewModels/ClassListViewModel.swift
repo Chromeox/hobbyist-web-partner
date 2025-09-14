@@ -253,18 +253,6 @@ struct Venue: Identifiable, Codable {
     let imageUrls: [String]
 }
 
-enum ClassCategory: String, CaseIterable, Codable {
-    case arts = "Arts & Crafts"
-    case cooking = "Cooking"
-    case fitness = "Fitness"
-    case music = "Music"
-    case technology = "Technology"
-    case languages = "Languages"
-    case outdoors = "Outdoors"
-    case wellness = "Wellness"
-    case business = "Business"
-    case photography = "Photography"
-}
 
 enum DifficultyLevel: String, CaseIterable, Codable {
     case beginner = "Beginner"

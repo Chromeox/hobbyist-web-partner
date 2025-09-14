@@ -13,7 +13,20 @@ struct AppUser: Codable, Identifiable {
     let phoneNumber: String?
     let createdAt: Date
     let metadata: [String: String]?
-    
+
+    // Computed properties for compatibility with existing ViewModels
+    var name: String {
+        return fullName ?? email
+    }
+
+    var bio: String? {
+        return metadata?["bio"]
+    }
+
+    var profileImageUrl: String? {
+        return avatarURL
+    }
+
     init(id: String, email: String, name: String?, createdAt: Date) {
         self.id = id
         self.email = email

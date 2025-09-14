@@ -58,11 +58,9 @@ struct OnboardingView: View {
                         .tag(5)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .onChange(of: currentPage) { oldValue, newValue in
-                    if newValue > oldValue {
-                        viewModel.updateProgress(for: newValue)
-                        hapticService.playOnboardingProgress(viewModel.progress)
-                    }
+                .onChange(of: currentPage) { newValue in
+                    viewModel.updateProgress(for: newValue)
+                    hapticService.playOnboardingProgress(viewModel.progress)
                 }
                 
                 // Custom Page Indicator & Continue Button
@@ -103,7 +101,7 @@ struct OnboardingView: View {
                 .padding(.bottom, 30)
             }
         }
-        .onChange(of: viewModel.milestoneReached) { _, milestone in
+        .onChange(of: viewModel.milestoneReached) { milestone in
             if let milestone = milestone {
                 hapticService.playOnboardingMilestone(milestone)
             }
@@ -120,7 +118,6 @@ struct WelcomePage: View {
             Image(systemName: "figure.run.circle.fill")
                 .font(.system(size: 100))
                 .foregroundColor(.accentColor)
-                .symbolEffect(.pulse)
             
             VStack(spacing: 16) {
                 Text("Welcome to HobbyistSwiftUI")
@@ -188,7 +185,7 @@ struct ProfileSetupPage: View {
             VStack(spacing: 16) {
                 TextField("Display Name", text: $viewModel.displayName)
                     .textFieldStyle(RoundedTextFieldStyle())
-                    .onChange(of: viewModel.displayName) { _, _ in
+                    .onChange(of: viewModel.displayName) { _ in
                         hapticService.playLight()
                     }
                 
@@ -314,7 +311,6 @@ struct NotificationsPage: View {
             Image(systemName: "bell.badge.fill")
                 .font(.system(size: 80))
                 .foregroundColor(.accentColor)
-                .symbolEffect(.bounce)
             
             VStack(spacing: 16) {
                 Text("Stay Updated")

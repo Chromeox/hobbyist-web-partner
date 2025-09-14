@@ -26,7 +26,7 @@ struct HomeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(viewModel.categories, id: \.self) { category in
-                                CategoryChip(
+                                HomeCategoryChip(
                                     title: category.name,
                                     icon: category.icon,
                                     isSelected: selectedCategory == category.name,
@@ -129,7 +129,7 @@ struct HomeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
                                 ForEach(viewModel.popularInstructors) { instructor in
-                                    InstructorCard(instructor: instructor)
+                                    InstructorCardView(instructor: instructor)
                                         .onTapGesture {
                                             hapticService.playMedium()
                                             // Navigate to instructor profile
@@ -248,7 +248,7 @@ struct SearchBarView: View {
 }
 
 // Category Chip Component
-struct CategoryChip: View {
+struct HomeCategoryChip: View {
     let title: String
     let icon: String
     let isSelected: Bool
@@ -435,7 +435,7 @@ struct UpcomingClassRow: View {
 }
 
 // Instructor Card Component
-struct InstructorCard: View {
+struct InstructorCardView: View {
     let instructor: Instructor
     
     var body: some View {

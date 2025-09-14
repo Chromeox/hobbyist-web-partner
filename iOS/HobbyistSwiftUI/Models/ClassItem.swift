@@ -106,7 +106,7 @@ struct Equipment: Codable, Identifiable {
     let price: String
 }
 
-struct Instructor: Identifiable, Codable {
+struct InstructorCard: Identifiable, Codable {
     let id: String
     let name: String
     let initials: String

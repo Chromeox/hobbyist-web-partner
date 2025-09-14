@@ -61,14 +61,14 @@ struct MainHomeView: View {
                     
                     // Stats Cards
                     HStack(spacing: 16) {
-                        StatCard(
+                        MainTabStatCard(
                             icon: "trophy.fill",
                             value: "12",
                             label: "Classes Completed",
                             color: .yellow
                         )
-                        
-                        StatCard(
+
+                        MainTabStatCard(
                             icon: "star.fill",
                             value: "48",
                             label: "Points Earned",
@@ -120,7 +120,7 @@ struct MainHomeView: View {
     }
 }
 
-struct StatCard: View {
+struct MainTabStatCard: View {
     let icon: String
     let value: String
     let label: String

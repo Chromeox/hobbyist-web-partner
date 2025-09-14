@@ -14,7 +14,6 @@
 // Re-export Stripe modules
 @_exported import StripePaymentSheet
 @_exported import StripePayments
-@_exported import StripeCore
 
 // Re-export Kingfisher
 @_exported import Kingfisher

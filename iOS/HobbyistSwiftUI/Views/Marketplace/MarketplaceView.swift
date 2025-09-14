@@ -230,7 +230,7 @@ struct InstructorSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(instructors) { instructor in
-                        InstructorCard(
+                        InstructorCardView(
                             instructor: instructor,
                             onTap: { selectedInstructor = instructor }
                         )
@@ -242,7 +242,7 @@ struct InstructorSection: View {
     }
 }
 
-struct InstructorCard: View {
+struct InstructorCardView: View {
     let instructor: Instructor
     let onTap: () -> Void
     

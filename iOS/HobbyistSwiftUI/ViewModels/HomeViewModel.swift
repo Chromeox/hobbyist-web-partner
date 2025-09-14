@@ -7,7 +7,7 @@ class HomeViewModel: ObservableObject {
     @Published var nearbyClasses: [ClassItem] = []
     @Published var upcomingClasses: [ClassItem] = []
     @Published var recommendedClasses: [ClassItem] = []
-    @Published var popularInstructors: [Instructor] = []
+    @Published var popularInstructors: [InstructorCard] = []
     @Published var categories: [ClassItem.Category] = []
     @Published var hasNotifications = false
     @Published var showMapView = false
@@ -44,7 +44,7 @@ class HomeViewModel: ObservableObject {
         upcomingClasses = [ClassItem.sample]
         recommendedClasses = [ClassItem.sample]
         popularInstructors = [
-            Instructor(
+            InstructorCard(
                 id: "1",
                 name: "Sarah Johnson",
                 initials: "SJ",

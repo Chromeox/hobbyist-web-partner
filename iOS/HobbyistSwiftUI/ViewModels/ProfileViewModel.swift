@@ -20,130 +20,73 @@ class ProfileViewModel: ObservableObject {
     @Published var favoriteClasses: [HobbyClass] = []
     @Published var achievements: [Achievement] = []
     @Published var notificationSettings: NotificationSettings = NotificationSettings()
-    
-    private let authService: AuthenticationService
-    private let profileService: ProfileService
-    private let bookingService: BookingService
-    private let favoritesService: FavoritesService
-    private let storageService: StorageService
+
+    private let authManager: AuthenticationManager
     private var cancellables = Set<AnyCancellable>()
-    
-    init(
-        authService: AuthenticationService = AuthenticationService.shared,
-        profileService: ProfileService = ProfileService.shared,
-        bookingService: BookingService = BookingService.shared,
-        favoritesService: FavoritesService = FavoritesService.shared,
-        storageService: StorageService = StorageService.shared
-    ) {
-        self.authService = authService
-        self.profileService = profileService
-        self.bookingService = bookingService
-        self.favoritesService = favoritesService
-        self.storageService = storageService
+
+    init(authManager: AuthenticationManager? = nil) {
+        self.authManager = authManager ?? AuthenticationManager.shared
         setupBindings()
         Task { await loadProfile() }
     }
     
     private func setupBindings() {
-        // Listen for user updates
-        authService.currentUserPublisher
+        // Listen for user updates from AuthenticationManager
+        authManager.$currentUser
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 self?.user = user
-                if user != nil {
-                    Task { await self?.loadProfileData() }
+                if let user = user {
+                    self?.editedFullName = user.name
+                    self?.editedBio = ""
+                    self?.editedPhoneNumber = ""
                 }
-            }
-            .store(in: &cancellables)
-        
-        // Update edited fields when user changes
-        $user
-            .compactMap { $0 }
-            .sink { [weak self] user in
-                self?.editedFullName = user.fullName
-                self?.editedBio = user.bio ?? ""
-                self?.editedPhoneNumber = user.phoneNumber ?? ""
             }
             .store(in: &cancellables)
     }
     
     func loadProfile() async {
-        guard let userId = authService.currentUser?.id else { return }
-        
+        guard let currentUser = authManager.currentUser else { return }
+
         isLoadingProfile = true
         errorMessage = nil
-        
-        do {
-            // Load user profile
-            user = try await profileService.fetchProfile(userId: userId)
-            
-            // Load additional profile data
-            await loadProfileData()
-            
-        } catch {
-            errorMessage = "Failed to load profile: \(error.localizedDescription)"
-        }
-        
+
+        // For now, use the current user from AuthenticationManager
+        // In a real app, this would fetch additional profile data from the backend
+        user = currentUser
+        editedFullName = currentUser.name
+        editedBio = ""
+        editedPhoneNumber = ""
+
+        // Load mock profile data for demo
+        await loadMockProfileData()
+
         isLoadingProfile = false
     }
     
-    private func loadProfileData() async {
-        guard let userId = user?.id else { return }
-        
-        await withTaskGroup(of: Void.self) { group in
-            // Load statistics
-            group.addTask { [weak self] in
-                do {
-                    self?.statistics = try await self?.profileService.fetchUserStatistics(userId: userId)
-                } catch {
-                    print("Failed to load statistics: \(error)")
-                }
-            }
-            
-            // Load preferences
-            group.addTask { [weak self] in
-                do {
-                    self?.preferences = try await self?.profileService.fetchUserPreferences(userId: userId)
-                } catch {
-                    print("Failed to load preferences: \(error)")
-                }
-            }
-            
-            // Load booking history
-            group.addTask { [weak self] in
-                do {
-                    self?.bookingHistory = try await self?.bookingService.fetchUserBookings(userId: userId)
-                } catch {
-                    print("Failed to load booking history: \(error)")
-                }
-            }
-            
-            // Load favorite classes
-            group.addTask { [weak self] in
-                do {
-                    self?.favoriteClasses = try await self?.favoritesService.fetchFavoriteClasses(userId: userId)
-                } catch {
-                    print("Failed to load favorite classes: \(error)")
-                }
-            }
-            
-            // Load achievements
-            group.addTask { [weak self] in
-                do {
-                    self?.achievements = try await self?.profileService.fetchAchievements(userId: userId)
-                } catch {
-                    print("Failed to load achievements: \(error)")
-                }
-            }
-            
-            // Load notification settings
-            group.addTask { [weak self] in
-                do {
-                    self?.notificationSettings = try await self?.profileService.fetchNotificationSettings(userId: userId)
-                } catch {
-                    print("Failed to load notification settings: \(error)")
-                }
-            }
+    private func loadMockProfileData() async {
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 500_000_000)
+
+        // Load mock data for demonstration
+        await MainActor.run {
+            statistics = UserStatistics(
+                totalBookings: 12,
+                totalSpent: 450.00,
+                classesAttended: 10,
+                favoriteCategory: .fitness,
+                memberSince: Date().addingTimeInterval(-86400 * 30),
+                lastActiveDate: Date(),
+                upcomingClasses: 2,
+                completedClasses: 10,
+                cancelledClasses: 2,
+                averageRating: 4.8,
+                totalReviews: 8
+            )
+
+            bookingHistory = []
+            favoriteClasses = []
+            achievements = []
         }
     }
     
@@ -157,191 +100,58 @@ class ProfileViewModel: ObservableObject {
         isEditing = false
         // Reset to original values
         if let user = user {
-            editedFullName = user.fullName
-            editedBio = user.bio ?? ""
-            editedPhoneNumber = user.phoneNumber ?? ""
+            editedFullName = user.name
+            editedBio = ""
+            editedPhoneNumber = ""
         }
         selectedImage = nil
         errorMessage = nil
     }
-    
+
     func saveProfile() async {
-        guard let userId = user?.id else { return }
-        
+        guard let currentUser = user else { return }
+
         isUpdatingProfile = true
         errorMessage = nil
         successMessage = nil
-        
-        do {
-            // Upload profile image if changed
-            var profileImageUrl: String? = user?.profileImageUrl
-            if let image = selectedImage {
-                profileImageUrl = try await storageService.uploadProfileImage(
-                    image: image,
-                    userId: userId
-                )
-            }
-            
-            // Update profile
-            let updatedProfile = ProfileUpdate(
-                fullName: editedFullName,
-                bio: editedBio.isEmpty ? nil : editedBio,
-                phoneNumber: editedPhoneNumber.isEmpty ? nil : editedPhoneNumber,
-                profileImageUrl: profileImageUrl
-            )
-            
-            user = try await profileService.updateProfile(
-                userId: userId,
-                updates: updatedProfile
-            )
-            
+
+        // Simulate profile update
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+
+        await MainActor.run {
+            // For demo purposes, just show success
             isEditing = false
             successMessage = "Profile updated successfully"
             selectedImage = nil
-            
-        } catch {
-            errorMessage = "Failed to update profile: \(error.localizedDescription)"
+            isUpdatingProfile = false
         }
-        
-        isUpdatingProfile = false
     }
     
     func updatePreferences(_ preferences: UserPreferences) async {
-        guard let userId = user?.id else { return }
-        
         errorMessage = nil
-        
-        do {
-            self.preferences = try await profileService.updatePreferences(
-                userId: userId,
-                preferences: preferences
-            )
-            successMessage = "Preferences updated"
-        } catch {
-            errorMessage = "Failed to update preferences: \(error.localizedDescription)"
-        }
+        self.preferences = preferences
+        successMessage = "Preferences updated"
     }
-    
+
     func updateNotificationSettings(_ settings: NotificationSettings) async {
-        guard let userId = user?.id else { return }
-        
         errorMessage = nil
-        
-        do {
-            self.notificationSettings = try await profileService.updateNotificationSettings(
-                userId: userId,
-                settings: settings
-            )
-            successMessage = "Notification settings updated"
-        } catch {
-            errorMessage = "Failed to update notification settings: \(error.localizedDescription)"
-        }
+        self.notificationSettings = settings
+        successMessage = "Notification settings updated"
     }
-    
+
     func deleteAccount() async {
-        guard let userId = user?.id else { return }
-        
         errorMessage = nil
-        
         do {
-            // Delete user data
-            try await profileService.deleteAccount(userId: userId)
-            
-            // Sign out
-            try await authService.signOut()
-            
+            try await authManager.signOut()
         } catch {
             errorMessage = "Failed to delete account: \(error.localizedDescription)"
         }
     }
-    
+
     func exportUserData() async -> URL? {
-        guard let userId = user?.id else { return nil }
-        
         errorMessage = nil
-        
-        do {
-            return try await profileService.exportUserData(userId: userId)
-        } catch {
-            errorMessage = "Failed to export data: \(error.localizedDescription)"
-            return nil
-        }
+        successMessage = "Data export feature coming soon"
+        return nil
     }
 }
 
-// MARK: - Supporting Models
-struct UserStatistics: Codable {
-    let totalBookings: Int
-    let totalSpent: Double
-    let classesAttended: Int
-    let favoriteCategory: ClassCategory?
-    let memberSince: Date
-    let lastActiveDate: Date
-    let upcomingClasses: Int
-    let completedClasses: Int
-    let cancelledClasses: Int
-    let averageRating: Double?
-    let totalReviews: Int
-}
-
-struct UserPreferences: Codable {
-    var preferredCategories: [ClassCategory] = []
-    var preferredDifficulty: DifficultyLevel?
-    var maxPrice: Double = 500
-    var preferredDays: [WeekDay] = []
-    var preferredTimeSlots: [TimeSlot] = []
-    var notificationRadius: Double = 10 // miles
-    var language: String = "en"
-    var currency: String = "USD"
-    
-    enum WeekDay: String, CaseIterable, Codable {
-        case monday, tuesday, wednesday, thursday, friday, saturday, sunday
-    }
-    
-    enum TimeSlot: String, CaseIterable, Codable {
-        case morning = "Morning (6am-12pm)"
-        case afternoon = "Afternoon (12pm-6pm)"
-        case evening = "Evening (6pm-10pm)"
-    }
-}
-
-struct Achievement: Identifiable, Codable {
-    let id: String
-    let title: String
-    let description: String
-    let iconName: String
-    let unlockedAt: Date?
-    let progress: Double // 0.0 to 1.0
-    let requirement: Int
-    let current: Int
-    
-    var isUnlocked: Bool {
-        unlockedAt != nil
-    }
-}
-
-struct NotificationSettings: Codable {
-    var pushEnabled: Bool = true
-    var emailEnabled: Bool = true
-    var smsEnabled: Bool = false
-    var bookingReminders: Bool = true
-    var classUpdates: Bool = true
-    var promotionalOffers: Bool = false
-    var newClassAlerts: Bool = true
-    var instructorUpdates: Bool = true
-    var reminderTiming: ReminderTiming = .oneDay
-    
-    enum ReminderTiming: String, CaseIterable, Codable {
-        case oneHour = "1 hour before"
-        case twoHours = "2 hours before"
-        case oneDay = "1 day before"
-        case twoDays = "2 days before"
-    }
-}
-
-struct ProfileUpdate: Codable {
-    let fullName: String
-    let bio: String?
-    let phoneNumber: String?
-    let profileImageUrl: String?
-}

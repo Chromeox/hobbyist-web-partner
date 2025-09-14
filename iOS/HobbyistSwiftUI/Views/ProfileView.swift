@@ -50,7 +50,7 @@ struct ProfileView: View {
                         Label(NSLocalizedString("notifications", comment: ""), systemImage: "bell.fill")
                     }
                     
-                    NavigationLink(destination: SettingsView()) {
+                    NavigationLink(destination: Text("Settings View")) {
                         Label(NSLocalizedString("settings", comment: ""), systemImage: "gear")
                     }
                     
@@ -88,7 +88,7 @@ struct ProfileView: View {
     
     private func signOut() {
         Task {
-            await authManager.signOut()
+            try? await authManager.signOut()
         }
     }
 }
@@ -126,7 +126,7 @@ struct EditProfileView: View {
                     }
                     Spacer()
                 }
-                .onChange(of: selectedPhoto) {
+                .onChange(of: selectedPhoto) { _ in
                     Task {
                         if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
                             selectedPhotoData = data
@@ -166,11 +166,6 @@ struct PaymentMethodsView: View {
     }
 }
 
-struct CreditsView: View {
-    var body: some View {
-        Text("Credits View")
-    }
-}
 
 struct NotificationsView: View {
     var body: some View {

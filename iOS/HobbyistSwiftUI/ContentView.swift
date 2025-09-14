@@ -3,25 +3,35 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var navigationManager: NavigationManager
+    @State private var showOnboarding = false
 
     var body: some View {
-        VStack {
-            Text("HobbyistSwiftUI")
-                .font(.largeTitle)
-                .padding()
-
-            Text("Build Status: ✅ File paths fixed!")
-                .foregroundColor(.green)
-                .padding()
-
+        Group {
             if authManager.isAuthenticated {
-                Text("User is authenticated")
-                    .foregroundColor(.blue)
+                // User is logged in - show main app
+                MainTabView()
             } else {
-                Text("User not authenticated")
-                    .foregroundColor(.orange)
+                // User not logged in - show authentication flow
+                if shouldShowOnboarding {
+                    OnboardingView()
+                } else {
+                    LoginView()
+                }
             }
         }
+        .onAppear {
+            checkOnboardingStatus()
+        }
+    }
+
+    private var shouldShowOnboarding: Bool {
+        // Check if user has completed onboarding
+        !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    }
+
+    private func checkOnboardingStatus() {
+        // This could be expanded to check server-side onboarding status
+        showOnboarding = shouldShowOnboarding
     }
 }
 

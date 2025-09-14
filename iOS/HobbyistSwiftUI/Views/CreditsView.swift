@@ -42,7 +42,7 @@ struct CreditsView: View {
                 }
             }
             .sheet(isPresented: $showingPurchaseView) {
-                PricingView()
+                Text("Purchase Credits")
             }
             .onAppear {
                 creditService.refreshCredits()
@@ -111,7 +111,7 @@ struct CreditsView: View {
             
             // Quick Stats Grid
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                StatCard(
+                CreditsStatCard(
                     title: "This Month",
                     value: "\(creditService.creditsUsedThisMonth)",
                     subtitle: "credits used",
@@ -119,11 +119,11 @@ struct CreditsView: View {
                     color: .red
                 )
                 
-                StatCard(
+                CreditsStatCard(
                     title: "Savings",
-                    value: "$\(creditService.estimatedSavings, specifier: "%.0f")",
+                    value: String(format: "$%.0f", creditService.estimatedSavings),
                     subtitle: "vs drop-in",
-                    icon: "dollarsign.circle.fill", 
+                    icon: "dollarsign.circle.fill",
                     color: .green
                 )
             }
@@ -256,7 +256,7 @@ struct CreditsView: View {
 
 // MARK: - Supporting Views
 
-struct StatCard: View {
+struct CreditsStatCard: View {
     let title: String
     let value: String
     let subtitle: String

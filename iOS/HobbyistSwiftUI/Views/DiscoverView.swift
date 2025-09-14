@@ -27,7 +27,7 @@ struct DiscoverView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(categories, id: \.self) { category in
-                                CategoryChip(
+                                DiscoverCategoryChip(
                                     title: category,
                                     isSelected: selectedCategory == category,
                                     action: {
@@ -62,7 +62,7 @@ struct DiscoverView: View {
     }
 }
 
-struct CategoryChip: View {
+struct DiscoverCategoryChip: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void

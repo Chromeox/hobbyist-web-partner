@@ -72,7 +72,7 @@ class SearchViewModel: ObservableObject {
         $searchScope
             .dropFirst()
             .sink { [weak self] _ in
-                if !self?.searchQuery.isEmpty ?? true {
+                if !(self?.searchQuery.isEmpty ?? true) {
                     self?.performSearch()
                 }
             }
@@ -82,7 +82,7 @@ class SearchViewModel: ObservableObject {
         Publishers.CombineLatest($locationFilter, $searchRadius)
             .dropFirst()
             .sink { [weak self] _ in
-                if !self?.searchQuery.isEmpty ?? true {
+                if !(self?.searchQuery.isEmpty ?? true) {
                     self?.performSearch()
                 }
             }
@@ -91,7 +91,7 @@ class SearchViewModel: ObservableObject {
         // Listen for location updates
         locationService.locationPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] location in
+            .sink { [weak self] (location: CLLocation?) in
                 self?.currentLocation = location
                 if self?.locationFilter == .nearby {
                     self?.loadNearbyClasses()
