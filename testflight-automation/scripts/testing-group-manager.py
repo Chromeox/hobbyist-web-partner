@@ -18,8 +18,8 @@ import re
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import smtplib
 
 # Setup logging
@@ -343,12 +343,12 @@ class TestingGroupManager:
                     )
                     
                     # Create email message
-                    msg = MimeMultipart('alternative')
+                    msg = MIMEMultipart('alternative')
                     msg['Subject'] = subject
                     msg['From'] = email_config['from_email']
                     msg['To'] = tester['email']
                     
-                    html_part = MimeText(personalized_content, 'html')
+                    html_part = MIMEText(personalized_content, 'html')
                     msg.attach(html_part)
                     
                     # Send email

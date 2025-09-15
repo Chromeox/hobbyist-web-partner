@@ -1,10 +1,21 @@
 # App identifier for the app
-app_identifier("com.hobbyist.app") # The bundle identifier of your app
+app_identifier("com.hobbyist.bookingapp") # The bundle identifier of your app
 
-# Apple Developer Account information
-apple_id(ENV["APPLE_ID"]) # Your Apple email address
-itc_team_id(ENV["APP_STORE_CONNECT_TEAM_ID"]) # App Store Connect Team ID
-team_id(ENV["DEVELOPER_TEAM_ID"]) # Developer Portal Team ID
+# App Store Connect API Authentication (preferred method)
+if ENV["APP_STORE_CONNECT_API_KEY_ID"]
+  app_store_connect_api_key(
+    key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+    issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+    key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
+    duration: 1200, # optional (maximum 1200)
+    in_house: false # optional but may be required if using Enterprise account
+  )
+else
+  # Fallback to Apple ID authentication
+  apple_id(ENV["APPLE_ID"]) # Your Apple email address
+  itc_team_id(ENV["APP_STORE_CONNECT_TEAM_ID"]) # App Store Connect Team ID
+  team_id(ENV["DEVELOPER_TEAM_ID"]) # Developer Portal Team ID
+end
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile

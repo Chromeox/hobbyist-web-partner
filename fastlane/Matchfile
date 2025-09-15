@@ -5,7 +5,7 @@ git_url(ENV["MATCH_GIT_URL"])
 storage_mode("git")
 
 # App identifier
-app_identifier(["com.hobbyist.app"])
+app_identifier(["com.hobbyist.bookingapp"])
 
 # Apple Developer Account
 username(ENV["APPLE_ID"])
@@ -13,17 +13,26 @@ username(ENV["APPLE_ID"])
 # Team ID
 team_id(ENV["DEVELOPER_TEAM_ID"])
 
-# Git branch for certificates (optional)
+# Git branch for certificates
 git_branch("main")
 
-# Clone using SSH (recommended for private repositories)
-git_basic_authorization(Base64.strict_encode64(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])) if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+# Git authentication for private repositories
+if ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+  git_basic_authorization(Base64.strict_encode64(ENV["MATCH_GIT_BASIC_AUTHORIZATION"]))
+end
 
-# Keychain name for storing certificates
-keychain_name("fastlane_tmp_keychain")
-
-# Keychain password
+# Keychain configuration
+keychain_name(ENV["MATCH_KEYCHAIN_NAME"] || "fastlane_tmp_keychain")
 keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"])
+
+# Performance optimizations
+shallow_clone(ENV["MATCH_SHALLOW_CLONE"] == "true")
+
+# CI/CD configuration
+readonly(ENV["CI"] == "true" || ENV["MATCH_READONLY_IN_CI"] == "true")
+
+# Force update profiles when new devices are added
+force_for_new_devices(ENV["MATCH_FORCE_FOR_NEW_DEVICES"] == "true")
 
 # For more information about the Matchfile, see:
 #     https://docs.fastlane.tools/actions/match/#parameters

@@ -237,7 +237,9 @@ save_changelog() {
     local version="$2"
     local build="$3"
     
-    local changelog_file="testflight-automation/changelogs/CHANGELOG-$version-$build.md"
+    local safe_version=$(echo "$version" | tr '.' '_')
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local changelog_file="testflight-automation/changelogs/CHANGELOG-${safe_version}-${build}-${timestamp}.md"
     mkdir -p "$(dirname "$changelog_file")"
     
     cat > "$changelog_file" << EOF

@@ -140,9 +140,9 @@ manage_version() {
         log_success "Version management completed"
         
         # Extract version information
-        local version_info=$(cat "$LOGS_DIR/version-info.json" | tail -n 6 | head -n 6)
-        NEW_VERSION=$(echo "$version_info" | grep '"version"' | sed 's/.*": "\(.*\)",/\1/')
-        NEW_BUILD_NUMBER=$(echo "$version_info" | grep '"build_number"' | sed 's/.*": "\(.*\)",/\1/')
+        local version_info=$(cat "$LOGS_DIR/version-info.json" 2>/dev/null | tail -n 10)
+        NEW_VERSION=$(echo "$version_info" | grep '"version"' | sed 's/.*: "\(.*\)".*/\1/' | head -1)
+        NEW_BUILD_NUMBER=$(echo "$version_info" | grep '"build_number"' | sed 's/.*: "\(.*\)".*/\1/' | head -1)
         
         log_info "New version: $NEW_VERSION"
         log_info "New build number: $NEW_BUILD_NUMBER"

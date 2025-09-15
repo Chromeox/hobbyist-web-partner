@@ -614,11 +614,6 @@ error do |lane, exception|
   end
 end
 
-# Success callback
-success do |lane|
-  UI.success "🎉 Lane #{lane} completed successfully!"
-end
-
 platform :ios do
   # iOS specific lanes can be added here if needed
   
@@ -632,7 +627,7 @@ platform :ios do
     update_project_provisioning(
       xcodeproj: "HobbyistSwiftUI.xcodeproj",
       target_filter: "HobbyistSwiftUI",
-      profile: ENV["sigh_com.hobbyist.app_appstore_profile-path"],
+      profile: ENV["sigh_com.hobbyist.bookingapp_appstore_profile-path"],
       code_signing_identity: "iPhone Distribution"
     )
     
@@ -655,4 +650,9 @@ platform :ios do
     
     UI.success "✅ New devices registered"
   end
+end
+
+# Success callback
+after_all do |lane|
+  UI.success "🎉 Lane #{lane} completed successfully!"
 end
