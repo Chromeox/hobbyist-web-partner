@@ -96,18 +96,18 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.hobbyistswiftui.deeplink</string>
+			<string>com.hobbyist.bookingapp.deeplink</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hobbyistswiftui</string>
+				<string>hobbyist-bookingapp</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.hobbyistswiftui.stripe</string>
+			<string>com.hobbyist.bookingapp.stripe</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hobbyistswiftui-stripe</string>
+				<string>hobbyist-bookingapp-stripe</string>
 			</array>
 		</dict>
 	</array>
