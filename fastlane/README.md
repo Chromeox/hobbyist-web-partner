@@ -1,289 +1,203 @@
-# HobbyistSwiftUI Fastlane Configuration
+fastlane documentation
+----
 
-This directory contains the Fastlane configuration for automating the build, test, and deployment processes for HobbyistSwiftUI.
+# Installation
 
-## 📋 Prerequisites
+Make sure you have the latest version of the Xcode command line tools installed:
 
-1. **Install Fastlane**: `gem install fastlane` or use Bundler
-2. **Xcode Command Line Tools**: `xcode-select --install`
-3. **Apple Developer Account**: With appropriate permissions
-4. **Environment Variables**: Copy `.env.example` to `.env` and configure
-
-## 🚀 Available Lanes
-
-### 📱 Main Release Lanes
-
-#### TestFlight Release
-```bash
-# Complete TestFlight release (recommended)
-fastlane release_testflight
-
-# Upload to TestFlight with custom changelog
-fastlane upload_testflight changelog:"Bug fixes and new features"
-
-# Build only for TestFlight
-fastlane build_testflight
+```sh
+xcode-select --install
 ```
 
-#### App Store Release
-```bash
-# Complete App Store release
-fastlane release_app_store
+For _fastlane_ installation instructions, see [Installing _fastlane_](https://docs.fastlane.tools/#installing-fastlane)
 
-# Upload to App Store with options
-fastlane upload_app_store submit_for_review:true automatic_release:false
+# Available Actions
 
-# Build only for App Store
-fastlane build_app_store
+### test_api
+
+```sh
+[bundle exec] fastlane test_api
 ```
 
-### 🔧 Utility Lanes
 
-#### Code Signing
-```bash
-# Setup certificates and provisioning profiles
-fastlane setup_certificates
 
-# Complete code signing setup
-fastlane setup_code_signing
+### test_build
+
+```sh
+[bundle exec] fastlane test_build
 ```
 
-#### Testing
-```bash
-# Run all tests
-fastlane test
 
-# Generate screenshots
-fastlane generate_screenshots
 
-# Upload screenshots only
-fastlane upload_screenshots
+### upload_to_testflight_simple
+
+```sh
+[bundle exec] fastlane upload_to_testflight_simple
 ```
 
-#### Metadata Management
-```bash
-# Update App Store metadata only
-fastlane update_metadata
 
-# Update metadata without screenshots
-fastlane update_metadata skip_screenshots:true
+
+### setup_certificates
+
+```sh
+[bundle exec] fastlane setup_certificates
 ```
 
-#### Hotfix and Emergency
-```bash
-# Create hotfix release
-fastlane hotfix_release version:"1.0.1" changelog:"Critical bug fix"
+
+
+### build_app_store
+
+```sh
+[bundle exec] fastlane build_app_store
 ```
 
-#### Maintenance
-```bash
-# Clean up build artifacts
-fastlane cleanup
 
-# Register new devices for development
-fastlane register_devices
+
+### build_testflight
+
+```sh
+[bundle exec] fastlane build_testflight
 ```
 
-## 📝 Configuration Files
 
-### Core Configuration
-- **`Fastfile`**: Main lane definitions and automation logic
-- **`Appfile`**: App identifier and team information
-- **`.env`**: Environment variables (create from `.env.example`)
 
-### Specialized Configuration
-- **`Matchfile`**: Code signing certificate management
-- **`Deliverfile`**: App Store Connect upload settings
-- **`Gymfile`**: Build configuration and export options
-- **`Scanfile`**: Test execution configuration
-- **`Snapshotfile`**: Screenshot generation settings
+### upload_testflight
 
-## 🔐 Environment Setup
-
-### Required Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-# Apple Developer Account
-APPLE_ID="your-apple-id@example.com"
-DEVELOPER_TEAM_ID="YOUR_DEVELOPER_TEAM_ID"
-APP_STORE_CONNECT_TEAM_ID="YOUR_APP_STORE_CONNECT_TEAM_ID"
-
-# Authentication
-FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD="your-app-specific-password"
-
-# Code Signing
-MATCH_PASSWORD="your-match-repository-password"
-MATCH_GIT_URL="https://github.com/yourorg/certificates-repo.git"
+```sh
+[bundle exec] fastlane upload_testflight
 ```
 
-### Apple Developer Account Setup
 
-1. **App-Specific Password**: Generate at [appleid.apple.com](https://appleid.apple.com)
-2. **Team IDs**: Find in Apple Developer Portal
-3. **Match Repository**: Private Git repository for certificates
 
-## 📊 CI/CD Integration
+### upload_app_store
 
-### GitHub Actions Integration
-
-The Fastlane configuration integrates with GitHub Actions:
-
-```yaml
-# Example workflow usage
-- name: Deploy to TestFlight
-  run: fastlane release_testflight
-  env:
-    MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-    FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+```sh
+[bundle exec] fastlane upload_app_store
 ```
 
-### Required Secrets
 
-Configure these secrets in your CI/CD system:
-- `MATCH_PASSWORD`
-- `FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD`
-- `APPLE_ID`
-- `DEVELOPER_TEAM_ID`
-- `APP_STORE_CONNECT_TEAM_ID`
 
-## 🔄 Typical Workflows
+### release_testflight
 
-### Alpha Release Process
-1. **Prepare Release**:
-   ```bash
-   fastlane test                    # Run tests
-   fastlane generate_screenshots    # Update screenshots
-   ```
-
-2. **Deploy to TestFlight**:
-   ```bash
-   fastlane release_testflight
-   ```
-
-3. **Monitor and Iterate**: Use TestFlight feedback for improvements
-
-### App Store Submission Process
-1. **Final Testing**:
-   ```bash
-   fastlane test
-   fastlane build_app_store
-   ```
-
-2. **Submit for Review**:
-   ```bash
-   fastlane release_app_store submit_for_review:true
-   ```
-
-3. **Metadata Updates** (if needed):
-   ```bash
-   fastlane update_metadata
-   ```
-
-### Emergency Hotfix Process
-1. **Create Hotfix Build**:
-   ```bash
-   fastlane hotfix_release version:"1.0.1" changelog:"Critical security fix"
-   ```
-
-2. **Fast-track Review**: Contact Apple for expedited review if critical
-
-## 📱 Device and Screenshot Management
-
-### Supported Devices
-- iPhone 15 Pro Max
-- iPhone 15 Pro
-- iPhone SE (3rd generation)
-- iPad Pro (12.9-inch) (6th generation)
-- iPad Pro (11-inch) (4th generation)
-
-### Screenshot Generation
-```bash
-# Generate all screenshots
-fastlane generate_screenshots
-
-# Upload to App Store Connect
-fastlane upload_screenshots
+```sh
+[bundle exec] fastlane release_testflight
 ```
 
-## 🛠 Troubleshooting
 
-### Common Issues
 
-#### Code Signing Issues
-```bash
-# Reset and recreate certificates
-fastlane match nuke development
-fastlane match nuke appstore
-fastlane setup_code_signing
+### automated_testflight_release
+
+```sh
+[bundle exec] fastlane automated_testflight_release
 ```
 
-#### Build Failures
-```bash
-# Clean and retry
-fastlane cleanup
-fastlane test
-fastlane build_testflight
+
+
+### monitor_processing_status
+
+```sh
+[bundle exec] fastlane monitor_processing_status
 ```
 
-#### Authentication Problems
-1. Verify App-Specific Password is current
-2. Check team IDs are correct
-3. Ensure Apple ID has appropriate permissions
 
-### Debug Mode
-```bash
-# Run with verbose output
-fastlane release_testflight --verbose
 
-# Capture logs
-fastlane release_testflight 2>&1 | tee fastlane.log
+### release_app_store
+
+```sh
+[bundle exec] fastlane release_app_store
 ```
 
-## 📊 Monitoring and Notifications
 
-### Slack Integration
-Configure `SLACK_WEBHOOK_URL` for deployment notifications:
-- Build success/failure alerts
-- Release status updates
-- Error notifications with context
 
-### Build Metrics
-Fastlane automatically tracks:
-- Build times and success rates
-- Test coverage and results
-- Deployment success metrics
+### update_metadata
 
-## 🔄 Maintenance
+```sh
+[bundle exec] fastlane update_metadata
+```
 
-### Regular Tasks
-- **Weekly**: Update certificates with `fastlane setup_code_signing`
-- **Monthly**: Review and clean up old builds with `fastlane cleanup`
-- **Before Major Releases**: Generate fresh screenshots
 
-### Updates
-- **Fastlane**: `gem update fastlane`
-- **Plugins**: `fastlane update_plugins`
-- **Dependencies**: `bundle update`
 
-## 🎯 Best Practices
+### upload_screenshots
 
-1. **Always test before releasing**: `fastlane test`
-2. **Use descriptive changelogs**: Help testers understand changes
-3. **Monitor phased releases**: Watch crash rates and user feedback
-4. **Keep certificates updated**: Use Match for team synchronization
-5. **Version control configuration**: Track changes to Fastlane files
+```sh
+[bundle exec] fastlane upload_screenshots
+```
 
-## 📞 Support
 
-For issues with this Fastlane configuration:
-1. Check the troubleshooting section above
-2. Review Fastlane documentation: [docs.fastlane.tools](https://docs.fastlane.tools)
-3. Contact the development team
 
----
+### generate_screenshots
 
-**Last Updated**: December 2024  
-**Fastlane Version**: 2.217.0  
-**Configuration Version**: 1.0.0
+```sh
+[bundle exec] fastlane generate_screenshots
+```
+
+
+
+### test
+
+```sh
+[bundle exec] fastlane test
+```
+
+
+
+### setup_code_signing
+
+```sh
+[bundle exec] fastlane setup_code_signing
+```
+
+
+
+### hotfix_release
+
+```sh
+[bundle exec] fastlane hotfix_release
+```
+
+
+
+### setup_beta_testing
+
+```sh
+[bundle exec] fastlane setup_beta_testing
+```
+
+
+
+### cleanup
+
+```sh
+[bundle exec] fastlane cleanup
+```
+
+
+
+----
+
+
+## iOS
+
+### ios update_ios_settings
+
+```sh
+[bundle exec] fastlane ios update_ios_settings
+```
+
+iOS platform specific configurations and lanes
+
+### ios register_devices
+
+```sh
+[bundle exec] fastlane ios register_devices
+```
+
+
+
+----
+
+This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
+
+More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).
+
+The documentation of _fastlane_ can be found on [docs.fastlane.tools](https://docs.fastlane.tools).

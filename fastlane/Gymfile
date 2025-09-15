@@ -25,23 +25,14 @@ include_bitcode(false)
 # Build configuration
 configuration("Release")
 
-# iOS deployment target
-deployment_target("16.0")
-
-# Build for simulator (set to false for distribution)
-build_for_simulator(false)
-
 # Suppress Xcode output unless there's an error
 suppress_xcode_output(false)
-
-# Disable automatic code signing (use Fastlane Match instead)
-disable_automatic_code_signing(false)
 
 # Export options
 export_options({
   method: "app-store",
   provisioningProfiles: {
-    "com.hobbyist.app" => "match AppStore com.hobbyist.app"
+    "com.hobbyist.bookingapp" => "match AppStore com.hobbyist.bookingapp"
   },
   signingStyle: "automatic",
   teamID: ENV["DEVELOPER_TEAM_ID"],
