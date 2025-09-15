@@ -17,7 +17,7 @@ Complete guide for creating and configuring your Hobbyist app in App Store Conne
 Platforms: iOS
 Name: Hobbyist
 Primary Language: English (U.S.)
-Bundle ID: com.hobbyist.app
+Bundle ID: com.hobbyist.bookingapp
 SKU: HOBBYIST-IOS-2024
 User Access: Full Access
 ```
@@ -108,21 +108,21 @@ Since your app includes credit pack purchases:
 
 **Credit Pack Examples:**
 ```
-Product ID: com.hobbyist.app.credits.5pack
+Product ID: com.hobbyist.bookingapp.credits.5pack
 Reference Name: 5 Class Credits
 Type: Consumable
 Price: $49.99
 ```
 
 ```
-Product ID: com.hobbyist.app.credits.10pack  
+Product ID: com.hobbyist.bookingapp.credits.10pack  
 Reference Name: 10 Class Credits
 Type: Consumable
 Price: $89.99
 ```
 
 ```
-Product ID: com.hobbyist.app.credits.20pack
+Product ID: com.hobbyist.bookingapp.credits.20pack
 Reference Name: 20 Class Credits  
 Type: Consumable
 Price: $159.99
