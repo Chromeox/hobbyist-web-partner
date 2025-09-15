@@ -19,13 +19,13 @@ lane :setup_certificates do
   # Use match to sync certificates and provisioning profiles
   match(
     type: "development",
-    app_identifier: "com.hobbyist.app",
+    app_identifier: "com.hobbyist.bookingapp",
     readonly: ENV["CI"] == "true" # Read-only in CI environments
   )
   
   match(
     type: "appstore",
-    app_identifier: "com.hobbyist.app",
+    app_identifier: "com.hobbyist.bookingapp",
     readonly: ENV["CI"] == "true"
   )
   
@@ -86,39 +86,165 @@ lane :build_testflight do
   UI.success "✅ TestFlight build complete"
 end
 
-# Lane for uploading to TestFlight
+# Enhanced lane for uploading to TestFlight with automation features
 lane :upload_testflight do |options|
-  desc "Upload app to TestFlight"
+  desc "Upload app to TestFlight with enhanced automation"
+  
+  # Pre-upload validation
+  unless options[:skip_validation]
+    UI.message "🔍 Running pre-upload validation..."
+    validation_result = sh "./testflight-automation/scripts/pre-upload-validation.sh", error_callback: ->(result) {
+      UI.error "❌ Pre-upload validation failed with exit code: #{result}"
+      next
+    }
+    UI.success "✅ Pre-upload validation passed"
+  end
   
   # Build the app if no IPA provided
   unless options[:skip_build]
     build_testflight
   end
   
-  # Upload to TestFlight
-  pilot(
-    ipa: "./build/HobbyistSwiftUI-TestFlight.ipa",
-    skip_waiting_for_build_processing: true,
-    skip_submission: false,
-    distribute_external: false,
-    changelog: options[:changelog] || "Bug fixes and performance improvements",
-    beta_app_feedback_email: ENV["BETA_FEEDBACK_EMAIL"],
-    beta_app_description: "HobbyistSwiftUI alpha version for testing"
-  )
+  # Upload to TestFlight with retry logic
+  upload_with_retry(options)
   
   UI.success "✅ TestFlight upload complete"
   
-  # Send notification (optional)
+  # Send notification
+  send_upload_notification(options)
+end
+
+# Helper lane for upload with retry logic
+private_lane :upload_with_retry do |options|
+  max_attempts = options[:max_retry_attempts] || 3
+  attempt = 1
+  
+  while attempt <= max_attempts
+    begin
+      UI.message "📤 Upload attempt #{attempt}/#{max_attempts}"
+      
+      pilot(
+        ipa: "./build/HobbyistSwiftUI-TestFlight.ipa",
+        skip_waiting_for_build_processing: options[:skip_waiting] || true,
+        skip_submission: options[:skip_submission] || false,
+        distribute_external: options[:distribute_external] || false,
+        changelog: options[:changelog] || generate_changelog,
+        beta_app_feedback_email: ENV["BETA_FEEDBACK_EMAIL"],
+        beta_app_description: "HobbyistSwiftUI alpha version for testing",
+        groups: options[:groups] || ["Alpha Testers", "Internal Team"],
+        notify_external_testers: options[:notify_external] || false,
+        app_platform: "ios",
+        distribute_only: options[:distribute_only] || false
+      )
+      
+      UI.success "✅ Upload successful on attempt #{attempt}"
+      break
+      
+    rescue => exception
+      UI.error "❌ Upload attempt #{attempt} failed: #{exception.message}"
+      
+      if attempt < max_attempts
+        wait_time = calculate_backoff_delay(attempt)
+        UI.message "⏳ Waiting #{wait_time} seconds before retry..."
+        sleep(wait_time)
+        attempt += 1
+      else
+        UI.user_error! "❌ Upload failed after #{max_attempts} attempts"
+      end
+    end
+  end
+end
+
+# Helper lane to calculate exponential backoff delay
+private_lane :calculate_backoff_delay do |attempt|
+  base_delay = 30
+  max_delay = 300
+  delay = [base_delay * (2 ** (attempt - 1)), max_delay].min
+  delay
+end
+
+# Helper lane to generate changelog from git commits
+private_lane :generate_changelog do
+  begin
+    # Get commits since last tag or last 10 commits
+    git_log = changelog_from_git_commits(
+      between: [last_git_tag, "HEAD"],
+      pretty: "- %s",
+      date_format: "short",
+      match_lightweight_tag: false,
+      merge_commit_filtering: "exclude_merges"
+    )
+    
+    if git_log.empty?
+      return "Bug fixes and performance improvements"
+    else
+      return git_log
+    end
+  rescue
+    return "Bug fixes and performance improvements"
+  end
+end
+
+# Helper lane to send upload notifications
+private_lane :send_upload_notification do |options|
+  build_number = get_build_number
+  version = get_version_number
+  changelog = options[:changelog] || generate_changelog
+  
+  # Slack notification
   if ENV["SLACK_WEBHOOK_URL"]
     slack(
       message: "📱 New TestFlight build uploaded successfully!",
       success: true,
+      channel: ENV["SLACK_CHANNEL"] || "#ios-releases",
+      username: "TestFlight Bot",
+      icon_emoji: ":rocket:",
       payload: {
-        "Build Number" => get_build_number,
-        "Version" => get_version_number,
-        "Changelog" => options[:changelog] || "Bug fixes and performance improvements"
+        "App" => "HobbyistSwiftUI",
+        "Version" => version,
+        "Build Number" => build_number,
+        "Bundle ID" => "com.hobbyist.bookingapp",
+        "Changelog" => changelog.length > 200 ? changelog[0..197] + "..." : changelog,
+        "Upload Time" => Time.now.strftime("%Y-%m-%d %H:%M:%S"),
+        "Groups" => options[:groups] || ["Alpha Testers", "Internal Team"]
+      },
+      attachment_properties: {
+        color: "good",
+        fields: [
+          {
+            title: "TestFlight Status",
+            value: "Processing build...",
+            short: true
+          },
+          {
+            title: "Estimated Processing Time",
+            value: "5-15 minutes",
+            short: true
+          }
+        ]
       }
     )
+  end
+  
+  # Webhook notification (if configured)
+  if ENV["WEBHOOK_URL"]
+    begin
+      webhook_payload = {
+        event: "testflight_upload_success",
+        app_name: "HobbyistSwiftUI",
+        bundle_id: "com.hobbyist.bookingapp",
+        version: version,
+        build_number: build_number,
+        changelog: changelog,
+        timestamp: Time.now.iso8601,
+        groups: options[:groups] || ["Alpha Testers", "Internal Team"]
+      }
+      
+      sh "curl -X POST -H 'Content-Type: application/json' -d '#{webhook_payload.to_json}' #{ENV['WEBHOOK_URL']}"
+      UI.success "✅ Webhook notification sent"
+    rescue => exception
+      UI.error "⚠️ Webhook notification failed: #{exception.message}"
+    end
   end
 end
 
@@ -172,9 +298,9 @@ lane :upload_app_store do |options|
   end
 end
 
-# Lane for complete TestFlight release
+# Lane for complete TestFlight release with full automation
 lane :release_testflight do |options|
-  desc "Complete TestFlight release process"
+  desc "Complete TestFlight release process with full automation"
   
   # Validate environment
   ensure_env_vars(
@@ -190,10 +316,118 @@ lane :release_testflight do |options|
     )
   end
   
-  # Upload to TestFlight
+  # Upload to TestFlight with enhanced features
   upload_testflight(options)
   
+  # Monitor processing status
+  unless options[:skip_monitoring]
+    monitor_processing_status(options)
+  end
+  
   UI.success "🎉 TestFlight release complete!"
+end
+
+# Lane for automated TestFlight build management
+lane :automated_testflight_release do |options|
+  desc "Fully automated TestFlight release with all checks and monitoring"
+  
+  begin
+    # Step 1: Pre-flight validation
+    UI.header "🔍 Step 1: Pre-flight Validation"
+    unless options[:skip_validation]
+      validation_result = sh "./testflight-automation/scripts/pre-upload-validation.sh --skip-auth"
+      UI.success "✅ Pre-flight validation passed"
+    end
+    
+    # Step 2: Increment version if needed
+    UI.header "🔢 Step 2: Version Management"
+    if options[:increment_version]
+      increment_version_number(version_number: options[:version])
+    end
+    
+    # Step 3: Build and upload
+    UI.header "🛠️ Step 3: Build and Upload"
+    release_testflight(
+      skip_tests: options[:skip_tests] || false,
+      skip_monitoring: false,
+      changelog: options[:changelog],
+      groups: options[:groups],
+      distribute_external: options[:distribute_external] || false
+    )
+    
+    # Step 4: Update testing groups if specified
+    UI.header "👥 Step 4: Testing Group Management"
+    if options[:manage_groups]
+      manage_testing_groups(options)
+    end
+    
+    # Step 5: Submit for beta review if external distribution
+    UI.header "📝 Step 5: Beta Review Submission"
+    if options[:distribute_external] && options[:auto_submit_review]
+      submit_beta_review(options)
+    end
+    
+  rescue => exception
+    UI.error "❌ Automated TestFlight release failed: #{exception.message}"
+    
+    # Send failure notification
+    send_failure_notification(exception, options)
+    
+    # Re-raise the exception
+    raise exception
+  end
+end
+
+# Lane to monitor TestFlight processing status
+lane :monitor_processing_status do |options|
+  desc "Monitor TestFlight build processing status"
+  
+  build_number = get_build_number
+  timeout = options[:timeout] || 900  # 15 minutes default
+  check_interval = options[:check_interval] || 30  # 30 seconds default
+  
+  UI.message "🕰️ Monitoring build processing status for build #{build_number}..."
+  
+  start_time = Time.now
+  
+  while (Time.now - start_time) < timeout
+    begin
+      # Check build status using spaceship
+      app = Spaceship::ConnectAPI::App.find("com.hobbyist.bookingapp")
+      builds = app.get_builds.select { |build| build.version == build_number }
+      
+      if builds.any?
+        latest_build = builds.first
+        processing_state = latest_build.processing_state
+        
+        UI.message "🔄 Build #{build_number} status: #{processing_state}"
+        
+        case processing_state
+        when "PROCESSING"
+          UI.message "⏳ Build still processing... (#{((Time.now - start_time) / 60).round(1)} minutes elapsed)"
+        when "VALID"
+          UI.success "✅ Build processing complete! Build is ready for testing."
+          send_processing_complete_notification(latest_build, options)
+          return
+        when "INVALID"
+          UI.error "❌ Build processing failed. Check App Store Connect for details."
+          send_processing_failed_notification(latest_build, options)
+          return
+        else
+          UI.message "🔄 Unknown processing state: #{processing_state}"
+        end
+      else
+        UI.message "⏳ Build not yet visible in App Store Connect..."
+      end
+      
+    rescue => exception
+      UI.error "⚠️ Error checking processing status: #{exception.message}"
+    end
+    
+    sleep(check_interval)
+  end
+  
+  UI.error "⏰ Processing status monitoring timed out after #{timeout / 60} minutes"
 end
 
 # Lane for complete App Store release
@@ -217,7 +451,7 @@ lane :release_app_store do |options|
   # Validate metadata and screenshots
   unless options[:skip_validation]
     precheck(
-      app_identifier: "com.hobbyist.app"
+      app_identifier: "com.hobbyist.bookingapp"
     )
   end
   
@@ -232,7 +466,7 @@ lane :update_metadata do |options|
   desc "Update App Store metadata without uploading binary"
   
   deliver(
-    app_identifier: "com.hobbyist.app",
+    app_identifier: "com.hobbyist.bookingapp",
     skip_binary_upload: true,
     skip_screenshots: options[:skip_screenshots] || false,
     force: true,
@@ -247,7 +481,7 @@ lane :upload_screenshots do
   desc "Upload screenshots to App Store Connect"
   
   deliver(
-    app_identifier: "com.hobbyist.app",
+    app_identifier: "com.hobbyist.bookingapp",
     skip_binary_upload: true,
     skip_metadata: true,
     force: true,
@@ -300,13 +534,13 @@ lane :setup_code_signing do
   # Create/update certificates and provisioning profiles
   match(
     type: "development",
-    app_identifier: "com.hobbyist.app",
+    app_identifier: "com.hobbyist.bookingapp",
     force_for_new_devices: true
   )
   
   match(
     type: "appstore", 
-    app_identifier: "com.hobbyist.app"
+    app_identifier: "com.hobbyist.bookingapp"
   )
   
   UI.success "✅ Code signing setup complete"
