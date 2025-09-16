@@ -15,8 +15,8 @@ class ClassListViewModel: ObservableObject {
     @Published var sortOption: SortOption = .dateAscending
     @Published var showFavoritesOnly: Bool = false
     
-    private let classService: ClassService
-    private let favoritesService: FavoritesService
+    private var classService: ClassService { ClassService.shared }
+    private var favoritesService: FavoritesService { FavoritesService.shared }
     private var cancellables = Set<AnyCancellable>()
     
     enum SortOption: String, CaseIterable {
@@ -28,12 +28,7 @@ class ClassListViewModel: ObservableObject {
         case ratingDescending = "Highest Rated"
     }
     
-    init(
-        classService: ClassService = ClassService.shared,
-        favoritesService: FavoritesService = FavoritesService.shared
-    ) {
-        self.classService = classService
-        self.favoritesService = favoritesService
+    init() {
         setupBindings()
         Task { await loadClasses() }
     }

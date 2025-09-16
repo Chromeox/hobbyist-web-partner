@@ -20,9 +20,9 @@ class SearchViewModel: ObservableObject {
     @Published var hasMoreResults: Bool = false
     @Published var autocompleteSuggestions: [String] = []
     
-    private let searchService: SearchService
-    private let locationService: LocationService
-    private let analyticsService: AnalyticsService
+    private var searchService: SearchService { SearchService.shared }
+    private var locationService: LocationService { LocationService.shared }
+    private var analyticsService: AnalyticsService { AnalyticsService.shared }
     private var searchTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     private let searchDebounceTime: TimeInterval = 0.3
@@ -41,14 +41,7 @@ class SearchViewModel: ObservableObject {
         case custom = "Custom Range"
     }
     
-    init(
-        searchService: SearchService = SearchService.shared,
-        locationService: LocationService = LocationService.shared,
-        analyticsService: AnalyticsService = AnalyticsService.shared
-    ) {
-        self.searchService = searchService
-        self.locationService = locationService
-        self.analyticsService = analyticsService
+    init() {
         setupBindings()
         loadInitialData()
     }
