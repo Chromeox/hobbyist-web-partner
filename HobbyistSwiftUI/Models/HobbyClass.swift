@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 // MARK: - HobbyClass
 struct HobbyClass: Identifiable, Codable, Hashable {
@@ -108,55 +109,61 @@ struct VenueInfo: Codable, Hashable {
 extension HobbyClass {
     static var hobbyClassSamples: [ClassItem] {
         // Convert sample HobbyClass to ClassItem for compatibility
-        return ClassItem.sampleClasses
+        return ClassItem.hobbyClassSamples
     }
     
     // Convert HobbyClass to ClassItem
     var toClassItem: ClassItem {
         ClassItem(
-            id: UUID(uuidString: id) ?? UUID(),
+            id: id,
             name: title,
+            category: category.rawValue,
+            instructor: instructor.name,
+            instructorInitials: String(instructor.name.prefix(2)),
             description: description,
-            instructorId: UUID(uuidString: instructor.id) ?? UUID(),
-            instructorName: instructor.name,
-            venueId: UUID(uuidString: venue.id) ?? UUID(),
-            venueName: venue.name,
+            duration: "\(duration) min",
+            difficulty: difficulty.rawValue,
+            price: "$\(Int(price))",
+            creditsRequired: Int(price / 3.5), // Approximate conversion
             startTime: startDate,
             endTime: endDate,
-            price: Decimal(price),
-            maxCapacity: maxParticipants,
-            currentEnrollment: enrolledCount,
-            imageUrl: imageUrl,
-            category: category.rawValue,
-            level: difficulty.rawValue,
-            isOnline: isOnline,
-            meetingUrl: meetingUrl,
-            status: "active",
-            createdAt: Date(),
-            updatedAt: nil
+            location: "Studio",
+            venueName: venue.name,
+            address: venue.address,
+            coordinate: CLLocationCoordinate2D(latitude: venue.latitude, longitude: venue.longitude),
+            spotsAvailable: maxParticipants - enrolledCount,
+            totalSpots: maxParticipants,
+            rating: String(format: "%.1f", averageRating),
+            reviewCount: "\(totalReviews)",
+            icon: category.iconName,
+            categoryColor: .blue,
+            isFeatured: false,
+            requirements: requirements,
+            amenities: [],
+            equipment: []
         )
     }
     
     // Create from ClassItem
     static func from(_ item: ClassItem) -> HobbyClass {
         HobbyClass(
-            id: item.id.uuidString,
+            id: item.id,
             title: item.name,
             description: item.description,
-            category: ClassCategory(rawValue: item.category ?? "") ?? .other,
-            difficulty: DifficultyLevel(rawValue: item.level ?? "") ?? .allLevels,
-            price: NSDecimalNumber(decimal: item.price).doubleValue,
+            category: ClassCategory(rawValue: item.category) ?? .other,
+            difficulty: DifficultyLevel(rawValue: item.difficulty) ?? .allLevels,
+            price: Double(item.price.replacingOccurrences(of: "$", with: "")) ?? 0.0,
             startDate: item.startTime,
             endDate: item.endTime,
             duration: Calendar.current.dateComponents([.minute], from: item.startTime, to: item.endTime).minute ?? 60,
-            maxParticipants: item.maxCapacity,
-            enrolledCount: item.currentEnrollment,
+            maxParticipants: item.totalSpots,
+            enrolledCount: item.totalSpots - item.spotsAvailable,
             instructor: InstructorInfo(
-                id: item.instructorId.uuidString,
-                name: item.instructorName ?? "Unknown Instructor",
+                id: UUID().uuidString,
+                name: item.instructor,
                 bio: nil,
                 profileImageUrl: nil,
-                rating: 0.0,
+                rating: Double(item.rating) ?? 0.0,
                 totalClasses: 0,
                 totalStudents: 0,
                 specialties: [],
@@ -165,30 +172,30 @@ extension HobbyClass {
                 socialLinks: nil
             ),
             venue: VenueInfo(
-                id: item.venueId.uuidString,
-                name: item.venueName ?? "Unknown Venue",
-                address: "",
+                id: UUID().uuidString,
+                name: item.venueName,
+                address: item.address,
                 city: "",
                 state: "",
                 zipCode: "",
-                latitude: 0.0,
-                longitude: 0.0,
-                amenities: [],
+                latitude: item.coordinate.latitude,
+                longitude: item.coordinate.longitude,
+                amenities: item.amenities.map { $0.name },
                 parkingInfo: nil,
                 publicTransit: nil,
                 imageUrls: nil,
                 accessibilityInfo: nil
             ),
-            imageUrl: item.imageUrl,
+            imageUrl: nil,
             thumbnailUrl: nil,
-            averageRating: 0.0,
-            totalReviews: 0,
+            averageRating: Double(item.rating) ?? 0.0,
+            totalReviews: Int(item.reviewCount) ?? 0,
             tags: [],
-            requirements: [],
+            requirements: item.requirements,
             whatToBring: [],
             cancellationPolicy: "Standard cancellation policy applies",
-            isOnline: item.isOnline,
-            meetingUrl: item.meetingUrl
+            isOnline: false,
+            meetingUrl: nil
         )
     }
 }

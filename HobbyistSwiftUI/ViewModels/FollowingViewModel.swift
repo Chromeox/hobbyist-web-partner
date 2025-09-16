@@ -10,7 +10,7 @@ class FollowingViewModel: ObservableObject {
     @Published var isLoadingSuggestions = false
     @Published var errorMessage: String?
     
-    private let followingService = FollowingService()
+    private let followingService = FollowingService.shared
     private let authManager = AuthenticationManager.shared
     private var cancellables = Set<AnyCancellable>()
     
@@ -21,12 +21,17 @@ class FollowingViewModel: ObservableObject {
     }
     
     func loadFollowing() {
-        guard let userId = authManager.currentUser?.id else { return }
-        
         isLoadingFollowing = true
         errorMessage = nil
-        
+
         Task {
+            guard let userId = await authManager.getCurrentUserId() else {
+                await MainActor.run {
+                    self.isLoadingFollowing = false
+                }
+                return
+            }
+
             do {
                 let profiles = try await followingService.getFollowing(for: userId)
                 await MainActor.run {
@@ -43,12 +48,17 @@ class FollowingViewModel: ObservableObject {
     }
     
     func loadFollowers() {
-        guard let userId = authManager.currentUser?.id else { return }
-        
         isLoadingFollowers = true
         errorMessage = nil
-        
+
         Task {
+            guard let userId = await authManager.getCurrentUserId() else {
+                await MainActor.run {
+                    self.isLoadingFollowers = false
+                }
+                return
+            }
+
             do {
                 let profiles = try await followingService.getFollowers(for: userId)
                 await MainActor.run {
@@ -65,12 +75,17 @@ class FollowingViewModel: ObservableObject {
     }
     
     func loadSuggestions() {
-        guard let userId = authManager.currentUser?.id else { return }
-        
         isLoadingSuggestions = true
         errorMessage = nil
-        
+
         Task {
+            guard let userId = await authManager.getCurrentUserId() else {
+                await MainActor.run {
+                    self.isLoadingSuggestions = false
+                }
+                return
+            }
+
             do {
                 let profiles = try await followingService.getSuggestions(for: userId)
                 await MainActor.run {
@@ -87,9 +102,8 @@ class FollowingViewModel: ObservableObject {
     }
     
     func follow(_ profile: FollowingProfile) {
-        guard let userId = authManager.currentUser?.id else { return }
-        
         Task {
+            guard let userId = await authManager.getCurrentUserId() else { return }
             do {
                 try await followingService.follow(
                     userId: userId,
@@ -136,9 +150,8 @@ class FollowingViewModel: ObservableObject {
     }
     
     func unfollow(_ profile: FollowingProfile) {
-        guard let userId = authManager.currentUser?.id else { return }
-        
         Task {
+            guard let userId = await authManager.getCurrentUserId() else { return }
             do {
                 try await followingService.unfollow(
                     userId: userId,

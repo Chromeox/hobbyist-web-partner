@@ -1,11 +1,11 @@
 import Foundation
-import StripePaymentSheet
+// Using Apple Pay/StoreKit instead of Stripe
 import PassKit
 
 protocol PaymentServiceProtocol {
     // Payment Methods
-    func fetchPaymentMethods() async throws -> [PaymentMethod]
-    func addPaymentMethod(card: CardDetails) async throws -> PaymentMethod
+    func fetchPaymentMethods() async throws -> [StoredPaymentMethod]
+    func addPaymentMethod(card: CardDetails) async throws -> StoredPaymentMethod
     func removePaymentMethod(id: String) async throws
     func setDefaultPaymentMethod(id: String) async throws
     
@@ -19,9 +19,9 @@ protocol PaymentServiceProtocol {
     func processApplePayment(amount: Double, description: String) async throws -> PaymentResult
     func isApplePayAvailable() -> Bool
     
-    // Stripe Payment Sheet
-    func preparePaymentSheet(for amount: Double) async throws -> PaymentSheet.IntentConfiguration
-    func presentPaymentSheet() async throws -> PaymentSheet.PaymentSheetResult
+    // Apple Pay Direct
+    func prepareApplePayment(for amount: Double, description: String) async throws -> String
+    func presentApplePaySheet(for amount: Double, description: String) async throws -> PaymentResult
     
     // Refunds
     func requestRefund(paymentId: String, reason: String) async throws -> RefundResult
@@ -32,7 +32,7 @@ protocol PaymentServiceProtocol {
 
 // MARK: - Payment Models
 
-struct PaymentMethod: Identifiable, Codable {
+struct StoredPaymentMethod: Identifiable, Codable {
     let id: String
     let type: PaymentMethodType
     let last4: String
@@ -112,7 +112,7 @@ struct Transaction: Identifiable, Codable {
 
 // MARK: - Credit Pack Models
 
-struct CreditPack: Identifiable, Codable {
+struct CreditPackDefinition: Identifiable, Codable {
     let id: String
     let name: String
     let credits: Int
@@ -132,8 +132,8 @@ struct CreditPack: Identifiable, Codable {
 }
 
 // Available Credit Packs
-extension CreditPack {
-    static let starter = CreditPack(
+extension CreditPackDefinition {
+    static let starter = CreditPackDefinition(
         id: "pack_starter",
         name: "Starter Pack",
         credits: 5,
@@ -144,7 +144,7 @@ extension CreditPack {
         isPopular: false
     )
     
-    static let value = CreditPack(
+    static let value = CreditPackDefinition(
         id: "pack_value",
         name: "Value Pack",
         credits: 10,
@@ -154,8 +154,8 @@ extension CreditPack {
         validityDays: 60,
         isPopular: true
     )
-    
-    static let premium = CreditPack(
+
+    static let premium = CreditPackDefinition(
         id: "pack_premium",
         name: "Premium Pack",
         credits: 20,

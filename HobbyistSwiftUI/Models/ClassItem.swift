@@ -566,7 +566,7 @@ struct InstructorCard: Identifiable, Codable {
     let bio: String
 }
 
-struct Review: Identifiable, Codable {
+struct ClassReview: Identifiable, Codable {
     let id: String
     let userName: String
     let userInitials: String

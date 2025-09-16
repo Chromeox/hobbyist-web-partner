@@ -8,15 +8,15 @@ final class ServiceContainer {
     private(set) var authManager: AuthenticationManager!
     private(set) var userService: UserService!
     private(set) var classService: ClassService!
-    private(set) var bookingService: BookingService!
-    private(set) var paymentService: PaymentService!
-    private(set) var creditService: CreditService!
-    private(set) var analyticsService: AnalyticsService!
+    private(set) var bookingService: BookingService?  // Optional until implemented
+    private(set) var paymentService: PaymentService?  // Optional until implemented
+    private(set) var creditService: CreditService?    // Optional until implemented
+    private(set) var analyticsService: ContainerAnalyticsService!
     private(set) var crashReportingService: CrashReportingService!
     private(set) var cacheService: CacheService!
     private(set) var networkMonitor: NetworkMonitor!
     private(set) var notificationService: NotificationService!
-    private(set) var dataService: DataService!
+    private(set) var dataService: DataService?        // Optional until implemented
     private(set) var appCoordinator: AppCoordinator!
     
     // Convenience accessors for legacy code
@@ -51,20 +51,22 @@ final class ServiceContainer {
         // Core services
         authManager = AuthenticationManager.shared
         userService = UserService(supabase: supabaseClient)
-        classService = ClassService(supabase: supabaseClient)
-        bookingService = BookingService(supabase: supabaseClient)
-        paymentService = PaymentService(supabase: supabaseClient)
-        creditService = CreditService(supabase: supabaseClient)
-        
+        classService = ClassService.shared  // Use existing singleton
+
+        // TODO: Initialize these services when they're properly implemented
+        // bookingService = BookingService(supabase: supabaseClient)
+        // paymentService = PaymentService(supabase: supabaseClient)
+        // creditService = CreditService(supabase: supabaseClient)
+        // dataService = DataService(supabase: supabaseClient)
+
         // Support services
-        analyticsService = AnalyticsService()
+        analyticsService = ContainerAnalyticsService()
         crashReportingService = CrashReportingService()
         cacheService = CacheService()
         networkMonitor = NetworkMonitor()
         notificationService = NotificationService()
-        dataService = DataService(supabase: supabaseClient)
         appCoordinator = AppCoordinator()
-        
+
         // Start monitoring
         networkMonitor.startMonitoring()
     }
@@ -121,7 +123,7 @@ final class CacheService {
 
 // MARK: - Analytics Service
 
-final class AnalyticsService {
+final class ContainerAnalyticsService {
     func trackEvent(_ name: String, parameters: [String: Any]? = nil) {
         // Analytics implementation
         #if DEBUG
@@ -141,119 +143,7 @@ final class AnalyticsService {
     }
 }
 
-// MARK: - Crash Reporting Service
-
-// import Sentry // TODO: Add Sentry package
-
-final class CrashReportingService {
-    private var isInitialized = false
-    
-    init() {
-        initializeSentry()
-    }
-    
-    private func initializeSentry() {
-        // SentrySDK.start { options in
-        //     options.dsn = "https://your-sentry-dsn@sentry.io/project-id" // TODO: Replace with actual DSN
-        //     options.environment = AppConfiguration.shared.isProduction ? "production" : "development"
-        //     options.enableCrashHandler = true
-        //     options.enableMetricKit = true
-        //     options.enableWatchdogTerminationTracking = true
-        //     options.enableAppHangTracking = true
-        //     options.enableNetworkTracking = true
-        //     options.enableFileIOTracking = true
-        //     options.enableUserInteractionTracing = true
-        //     options.enableUIViewControllerTracking = true
-        //     options.enableNetworkBreadcrumbs = true
-        //     options.enableAutoBreadcrumbTracking = true
-        //     options.attachStacktrace = true
-        //     options.enableAutoSessionTracking = true
-        //
-        //     // Set sample rates
-        //     options.tracesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
-        //     options.profilesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
-        //
-        //     #if DEBUG
-        //     options.debug = true
-        //     #endif
-        // }
-        // isInitialized = true
-    }
-    
-    func recordError(_ error: Error, context: [String: Any]? = nil) {
-        // Log to console in debug mode
-        #if DEBUG
-        print("🚨 Error recorded: \(error)")
-        if let context = context {
-            print("Context: \(context)")
-        }
-        #endif
-        
-        // if isInitialized {
-        //     SentrySDK.capture(error: error) { scope in
-        //         if let context = context {
-        //             for (key, value) in context {
-        //                 scope.setContext(value: [key: value], key: "custom_context")
-        //             }
-        //         }
-        //     }
-        // }
-    }
-    
-    func log(_ message: String) {
-        #if DEBUG
-        print("📝 Log: \(message)")
-        #endif
-        
-        // if isInitialized {
-        //     SentrySDK.addBreadcrumb(Breadcrumb(level: .info, category: "app.log", message: message))
-        // }
-    }
-    
-    func setUserID(_ userId: String) {
-        #if DEBUG
-        print("👤 User ID set: \(userId)")
-        #endif
-        
-        // if isInitialized {
-        //     SentrySDK.setUser(Sentry.User(userId: userId))
-        // }
-    }
-    
-    func setUserIdentifier(_ userId: String) {
-        setUserID(userId)
-    }
-    
-    func setCustomValue(_ value: Any, forKey key: String) {
-        #if DEBUG
-        print("🏷️ Custom value set: \(key) = \(value)")
-        #endif
-        
-        // if isInitialized {
-        //     SentrySDK.setTag(value: "\(value)", key: key)
-        // }
-    }
-    
-    func recordPerformance(operationName: String, description: String? = nil, operation: () throws -> Void) rethrows {
-        // if isInitialized {
-        //     let transaction = SentrySDK.startTransaction(name: operationName, operation: "performance")
-        //     if let description = description {
-        //         transaction.setData(value: description, key: "description")
-        //     }
-        //
-        //     do {
-        //         try operation()
-        //         transaction.finish(status: .ok)
-        //     } catch {
-        //         transaction.finish(status: .internalError)
-        //         recordError(error, context: ["operation": operationName])
-        //         throw error
-        //     }
-        // } else {
-            try operation()
-        // }
-    }
-}
+// CrashReportingService implementation is in CrashReportingService.swift
 
 // MARK: - App Coordinator
 

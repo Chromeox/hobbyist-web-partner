@@ -63,22 +63,22 @@ class ClassService: ObservableObject {
 
 // MARK: - Sample Data
 struct SampleData {
-    static let sampleInstructor = Instructor(
-        id: "instructor-1",
+    static let sampleInstructorInfo = InstructorInfo(
+        id: UUID().uuidString,
         name: "Maria Chen",
         bio: "Experienced pottery instructor with 10 years of teaching experience.",
         profileImageUrl: nil,
         rating: 4.9,
-        totalClasses: 150,
-        totalStudents: 800,
+        totalClasses: 85,
+        totalStudents: 240,
         specialties: ["Pottery", "Ceramics", "Wheel Throwing"],
-        certifications: ["Certified Pottery Instructor"],
+        certifications: ["Certified Ceramics Instructor", "Advanced Kiln Operation"],
         yearsOfExperience: 10,
         socialLinks: nil
     )
-    
-    static let sampleVenue = Venue(
-        id: "venue-1",
+
+    static let sampleVenueInfo = VenueInfo(
+        id: UUID().uuidString,
         name: "Clay Mates Ceramics Studio",
         address: "1234 Main St",
         city: "Vancouver",
@@ -89,8 +89,8 @@ struct SampleData {
         amenities: ["Parking", "Wheelchair Accessible", "Tools Provided"],
         parkingInfo: "Free parking available",
         publicTransit: "Bus stop nearby",
-        imageUrls: [],
-        accessibilityInfo: "Wheelchair accessible entrance"
+        imageUrls: nil,
+        accessibilityInfo: "Wheelchair accessible entrance and workspace"
     )
     
     static let sampleClasses: [HobbyClass] = [
@@ -106,8 +106,8 @@ struct SampleData {
             duration: 90,
             maxParticipants: 8,
             enrolledCount: 2,
-            instructor: sampleInstructor,
-            venue: sampleVenue,
+            instructor: sampleInstructorInfo,
+            venue: sampleVenueInfo,
             imageUrl: nil,
             thumbnailUrl: nil,
             averageRating: 4.9,
@@ -131,8 +131,8 @@ struct SampleData {
             duration: 180,
             maxParticipants: 6,
             enrolledCount: 4,
-            instructor: sampleInstructor,
-            venue: sampleVenue,
+            instructor: sampleInstructorInfo,
+            venue: sampleVenueInfo,
             imageUrl: nil,
             thumbnailUrl: nil,
             averageRating: 4.8,

@@ -536,7 +536,7 @@ struct SeasonalAdjustment {
     var specialPrograms: [String] = []
 }
 
-struct CreditTransaction: Identifiable {
+struct CreditTransactionHistory: Identifiable {
     let id = UUID()
     let date: Date
     let type: TransactionType

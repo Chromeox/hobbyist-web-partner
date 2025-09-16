@@ -18,7 +18,7 @@ struct PurchaseConfirmationView: View {
     @State private var addInsurance = false
     @State private var selectedInsurance: CreditInsurance = .none
     
-    enum PaymentMethod: String, CaseIterable {
+    enum PurchasePaymentMethod: String, CaseIterable {
         case applePay = "Apple Pay"
         case creditCard = "Credit Card"
         

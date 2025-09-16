@@ -54,51 +54,12 @@ struct ClassFilters {
     }
 }
 
-struct Booking: Identifiable, Codable {
-    let id: String
-    let userId: String
-    let classId: String
-    let className: String
-    let instructorName: String
-    let venueName: String
-    let address: String
-    let startDate: Date
-    let endDate: Date
-    let status: BookingStatus
-    let price: Double
-    let creditUsed: Int?
-    let createdAt: Date
-    let qrCode: String?
-    
-    enum BookingStatus: String, Codable {
-        case pending = "pending"
-        case confirmed = "confirmed"
-        case cancelled = "cancelled"
-        case completed = "completed"
-        case noShow = "no_show"
-    }
-}
+// Booking model defined in Models/Booking.swift
 
-struct BookingRequest: Codable {
-    let classId: String
-    let userId: String
-    let useCredits: Bool
-    let paymentMethodId: String?
-}
+// BookingRequest model defined in Models/Booking.swift
 
 
-struct Review: Identifiable, Codable {
-    let id: String
-    let userId: String
-    let userName: String
-    let userAvatar: String?
-    let classId: String
-    let rating: Int
-    let comment: String
-    let createdAt: Date
-    let helpful: Int
-    let images: [String]?
-}
+// Review model defined in Models/Review.swift
 
 struct ReviewRequest: Codable {
     let classId: String
@@ -107,7 +68,7 @@ struct ReviewRequest: Codable {
     let images: [String]?
 }
 
-struct UserProfile: Codable {
+struct UserProfileData: Codable {
     let id: String
     var fullName: String
     var email: String
@@ -158,19 +119,4 @@ struct UserCredits: Codable {
     }
 }
 
-struct CreditTransaction: Identifiable, Codable {
-    let id: String
-    let userId: String
-    let type: TransactionType
-    let amount: Int
-    let description: String
-    let createdAt: Date
-    let expiresAt: Date?
-    
-    enum TransactionType: String, Codable {
-        case purchase = "purchase"
-        case usage = "usage"
-        case refund = "refund"
-        case expired = "expired"
-    }
-}
+// CreditTransaction model defined in Models/Payment.swift

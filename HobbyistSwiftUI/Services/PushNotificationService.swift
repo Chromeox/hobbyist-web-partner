@@ -484,8 +484,7 @@ struct NotificationPayload {
 // MARK: - Notification Names
 
 extension Notification.Name {
-    static let navigateToBooking = Notification.Name("navigateToBooking")
-    static let navigateToClass = Notification.Name("navigateToClass")
+    // Note: navigateToBooking and navigateToClass are defined in NotificationService
     static let showClassReminder = Notification.Name("showClassReminder")
     static let classCancelled = Notification.Name("classCancelled")
     static let showPromotion = Notification.Name("showPromotion")

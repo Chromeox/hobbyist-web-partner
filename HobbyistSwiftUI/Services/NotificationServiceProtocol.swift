@@ -35,17 +35,36 @@ protocol NotificationServiceProtocol {
 // MARK: - Notification Models
 
 struct NotificationSettings: Codable {
-    var classReminders: Bool = true
-    var bookingConfirmations: Bool = true
+    var pushEnabled: Bool = true
+    var emailEnabled: Bool = true
+    var smsEnabled: Bool = false
+    var bookingReminders: Bool = true
+    var classUpdates: Bool = true
     var promotionalOffers: Bool = false
     var newClassAlerts: Bool = true
     var instructorUpdates: Bool = true
-    var paymentNotifications: Bool = true
-    var reviewReminders: Bool = true
-    var creditExpiryAlerts: Bool = true
-    
-    var reminderTimeBeforeClass: TimeInterval = 3600 // 1 hour default
-    var dailyWorkoutReminder: DateComponents?
+    var reminderTiming: ReminderTiming = .oneDay
+    var quietHoursEnabled: Bool = false
+    var quietHoursStart: String = "22:00"
+    var quietHoursEnd: String = "08:00"
+
+    enum ReminderTiming: String, CaseIterable, Codable {
+        case fifteenMinutes = "15_minutes"
+        case oneHour = "1_hour"
+        case twoHours = "2_hours"
+        case oneDay = "1_day"
+        case twoDays = "2_days"
+
+        var displayName: String {
+            switch self {
+            case .fifteenMinutes: return "15 minutes before"
+            case .oneHour: return "1 hour before"
+            case .twoHours: return "2 hours before"
+            case .oneDay: return "1 day before"
+            case .twoDays: return "2 days before"
+            }
+        }
+    }
 }
 
 struct InAppNotification {

@@ -6,22 +6,22 @@ import StoreKit
 
 enum ProductIdentifier: String, CaseIterable {
     // Credit Packages (One-time purchases)
-    case starter = "com.hobbyist.app.credits.starter"        // 10 credits for $25
-    case explorer = "com.hobbyist.app.credits.explorer"      // 25 credits for $55
-    case regular = "com.hobbyist.app.credits.regular"        // 50 credits for $95
-    case enthusiast = "com.hobbyist.app.credits.enthusiast"  // 100 credits for $170
-    case power = "com.hobbyist.app.credits.power"           // 200 credits for $300
+    case starter = "com.hobbyist.bookingapp.credits.starter"        // 10 credits for $25
+    case explorer = "com.hobbyist.bookingapp.credits.explorer"      // 25 credits for $55
+    case regular = "com.hobbyist.bookingapp.credits.regular"        // 50 credits for $95
+    case enthusiast = "com.hobbyist.bookingapp.credits.enthusiast"  // 100 credits for $170
+    case power = "com.hobbyist.bookingapp.credits.power"           // 200 credits for $300
     
     // Subscriptions (Auto-renewable)
-    case casualSub = "com.hobbyist.app.subscription.casual"    // $39/month for 20 credits
-    case activeSub = "com.hobbyist.app.subscription.active"    // $69/month for 40 credits
-    case premiumSub = "com.hobbyist.app.subscription.premium"  // $119/month for 80 credits
-    case eliteSub = "com.hobbyist.app.subscription.elite"      // $179/month for 150 credits
+    case casualSub = "com.hobbyist.bookingapp.subscription.casual"    // $39/month for 20 credits
+    case activeSub = "com.hobbyist.bookingapp.subscription.active"    // $69/month for 40 credits
+    case premiumSub = "com.hobbyist.bookingapp.subscription.premium"  // $119/month for 80 credits
+    case eliteSub = "com.hobbyist.bookingapp.subscription.elite"      // $179/month for 150 credits
     
     // Insurance Plans (Auto-renewable)
-    case basicInsurance = "com.hobbyist.app.insurance.basic"     // $3/month
-    case plusInsurance = "com.hobbyist.app.insurance.plus"       // $5/month
-    case premiumInsurance = "com.hobbyist.app.insurance.premium" // $8/month
+    case basicInsurance = "com.hobbyist.bookingapp.insurance.basic"     // $3/month
+    case plusInsurance = "com.hobbyist.bookingapp.insurance.plus"       // $5/month
+    case premiumInsurance = "com.hobbyist.bookingapp.insurance.premium" // $8/month
     
     var isSubscription: Bool {
         switch self {

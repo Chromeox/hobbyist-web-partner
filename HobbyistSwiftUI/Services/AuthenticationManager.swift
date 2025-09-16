@@ -27,6 +27,11 @@ struct AppUser: Codable, Identifiable {
         return avatarURL
     }
 
+    // UUID version of ID for services that require UUID
+    var uuidId: UUID {
+        return UUID(uuidString: id) ?? UUID()
+    }
+
     init(id: String, email: String, name: String?, createdAt: Date) {
         self.id = id
         self.email = email
@@ -82,12 +87,7 @@ class AuthenticationManager: ObservableObject {
     @Published var fullName = ""
     
     private var supabase: SupabaseClient? {
-        // Simple direct initialization for now
-        guard let url = URL(string: "https://mcjqvdzdhtcvbrejvrtp.supabase.co") else { return nil }
-        return SupabaseClient(
-            supabaseURL: url,
-            supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jamd2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwNjAyNzUsImV4cCI6MjAzODYzNjI3NX0.MvWUo3JJ0mVy9wCBRNVUJhNXYdNV69yRCaVkflY1HvI"
-        )
+        return SupabaseManager.shared.client
     }
     
     private var cancellables = Set<AnyCancellable>()
@@ -95,6 +95,22 @@ class AuthenticationManager: ObservableObject {
     private init() {
         Task {
             await checkAuthStatus()
+        }
+    }
+
+    // MARK: - Safe Access Methods
+
+    // Provides safe access to currentUser from any context
+    func getCurrentUser() async -> AppUser? {
+        await MainActor.run {
+            return currentUser
+        }
+    }
+
+    // Provides safe access to currentUser ID as UUID
+    func getCurrentUserId() async -> UUID? {
+        await MainActor.run {
+            return currentUser?.uuidId
         }
     }
     
@@ -166,10 +182,10 @@ class AuthenticationManager: ObservableObject {
         authError = nil
         
         do {
+            // Updated signUp method call for latest Supabase Swift API
             let response = try await supabase.auth.signUp(
                 email: email,
-                password: password,
-                data: ["full_name": .string(fullName)]
+                password: password
             )
             
             let user = response.user
@@ -238,7 +254,10 @@ class AuthenticationManager: ObservableObject {
             }
             
             let response = try await supabase.auth.signInWithIdToken(
-                credentials: .init(provider: .apple, idToken: identityTokenString)
+                credentials: OpenIDConnectCredentials(
+                    provider: .apple,
+                    idToken: identityTokenString
+                )
             )
             
             let user = response.user
@@ -346,4 +365,4 @@ class AuthenticationManager: ObservableObject {
 
 // MARK: - Legacy User Model Support
 // Temporary compatibility for existing code that references User
-typealias User = AppUser
+// typealias User = AppUser // Commented out to avoid conflicts

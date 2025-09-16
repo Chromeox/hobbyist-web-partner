@@ -212,7 +212,7 @@ final class KeychainService {
     // MARK: - Helpers
     
     private var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "com.hobbyist.app"
+        Bundle.main.bundleIdentifier ?? "com.hobbyist.bookingapp"
     }
     
     func isAvailable() -> Bool {

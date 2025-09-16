@@ -4,7 +4,7 @@ import UIKit
 
 @MainActor
 class ProfileViewModel: ObservableObject {
-    @Published var user: User?
+    @Published var user: AppUser?
     @Published var isEditing: Bool = false
     @Published var editedFullName: String = ""
     @Published var editedBio: String = ""
@@ -46,7 +46,7 @@ class ProfileViewModel: ObservableObject {
     }
     
     func loadProfile() async {
-        guard let currentUser = authManager.currentUser else { return }
+        guard let currentUser = await authManager.getCurrentUser() else { return }
 
         isLoadingProfile = true
         errorMessage = nil

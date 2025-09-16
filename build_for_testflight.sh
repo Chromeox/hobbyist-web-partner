@@ -1,49 +1,44 @@
 #!/bin/bash
 
-# 🚀 HobbyistSwiftUI TestFlight Build Script
-# This script creates an archive and exports it for App Store submission
+# TestFlight Build Script for Hobbyist App
+# Bundle ID: com.hobbyist.bookingapp
 
-set -e  # Exit on any error
+set -e
 
-echo "🏗️  Building HobbyistSwiftUI for TestFlight..."
-echo "📱 Bundle ID: com.hobbyist.app"
-echo "👥 Team: Quantum Hobbyist Group Inc. (594BDWKT53)"
-echo ""
+echo "🚀 Building Hobbyist App for TestFlight..."
+echo "Bundle ID: com.hobbyist.bookingapp"
 
-# Create build directory
-mkdir -p build
+# Navigate to project directory
+cd "$(dirname "$0")"
 
-# Clean previous builds
-echo "🧹 Cleaning previous builds..."
-xcodebuild clean -project HobbyistSwiftUI.xcodeproj -scheme HobbyistSwiftUI -configuration Release
-rm -rf build/*
+# Clean build directory
+echo "🧹 Cleaning build directory..."
+xcodebuild clean -project HobbyistSwiftUI.xcodeproj -scheme HobbyistSwiftUI
 
+# Build archive
 echo "📦 Creating archive..."
 xcodebuild archive \
-  -project HobbyistSwiftUI.xcodeproj \
-  -scheme HobbyistSwiftUI \
-  -configuration Release \
-  -destination "generic/platform=iOS" \
-  -archivePath "./build/HobbyistSwiftUI.xcarchive" \
-  -allowProvisioningUpdates \
-  DEVELOPMENT_TEAM=594BDWKT53 \
-  PRODUCT_BUNDLE_IDENTIFIER=com.hobbyist.app
+    -project HobbyistSwiftUI.xcodeproj \
+    -scheme HobbyistSwiftUI \
+    -destination 'generic/platform=iOS' \
+    -archivePath "./build/HobbyistApp.xcarchive" \
+    -configuration Release \
+    CODE_SIGN_STYLE=Automatic \
+    DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM_ID
 
-echo "📤 Exporting for App Store..."
+# Export for TestFlight
+echo "📤 Exporting for TestFlight..."
 xcodebuild -exportArchive \
-  -archivePath "./build/HobbyistSwiftUI.xcarchive" \
-  -exportPath "./build/" \
-  -exportOptionsPlist "./ExportOptions.plist" \
-  -allowProvisioningUpdates
+    -archivePath "./build/HobbyistApp.xcarchive" \
+    -exportPath "./build/export" \
+    -exportOptionsPlist "./ExportOptions.plist"
 
+echo "✅ Build complete! Archive ready for TestFlight upload."
+echo "📍 Location: ./build/export/HobbyistApp.ipa"
 echo ""
-echo "✅ Build complete!"
-echo "📁 Archive location: ./build/HobbyistSwiftUI.xcarchive"
-echo "📦 IPA location: ./build/HobbyistSwiftUI.ipa"
-echo ""
-echo "🚀 Next steps:"
-echo "1. Open Xcode Organizer to upload to App Store Connect"
-echo "2. Or use Application Loader to upload the IPA"
-echo "3. Configure TestFlight in App Store Connect"
-echo ""
-echo "🌐 App Store Connect: https://appstoreconnect.apple.com"
+echo "Next steps:"
+echo "1. Open Xcode Organizer (Window → Organizer)"
+echo "2. Select the archive and click 'Distribute App'"
+echo "3. Choose 'App Store Connect' → 'Upload'"
+echo "4. Wait for processing in App Store Connect"
+echo "5. Add to TestFlight for alpha testing"

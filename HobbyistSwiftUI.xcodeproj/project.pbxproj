@@ -40,7 +40,6 @@
 		E2E5EFE02E790D3200F90F24 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC52E790D3200F90F24 /* KeychainService.swift */; };
 		E2E5EFE12E790D3200F90F24 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB42E790D3200F90F24 /* AnalyticsService.swift */; };
 		E2E5EFE22E790D3200F90F24 /* DataServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBD2E790D3200F90F24 /* DataServiceProtocol.swift */; };
-		E2E5EFE32E790D3200F90F24 /* CoreServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB92E790D3200F90F24 /* CoreServices.swift */; };
 		E2E5EFE42E790D3200F90F24 /* SecurityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */; };
 		E2E5EFE52E790D3200F90F24 /* PaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCA2E790D3200F90F24 /* PaymentService.swift */; };
 		E2E5EFE62E790D3200F90F24 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC62E790D3200F90F24 /* LocationManager.swift */; };
@@ -64,21 +63,15 @@
 		E2E5EFF82E790D3200F90F24 /* APIRateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB52E790D3200F90F24 /* APIRateLimiter.swift */; };
 		E2E5EFF92E790D3200F90F24 /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC32E790D3200F90F24 /* IAPService.swift */; };
 		E2E5EFFA2E790D3200F90F24 /* InstructorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC42E790D3200F90F24 /* InstructorService.swift */; };
-		E2E5EFFB2E790D3200F90F24 /* StripeWebhookValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */; };
 		E2E5EFFC2E790D3200F90F24 /* GamificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC12E790D3200F90F24 /* GamificationService.swift */; };
 		E2E5EFFD2E790D3200F90F24 /* RateLimitingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCE2E790D3200F90F24 /* RateLimitingService.swift */; };
 		E2E5EFFE2E790D3200F90F24 /* FollowingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC02E790D3200F90F24 /* FollowingService.swift */; };
-		E2E5EFFF2E790D3200F90F24 /* StripePaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */; };
 		E2E73DEE2E764B4800994856 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DED2E764B4800994856 /* Auth */; };
 		E2E73DF02E764B4800994856 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DEF2E764B4800994856 /* Functions */; };
 		E2E73DF22E764B4800994856 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF12E764B4800994856 /* PostgREST */; };
 		E2E73DF42E764B4800994856 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF32E764B4800994856 /* Realtime */; };
 		E2E73DF62E764B4800994856 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF52E764B4800994856 /* Storage */; };
 		E2E73DF92E764DF500994856 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF82E764DF500994856 /* Supabase */; };
-		E2E73DFB2E764DF500994858 /* StripePaymentSheet in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFA2E764DF500994858 /* StripePaymentSheet */; };
-		E2E73DFC2E764DF500994859 /* StripePayments in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFB2E764DF500994859 /* StripePayments */; };
-		E2E73DFD2E764DF500994860 /* StripeApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFC2E764DF500994860 /* StripeApplePay */; };
-		E2E73DFB2E7650E600994856 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFA2E7650E600994856 /* Class.swift */; };
 		E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */; };
 		E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFE2E7651EC00994856 /* NavigationManager.swift */; };
 		E2E73E012E76521100994856 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E002E76521100994856 /* AppError.swift */; };
@@ -131,7 +124,6 @@
 		E2E5EFB62E790D3200F90F24 /* ApplePayProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayProducts.swift; sourceTree = "<group>"; };
 		E2E5EFB72E790D3200F90F24 /* BookingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingService.swift; sourceTree = "<group>"; };
 		E2E5EFB82E790D3200F90F24 /* ClassService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassService.swift; sourceTree = "<group>"; };
-		E2E5EFB92E790D3200F90F24 /* CoreServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreServices.swift; sourceTree = "<group>"; };
 		E2E5EFBA2E790D3200F90F24 /* CrashReportingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportingService.swift; sourceTree = "<group>"; };
 		E2E5EFBB2E790D3200F90F24 /* CreditService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditService.swift; sourceTree = "<group>"; };
 		E2E5EFBC2E790D3200F90F24 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -157,14 +149,11 @@
 		E2E5EFD02E790D3200F90F24 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityMonitor.swift; sourceTree = "<group>"; };
 		E2E5EFD22E790D3200F90F24 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
-		E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripePaymentService.swift; sourceTree = "<group>"; };
-		E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeWebhookValidator.swift; sourceTree = "<group>"; };
 		E2E5EFD52E790D3200F90F24 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
 		E2E5EFD62E790D3200F90F24 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		E2E5EFD72E790D3200F90F24 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		E2E5EFD82E790D3200F90F24 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		E2E5EFD92E790D3200F90F24 /* VenueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VenueService.swift; sourceTree = "<group>"; };
-		E2E73DFA2E7650E600994856 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
 		E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E2E73DFE2E7651EC00994856 /* NavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationManager.swift; sourceTree = "<group>"; };
 		E2E73E002E76521100994856 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
@@ -197,9 +186,6 @@
 				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
 				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
 				E2E73DF42E764B4800994856 /* Realtime in Frameworks */,
-				E2E73DFB2E764DF500994858 /* StripePaymentSheet in Frameworks */,
-				E2E73DFC2E764DF500994859 /* StripePayments in Frameworks */,
-				E2E73DFD2E764DF500994860 /* StripeApplePay in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,7 +293,6 @@
 				E2E5EFA82E790C1900F90F24 /* UserProfile.swift */,
 				E2E5EFA92E790C1900F90F24 /* Venue.swift */,
 				E2E73E002E76521100994856 /* AppError.swift */,
-				E2E73DFA2E7650E600994856 /* Class.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -320,7 +305,6 @@
 				E2E5EFB62E790D3200F90F24 /* ApplePayProducts.swift */,
 				E2E5EFB72E790D3200F90F24 /* BookingService.swift */,
 				E2E5EFB82E790D3200F90F24 /* ClassService.swift */,
-				E2E5EFB92E790D3200F90F24 /* CoreServices.swift */,
 				E2E5EFBA2E790D3200F90F24 /* CrashReportingService.swift */,
 				E2E5EFBB2E790D3200F90F24 /* CreditService.swift */,
 				E2E5EFBC2E790D3200F90F24 /* DataService.swift */,
@@ -346,8 +330,6 @@
 				E2E5EFD02E790D3200F90F24 /* SearchService.swift */,
 				E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */,
 				E2E5EFD22E790D3200F90F24 /* ServiceContainer.swift */,
-				E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */,
-				E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */,
 				E2E5EFD52E790D3200F90F24 /* SupabaseDataService.swift */,
 				E2E5EFD62E790D3200F90F24 /* SupabaseManager.swift */,
 				E2E5EFD72E790D3200F90F24 /* SupabaseService.swift */,
@@ -406,7 +388,6 @@
 			mainGroup = 7A1234491234567890ABCDEF;
 			packageReferences = (
 				E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */,
-				E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */,
 			);
 			productRefGroup = 7A1234531234567890ABCDEF /* Products */;
 			projectDirPath = "";
@@ -434,7 +415,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2E73DFB2E7650E600994856 /* Class.swift in Sources */,
 				E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */,
 				E2E5EFDA2E790D3200F90F24 /* NotificationService.swift in Sources */,
 				E2E5EFDB2E790D3200F90F24 /* SupabaseManager.swift in Sources */,
@@ -445,7 +425,6 @@
 				E2E5EFE02E790D3200F90F24 /* KeychainService.swift in Sources */,
 				E2E5EFE12E790D3200F90F24 /* AnalyticsService.swift in Sources */,
 				E2E5EFE22E790D3200F90F24 /* DataServiceProtocol.swift in Sources */,
-				E2E5EFE32E790D3200F90F24 /* CoreServices.swift in Sources */,
 				E2E5EFE42E790D3200F90F24 /* SecurityMonitor.swift in Sources */,
 				E2E5EFE52E790D3200F90F24 /* PaymentService.swift in Sources */,
 				E2E5EFE62E790D3200F90F24 /* LocationManager.swift in Sources */,
@@ -469,11 +448,9 @@
 				E2E5EFF82E790D3200F90F24 /* APIRateLimiter.swift in Sources */,
 				E2E5EFF92E790D3200F90F24 /* IAPService.swift in Sources */,
 				E2E5EFFA2E790D3200F90F24 /* InstructorService.swift in Sources */,
-				E2E5EFFB2E790D3200F90F24 /* StripeWebhookValidator.swift in Sources */,
 				E2E5EFFC2E790D3200F90F24 /* GamificationService.swift in Sources */,
 				E2E5EFFD2E790D3200F90F24 /* RateLimitingService.swift in Sources */,
 				E2E5EFFE2E790D3200F90F24 /* FollowingService.swift in Sources */,
-				E2E5EFFF2E790D3200F90F24 /* StripePaymentService.swift in Sources */,
 				E2E73E012E76521100994856 /* AppError.swift in Sources */,
 				E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */,
 				E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */,
@@ -664,7 +641,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.bookingapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -694,7 +671,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.bookingapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -730,16 +707,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.5.1;
-			};
-		};
-		E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/stripe/stripe-ios.git";
-			requirement = {
 				kind = exactVersion;
-				version = 24.15.0;
+				version = 2.32.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -774,21 +743,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
-		};
-		E2E73DFA2E764DF500994858 /* StripePaymentSheet */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
-			productName = StripePaymentSheet;
-		};
-		E2E73DFB2E764DF500994859 /* StripePayments */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
-			productName = StripePayments;
-		};
-		E2E73DFC2E764DF500994860 /* StripeApplePay */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
-			productName = StripeApplePay;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

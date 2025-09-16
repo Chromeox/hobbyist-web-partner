@@ -1,5 +1,5 @@
 import SwiftUI
-import StripePaymentSheet
+// Using Apple Pay/StoreKit instead of Stripe
 
 struct BookingFlowView: View {
     let classItem: ClassItem

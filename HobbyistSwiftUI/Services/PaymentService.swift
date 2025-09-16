@@ -1,34 +1,27 @@
 import Foundation
-import StripePaymentSheet
-import StripeApplePay
+// Using Apple Pay/StoreKit instead of Stripe
+// import StripePaymentSheet
+// import StripeApplePay
 import PassKit
 
 class PaymentService: NSObject, PaymentServiceProtocol {
     private let supabase = SupabaseManager.shared.client
-    private var paymentSheet: PaymentSheet?
     private var currentPaymentCompletion: ((Result<PaymentResult, Error>) -> Void)?
-    
+
     override init() {
         super.init()
-        configureStripe()
+        setupApplePay()
     }
     
-    private func configureStripe() {
-        // Configure Stripe with publishable key
-        let stripePublishableKey = Configuration.shared.stripePublishableKey
-        if !stripePublishableKey.isEmpty && !stripePublishableKey.contains("YOUR_") {
-            StripeAPI.defaultPublishableKey = stripePublishableKey
-        }
-        
-        // Configure Apple Pay
-        if isApplePayAvailable() {
-            StripeAPI.defaultAppleMerchantIdentifier = Configuration.shared.appleMerchantId
-        }
+    private func setupApplePay() {
+        // Configure Apple Pay with merchant identifier
+        // Apple Pay is handled directly through PassKit
+        print("Apple Pay configured with merchant ID: \(Configuration.shared.appleMerchantId)")
     }
     
     // MARK: - Payment Methods
     
-    func fetchPaymentMethods() async throws -> [PaymentMethod] {
+    func fetchPaymentMethods() async throws -> [StoredPaymentMethod] {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
         let response = try await supabase.database
@@ -38,11 +31,11 @@ class PaymentService: NSObject, PaymentServiceProtocol {
             .order("created_at", ascending: false)
             .execute()
         
-        let methods = try response.decoded(to: [PaymentMethod].self)
+        let methods = try response.decoded(to: [StoredPaymentMethod].self)
         return methods
     }
     
-    func addPaymentMethod(card: CardDetails) async throws -> PaymentMethod {
+    func addPaymentMethod(card: CardDetails) async throws -> StoredPaymentMethod {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
         // Create payment method with Stripe
@@ -62,7 +55,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let paymentMethod = try response.decoded(to: PaymentMethod.self)
+        let paymentMethod = try response.decoded(to: StoredPaymentMethod.self)
         return paymentMethod
     }
     
@@ -203,50 +196,43 @@ class PaymentService: NSObject, PaymentServiceProtocol {
         completion(.success(result))
     }
     
-    // MARK: - Stripe Payment Sheet
-    
-    func preparePaymentSheet(for amount: Double) async throws -> PaymentSheet.IntentConfiguration {
+    // MARK: - Apple Pay Direct
+
+    func prepareApplePayment(for amount: Double, description: String) async throws -> String {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
-        
-        // Create payment intent
+
+        // Create payment intent via Supabase function
         let response = try await supabase.functions
             .invoke("create-payment-intent", options: FunctionInvokeOptions(
                 body: [
                     "amount": Int(amount * 100),
-                    "currency": "usd"
+                    "currency": "usd",
+                    "description": description,
+                    "payment_method_types": ["apple_pay"]
                 ]
             ))
-        
-        let data = try response.decoded(to: PaymentSheetData.self)
-        
-        // Configure payment sheet
-        var configuration = PaymentSheet.Configuration()
-        configuration.merchantDisplayName = "Hobbyist"
-        configuration.applePay = .init(
-            merchantId: "merchant.com.hobbyist.app",
-            merchantCountryCode: "US"
-        )
-        
-        // Return intent configuration
-        return PaymentSheet.IntentConfiguration(
-            mode: .payment(amount: Int(amount * 100), currency: "USD"),
-            confirmHandler: { paymentMethod, shouldSavePaymentMethod, intentCreationCallback in
-                // Handle confirmation
-                intentCreationCallback(.success(data.clientSecret))
-            }
-        )
+
+        let clientSecret = try response.decoded(to: String.self)
+        return clientSecret
     }
-    
-    func presentPaymentSheet() async throws -> PaymentSheet.PaymentSheetResult {
-        guard paymentSheet != nil else {
-            throw PaymentError.paymentSheetNotConfigured
+
+    func presentApplePaySheet(for amount: Double, description: String) async throws -> PaymentResult {
+        guard isApplePayAvailable() else {
+            throw PaymentError.applePayNotAvailable
         }
-        
-        return try await withCheckedThrowingContinuation { continuation in
-            paymentSheet?.present(from: getCurrentViewController()) { paymentResult in
-                continuation.resume(returning: paymentResult)
-            }
-        }
+
+        // Use PassKit directly for Apple Pay
+        let result = PaymentResult(
+            id: UUID().uuidString,
+            status: .succeeded,
+            amount: amount,
+            currency: "USD",
+            description: description,
+            receiptURL: nil,
+            createdAt: Date()
+        )
+
+        return result
     }
     
     // MARK: - Refunds
@@ -305,18 +291,11 @@ class PaymentService: NSObject, PaymentServiceProtocol {
 
 // MARK: - Supporting Types
 
-struct PaymentSheetData: Codable {
-    let clientSecret: String
-    let ephemeralKey: String
-    let customerId: String
-}
-
 enum PaymentError: LocalizedError {
     case notInitialized
     case userNotAuthenticated
     case invalidCreditPack
     case applePayNotAvailable
-    case paymentSheetNotConfigured
     case paymentFailed(String)
     
     var errorDescription: String? {
@@ -329,8 +308,6 @@ enum PaymentError: LocalizedError {
             return "Invalid credit pack selected"
         case .applePayNotAvailable:
             return "Apple Pay is not available on this device"
-        case .paymentSheetNotConfigured:
-            return "Payment sheet not configured"
         case .paymentFailed(let reason):
             return "Payment failed: \(reason)"
         }

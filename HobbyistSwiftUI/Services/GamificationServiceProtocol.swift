@@ -50,7 +50,7 @@ struct PointsTransaction: Codable {
     let points: Int
     let type: PointsType
     let reason: String
-    let metadata: [String: Any]?
+    let metadata: [String: String]?
     
     enum PointsType: String, Codable {
         case classAttended = "class_attended"
@@ -112,32 +112,30 @@ struct LevelSystem {
 
 struct Achievement: Identifiable, Codable {
     let id: String
-    let name: String
+    let title: String
     let description: String
-    let icon: String
+    let iconName: String
+    let unlockedAt: Date?
+    let progress: Double // 0.0 to 1.0
+    let requirement: Int
+    let current: Int
     let category: AchievementCategory
     let points: Int
-    let requirement: AchievementRequirement
-    let unlockedAt: Date?
-    let progress: Double
-    let isSecret: Bool
-    
+
     var isUnlocked: Bool {
         unlockedAt != nil
     }
-    
-    enum AchievementCategory: String, Codable {
-        case fitness = "fitness"
-        case social = "social"
-        case exploration = "exploration"
-        case dedication = "dedication"
-        case special = "special"
+
+    var progressPercentage: Int {
+        Int(progress * 100)
     }
-    
-    struct AchievementRequirement: Codable {
-        let type: String
-        let target: Int
-        let current: Int
+
+    enum AchievementCategory: String, Codable {
+        case attendance = "attendance"
+        case exploration = "exploration"
+        case social = "social"
+        case milestone = "milestone"
+        case special = "special"
     }
 }
 

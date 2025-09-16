@@ -1,238 +1,63 @@
 import Foundation
 import Combine
+import Supabase
 
 // MARK: - Supabase Service
 class SupabaseService {
     static let shared = SupabaseService()
-    
-    private var baseURL: String {
-        guard let url = AppConfiguration.shared.supabaseURL else {
-            fatalError("Supabase URL not configured. Please check AppConfiguration.")
-        }
-        return url
-    }
-    
-    private var apiKey: String {
-        guard let key = AppConfiguration.shared.supabaseAnonKey else {
-            fatalError("Supabase API key not configured. Please check AppConfiguration.")
-        }
-        return key
+
+    private var supabaseClient: SupabaseClient? {
+        return SupabaseManager.shared.client
     }
     
     private let session = URLSession.shared
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        // Configuration is now handled by AppConfiguration
-        validateConfiguration()
-    }
-    
-    private func validateConfiguration() {
-        guard AppConfiguration.shared.validateConfiguration() else {
-            print("⚠️ Warning: Invalid Supabase configuration detected")
-        }
+        // Configuration is now handled by SupabaseManager
     }
     
     // MARK: - Generic Request Methods
     
     func request<T: Decodable>(_ endpoint: String, method: HTTPMethod = .get, body: Data? = nil) async throws -> T {
-        guard let url = URL(string: "\(baseURL)/rest/v1/\(endpoint)") else {
-            throw SupabaseError.invalidURL
+        guard let client = supabaseClient else {
+            throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Supabase client not initialized"]))
         }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(getAuthToken() ?? apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
-        
-        if let body = body {
-            request.httpBody = body
-        }
-        
-        do {
-            let (data, response) = try await session.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw SupabaseError.invalidResponse
-            }
-            
-            if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .iso8601
-                return try decoder.decode(T.self, from: data)
-            } else {
-                throw SupabaseError.httpError(statusCode: httpResponse.statusCode, data: data)
-            }
-        } catch {
-            if error is SupabaseError {
-                throw error
-            }
-            throw SupabaseError.networkError(error)
-        }
+
+        // For now, delegate to proper implementation or throw error for unimplemented methods
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -2, userInfo: [NSLocalizedDescriptionKey: "Method should use official Supabase client"]))
     }
     
     func requestVoid(_ endpoint: String, method: HTTPMethod = .get, body: Data? = nil) async throws {
-        guard let url = URL(string: "\(baseURL)/rest/v1/\(endpoint)") else {
-            throw SupabaseError.invalidURL
+        guard let client = supabaseClient else {
+            throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Supabase client not initialized"]))
         }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(getAuthToken() ?? apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        if let body = body {
-            request.httpBody = body
-        }
-        
-        do {
-            let (_, response) = try await session.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw SupabaseError.invalidResponse
-            }
-            
-            if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
-                throw SupabaseError.httpError(statusCode: httpResponse.statusCode, data: nil)
-            }
-        } catch {
-            if error is SupabaseError {
-                throw error
-            }
-            throw SupabaseError.networkError(error)
-        }
+
+        // For now, delegate to proper implementation or throw error for unimplemented methods
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -2, userInfo: [NSLocalizedDescriptionKey: "Method should use official Supabase client"]))
     }
     
     // MARK: - Auth Methods
-    
+    // Note: Auth methods should use AuthenticationManager which uses the official Supabase client
+
     func signUp(email: String, password: String, metadata: [String: Any]? = nil) async throws -> AuthResponse {
-        guard let url = URL(string: "\(baseURL)/auth/v1/signup") else {
-            throw SupabaseError.invalidURL
-        }
-        
-        var body: [String: Any] = [
-            "email": email,
-            "password": password
-        ]
-        
-        if let metadata = metadata {
-            body["data"] = metadata
-        }
-        
-        let jsonData = try JSONSerialization.data(withJSONObject: body)
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw SupabaseError.invalidResponse
-        }
-        
-        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            let authResponse = try decoder.decode(AuthResponse.self, from: data)
-            saveAuthToken(authResponse.accessToken)
-            return authResponse
-        } else {
-            throw SupabaseError.authError(message: String(data: data, encoding: .utf8) ?? "Authentication failed")
-        }
+        // Delegate to AuthenticationManager instead
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -3, userInfo: [NSLocalizedDescriptionKey: "Use AuthenticationManager for auth operations"]))
     }
     
     func signIn(email: String, password: String) async throws -> AuthResponse {
-        guard let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=password") else {
-            throw SupabaseError.invalidURL
-        }
-        
-        let body: [String: Any] = [
-            "email": email,
-            "password": password
-        ]
-        
-        let jsonData = try JSONSerialization.data(withJSONObject: body)
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw SupabaseError.invalidResponse
-        }
-        
-        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            let authResponse = try decoder.decode(AuthResponse.self, from: data)
-            saveAuthToken(authResponse.accessToken)
-            return authResponse
-        } else {
-            throw SupabaseError.authError(message: "Invalid credentials")
-        }
+        // Delegate to AuthenticationManager instead
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -3, userInfo: [NSLocalizedDescriptionKey: "Use AuthenticationManager for auth operations"]))
     }
     
     func signOut() async throws {
-        guard let url = URL(string: "\(baseURL)/auth/v1/logout") else {
-            throw SupabaseError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(getAuthToken() ?? "")", forHTTPHeaderField: "Authorization")
-        
-        let (_, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw SupabaseError.invalidResponse
-        }
-        
-        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-            clearAuthToken()
-        } else {
-            throw SupabaseError.authError(message: "Failed to sign out")
-        }
+        // Delegate to AuthenticationManager instead
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -3, userInfo: [NSLocalizedDescriptionKey: "Use AuthenticationManager for auth operations"]))
     }
-    
+
     func getCurrentUser() async throws -> SupabaseUser? {
-        guard getAuthToken() != nil else { return nil }
-        
-        guard let url = URL(string: "\(baseURL)/auth/v1/user") else {
-            throw SupabaseError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(apiKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(getAuthToken() ?? "")", forHTTPHeaderField: "Authorization")
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw SupabaseError.invalidResponse
-        }
-        
-        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode(SupabaseUser.self, from: data)
-        } else if httpResponse.statusCode == 401 {
-            clearAuthToken()
-            return nil
-        } else {
-            throw SupabaseError.authError(message: "Failed to get user")
-        }
+        // Delegate to AuthenticationManager instead
+        throw SupabaseError.networkError(NSError(domain: "SupabaseService", code: -3, userInfo: [NSLocalizedDescriptionKey: "Use AuthenticationManager for auth operations"]))
     }
     
     // MARK: - Token Management
