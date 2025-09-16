@@ -1,5 +1,5 @@
 import SwiftUI
-import ConfettiSwiftUI
+// import ConfettiSwiftUI // TODO: Add ConfettiSwiftUI package
 
 struct PurchaseSuccessView: View {
     let package: CreditPackage?

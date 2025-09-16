@@ -21,12 +21,63 @@
 		E20C132D2E78E1C600F31D4C /* ClassDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20C131F2E78E1C600F31D4C /* ClassDetailViewModel.swift */; };
 		E20C132E2E78E1C600F31D4C /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20C13252E78E1C600F31D4C /* SearchViewModel.swift */; };
 		E20C132F2E78E1C600F31D4C /* ClassListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20C13202E78E1C600F31D4C /* ClassListViewModel.swift */; };
+		E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA02E790C1900F90F24 /* Booking.swift */; };
+		E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA72E790C1900F90F24 /* SearchModels.swift */; };
+		E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA22E790C1900F90F24 /* Following.swift */; };
+		E2E5EFAD2E790C1900F90F24 /* Venue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA92E790C1900F90F24 /* Venue.swift */; };
+		E2E5EFAE2E790C1900F90F24 /* HobbyClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA32E790C1900F90F24 /* HobbyClass.swift */; };
+		E2E5EFAF2E790C1900F90F24 /* Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA62E790C1900F90F24 /* Review.swift */; };
+		E2E5EFB02E790C1900F90F24 /* Payment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA52E790C1900F90F24 /* Payment.swift */; };
+		E2E5EFB12E790C1900F90F24 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA82E790C1900F90F24 /* UserProfile.swift */; };
+		E2E5EFB22E790C1900F90F24 /* Instructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA42E790C1900F90F24 /* Instructor.swift */; };
+		E2E5EFB32E790C1900F90F24 /* ClassItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA12E790C1900F90F24 /* ClassItem.swift */; };
+		E2E5EFDA2E790D3200F90F24 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC82E790D3200F90F24 /* NotificationService.swift */; };
+		E2E5EFDB2E790D3200F90F24 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD62E790D3200F90F24 /* SupabaseManager.swift */; };
+		E2E5EFDC2E790D3200F90F24 /* SupabaseDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD52E790D3200F90F24 /* SupabaseDataService.swift */; };
+		E2E5EFDD2E790D3200F90F24 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD02E790D3200F90F24 /* SearchService.swift */; };
+		E2E5EFDE2E790D3200F90F24 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD72E790D3200F90F24 /* SupabaseService.swift */; };
+		E2E5EFDF2E790D3200F90F24 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD82E790D3200F90F24 /* UserService.swift */; };
+		E2E5EFE02E790D3200F90F24 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC52E790D3200F90F24 /* KeychainService.swift */; };
+		E2E5EFE12E790D3200F90F24 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB42E790D3200F90F24 /* AnalyticsService.swift */; };
+		E2E5EFE22E790D3200F90F24 /* DataServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBD2E790D3200F90F24 /* DataServiceProtocol.swift */; };
+		E2E5EFE32E790D3200F90F24 /* CoreServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB92E790D3200F90F24 /* CoreServices.swift */; };
+		E2E5EFE42E790D3200F90F24 /* SecurityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */; };
+		E2E5EFE52E790D3200F90F24 /* PaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCA2E790D3200F90F24 /* PaymentService.swift */; };
+		E2E5EFE62E790D3200F90F24 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC62E790D3200F90F24 /* LocationManager.swift */; };
+		E2E5EFE72E790D3200F90F24 /* FeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBF2E790D3200F90F24 /* FeedbackService.swift */; };
+		E2E5EFE82E790D3200F90F24 /* ClassService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB82E790D3200F90F24 /* ClassService.swift */; };
+		E2E5EFE92E790D3200F90F24 /* GamificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC22E790D3200F90F24 /* GamificationServiceProtocol.swift */; };
+		E2E5EFEA2E790D3200F90F24 /* CrashReportingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBA2E790D3200F90F24 /* CrashReportingService.swift */; };
+		E2E5EFEB2E790D3200F90F24 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBC2E790D3200F90F24 /* DataService.swift */; };
+		E2E5EFEC2E790D3200F90F24 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD22E790D3200F90F24 /* ServiceContainer.swift */; };
+		E2E5EFED2E790D3200F90F24 /* FavoritesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBE2E790D3200F90F24 /* FavoritesService.swift */; };
+		E2E5EFEE2E790D3200F90F24 /* PaymentServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCB2E790D3200F90F24 /* PaymentServiceProtocol.swift */; };
+		E2E5EFEF2E790D3200F90F24 /* ApplePayProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB62E790D3200F90F24 /* ApplePayProducts.swift */; };
+		E2E5EFF02E790D3200F90F24 /* CreditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFBB2E790D3200F90F24 /* CreditService.swift */; };
+		E2E5EFF12E790D3200F90F24 /* NotificationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC92E790D3200F90F24 /* NotificationServiceProtocol.swift */; };
+		E2E5EFF22E790D3200F90F24 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCD2E790D3200F90F24 /* PushNotificationService.swift */; };
+		E2E5EFF32E790D3200F90F24 /* VenueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD92E790D3200F90F24 /* VenueService.swift */; };
+		E2E5EFF42E790D3200F90F24 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC72E790D3200F90F24 /* LocationService.swift */; };
+		E2E5EFF52E790D3200F90F24 /* BookingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB72E790D3200F90F24 /* BookingService.swift */; };
+		E2E5EFF62E790D3200F90F24 /* PricingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCC2E790D3200F90F24 /* PricingService.swift */; };
+		E2E5EFF72E790D3200F90F24 /* RealtimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCF2E790D3200F90F24 /* RealtimeService.swift */; };
+		E2E5EFF82E790D3200F90F24 /* APIRateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFB52E790D3200F90F24 /* APIRateLimiter.swift */; };
+		E2E5EFF92E790D3200F90F24 /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC32E790D3200F90F24 /* IAPService.swift */; };
+		E2E5EFFA2E790D3200F90F24 /* InstructorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC42E790D3200F90F24 /* InstructorService.swift */; };
+		E2E5EFFB2E790D3200F90F24 /* StripeWebhookValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */; };
+		E2E5EFFC2E790D3200F90F24 /* GamificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC12E790D3200F90F24 /* GamificationService.swift */; };
+		E2E5EFFD2E790D3200F90F24 /* RateLimitingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFCE2E790D3200F90F24 /* RateLimitingService.swift */; };
+		E2E5EFFE2E790D3200F90F24 /* FollowingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFC02E790D3200F90F24 /* FollowingService.swift */; };
+		E2E5EFFF2E790D3200F90F24 /* StripePaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */; };
 		E2E73DEE2E764B4800994856 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DED2E764B4800994856 /* Auth */; };
 		E2E73DF02E764B4800994856 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DEF2E764B4800994856 /* Functions */; };
 		E2E73DF22E764B4800994856 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF12E764B4800994856 /* PostgREST */; };
 		E2E73DF42E764B4800994856 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF32E764B4800994856 /* Realtime */; };
 		E2E73DF62E764B4800994856 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF52E764B4800994856 /* Storage */; };
 		E2E73DF92E764DF500994856 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF82E764DF500994856 /* Supabase */; };
+		E2E73DFB2E764DF500994858 /* StripePaymentSheet in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFA2E764DF500994858 /* StripePaymentSheet */; };
+		E2E73DFC2E764DF500994859 /* StripePayments in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFB2E764DF500994859 /* StripePayments */; };
+		E2E73DFD2E764DF500994860 /* StripeApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DFC2E764DF500994860 /* StripeApplePay */; };
 		E2E73DFB2E7650E600994856 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFA2E7650E600994856 /* Class.swift */; };
 		E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */; };
 		E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFE2E7651EC00994856 /* NavigationManager.swift */; };
@@ -65,6 +116,54 @@
 		E20C13232E78E1C600F31D4C /* MarketplaceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketplaceViewModel.swift; sourceTree = "<group>"; };
 		E20C13242E78E1C600F31D4C /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		E20C13252E78E1C600F31D4C /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		E2E5EFA02E790C1900F90F24 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
+		E2E5EFA12E790C1900F90F24 /* ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItem.swift; sourceTree = "<group>"; };
+		E2E5EFA22E790C1900F90F24 /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
+		E2E5EFA32E790C1900F90F24 /* HobbyClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyClass.swift; sourceTree = "<group>"; };
+		E2E5EFA42E790C1900F90F24 /* Instructor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instructor.swift; sourceTree = "<group>"; };
+		E2E5EFA52E790C1900F90F24 /* Payment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payment.swift; sourceTree = "<group>"; };
+		E2E5EFA62E790C1900F90F24 /* Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Review.swift; sourceTree = "<group>"; };
+		E2E5EFA72E790C1900F90F24 /* SearchModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModels.swift; sourceTree = "<group>"; };
+		E2E5EFA82E790C1900F90F24 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		E2E5EFA92E790C1900F90F24 /* Venue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Venue.swift; sourceTree = "<group>"; };
+		E2E5EFB42E790D3200F90F24 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		E2E5EFB52E790D3200F90F24 /* APIRateLimiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRateLimiter.swift; sourceTree = "<group>"; };
+		E2E5EFB62E790D3200F90F24 /* ApplePayProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayProducts.swift; sourceTree = "<group>"; };
+		E2E5EFB72E790D3200F90F24 /* BookingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingService.swift; sourceTree = "<group>"; };
+		E2E5EFB82E790D3200F90F24 /* ClassService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassService.swift; sourceTree = "<group>"; };
+		E2E5EFB92E790D3200F90F24 /* CoreServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreServices.swift; sourceTree = "<group>"; };
+		E2E5EFBA2E790D3200F90F24 /* CrashReportingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportingService.swift; sourceTree = "<group>"; };
+		E2E5EFBB2E790D3200F90F24 /* CreditService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditService.swift; sourceTree = "<group>"; };
+		E2E5EFBC2E790D3200F90F24 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		E2E5EFBD2E790D3200F90F24 /* DataServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceProtocol.swift; sourceTree = "<group>"; };
+		E2E5EFBE2E790D3200F90F24 /* FavoritesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesService.swift; sourceTree = "<group>"; };
+		E2E5EFBF2E790D3200F90F24 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
+		E2E5EFC02E790D3200F90F24 /* FollowingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingService.swift; sourceTree = "<group>"; };
+		E2E5EFC12E790D3200F90F24 /* GamificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamificationService.swift; sourceTree = "<group>"; };
+		E2E5EFC22E790D3200F90F24 /* GamificationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamificationServiceProtocol.swift; sourceTree = "<group>"; };
+		E2E5EFC32E790D3200F90F24 /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
+		E2E5EFC42E790D3200F90F24 /* InstructorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructorService.swift; sourceTree = "<group>"; };
+		E2E5EFC52E790D3200F90F24 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		E2E5EFC62E790D3200F90F24 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		E2E5EFC72E790D3200F90F24 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		E2E5EFC82E790D3200F90F24 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		E2E5EFC92E790D3200F90F24 /* NotificationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceProtocol.swift; sourceTree = "<group>"; };
+		E2E5EFCA2E790D3200F90F24 /* PaymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentService.swift; sourceTree = "<group>"; };
+		E2E5EFCB2E790D3200F90F24 /* PaymentServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentServiceProtocol.swift; sourceTree = "<group>"; };
+		E2E5EFCC2E790D3200F90F24 /* PricingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingService.swift; sourceTree = "<group>"; };
+		E2E5EFCD2E790D3200F90F24 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		E2E5EFCE2E790D3200F90F24 /* RateLimitingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitingService.swift; sourceTree = "<group>"; };
+		E2E5EFCF2E790D3200F90F24 /* RealtimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeService.swift; sourceTree = "<group>"; };
+		E2E5EFD02E790D3200F90F24 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
+		E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityMonitor.swift; sourceTree = "<group>"; };
+		E2E5EFD22E790D3200F90F24 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
+		E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripePaymentService.swift; sourceTree = "<group>"; };
+		E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeWebhookValidator.swift; sourceTree = "<group>"; };
+		E2E5EFD52E790D3200F90F24 /* SupabaseDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseDataService.swift; sourceTree = "<group>"; };
+		E2E5EFD62E790D3200F90F24 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		E2E5EFD72E790D3200F90F24 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		E2E5EFD82E790D3200F90F24 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		E2E5EFD92E790D3200F90F24 /* VenueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VenueService.swift; sourceTree = "<group>"; };
 		E2E73DFA2E7650E600994856 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
 		E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E2E73DFE2E7651EC00994856 /* NavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationManager.swift; sourceTree = "<group>"; };
@@ -98,6 +197,9 @@
 				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
 				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
 				E2E73DF42E764B4800994856 /* Realtime in Frameworks */,
+				E2E73DFB2E764DF500994858 /* StripePaymentSheet in Frameworks */,
+				E2E73DFC2E764DF500994859 /* StripePayments in Frameworks */,
+				E2E73DFD2E764DF500994860 /* StripeApplePay in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,6 +296,16 @@
 		E2E73E032E76522A00994856 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E2E5EFA02E790C1900F90F24 /* Booking.swift */,
+				E2E5EFA12E790C1900F90F24 /* ClassItem.swift */,
+				E2E5EFA22E790C1900F90F24 /* Following.swift */,
+				E2E5EFA32E790C1900F90F24 /* HobbyClass.swift */,
+				E2E5EFA42E790C1900F90F24 /* Instructor.swift */,
+				E2E5EFA52E790C1900F90F24 /* Payment.swift */,
+				E2E5EFA62E790C1900F90F24 /* Review.swift */,
+				E2E5EFA72E790C1900F90F24 /* SearchModels.swift */,
+				E2E5EFA82E790C1900F90F24 /* UserProfile.swift */,
+				E2E5EFA92E790C1900F90F24 /* Venue.swift */,
 				E2E73E002E76521100994856 /* AppError.swift */,
 				E2E73DFA2E7650E600994856 /* Class.swift */,
 			);
@@ -203,6 +315,44 @@
 		E2E73E042E76522F00994856 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E2E5EFB42E790D3200F90F24 /* AnalyticsService.swift */,
+				E2E5EFB52E790D3200F90F24 /* APIRateLimiter.swift */,
+				E2E5EFB62E790D3200F90F24 /* ApplePayProducts.swift */,
+				E2E5EFB72E790D3200F90F24 /* BookingService.swift */,
+				E2E5EFB82E790D3200F90F24 /* ClassService.swift */,
+				E2E5EFB92E790D3200F90F24 /* CoreServices.swift */,
+				E2E5EFBA2E790D3200F90F24 /* CrashReportingService.swift */,
+				E2E5EFBB2E790D3200F90F24 /* CreditService.swift */,
+				E2E5EFBC2E790D3200F90F24 /* DataService.swift */,
+				E2E5EFBD2E790D3200F90F24 /* DataServiceProtocol.swift */,
+				E2E5EFBE2E790D3200F90F24 /* FavoritesService.swift */,
+				E2E5EFBF2E790D3200F90F24 /* FeedbackService.swift */,
+				E2E5EFC02E790D3200F90F24 /* FollowingService.swift */,
+				E2E5EFC12E790D3200F90F24 /* GamificationService.swift */,
+				E2E5EFC22E790D3200F90F24 /* GamificationServiceProtocol.swift */,
+				E2E5EFC32E790D3200F90F24 /* IAPService.swift */,
+				E2E5EFC42E790D3200F90F24 /* InstructorService.swift */,
+				E2E5EFC52E790D3200F90F24 /* KeychainService.swift */,
+				E2E5EFC62E790D3200F90F24 /* LocationManager.swift */,
+				E2E5EFC72E790D3200F90F24 /* LocationService.swift */,
+				E2E5EFC82E790D3200F90F24 /* NotificationService.swift */,
+				E2E5EFC92E790D3200F90F24 /* NotificationServiceProtocol.swift */,
+				E2E5EFCA2E790D3200F90F24 /* PaymentService.swift */,
+				E2E5EFCB2E790D3200F90F24 /* PaymentServiceProtocol.swift */,
+				E2E5EFCC2E790D3200F90F24 /* PricingService.swift */,
+				E2E5EFCD2E790D3200F90F24 /* PushNotificationService.swift */,
+				E2E5EFCE2E790D3200F90F24 /* RateLimitingService.swift */,
+				E2E5EFCF2E790D3200F90F24 /* RealtimeService.swift */,
+				E2E5EFD02E790D3200F90F24 /* SearchService.swift */,
+				E2E5EFD12E790D3200F90F24 /* SecurityMonitor.swift */,
+				E2E5EFD22E790D3200F90F24 /* ServiceContainer.swift */,
+				E2E5EFD32E790D3200F90F24 /* StripePaymentService.swift */,
+				E2E5EFD42E790D3200F90F24 /* StripeWebhookValidator.swift */,
+				E2E5EFD52E790D3200F90F24 /* SupabaseDataService.swift */,
+				E2E5EFD62E790D3200F90F24 /* SupabaseManager.swift */,
+				E2E5EFD72E790D3200F90F24 /* SupabaseService.swift */,
+				E2E5EFD82E790D3200F90F24 /* UserService.swift */,
+				E2E5EFD92E790D3200F90F24 /* VenueService.swift */,
 				E20C131B2E78E1AD00F31D4C /* HapticFeedbackService.swift */,
 				E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */,
 				E2E73DFE2E7651EC00994856 /* NavigationManager.swift */,
@@ -256,6 +406,7 @@
 			mainGroup = 7A1234491234567890ABCDEF;
 			packageReferences = (
 				E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */,
 			);
 			productRefGroup = 7A1234531234567890ABCDEF /* Products */;
 			projectDirPath = "";
@@ -285,7 +436,55 @@
 			files = (
 				E2E73DFB2E7650E600994856 /* Class.swift in Sources */,
 				E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */,
+				E2E5EFDA2E790D3200F90F24 /* NotificationService.swift in Sources */,
+				E2E5EFDB2E790D3200F90F24 /* SupabaseManager.swift in Sources */,
+				E2E5EFDC2E790D3200F90F24 /* SupabaseDataService.swift in Sources */,
+				E2E5EFDD2E790D3200F90F24 /* SearchService.swift in Sources */,
+				E2E5EFDE2E790D3200F90F24 /* SupabaseService.swift in Sources */,
+				E2E5EFDF2E790D3200F90F24 /* UserService.swift in Sources */,
+				E2E5EFE02E790D3200F90F24 /* KeychainService.swift in Sources */,
+				E2E5EFE12E790D3200F90F24 /* AnalyticsService.swift in Sources */,
+				E2E5EFE22E790D3200F90F24 /* DataServiceProtocol.swift in Sources */,
+				E2E5EFE32E790D3200F90F24 /* CoreServices.swift in Sources */,
+				E2E5EFE42E790D3200F90F24 /* SecurityMonitor.swift in Sources */,
+				E2E5EFE52E790D3200F90F24 /* PaymentService.swift in Sources */,
+				E2E5EFE62E790D3200F90F24 /* LocationManager.swift in Sources */,
+				E2E5EFE72E790D3200F90F24 /* FeedbackService.swift in Sources */,
+				E2E5EFE82E790D3200F90F24 /* ClassService.swift in Sources */,
+				E2E5EFE92E790D3200F90F24 /* GamificationServiceProtocol.swift in Sources */,
+				E2E5EFEA2E790D3200F90F24 /* CrashReportingService.swift in Sources */,
+				E2E5EFEB2E790D3200F90F24 /* DataService.swift in Sources */,
+				E2E5EFEC2E790D3200F90F24 /* ServiceContainer.swift in Sources */,
+				E2E5EFED2E790D3200F90F24 /* FavoritesService.swift in Sources */,
+				E2E5EFEE2E790D3200F90F24 /* PaymentServiceProtocol.swift in Sources */,
+				E2E5EFEF2E790D3200F90F24 /* ApplePayProducts.swift in Sources */,
+				E2E5EFF02E790D3200F90F24 /* CreditService.swift in Sources */,
+				E2E5EFF12E790D3200F90F24 /* NotificationServiceProtocol.swift in Sources */,
+				E2E5EFF22E790D3200F90F24 /* PushNotificationService.swift in Sources */,
+				E2E5EFF32E790D3200F90F24 /* VenueService.swift in Sources */,
+				E2E5EFF42E790D3200F90F24 /* LocationService.swift in Sources */,
+				E2E5EFF52E790D3200F90F24 /* BookingService.swift in Sources */,
+				E2E5EFF62E790D3200F90F24 /* PricingService.swift in Sources */,
+				E2E5EFF72E790D3200F90F24 /* RealtimeService.swift in Sources */,
+				E2E5EFF82E790D3200F90F24 /* APIRateLimiter.swift in Sources */,
+				E2E5EFF92E790D3200F90F24 /* IAPService.swift in Sources */,
+				E2E5EFFA2E790D3200F90F24 /* InstructorService.swift in Sources */,
+				E2E5EFFB2E790D3200F90F24 /* StripeWebhookValidator.swift in Sources */,
+				E2E5EFFC2E790D3200F90F24 /* GamificationService.swift in Sources */,
+				E2E5EFFD2E790D3200F90F24 /* RateLimitingService.swift in Sources */,
+				E2E5EFFE2E790D3200F90F24 /* FollowingService.swift in Sources */,
+				E2E5EFFF2E790D3200F90F24 /* StripePaymentService.swift in Sources */,
 				E2E73E012E76521100994856 /* AppError.swift in Sources */,
+				E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */,
+				E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */,
+				E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */,
+				E2E5EFAD2E790C1900F90F24 /* Venue.swift in Sources */,
+				E2E5EFAE2E790C1900F90F24 /* HobbyClass.swift in Sources */,
+				E2E5EFAF2E790C1900F90F24 /* Review.swift in Sources */,
+				E2E5EFB02E790C1900F90F24 /* Payment.swift in Sources */,
+				E2E5EFB12E790C1900F90F24 /* UserProfile.swift in Sources */,
+				E2E5EFB22E790C1900F90F24 /* Instructor.swift in Sources */,
+				E2E5EFB32E790C1900F90F24 /* ClassItem.swift in Sources */,
 				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
 				7A1234561234567890ABCDEF /* HobbyistSwiftUIApp.swift in Sources */,
 				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
@@ -465,7 +664,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.bookingapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -495,7 +694,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.bookingapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -535,6 +734,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stripe/stripe-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 24.15.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -567,6 +774,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		E2E73DFA2E764DF500994858 /* StripePaymentSheet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = StripePaymentSheet;
+		};
+		E2E73DFB2E764DF500994859 /* StripePayments */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = StripePayments;
+		};
+		E2E73DFC2E764DF500994860 /* StripeApplePay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DED2E764B4800994857 /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = StripeApplePay;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

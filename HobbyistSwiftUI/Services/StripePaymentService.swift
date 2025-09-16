@@ -11,7 +11,7 @@ class StripePaymentService: ObservableObject {
     // Published states
     @Published var paymentSheet: PaymentSheet?
     @Published var isProcessing = false
-    @Published var paymentResult: PaymentResult?
+    @Published var paymentResult: StripePaymentResult?
     @Published var savedCards: [SavedCard] = []
     
     // Apple Pay
@@ -139,7 +139,7 @@ class StripePaymentService: ObservableObject {
         isProcessing = false
     }
     
-    func presentPaymentSheet(from viewController: UIViewController) async -> PaymentResult {
+    func presentPaymentSheet(from viewController: UIViewController) async -> StripePaymentResult {
         guard let paymentSheet = paymentSheet else {
             return .failed(error: PaymentError.notPrepared)
         }
@@ -424,7 +424,7 @@ struct PaymentMethodsResponse: Codable {
     }
 }
 
-enum PaymentResult {
+enum StripePaymentResult {
     case success
     case canceled
     case failed(error: Error)

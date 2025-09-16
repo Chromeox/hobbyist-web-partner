@@ -129,7 +129,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
         // Get credit pack details
-        guard let pack = CreditPack.all.first(where: { $0.id == packId }) else {
+        guard let pack = CreditPackage.packages.first(where: { $0.id == packId }) else {
             throw PaymentError.invalidCreditPack
         }
         
@@ -138,7 +138,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 body: [
                     "pack_id": packId,
                     "amount": Int(pack.price * 100),
-                    "credits": pack.totalCredits,
+                    "credits": pack.credits,
                     "payment_method_id": paymentMethodId ?? ""
                 ]
             ))

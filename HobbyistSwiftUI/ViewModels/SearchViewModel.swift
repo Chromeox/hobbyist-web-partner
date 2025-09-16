@@ -34,13 +34,6 @@ class SearchViewModel: ObservableObject {
         case venues = "Venues"
     }
     
-    enum LocationFilter: String, CaseIterable {
-        case anywhere = "Anywhere"
-        case nearby = "Nearby"
-        case withinCity = "Within City"
-        case custom = "Custom Range"
-    }
-    
     init() {
         setupBindings()
         loadInitialData()
@@ -342,36 +335,4 @@ class SearchViewModel: ObservableObject {
 }
 
 // MARK: - Supporting Models
-enum SearchResult: Identifiable {
-    case hobbyClass(HobbyClass)
-    case instructor(Instructor)
-    case venue(Venue)
-    
-    var id: String {
-        switch self {
-        case .hobbyClass(let hobbyClass):
-            return "class_\(hobbyClass.id)"
-        case .instructor(let instructor):
-            return "instructor_\(instructor.id)"
-        case .venue(let venue):
-            return "venue_\(venue.id)"
-        }
-    }
-}
-
-struct SearchParameters {
-    let query: String
-    let scope: SearchViewModel.SearchScope
-    let location: CLLocation?
-    let radius: Double?
-    let offset: Int
-    let limit: Int
-}
-
-struct TrendingCategory: Identifiable {
-    let id: String
-    let category: ClassCategory
-    let trendScore: Int
-    let weeklyGrowth: Double
-    let popularClasses: [HobbyClass]
-}
+// SearchResult, SearchParameters, and TrendingCategory are now defined in SearchModels.swift

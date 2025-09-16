@@ -143,7 +143,7 @@ final class AnalyticsService {
 
 // MARK: - Crash Reporting Service
 
-import Sentry
+// import Sentry // TODO: Add Sentry package
 
 final class CrashReportingService {
     private var isInitialized = false
@@ -153,31 +153,31 @@ final class CrashReportingService {
     }
     
     private func initializeSentry() {
-        SentrySDK.start { options in
-            options.dsn = "https://your-sentry-dsn@sentry.io/project-id" // TODO: Replace with actual DSN
-            options.environment = AppConfiguration.shared.isProduction ? "production" : "development"
-            options.enableCrashHandler = true
-            options.enableMetricKit = true
-            options.enableWatchdogTerminationTracking = true
-            options.enableAppHangTracking = true
-            options.enableNetworkTracking = true
-            options.enableFileIOTracking = true
-            options.enableUserInteractionTracing = true
-            options.enableUIViewControllerTracking = true
-            options.enableNetworkBreadcrumbs = true
-            options.enableAutoBreadcrumbTracking = true
-            options.attachStacktrace = true
-            options.enableAutoSessionTracking = true
-            
-            // Set sample rates
-            options.tracesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
-            options.profilesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
-            
-            #if DEBUG
-            options.debug = true
-            #endif
-        }
-        isInitialized = true
+        // SentrySDK.start { options in
+        //     options.dsn = "https://your-sentry-dsn@sentry.io/project-id" // TODO: Replace with actual DSN
+        //     options.environment = AppConfiguration.shared.isProduction ? "production" : "development"
+        //     options.enableCrashHandler = true
+        //     options.enableMetricKit = true
+        //     options.enableWatchdogTerminationTracking = true
+        //     options.enableAppHangTracking = true
+        //     options.enableNetworkTracking = true
+        //     options.enableFileIOTracking = true
+        //     options.enableUserInteractionTracing = true
+        //     options.enableUIViewControllerTracking = true
+        //     options.enableNetworkBreadcrumbs = true
+        //     options.enableAutoBreadcrumbTracking = true
+        //     options.attachStacktrace = true
+        //     options.enableAutoSessionTracking = true
+        //
+        //     // Set sample rates
+        //     options.tracesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
+        //     options.profilesSampleRate = AppConfiguration.shared.isProduction ? 0.1 : 1.0
+        //
+        //     #if DEBUG
+        //     options.debug = true
+        //     #endif
+        // }
+        // isInitialized = true
     }
     
     func recordError(_ error: Error, context: [String: Any]? = nil) {
@@ -189,15 +189,15 @@ final class CrashReportingService {
         }
         #endif
         
-        if isInitialized {
-            SentrySDK.capture(error: error) { scope in
-                if let context = context {
-                    for (key, value) in context {
-                        scope.setContext(value: [key: value], key: "custom_context")
-                    }
-                }
-            }
-        }
+        // if isInitialized {
+        //     SentrySDK.capture(error: error) { scope in
+        //         if let context = context {
+        //             for (key, value) in context {
+        //                 scope.setContext(value: [key: value], key: "custom_context")
+        //             }
+        //         }
+        //     }
+        // }
     }
     
     func log(_ message: String) {
@@ -205,9 +205,9 @@ final class CrashReportingService {
         print("📝 Log: \(message)")
         #endif
         
-        if isInitialized {
-            SentrySDK.addBreadcrumb(Breadcrumb(level: .info, category: "app.log", message: message))
-        }
+        // if isInitialized {
+        //     SentrySDK.addBreadcrumb(Breadcrumb(level: .info, category: "app.log", message: message))
+        // }
     }
     
     func setUserID(_ userId: String) {
@@ -215,9 +215,9 @@ final class CrashReportingService {
         print("👤 User ID set: \(userId)")
         #endif
         
-        if isInitialized {
-            SentrySDK.setUser(Sentry.User(userId: userId))
-        }
+        // if isInitialized {
+        //     SentrySDK.setUser(Sentry.User(userId: userId))
+        // }
     }
     
     func setUserIdentifier(_ userId: String) {
@@ -229,29 +229,29 @@ final class CrashReportingService {
         print("🏷️ Custom value set: \(key) = \(value)")
         #endif
         
-        if isInitialized {
-            SentrySDK.setTag(value: "\(value)", key: key)
-        }
+        // if isInitialized {
+        //     SentrySDK.setTag(value: "\(value)", key: key)
+        // }
     }
     
     func recordPerformance(operationName: String, description: String? = nil, operation: () throws -> Void) rethrows {
-        if isInitialized {
-            let transaction = SentrySDK.startTransaction(name: operationName, operation: "performance")
-            if let description = description {
-                transaction.setData(value: description, key: "description")
-            }
-            
-            do {
-                try operation()
-                transaction.finish(status: .ok)
-            } catch {
-                transaction.finish(status: .internalError)
-                recordError(error, context: ["operation": operationName])
-                throw error
-            }
-        } else {
+        // if isInitialized {
+        //     let transaction = SentrySDK.startTransaction(name: operationName, operation: "performance")
+        //     if let description = description {
+        //         transaction.setData(value: description, key: "description")
+        //     }
+        //
+        //     do {
+        //         try operation()
+        //         transaction.finish(status: .ok)
+        //     } catch {
+        //         transaction.finish(status: .internalError)
+        //         recordError(error, context: ["operation": operationName])
+        //         throw error
+        //     }
+        // } else {
             try operation()
-        }
+        // }
     }
 }
 
