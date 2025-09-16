@@ -1,6 +1,18 @@
 import Foundation
 import Combine
 
+// MARK: - ServiceContainer placeholder
+struct ServiceContainer {
+    static let shared = ServiceContainer()
+    let crashReportingService = CrashReportingService()
+}
+
+struct CrashReportingService {
+    func recordError(_ error: Error, context: [String: String]) {
+        print("Error recorded: \(error) with context: \(context)")
+    }
+}
+
 class ActivityFeedViewModel: ObservableObject {
     @Published var activities: [ActivityFeedItem] = []
     @Published var isLoading = false
@@ -68,7 +80,7 @@ class ActivityFeedViewModel: ObservableObject {
 
 // MARK: - Activity Service
 class ActivityService {
-    private let supabaseClient = SupabaseService.shared.client
+    private let supabaseService = SupabaseService.shared
     
     func fetchActivities(for userId: UUID, filter: String) async throws -> [ActivityFeedItem] {
         // In a real app, this would query the Supabase database

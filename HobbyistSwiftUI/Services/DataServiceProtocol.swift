@@ -33,31 +33,7 @@ protocol DataServiceProtocol {
 }
 
 // MARK: - Data Models
-
-struct HobbyClass: Identifiable, Codable {
-    let id: String
-    let title: String
-    let description: String
-    let category: String
-    let price: Double
-    let duration: Int // in minutes
-    let imageURL: String?
-    let instructorId: String
-    let instructorName: String
-    let venueId: String
-    let venueName: String
-    let address: String
-    let maxParticipants: Int
-    let currentParticipants: Int
-    let rating: Double
-    let reviewCount: Int
-    let startDate: Date
-    let endDate: Date
-    let tags: [String]
-    let requirements: [String]?
-    let isBookmarked: Bool
-    let creditValue: Int?
-}
+// Note: HobbyClass, Instructor, and Venue are defined in Models/Class.swift
 
 struct ClassFilters {
     var category: String?
@@ -110,18 +86,6 @@ struct BookingRequest: Codable {
     let paymentMethodId: String?
 }
 
-struct Instructor: Identifiable, Codable {
-    let id: String
-    let name: String
-    let bio: String
-    let imageURL: String?
-    let specialties: [String]
-    let rating: Double
-    let reviewCount: Int
-    let yearsExperience: Int
-    let certifications: [String]
-    let socialLinks: [String: String]?
-}
 
 struct Review: Identifiable, Codable {
     let id: String

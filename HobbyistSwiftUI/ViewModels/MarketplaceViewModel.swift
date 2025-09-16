@@ -18,9 +18,9 @@ class MarketplaceViewModel: ObservableObject {
     @Published var selectedDifficulty: String? = nil
     
     private let classService = ClassService.shared
-    private let instructorService = InstructorService()
-    private let venueService = VenueService()
-    private let locationManager = LocationManager.shared
+    private let instructorService = InstructorService.shared
+    private let venueService = VenueService.shared
+    private let locationManager = LocationService.shared
     private var cancellables = Set<AnyCancellable>()
     
     init() {

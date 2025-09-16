@@ -49,3 +49,34 @@ class SearchService: ObservableObject {
         // Mock clear storage
     }
 }
+
+// MARK: - Supporting Types
+struct SearchParameters {
+    let query: String
+    let location: CLLocation?
+    let radius: Double?
+    let category: String?
+    let difficulty: String?
+    let priceRange: ClosedRange<Double>?
+}
+
+struct SearchResult: Identifiable {
+    let id: String
+    let type: SearchResultType
+    let title: String
+    let subtitle: String?
+    let imageUrl: String?
+}
+
+enum SearchResultType {
+    case hobbyClass
+    case instructor
+    case venue
+}
+
+struct TrendingCategory: Identifiable {
+    let id: String
+    let name: String
+    let icon: String
+    let count: Int
+}

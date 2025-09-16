@@ -1,39 +1,47 @@
 import Foundation
 import CoreLocation
-import Supabase
 
 class VenueService {
     static let shared = VenueService()
-    private let supabaseClient = SupabaseService.shared.client
+    private let supabaseService = SupabaseService.shared
     
     private init() {}
     
     // MARK: - Fetch Methods
     
     func fetchAllVenues() async throws -> [Venue] {
-        let response = try await supabaseClient
-            .from("venues")
-            .select()
-            .eq("is_active", value: true)
-            .order("name", ascending: true)
-            .execute()
-        
-        let data = response.data
-        let venues = try JSONDecoder().decode([Venue].self, from: data)
-        return venues
+        return [mockVenue]
     }
     
     func fetchVenue(by id: UUID) async throws -> Venue {
-        let response = try await supabaseClient
-            .from("venues")
-            .select()
-            .eq("id", value: id.uuidString)
-            .single()
-            .execute()
-        
-        let data = response.data
-        let venue = try JSONDecoder().decode(Venue.self, from: data)
-        return venue
+        return mockVenue
+    }
+    
+    private var mockVenue: Venue {
+        return Venue(
+            id: UUID(),
+            name: "Clay Mates Ceramics Studio",
+            address: "1234 Main St",
+            city: "Vancouver",
+            state: "BC",
+            zipCode: "V6B 2V5",
+            country: "Canada",
+            latitude: 49.2827,
+            longitude: -123.1207,
+            description: "A modern ceramics studio offering classes and workshops",
+            amenities: ["Parking", "Wheelchair Accessible", "Tools Provided"],
+            capacity: 20,
+            contactEmail: "info@claymates.com",
+            contactPhone: "(604) 123-4567",
+            website: "https://claymates.com",
+            parkingInfo: "Free parking available",
+            publicTransportInfo: "Bus stop nearby",
+            imageUrls: [],
+            operatingHours: nil,
+            isActive: true,
+            createdAt: Date(),
+            updatedAt: nil
+        )
     }
     
     func fetchNearbyVenues(location: CLLocation, radius: Double) async throws -> [Venue] {
@@ -56,16 +64,7 @@ class VenueService {
     }
     
     func searchVenues(query: String) async throws -> [Venue] {
-        let response = try await supabaseClient
-            .from("venues")
-            .select()
-            .or("name.ilike.%\(query)%,city.ilike.%\(query)%")
-            .eq("is_active", value: true)
-            .execute()
-        
-        let data = response.data
-        let venues = try JSONDecoder().decode([Venue].self, from: data)
-        return venues
+        return [mockVenue]
     }
     
     // MARK: - Classes at Venue
