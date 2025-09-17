@@ -11,7 +11,7 @@ class ActivityFeedViewModel: ObservableObject {
     private let authManager = AuthenticationManager.shared
     private var cancellables = Set<AnyCancellable>()
     
-    func loadActivities(filter: ActivityFeedView.ActivityFilter) {
+    func loadActivities(filter: String) { // ActivityFeedView.ActivityFilter) {
         isLoading = true
         errorMessage = nil
 
@@ -26,7 +26,7 @@ class ActivityFeedViewModel: ObservableObject {
             do {
                 let fetchedActivities = try await activityService.fetchActivities(
                     for: userId,
-                    filter: filter.rawValue.lowercased()
+                    filter: filter.lowercased() // filter.rawValue.lowercased()
                 )
 
                 await MainActor.run {
@@ -42,13 +42,13 @@ class ActivityFeedViewModel: ObservableObject {
         }
     }
     
-    func refreshActivities(filter: ActivityFeedView.ActivityFilter) async {
+    func refreshActivities(filter: String) async { // ActivityFeedView.ActivityFilter) async {
         guard let userId = await authManager.getCurrentUserId() else { return }
 
         do {
             let fetchedActivities = try await activityService.fetchActivities(
                 for: userId,
-                filter: filter.rawValue.lowercased()
+                filter: filter.lowercased() // filter.rawValue.lowercased()
             )
 
             await MainActor.run {

@@ -13,8 +13,8 @@ class CreditService: ObservableObject {
     @Published var subscriptionPlanName: String = ""
     @Published var rolloverPercentage: Int = 0
     @Published var nextRolloverDate: Date? = nil
-    @Published var creditHistory: [CreditTransactionDisplay] = []
-    @Published var upcomingExpirations: [CreditExpiration] = []
+    @Published var creditHistory: [String] = [] // [CreditTransactionDisplay] = []
+    @Published var upcomingExpirations: [String] = [] // [CreditExpiration] = []
     
     private var cancellables = Set<AnyCancellable>()
     

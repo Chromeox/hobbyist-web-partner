@@ -6,7 +6,7 @@ import Realtime
 class RealtimeService: ObservableObject {
     static let shared = RealtimeService()
     
-    private let supabaseClient = SupabaseService.shared.client
+    private let supabaseClient = SupabaseManager.shared.client
     private var channels: [String: RealtimeChannel] = [:]
     private var cancellables = Set<AnyCancellable>()
     

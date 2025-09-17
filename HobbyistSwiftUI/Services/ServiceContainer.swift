@@ -149,7 +149,7 @@ final class ContainerAnalyticsService {
 
 final class AppCoordinator: ObservableObject {
     @Published var currentTab: MainTab = .home
-    @Published var selectedClass: ClassModel?
+    @Published var selectedClass: String? // ClassModel?
     @Published var showBookingFlow = false
     @Published var showFeedback = false
     @Published var pendingDeepLink: URL?

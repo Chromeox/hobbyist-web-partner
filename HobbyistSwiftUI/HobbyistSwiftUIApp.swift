@@ -1,6 +1,6 @@
 import SwiftUI
 
-@main
+//@main  // Temporarily disabled for testing
 struct HobbyistSwiftUIApp: App {
     init() {
         // Configure app appearance
