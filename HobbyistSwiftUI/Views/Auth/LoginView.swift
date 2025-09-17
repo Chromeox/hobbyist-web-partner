@@ -5,6 +5,8 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isLoading = false
 
+    let onLoginSuccess: () -> Void
+
     var body: some View {
         VStack(spacing: 20) {
             // Logo and Title
@@ -41,9 +43,10 @@ struct LoginView: View {
             // Login Button
             Button("Login") {
                 isLoading = true
-                // Basic action for now - just toggle loading
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                // Simulate login process, then navigate to home
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                     isLoading = false
+                    onLoginSuccess()
                 }
             }
             .frame(maxWidth: .infinity)
@@ -67,6 +70,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(onLoginSuccess: {})
     }
 }

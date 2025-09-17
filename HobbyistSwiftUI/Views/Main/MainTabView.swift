@@ -2,34 +2,38 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selectedTab = 0
-    
+
     var body: some View {
         TabView(selection: $selectedTab) {
-            MainHomeView()
+            HomeView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Image(systemName: selectedTab == 0 ? "house.fill" : "house")
+                    Text("Home")
                 }
                 .tag(0)
-            
-            DiscoverView()
+
+            SearchView()
                 .tabItem {
-                    Label("Discover", systemImage: "magnifyingglass")
+                    Image(systemName: selectedTab == 1 ? "magnifyingglass" : "magnifyingglass")
+                    Text("Search")
                 }
                 .tag(1)
-            
+
             BookingsView()
                 .tabItem {
-                    Label("Bookings", systemImage: "calendar")
+                    Image(systemName: selectedTab == 2 ? "calendar" : "calendar")
+                    Text("Bookings")
                 }
                 .tag(2)
-            
+
             ProfileView()
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Image(systemName: selectedTab == 3 ? "person.fill" : "person")
+                    Text("Profile")
                 }
                 .tag(3)
         }
-        .accentColor(.accentColor)
+        .accentColor(.blue)
     }
 }
 
