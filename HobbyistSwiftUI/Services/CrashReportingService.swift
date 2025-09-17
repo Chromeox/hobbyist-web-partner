@@ -42,6 +42,14 @@ final class CrashReportingService: CrashReportingServiceProtocol {
         logger.info("Device info: \(deviceInfo)")
     }
     
+    func recordError(_ error: Error, context: [String: String]) {
+        // Convert context to [String: Any] and call logError
+        let anyContext = context.reduce(into: [String: Any]()) { result, pair in
+            result[pair.key] = pair.value
+        }
+        logError(error, context: anyContext)
+    }
+
     func logError(_ error: Error, context: [String: Any]? = nil) {
         var errorInfo = "Error: \(error.localizedDescription)"
         

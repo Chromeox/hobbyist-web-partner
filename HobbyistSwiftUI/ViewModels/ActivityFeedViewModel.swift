@@ -1,17 +1,6 @@
 import Foundation
 import Combine
 
-// MARK: - ServiceContainer placeholder
-struct ServiceContainer {
-    static let shared = ServiceContainer()
-    let crashReportingService = CrashReportingService()
-}
-
-struct CrashReportingService {
-    func recordError(_ error: Error, context: [String: String]) {
-        print("Error recorded: \(error) with context: \(context)")
-    }
-}
 
 class ActivityFeedViewModel: ObservableObject {
     @Published var activities: [ActivityFeedItem] = []
