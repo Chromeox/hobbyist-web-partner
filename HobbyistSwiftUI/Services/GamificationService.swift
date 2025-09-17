@@ -14,14 +14,14 @@ class GamificationService: GamificationServiceProtocol {
     func getUserPoints() async throws -> UserPoints {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_points")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
             .single()
             .execute()
         
-        let points = try response.decoded(to: UserPoints.self)
+        let points = try response.value as! UserPoints
         await MainActor.run {
             self.currentPoints = points
         }
@@ -32,13 +32,13 @@ class GamificationService: GamificationServiceProtocol {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
         // Record the transaction
-        _ = try await supabase.database
+        _ = try await supabase
             .from("points_transactions")
             .insert(transaction)
             .execute()
         
         // Update user points
-        let response = try await supabase.database
+        let response = try await supabase
             .rpc("award_points", params: [
                 "p_user_id": transaction.userId,
                 "p_points": transaction.points,
@@ -46,7 +46,7 @@ class GamificationService: GamificationServiceProtocol {
             ])
             .execute()
         
-        let updatedPoints = try response.decoded(to: UserPoints.self)
+        let updatedPoints = try response.value as! UserPoints
         
         // Check for level up
         await checkLevelUp(updatedPoints)
@@ -62,14 +62,14 @@ class GamificationService: GamificationServiceProtocol {
     func getUserLevel() async throws -> UserLevel {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_levels")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
             .single()
             .execute()
         
-        let level = try response.decoded(to: UserLevel.self)
+        let level = try response.value as! UserLevel
         await MainActor.run {
             self.currentLevel = level
         }
@@ -79,14 +79,14 @@ class GamificationService: GamificationServiceProtocol {
     func getLeaderboard(type: LeaderboardType) async throws -> [LeaderboardEntry] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("leaderboard_\(type.rawValue)")
             .select("*")
             .order("rank", ascending: true)
             .limit(100)
             .execute()
         
-        let entries = try response.decoded(to: [LeaderboardEntry].self)
+        let entries = try response.value as! [LeaderboardEntry]
         return entries
     }
     
@@ -95,7 +95,7 @@ class GamificationService: GamificationServiceProtocol {
     func getUserAchievements() async throws -> [Achievement] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_achievements")
             .select("""
                 *,
@@ -104,21 +104,21 @@ class GamificationService: GamificationServiceProtocol {
             .eq("user_id", value: try await getCurrentUserId())
             .execute()
         
-        let achievements = try response.decoded(to: [Achievement].self)
+        let achievements = try response.value as! [Achievement]
         return achievements
     }
     
     func unlockAchievement(id: String) async throws -> Achievement {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .rpc("unlock_achievement", params: [
                 "p_user_id": try await getCurrentUserId(),
                 "p_achievement_id": id
             ])
             .execute()
         
-        let achievement = try response.decoded(to: Achievement.self)
+        let achievement = try response.value as! Achievement
         
         // Show achievement notification
         await showAchievementUnlocked(achievement)
@@ -139,21 +139,21 @@ class GamificationService: GamificationServiceProtocol {
     func getAvailableAchievements() async throws -> [Achievement] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("achievements")
             .select("*")
             .eq("is_active", value: true)
             .order("category", ascending: true)
             .execute()
         
-        let achievements = try response.decoded(to: [Achievement].self)
+        let achievements = try response.value as! [Achievement]
         return achievements
     }
     
     func getUserBadges() async throws -> [Badge] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_badges")
             .select("""
                 *,
@@ -163,7 +163,7 @@ class GamificationService: GamificationServiceProtocol {
             .order("earned_at", ascending: false)
             .execute()
         
-        let badges = try response.decoded(to: [Badge].self)
+        let badges = try response.value as! [Badge]
         return badges
     }
     
@@ -172,28 +172,28 @@ class GamificationService: GamificationServiceProtocol {
     func getUserStreaks() async throws -> UserStreaks {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_streaks")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
             .single()
             .execute()
         
-        let streaks = try response.decoded(to: UserStreaks.self)
+        let streaks = try response.value as! UserStreaks
         return streaks
     }
     
     func updateStreak(type: StreakType) async throws -> UserStreaks {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .rpc("update_streak", params: [
                 "p_user_id": try await getCurrentUserId(),
                 "p_type": type.rawValue
             ])
             .execute()
         
-        let updatedStreaks = try response.decoded(to: UserStreaks.self)
+        let updatedStreaks = try response.value as! UserStreaks
         
         // Award streak bonus points
         if type == .daily && updatedStreaks.currentDailyStreak > 0 {
@@ -208,14 +208,14 @@ class GamificationService: GamificationServiceProtocol {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
         let now = Date()
-        let response = try await supabase.database
+        let response = try await supabase
             .from("challenges")
             .select("*")
             .lte("start_date", value: now.iso8601String)
             .gte("end_date", value: now.iso8601String)
             .execute()
         
-        let challenges = try response.decoded(to: [Challenge].self)
+        let challenges = try response.value as! [Challenge]
         return challenges
     }
     
@@ -230,21 +230,21 @@ class GamificationService: GamificationServiceProtocol {
             "is_completed": false
         ] as [String : Any]
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("challenge_participations")
             .insert(participation)
             .select()
             .single()
             .execute()
         
-        let result = try response.decoded(to: ChallengeParticipation.self)
+        let result = try response.value as! ChallengeParticipation
         return result
     }
     
     func getChallengeProgress(id: String) async throws -> ChallengeProgress {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("challenge_progress")
             .select("*")
             .eq("challenge_id", value: id)
@@ -252,7 +252,7 @@ class GamificationService: GamificationServiceProtocol {
             .single()
             .execute()
         
-        let progress = try response.decoded(to: ChallengeProgress.self)
+        let progress = try response.value as! ChallengeProgress
         return progress
     }
     
@@ -261,13 +261,13 @@ class GamificationService: GamificationServiceProtocol {
     func getAvailableRewards() async throws -> [Reward] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("rewards")
             .select("*")
             .gt("availability->>remaining", value: 0)
             .execute()
         
-        let rewards = try response.decoded(to: [Reward].self)
+        let rewards = try response.value as! [Reward]
         return rewards
     }
     
@@ -283,17 +283,17 @@ class GamificationService: GamificationServiceProtocol {
         }
         
         // Process redemption
-        let response = try await supabase.database
+        let response = try await supabase
             .rpc("redeem_reward", params: [
                 "p_user_id": try await getCurrentUserId(),
                 "p_reward_id": id
             ])
             .execute()
         
-        let redemption = try response.decoded(to: RewardRedemption.self)
+        let redemption = try response.value as! RewardRedemption
         
         // Deduct points
-        _ = try await supabase.database
+        _ = try await supabase
             .rpc("deduct_points", params: [
                 "p_user_id": try await getCurrentUserId(),
                 "p_points": reward.pointsCost
@@ -306,14 +306,14 @@ class GamificationService: GamificationServiceProtocol {
     func getRedemptionHistory() async throws -> [RewardRedemption] {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("reward_redemptions")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
             .order("redeemed_at", ascending: false)
             .execute()
         
-        let redemptions = try response.decoded(to: [RewardRedemption].self)
+        let redemptions = try response.value as! [RewardRedemption]
         return redemptions
     }
     
@@ -333,14 +333,14 @@ class GamificationService: GamificationServiceProtocol {
     private func getReward(id: String) async throws -> Reward {
         guard let supabase = supabase else { throw GamificationError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("rewards")
             .select("*")
             .eq("id", value: id)
             .single()
             .execute()
         
-        return try response.decoded(to: Reward.self)
+        return try response.value as! Reward
     }
     
     private func checkLevelUp(_ points: UserPoints) async {

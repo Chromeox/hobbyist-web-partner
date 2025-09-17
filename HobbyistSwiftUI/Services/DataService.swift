@@ -13,7 +13,7 @@ class DataService: DataServiceProtocol {
     
     func fetchClasses(filters: ClassFilters?) async throws -> [HobbyClass] {
         
-        var query = supabase.database
+        var query = supabase
             .from("classes")
             .select("""
                 *,
@@ -53,14 +53,12 @@ class DataService: DataServiceProtocol {
         }
         
         let response = try await query.execute()
-        let classes = try response.decoded(to: [HobbyClass].self)
+        let classes: [HobbyClass] = try response.value
         return classes
     }
     
     func fetchClass(id: String) async throws -> HobbyClass {
-        guard let supabase = supabase else { throw DataError.notInitialized }
-        
-        let response = try await supabase.database
+        let response = try await supabase
             .from("classes")
             .select("""
                 *,
@@ -72,14 +70,12 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let hobbyClass = try response.decoded(to: HobbyClass.self)
+        let hobbyClass: HobbyClass = try response.value
         return hobbyClass
     }
     
     func searchClasses(query: String) async throws -> [HobbyClass] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
-        
-        let response = try await supabase.database
+        let response = try await supabase
             .from("classes")
             .select("""
                 *,
@@ -89,14 +85,13 @@ class DataService: DataServiceProtocol {
             .textSearch("title", query: query)
             .execute()
         
-        let classes = try response.decoded(to: [HobbyClass].self)
+        let classes: [HobbyClass] = try response.value
         return classes
     }
     
     func fetchFeaturedClasses() async throws -> [HobbyClass] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("classes")
             .select("""
                 *,
@@ -108,16 +103,15 @@ class DataService: DataServiceProtocol {
             .limit(10)
             .execute()
         
-        let classes = try response.decoded(to: [HobbyClass].self)
+        let classes: [HobbyClass] = try response.value
         return classes
     }
     
     func fetchRecommendedClasses() async throws -> [HobbyClass] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
         // For now, fetch popular classes
         // In the future, this would use a recommendation algorithm
-        let response = try await supabase.database
+        let response = try await supabase
             .from("classes")
             .select("""
                 *,
@@ -128,16 +122,15 @@ class DataService: DataServiceProtocol {
             .limit(10)
             .execute()
         
-        let classes = try response.decoded(to: [HobbyClass].self)
+        let classes: [HobbyClass] = try response.value
         return classes
     }
     
     // MARK: - Bookings
     
     func fetchUserBookings(userId: String) async throws -> [Booking] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("bookings")
             .select("""
                 *,
@@ -149,26 +142,23 @@ class DataService: DataServiceProtocol {
             .order("created_at", ascending: false)
             .execute()
         
-        let bookings = try response.decoded(to: [Booking].self)
-        return bookings
+        let bookings = try response.value as![Booking]        return bookings
     }
     
     func createBooking(_ booking: BookingRequest) async throws -> Booking {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
         // Start transaction
-        let response = try await supabase.database
+        let response = try await supabase
             .from("bookings")
             .insert(booking)
             .select()
             .single()
             .execute()
         
-        let newBooking = try response.decoded(to: Booking.self)
-        
+        let newBooking = try response.value as!Booking        
         // If using credits, deduct them
         if booking.useCredits {
-            _ = try await supabase.database
+            _ = try await supabase
                 .rpc("deduct_user_credits", params: [
                     "p_user_id": booking.userId,
                     "p_amount": newBooking.creditUsed ?? 0
@@ -180,9 +170,8 @@ class DataService: DataServiceProtocol {
     }
     
     func cancelBooking(id: String) async throws {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        _ = try await supabase.database
+        _ = try await supabase
             .from("bookings")
             .update(["status": "cancelled"])
             .eq("id", value: id)
@@ -190,9 +179,8 @@ class DataService: DataServiceProtocol {
     }
     
     func fetchBookingDetails(id: String) async throws -> Booking {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("bookings")
             .select("""
                 *,
@@ -204,29 +192,25 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let booking = try response.decoded(to: Booking.self)
-        return booking
+        let booking = try response.value as!Booking        return booking
     }
     
     // MARK: - Instructors
     
     func fetchInstructors() async throws -> [Instructor] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("instructors")
             .select("*")
             .order("rating", ascending: false)
             .execute()
         
-        let instructors = try response.decoded(to: [Instructor].self)
-        return instructors
+        let instructors = try response.value as![Instructor]        return instructors
     }
     
     func fetchInstructor(id: String) async throws -> Instructor {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("instructors")
             .select("""
                 *,
@@ -236,16 +220,14 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let instructor = try response.decoded(to: Instructor.self)
-        return instructor
+        let instructor = try response.value as!Instructor        return instructor
     }
     
     // MARK: - Reviews
     
     func fetchReviews(classId: String) async throws -> [Review] {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("reviews")
             .select("""
                 *,
@@ -255,24 +237,21 @@ class DataService: DataServiceProtocol {
             .order("created_at", ascending: false)
             .execute()
         
-        let reviews = try response.decoded(to: [Review].self)
-        return reviews
+        let reviews = try response.value as![Review]        return reviews
     }
     
     func createReview(_ review: ReviewRequest) async throws -> Review {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("reviews")
             .insert(review)
             .select()
             .single()
             .execute()
         
-        let newReview = try response.decoded(to: Review.self)
-        
+        let newReview = try response.value as!Review        
         // Update class rating
-        _ = try await supabase.database
+        _ = try await supabase
             .rpc("update_class_rating", params: ["p_class_id": review.classId])
             .execute()
         
@@ -282,23 +261,20 @@ class DataService: DataServiceProtocol {
     // MARK: - User Profile
     
     func fetchUserProfile(userId: String) async throws -> UserProfile {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_profiles")
             .select("*")
             .eq("id", value: userId)
             .single()
             .execute()
         
-        let profile = try response.decoded(to: UserProfile.self)
-        return profile
+        let profile = try response.value as!UserProfile        return profile
     }
     
     func updateUserProfile(_ profile: UserProfile) async throws -> UserProfile {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_profiles")
             .update(profile)
             .eq("id", value: profile.id)
@@ -306,16 +282,14 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let updatedProfile = try response.decoded(to: UserProfile.self)
-        return updatedProfile
+        let updatedProfile = try response.value as!UserProfile        return updatedProfile
     }
     
     // MARK: - Credits
     
     func fetchUserCredits(userId: String) async throws -> UserCredits {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("user_credits")
             .select("""
                 *,
@@ -325,19 +299,16 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let credits = try response.decoded(to: UserCredits.self)
-        return credits
+        let credits = try response.value as!UserCredits        return credits
     }
     
     func purchaseCreditPack(packId: String) async throws -> CreditTransaction {
-        guard let supabase = supabase else { throw DataError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .rpc("purchase_credit_pack", params: ["p_pack_id": packId])
             .execute()
         
-        let transaction = try response.decoded(to: CreditTransaction.self)
-        return transaction
+        let transaction = try response.value as!CreditTransaction        return transaction
     }
 }
 

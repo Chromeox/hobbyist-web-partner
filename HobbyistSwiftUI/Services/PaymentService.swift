@@ -24,14 +24,14 @@ class PaymentService: NSObject, PaymentServiceProtocol {
     func fetchPaymentMethods() async throws -> [StoredPaymentMethod] {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("payment_methods")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
             .order("created_at", ascending: false)
             .execute()
         
-        let methods = try response.decoded(to: [StoredPaymentMethod].self)
+        let methods = try response.value as! [StoredPaymentMethod]
         return methods
     }
     
@@ -55,7 +55,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let paymentMethod = try response.decoded(to: StoredPaymentMethod.self)
+        let paymentMethod = try response.value as! StoredPaymentMethod
         return paymentMethod
     }
     
@@ -71,13 +71,13 @@ class PaymentService: NSObject, PaymentServiceProtocol {
     func setDefaultPaymentMethod(id: String) async throws {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
-        _ = try await supabase.database
+        _ = try await supabase
             .from("payment_methods")
             .update(["is_default": false])
             .eq("user_id", value: try await getCurrentUserId())
             .execute()
         
-        _ = try await supabase.database
+        _ = try await supabase
             .from("payment_methods")
             .update(["is_default": true])
             .eq("id", value: id)
@@ -98,7 +98,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let result = try response.decoded(to: PaymentResult.self)
+        let result = try response.value as! PaymentResult
         return result
     }
     
@@ -114,7 +114,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let result = try response.decoded(to: PaymentResult.self)
+        let result = try response.value as! PaymentResult
         return result
     }
     
@@ -136,7 +136,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let result = try response.decoded(to: PaymentResult.self)
+        let result = try response.value as! PaymentResult
         return result
     }
     
@@ -167,7 +167,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let clientSecret = try response.decoded(to: String.self)
+        let clientSecret = try response.value as! String
         
         // Process with Apple Pay
         return try await withCheckedThrowingContinuation { continuation in
@@ -212,7 +212,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
 
-        let clientSecret = try response.decoded(to: String.self)
+        let clientSecret = try response.value as! String
         return clientSecret
     }
 
@@ -248,7 +248,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
                 ]
             ))
         
-        let result = try response.decoded(to: RefundResult.self)
+        let result = try response.value as! RefundResult
         return result
     }
     
@@ -257,7 +257,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
     func fetchPaymentHistory() async throws -> [Transaction] {
         guard let supabase = supabase else { throw PaymentError.notInitialized }
         
-        let response = try await supabase.database
+        let response = try await supabase
             .from("transactions")
             .select("*")
             .eq("user_id", value: try await getCurrentUserId())
@@ -265,7 +265,7 @@ class PaymentService: NSObject, PaymentServiceProtocol {
             .limit(50)
             .execute()
         
-        let transactions = try response.decoded(to: [Transaction].self)
+        let transactions = try response.value as! [Transaction]
         return transactions
     }
     
