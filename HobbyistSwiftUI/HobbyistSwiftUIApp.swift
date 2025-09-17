@@ -2,9 +2,6 @@ import SwiftUI
 
 @main
 struct HobbyistSwiftUIApp: App {
-    @StateObject private var authManager = AuthenticationManager.shared
-    @StateObject private var navigationManager = NavigationManager.shared
-
     init() {
         // Configure app appearance
         configureAppearance()
@@ -14,8 +11,6 @@ struct HobbyistSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(authManager)
-                .environmentObject(navigationManager)
         }
     }
 

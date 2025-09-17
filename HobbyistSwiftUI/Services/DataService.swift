@@ -142,7 +142,8 @@ class DataService: DataServiceProtocol {
             .order("created_at", ascending: false)
             .execute()
         
-        let bookings = try response.value as![Booking]        return bookings
+        let bookings = try response.value as! [Booking]
+        return bookings
     }
     
     func createBooking(_ booking: BookingRequest) async throws -> Booking {
@@ -192,7 +193,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let booking = try response.value as!Booking        return booking
+        let booking = try response.value as! Booking
+        return booking
     }
     
     // MARK: - Instructors
@@ -205,7 +207,8 @@ class DataService: DataServiceProtocol {
             .order("rating", ascending: false)
             .execute()
         
-        let instructors = try response.value as![Instructor]        return instructors
+        let instructors = try response.value as! [Instructor]
+        return instructors
     }
     
     func fetchInstructor(id: String) async throws -> Instructor {
@@ -220,7 +223,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let instructor = try response.value as!Instructor        return instructor
+        let instructor = try response.value as! Instructor
+        return instructor
     }
     
     // MARK: - Reviews
@@ -237,7 +241,8 @@ class DataService: DataServiceProtocol {
             .order("created_at", ascending: false)
             .execute()
         
-        let reviews = try response.value as![Review]        return reviews
+        let reviews = try response.value as! [Review]
+        return reviews
     }
     
     func createReview(_ review: ReviewRequest) async throws -> Review {
@@ -249,7 +254,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let newReview = try response.value as!Review        
+        let newReview = try response.value as! Review
+
         // Update class rating
         _ = try await supabase
             .rpc("update_class_rating", params: ["p_class_id": review.classId])
@@ -269,7 +275,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let profile = try response.value as!UserProfile        return profile
+        let profile = try response.value as! UserProfile
+        return profile
     }
     
     func updateUserProfile(_ profile: UserProfile) async throws -> UserProfile {
@@ -282,7 +289,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let updatedProfile = try response.value as!UserProfile        return updatedProfile
+        let updatedProfile = try response.value as! UserProfile
+        return updatedProfile
     }
     
     // MARK: - Credits
@@ -299,7 +307,8 @@ class DataService: DataServiceProtocol {
             .single()
             .execute()
         
-        let credits = try response.value as!UserCredits        return credits
+        let credits = try response.value as! UserCredits
+        return credits
     }
     
     func purchaseCreditPack(packId: String) async throws -> CreditTransaction {
@@ -308,7 +317,8 @@ class DataService: DataServiceProtocol {
             .rpc("purchase_credit_pack", params: ["p_pack_id": packId])
             .execute()
         
-        let transaction = try response.value as!CreditTransaction        return transaction
+        let transaction = try response.value as! CreditTransaction
+        return transaction
     }
 }
 
