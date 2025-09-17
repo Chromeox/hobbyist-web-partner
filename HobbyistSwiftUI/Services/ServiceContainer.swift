@@ -10,7 +10,7 @@ final class ServiceContainer {
     private(set) var classService: ClassService!
     private(set) var bookingService: BookingService?  // Optional until implemented
     private(set) var paymentService: PaymentService?  // Optional until implemented
-    private(set) var creditService: CreditService?    // Optional until implemented
+    // private(set) var creditService: CreditService?    // Temporarily disabled
     private(set) var analyticsService: ContainerAnalyticsService!
     private(set) var crashReportingService: CrashReportingService!
     private(set) var cacheService: CacheService!
