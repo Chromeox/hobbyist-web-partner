@@ -42,16 +42,26 @@ struct ProductionHobbyistApp: App {
 
 struct ProductionContentView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
+    @StateObject private var featureFlagManager = FeatureFlagManager.shared
     @State private var showOnboarding = false
     @State private var hasCompletedOnboarding = false
 
     var body: some View {
         Group {
             if showOnboarding {
-                ProductionOnboardingView {
-                    showOnboarding = false
-                    hasCompletedOnboarding = true
-                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                // Use new modular onboarding if feature flag is enabled
+                if featureFlagManager.isEnabled(.onboardingModule) {
+                    OnboardingCoordinator {
+                        showOnboarding = false
+                        hasCompletedOnboarding = true
+                    }
+                } else {
+                    // Fallback to original onboarding
+                    ProductionOnboardingView {
+                        showOnboarding = false
+                        hasCompletedOnboarding = true
+                        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                    }
                 }
             } else if supabaseService.isAuthenticated {
                 ProductionMainTabView()
@@ -68,7 +78,7 @@ struct ProductionContentView: View {
         hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
 
         // Show onboarding for first-time users
-        if !hasCompletedOnboarding && !supabaseService.isAuthenticated {
+        if !hasCompletedOnboarding && supabaseService.isAuthenticated {
             showOnboarding = true
         }
     }
@@ -508,55 +518,64 @@ struct QuickActionButton: View {
 
 struct ProductionProfileView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
+    @StateObject private var featureFlagManager = FeatureFlagManager.shared
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Profile Header
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 80))
-                            .foregroundColor(.blue)
+        Group {
+            if featureFlagManager.isEnabled(.profileModule) {
+                // Use new modular profile system
+                ProfileCoordinator()
+            } else {
+                // Fallback to original profile view
+                NavigationStack {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Profile Header
+                            VStack(spacing: 16) {
+                                Image(systemName: "person.circle.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.blue)
 
-                        VStack(spacing: 4) {
-                            Text(supabaseService.currentUser?.name ?? "User")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                                VStack(spacing: 4) {
+                                    Text(supabaseService.currentUser?.name ?? "User")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
 
-                            Text(supabaseService.currentUser?.email ?? "")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                    Text(supabaseService.currentUser?.email ?? "")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            // Profile Menu
+                            VStack(spacing: 16) {
+                                ProfileMenuItem(icon: "person.crop.circle", title: "Edit Profile")
+                                ProfileMenuItem(icon: "calendar", title: "My Bookings")
+                                ProfileMenuItem(icon: "heart", title: "Favorites")
+                                ProfileMenuItem(icon: "gear", title: "Settings")
+                                ProfileMenuItem(icon: "questionmark.circle", title: "Help & Support")
+                            }
+                            .padding(.horizontal)
+
+                            // Sign Out
+                            Button("Sign Out") {
+                                Task {
+                                    await supabaseService.signOut()
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red.opacity(0.1))
+                            .foregroundColor(.red)
+                            .cornerRadius(12)
+                            .padding(.horizontal)
                         }
+                        .padding(.vertical)
                     }
-
-                    // Profile Menu
-                    VStack(spacing: 16) {
-                        ProfileMenuItem(icon: "person.crop.circle", title: "Edit Profile")
-                        ProfileMenuItem(icon: "calendar", title: "My Bookings")
-                        ProfileMenuItem(icon: "heart", title: "Favorites")
-                        ProfileMenuItem(icon: "gear", title: "Settings")
-                        ProfileMenuItem(icon: "questionmark.circle", title: "Help & Support")
-                    }
-                    .padding(.horizontal)
-
-                    // Sign Out
-                    Button("Sign Out") {
-                        Task {
-                            await supabaseService.signOut()
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red.opacity(0.1))
-                    .foregroundColor(.red)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
+                    .navigationTitle("Profile")
+                    .navigationBarTitleDisplayMode(.large)
                 }
-                .padding(.vertical)
             }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
         }
     }
 }
