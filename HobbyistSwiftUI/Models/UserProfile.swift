@@ -1,8 +1,10 @@
 import Foundation
 
-// MARK: - User Profile Model (Extended)
+// MARK: - Legacy User Profile Model (Deprecated)
+// This file is kept for build compatibility only
+// New profile functionality is in ProfileModuleProtocol.swift
 
-struct UserProfile: Identifiable, Codable, Equatable {
+struct LegacyUserProfile: Identifiable, Codable, Equatable {
     let id: String
     let email: String
     let fullName: String
@@ -12,7 +14,7 @@ struct UserProfile: Identifiable, Codable, Equatable {
     var bio: String?
     var isEmailVerified: Bool = false
     var lastActiveAt: Date?
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case email
@@ -40,7 +42,7 @@ struct UserStatistics: Codable {
     let cancelledClasses: Int
     let averageRating: Double?
     let totalReviews: Int
-    
+
     enum CodingKeys: String, CodingKey {
         case totalBookings = "total_bookings"
         case totalSpent = "total_spent"
@@ -56,7 +58,7 @@ struct UserStatistics: Codable {
     }
 }
 
-// MARK: - User Preferences
+// MARK: - Legacy User Preferences
 
 struct UserPreferences: Codable {
     var preferredCategories: [ClassCategory] = []
@@ -68,15 +70,15 @@ struct UserPreferences: Codable {
     var language: String = "en"
     var currency: String = "USD"
     var timezone: String = TimeZone.current.identifier
-    
+
     enum WeekDay: String, CaseIterable, Codable {
         case monday, tuesday, wednesday, thursday, friday, saturday, sunday
-        
+
         var displayName: String {
             rawValue.capitalized
         }
     }
-    
+
     enum TimeSlot: String, CaseIterable, Codable {
         case earlyMorning = "early_morning" // 6am-9am
         case morning = "morning" // 9am-12pm
@@ -84,7 +86,7 @@ struct UserPreferences: Codable {
         case lateAfternoon = "late_afternoon" // 3pm-6pm
         case evening = "evening" // 6pm-9pm
         case night = "night" // 9pm-12am
-        
+
         var displayName: String {
             switch self {
             case .earlyMorning: return "Early Morning (6am-9am)"
@@ -96,7 +98,7 @@ struct UserPreferences: Codable {
             }
         }
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case preferredCategories = "preferred_categories"
         case preferredDifficulty = "preferred_difficulty"
@@ -117,7 +119,7 @@ struct ProfileUpdate: Codable {
     let bio: String?
     let phoneNumber: String?
     let profileImageUrl: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case fullName = "full_name"
         case bio

@@ -23,9 +23,9 @@ protocol DataServiceProtocol {
     func fetchReviews(classId: String) async throws -> [Review]
     func createReview(_ review: ReviewRequest) async throws -> Review
     
-    // User Profile
-    func fetchUserProfile(userId: String) async throws -> UserProfile
-    func updateUserProfile(_ profile: UserProfile) async throws -> UserProfile
+    // User Profile (Legacy - deprecated in favor of ProfileService)
+    // func fetchUserProfile(userId: String) async throws -> LegacyUserProfile
+    // func updateUserProfile(_ profile: LegacyUserProfile) async throws -> LegacyUserProfile
     
     // Credits
     func fetchUserCredits(userId: String) async throws -> UserCredits

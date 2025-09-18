@@ -264,23 +264,27 @@ class DataService: DataServiceProtocol {
         return newReview
     }
     
-    // MARK: - User Profile
-    
-    func fetchUserProfile(userId: String) async throws -> UserProfile {
-        
+    // MARK: - User Profile (Legacy - deprecated in favor of ProfileService)
+
+    // Note: These methods are deprecated in favor of the new ProfileService
+    // They are commented out to avoid conflicts with the new modular profile system
+
+    /*
+    func fetchUserProfile(userId: String) async throws -> LegacyUserProfile {
+
         let response = try await supabase
             .from("user_profiles")
             .select("*")
             .eq("id", value: userId)
             .single()
             .execute()
-        
-        let profile = try response.value as! UserProfile
+
+        let profile = try response.value as! LegacyUserProfile
         return profile
     }
-    
-    func updateUserProfile(_ profile: UserProfile) async throws -> UserProfile {
-        
+
+    func updateUserProfile(_ profile: LegacyUserProfile) async throws -> LegacyUserProfile {
+
         let response = try await supabase
             .from("user_profiles")
             .update(profile)
@@ -288,10 +292,11 @@ class DataService: DataServiceProtocol {
             .select()
             .single()
             .execute()
-        
-        let updatedProfile = try response.value as! UserProfile
+
+        let updatedProfile = try response.value as! LegacyUserProfile
         return updatedProfile
     }
+    */
     
     // MARK: - Credits
     
