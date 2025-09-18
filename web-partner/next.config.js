@@ -8,7 +8,6 @@ const nextConfig = {
   // Enable experimental features for performance
   experimental: {
     optimizeCss: true, // CSS optimization
-    serverComponentsExternalPackages: ['@supabase/supabase-js'],
     optimizePackageImports: ['@supabase/supabase-js', 'react-icons'],
     webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB'],
   },
@@ -161,12 +160,6 @@ const nextConfig = {
       {
         source: '/api/supabase/:path*',
         destination: 'https://mcjqvdzdhtcvbrejvrtp.supabase.co/:path*',
-      },
-      
-      // WebSocket proxy for real-time
-      {
-        source: '/api/realtime/:path*',
-        destination: 'wss://mcjqvdzdhtcvbrejvrtp.supabase.co/realtime/v1/:path*',
       }
     ];
   },
