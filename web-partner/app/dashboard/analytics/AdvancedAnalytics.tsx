@@ -140,7 +140,7 @@ export default function AdvancedAnalytics() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="glass-morphism p-6 rounded-xl"
+            className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -194,7 +194,7 @@ export default function AdvancedAnalytics() {
 
       {/* Performance Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-morphism p-6 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
           <h3 className="text-lg font-semibold text-white mb-4">Top Performing Classes</h3>
           <div className="space-y-3">
             {[
@@ -227,7 +227,7 @@ export default function AdvancedAnalytics() {
           </div>
         </div>
 
-        <div className="glass-morphism p-6 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
           <h3 className="text-lg font-semibold text-white mb-4">Revenue Breakdown</h3>
           <div className="space-y-4">
             <div className="flex justify-center">
@@ -292,7 +292,7 @@ export default function AdvancedAnalytics() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         {customerSegments.map((segment) => (
-          <div key={segment.name} className="glass-morphism p-6 rounded-xl">
+          <div key={segment.name} className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h4 className="font-semibold text-white">{segment.name}</h4>
@@ -343,7 +343,7 @@ export default function AdvancedAnalytics() {
       </div>
 
       {/* Customer Behavior Patterns */}
-      <div className="glass-morphism p-6 rounded-xl">
+      <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
         <h3 className="text-lg font-semibold text-white mb-4">Behavior Patterns</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -406,7 +406,7 @@ export default function AdvancedAnalytics() {
 
   const renderPredictiveAnalytics = () => (
     <div className="space-y-6">
-      <div className="glass-morphism p-6 rounded-xl">
+      <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-white">AI-Powered Predictions</h3>
           <div className="flex items-center gap-2">
@@ -473,7 +473,7 @@ export default function AdvancedAnalytics() {
       </div>
 
       {/* Recommendations */}
-      <div className="glass-morphism p-6 rounded-xl">
+      <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
         <h3 className="text-lg font-semibold text-white mb-4">AI Recommendations</h3>
         <div className="space-y-4">
           {[

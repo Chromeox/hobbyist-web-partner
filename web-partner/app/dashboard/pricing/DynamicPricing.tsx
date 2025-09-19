@@ -145,7 +145,7 @@ export default function DynamicPricing() {
         {pricingRules.map((rule) => (
           <motion.div
             key={rule.id}
-            className="glass-morphism p-6 rounded-xl"
+            className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl"
             whileHover={{ scale: 1.01 }}
           >
             <div className="flex justify-between items-start">
@@ -266,7 +266,7 @@ export default function DynamicPricing() {
       <div>
         <h3 className="text-lg font-semibold text-white mb-4">Demand Patterns & Price Optimization</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="glass-morphism p-6 rounded-xl">
+          <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
             <h4 className="font-medium text-white mb-4">Time Slot Performance</h4>
             <div className="space-y-3">
               {demandData.map((slot) => (
@@ -294,7 +294,7 @@ export default function DynamicPricing() {
             </div>
           </div>
 
-          <div className="glass-morphism p-6 rounded-xl">
+          <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
             <h4 className="font-medium text-white mb-4">Revenue Impact This Week</h4>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
@@ -324,7 +324,7 @@ export default function DynamicPricing() {
         </div>
       </div>
 
-      <div className="glass-morphism p-6 rounded-xl">
+      <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
         <h4 className="font-medium text-white mb-4">Category Price Sensitivity</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {['Pottery', 'Painting', 'DJ Workshops', 'Fencing'].map((category) => (
@@ -355,7 +355,7 @@ export default function DynamicPricing() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-morphism p-6 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
           <h4 className="font-medium text-white mb-4">Simulation Parameters</h4>
           <div className="space-y-4">
             <div>
@@ -395,7 +395,7 @@ export default function DynamicPricing() {
           </div>
         </div>
 
-        <div className="glass-morphism p-6 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
           <h4 className="font-medium text-white mb-4">Projected Impact</h4>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

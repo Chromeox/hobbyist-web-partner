@@ -486,7 +486,7 @@ export default function SubscriptionTiers() {
         </div>
       </div>
 
-      <div className="glass-morphism p-6 rounded-xl">
+      <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Growth</h3>
         <div className="h-64 flex items-center justify-center text-gray-500">
           [Chart showing subscription growth over time]
