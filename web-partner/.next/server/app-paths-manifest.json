@@ -1,3 +1,9 @@
 {
-  "/onboarding/page": "app/onboarding/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/pricing/page": "app/dashboard/pricing/page.js",
+  "/dashboard/subscriptions/page": "app/dashboard/subscriptions/page.js",
+  "/dashboard/students/page": "app/dashboard/students/page.js",
+  "/page": "app/page.js",
+  "/privacy/page": "app/privacy/page.js",
+  "/auth/signin/page": "app/auth/signin/page.js"
 }

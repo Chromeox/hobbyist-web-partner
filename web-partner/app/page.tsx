@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Play, Zap } from 'lucide-react';
+import Footer from '@/components/common/Footer';
 
 export default function HomePage() {
   return (
@@ -79,6 +80,9 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+
+      {/* Footer with Privacy Policy */}
+      <Footer />
     </div>
   );
 }

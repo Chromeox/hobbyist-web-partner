@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Building2, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
 
 interface BusinessInfoStepProps {
   onNext: (data: any) => void;
@@ -356,6 +357,15 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
             <option value="26-50">26-50</option>
             <option value="50+">50+</option>
           </select>
+        </div>
+
+        {/* Privacy Policy Notice */}
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <PrivacyPolicyBanner
+            variant="detailed"
+            context="onboarding"
+            showTrustIndicators={true}
+          />
         </div>
       </form>
     </div>

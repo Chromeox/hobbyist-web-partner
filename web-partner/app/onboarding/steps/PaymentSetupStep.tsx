@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
 
 interface PaymentSetupStepProps {
   onNext: (data: any) => void;
@@ -26,6 +27,14 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
       <form onSubmit={handleSubmit}>
         <div className="bg-green-50 p-6 rounded-lg">
           <p className="text-green-800">Payment setup will be completed after onboarding with Stripe integration.</p>
+        </div>
+
+        {/* Payment Privacy Notice */}
+        <div className="mt-6">
+          <PrivacyPolicyBanner
+            variant="inline"
+            context="payment"
+          />
         </div>
       </form>
     </div>

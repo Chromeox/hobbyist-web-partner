@@ -17,6 +17,7 @@ import {
   MonitorSpeaker
 } from 'lucide-react';
 // import CalendarIntegrationHub from '@/components/studio/CalendarIntegrationHub'; // Temporarily disabled to fix server-side import issue
+import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
 
 interface CalendarSetupStepProps {
   onNext: (data: any) => void;
@@ -362,6 +363,14 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
           <br />
           <span className="text-blue-600">Importing now gives you immediate insights!</span>
         </p>
+      </div>
+
+      {/* Calendar Privacy Notice */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <PrivacyPolicyBanner
+          variant="inline"
+          context="calendar"
+        />
       </div>
     </div>
   );
