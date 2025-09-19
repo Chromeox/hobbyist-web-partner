@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -9,78 +9,28 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  Plus,
   Edit3,
-  Trash2,
   User,
   MapPin,
   DollarSign,
-  CreditCard,
-  AlertCircle,
-  CheckCircle,
-  Eye,
-  MoreVertical,
-  Filter,
-  Download,
-  RefreshCw,
-  Settings
+  Settings,
+  Download
 } from 'lucide-react';
 import SessionManagement from './SessionManagement';
+import type { Class, ClassSession, ClassScheduleProps } from '../../../types/class-management';
+import {
+  getStatusColor,
+  getCapacityColor,
+  formatTime,
+  formatDate,
+  formatDateTime,
+  getCalendarDays,
+  getSessionsForDate,
+  calculateTotalRevenue,
+  modalVariants
+} from '../../../lib/utils/class-management-utils';
 
-interface Class {
-  id: string;
-  name: string;
-  description: string;
-  instructor: string;
-  instructorId: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  capacity: number;
-  price: number;
-  creditCost: number;
-  image: string;
-  tags: string[];
-  location: string;
-  status: 'active' | 'inactive' | 'draft';
-  rating: number;
-  totalBookings: number;
-}
-
-interface ClassSession {
-  id: string;
-  classId: string;
-  className: string;
-  instructor: string;
-  instructorId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  capacity: number;
-  enrolled: number;
-  waitlist: number;
-  price: number;
-  creditCost: number;
-  location: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'in-progress';
-  bookings: Array<{
-    id: string;
-    studentName: string;
-    studentEmail: string;
-    bookingDate: string;
-    paymentStatus: 'paid' | 'pending' | 'refunded';
-    paymentMethod: 'credits' | 'cash' | 'card';
-    notes?: string;
-  }>;
-  revenue?: number;
-}
-
-interface ClassScheduleProps {
-  classes: Class[];
-  onClose: () => void;
-  onSave?: (scheduleData: any) => void;
-}
+// Mock data - in production this would come from API/props
 
 const mockSessions: ClassSession[] = [
   {
@@ -101,24 +51,7 @@ const mockSessions: ClassSession[] = [
     location: 'Ceramics Studio',
     status: 'scheduled',
     revenue: 455,
-    bookings: [
-      {
-        id: 'booking_1',
-        studentName: 'Emma Wilson',
-        studentEmail: 'emma@example.com',
-        bookingDate: '2025-09-15T10:30:00Z',
-        paymentStatus: 'paid',
-        paymentMethod: 'credits'
-      },
-      {
-        id: 'booking_2',
-        studentName: 'John Smith',
-        studentEmail: 'john@example.com',
-        bookingDate: '2025-09-16T14:20:00Z',
-        paymentStatus: 'paid',
-        paymentMethod: 'cash'
-      }
-    ]
+    bookings: [] // Will be populated with proper BookingDetails in SessionManagement
   },
   {
     id: 'session_2',
@@ -184,7 +117,6 @@ const mockSessions: ClassSession[] = [
 
 export default function ClassSchedule({ classes, onClose, onSave }: ClassScheduleProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<'week' | 'day' | 'month'>('week');
   const [sessions, setSessions] = useState<ClassSession[]>(mockSessions);
   const [selectedSession, setSelectedSession] = useState<ClassSession | null>(null);
   const [isSessionDetailOpen, setIsSessionDetailOpen] = useState(false);
@@ -192,55 +124,15 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
   const [filterInstructor, setFilterInstructor] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Generate calendar days based on current date and view mode
-  const getCalendarDays = () => {
-    const days = [];
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
-    }
-    return days;
-  };
-
-  // Get sessions for a specific date
-  const getSessionsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return sessions.filter(session => {
-      const matchesDate = session.date === dateStr;
-      const matchesInstructor = filterInstructor === 'all' || session.instructorId === filterInstructor;
-      const matchesStatus = filterStatus === 'all' || session.status === filterStatus;
-      return matchesDate && matchesInstructor && matchesStatus;
-    });
-  };
-
-  // Get unique instructors
-  const instructors = Array.from(new Set(sessions.map(s => s.instructor)));
+  // Memoized calculations for performance
+  const calendarDays = useMemo(() => getCalendarDays(currentDate), [currentDate]);
+  const instructors = useMemo(() => Array.from(new Set(sessions.map(s => s.instructor))), [sessions]);
+  const totalRevenue = useMemo(() => calculateTotalRevenue(sessions), [sessions]);
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     setCurrentDate(newDate);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'completed': return 'bg-green-100 text-green-700 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
-      case 'in-progress': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
-
-  const getCapacityColor = (enrolled: number, capacity: number) => {
-    const percentage = (enrolled / capacity) * 100;
-    if (percentage >= 90) return 'text-red-600';
-    if (percentage >= 75) return 'text-yellow-600';
-    return 'text-green-600';
   };
 
   const handleSessionClick = (session: ClassSession) => {
@@ -260,27 +152,21 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
     setSelectedSession(null);
   };
 
-  const formatTime = (time: string) => {
-    return new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+  // Get filtered sessions for a specific date
+  const getFilteredSessionsForDate = (date: Date) => {
+    return getSessionsForDate(sessions, date, filterInstructor, filterStatus);
   };
-
-  const calendarDays = getCalendarDays();
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={modalVariants}
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+        variants={modalVariants}
         className="bg-white rounded-xl shadow-xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
@@ -385,7 +271,7 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
 
             {/* Day Cells */}
             {calendarDays.map((day, index) => {
-              const daySessions = getSessionsForDate(day);
+              const daySessions = getFilteredSessionsForDate(day);
               return (
                 <div key={index} className="bg-white p-2 min-h-[300px] border-r border-gray-100">
                   <div className="space-y-2">
@@ -438,7 +324,7 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                ${sessions.reduce((sum, s) => sum + (s.revenue || 0), 0).toLocaleString()}
+                ${totalRevenue.toLocaleString()}
               </div>
               <div className="text-sm text-gray-600">Total Revenue</div>
             </div>
@@ -467,12 +353,7 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{selectedSession.className}</h3>
                     <p className="text-gray-600">
-                      {new Date(selectedSession.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {formatDateTime(selectedSession.date)}
                     </p>
                   </div>
                   <button

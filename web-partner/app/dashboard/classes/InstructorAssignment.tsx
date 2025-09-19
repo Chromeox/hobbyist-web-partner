@@ -1,94 +1,44 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Calendar,
   Clock,
-  Users,
   User,
   Mail,
   Phone,
   Star,
   Award,
   CheckCircle,
-  AlertCircle,
   Plus,
   Edit3,
-  Trash2,
   Search,
-  Filter,
   Download,
-  RefreshCw,
-  MapPin,
-  DollarSign,
   TrendingUp,
   BookOpen,
   ChevronDown,
   ChevronUp,
   Settings,
-  Bell,
   MessageSquare
 } from 'lucide-react';
+import type {
+  Instructor,
+  ClassAssignment,
+  InstructorAssignmentProps
+} from '../../../types/class-management';
+import {
+  getStatusColor,
+  formatTime,
+  formatDate,
+  getDayName,
+  searchFilter,
+  modalVariants,
+  listItemVariants
+} from '../../../lib/utils/class-management-utils';
 
-interface Instructor {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  profileImage?: string;
-  specialties: string[];
-  yearsExperience: number;
-  rating: number;
-  totalClasses: number;
-  totalRevenue: number;
-  status: 'active' | 'inactive' | 'on-leave';
-  joinDate: string;
-  hourlyRate: number;
-  commissionRate: number;
-  availability: {
-    [key: string]: {
-      available: boolean;
-      startTime?: string;
-      endTime?: string;
-      notes?: string;
-    };
-  };
-  certifications: string[];
-  bio: string;
-  languages: string[];
-  preferredClassTypes: string[];
-  maxClassesPerDay: number;
-  notificationPreferences: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-  };
-}
-
-interface ClassAssignment {
-  id: string;
-  classId: string;
-  className: string;
-  instructorId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'assigned' | 'confirmed' | 'completed' | 'cancelled';
-  students: number;
-  capacity: number;
-  revenue: number;
-  instructorPayout: number;
-  location: string;
-  notes?: string;
-  substitutes?: string[];
-}
-
-interface InstructorAssignmentProps {
-  onClose: () => void;
-  onSave?: (assignments: ClassAssignment[]) => void;
-}
+// Mock data - in production this would come from API
 
 const mockInstructors: Instructor[] = [
   {
@@ -254,14 +204,23 @@ export default function InstructorAssignment({ onClose, onSave }: InstructorAssi
   const [showAddInstructor, setShowAddInstructor] = useState(false);
   const [expandedInstructor, setExpandedInstructor] = useState<string | null>(null);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      case 'inactive': return 'bg-gray-100 text-gray-700 border-gray-200';
-      case 'on-leave': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-blue-100 text-blue-700 border-blue-200';
+  // Memoized calculations for performance
+  const allSpecialties = useMemo(() =>
+    Array.from(new Set(instructors.flatMap(i => i.specialties))), [instructors]
+  );
+
+  const filteredInstructors = useMemo(() => {
+    if (!searchTerm && filterSpecialty === 'all' && filterStatus === 'all') {
+      return instructors;
     }
-  };
+
+    return searchFilter(instructors, searchTerm, ['name', 'email'])
+      .filter(instructor => {
+        const matchesSpecialty = filterSpecialty === 'all' || instructor.specialties.includes(filterSpecialty);
+        const matchesStatus = filterStatus === 'all' || instructor.status === filterStatus;
+        return matchesSpecialty && matchesStatus;
+      });
+  }, [instructors, searchTerm, filterSpecialty, filterStatus]);
 
   const getAssignmentStatusColor = (status: string) => {
     switch (status) {
@@ -273,56 +232,18 @@ export default function InstructorAssignment({ onClose, onSave }: InstructorAssi
     }
   };
 
-  const filteredInstructors = instructors.filter(instructor => {
-    const matchesSearch = instructor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         instructor.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = filterSpecialty === 'all' || instructor.specialties.includes(filterSpecialty);
-    const matchesStatus = filterStatus === 'all' || instructor.status === filterStatus;
-    return matchesSearch && matchesSpecialty && matchesStatus;
-  });
-
-  const allSpecialties = Array.from(new Set(instructors.flatMap(i => i.specialties)));
-
-  const formatTime = (time: string) => {
-    return new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  const getDayName = (dayKey: string) => {
-    const days = {
-      monday: 'Monday',
-      tuesday: 'Tuesday',
-      wednesday: 'Wednesday',
-      thursday: 'Thursday',
-      friday: 'Friday',
-      saturday: 'Saturday',
-      sunday: 'Sunday'
-    };
-    return days[dayKey as keyof typeof days] || dayKey;
-  };
+  // All utility functions are now imported from shared utilities
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={modalVariants}
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+        variants={modalVariants}
         className="bg-white rounded-xl shadow-xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header */}

@@ -30,33 +30,9 @@ import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
 import InstructorAssignment from './InstructorAssignment';
 import RecurringTemplates from './RecurringTemplates';
+import type { Class } from '../../../types/class-management';
 
-interface Class {
-  id: string;
-  name: string;
-  description: string;
-  instructor: string;
-  instructorId: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  duration: number;
-  capacity: number;
-  price: number;
-  creditCost: number; // Credits required for this class
-  image: string;
-  tags: string[];
-  location: string;
-  status: 'active' | 'inactive' | 'draft';
-  rating: number;
-  totalBookings: number;
-  nextSession?: {
-    date: string;
-    time: string;
-    enrolled: number;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
+// Mock data - in production this would come from API
 
 const mockClasses: Class[] = [
   {

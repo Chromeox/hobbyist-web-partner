@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -12,94 +12,36 @@ import {
   Phone,
   MapPin,
   DollarSign,
-  CreditCard,
   AlertCircle,
   CheckCircle,
   Plus,
-  Edit3,
-  Trash2,
   ArrowUpCircle,
   ArrowDownCircle,
   Search,
-  Filter,
   Download,
-  RefreshCw,
   MessageSquare,
   Bell,
   Settings,
   MoreVertical
 } from 'lucide-react';
+import type {
+  Student,
+  BookingDetails,
+  WaitlistEntry,
+  ClassSession,
+  SessionManagementProps
+} from '../../../types/class-management';
+import {
+  getStatusColor,
+  getPaymentStatusColor,
+  formatTime,
+  formatDate,
+  formatDateTime,
+  searchFilter,
+  modalVariants
+} from '../../../lib/utils/class-management-utils';
 
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  joinDate: string;
-  totalClasses: number;
-  creditsBalance: number;
-  preferredContact: 'email' | 'sms' | 'phone';
-  notes?: string;
-}
-
-interface BookingDetails {
-  id: string;
-  studentId: string;
-  student: Student;
-  bookingDate: string;
-  paymentStatus: 'paid' | 'pending' | 'refunded' | 'failed';
-  paymentMethod: 'credits' | 'cash' | 'card' | 'free';
-  amount: number;
-  transactionId?: string;
-  notes?: string;
-  source: 'app' | 'web' | 'phone' | 'walkIn';
-  confirmationSent: boolean;
-  reminderSent: boolean;
-  status: 'confirmed' | 'pending' | 'cancelled' | 'noShow';
-}
-
-interface WaitlistEntry {
-  id: string;
-  studentId: string;
-  student: Student;
-  addedDate: string;
-  position: number;
-  autoEnroll: boolean;
-  maxPrice?: number;
-  notes?: string;
-  notificationsSent: number;
-}
-
-interface ClassSession {
-  id: string;
-  classId: string;
-  className: string;
-  instructor: string;
-  instructorId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  capacity: number;
-  enrolled: number;
-  waitlist: number;
-  price: number;
-  creditCost: number;
-  location: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'in-progress';
-  bookings: BookingDetails[];
-  waitlistEntries: WaitlistEntry[];
-  revenue: number;
-  expenses: number;
-  profitMargin: number;
-  lastUpdated: string;
-}
-
-interface SessionManagementProps {
-  session: ClassSession;
-  onClose: () => void;
-  onUpdateSession: (session: ClassSession) => void;
-}
+// Mock data - in production this would come from API
 
 const mockStudents: Student[] = [
   {
@@ -212,65 +154,32 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
     lastUpdated: new Date().toISOString()
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-700 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
-      case 'noShow': return 'bg-gray-100 text-gray-700 border-gray-200';
-      default: return 'bg-blue-100 text-blue-700 border-blue-200';
-    }
-  };
+  // Memoized filtered bookings for performance
+  const filteredBookings = useMemo(() => {
+    const bookings = enhancedSession.bookings;
+    if (!searchTerm && filterStatus === 'all') return bookings;
 
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'refunded': return 'bg-blue-100 text-blue-700';
-      case 'failed': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const filteredBookings = enhancedSession.bookings.filter(booking => {
-    const matchesSearch = booking.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.student.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+    return searchFilter(bookings, searchTerm, ['student.name', 'student.email'])
+      .filter(booking => filterStatus === 'all' || booking.status === filterStatus);
+  }, [enhancedSession.bookings, searchTerm, filterStatus]);
 
   const handleBulkAction = (action: string) => {
     console.log(`Performing ${action} on bookings:`, selectedBookings);
     setSelectedBookings([]);
   };
 
-  const formatTime = (time: string) => {
-    return new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  // All formatting functions are now imported from shared utilities
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={modalVariants}
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+        variants={modalVariants}
         className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
@@ -281,12 +190,7 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {new Date(enhancedSession.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {formatDateTime(enhancedSession.date)}
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
