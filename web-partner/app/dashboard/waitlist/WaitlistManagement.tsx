@@ -6,7 +6,7 @@ import {
   Users, Clock, Calendar, CheckCircle, X, AlertCircle,
   Send, Phone, Mail, MessageSquare, TrendingUp, Filter,
   Search, Settings, Bell, Zap, RefreshCw, UserPlus,
-  ChevronRight, Activity, Target, Award
+  ChevronRight, Activity, Target, Award, CreditCard
 } from 'lucide-react';
 import { usePaymentModel } from '@/lib/contexts/PaymentModelContext';
 

@@ -7,26 +7,39 @@ import VerificationStep from './steps/VerificationStep';
 import StudioProfileStep from './steps/StudioProfileStep';
 import ServicesStep from './steps/ServicesStep';
 import PaymentSetupStep from './steps/PaymentSetupStep';
+import CalendarSetupStep from './steps/CalendarSetupStep';
+import IntelligencePreviewStep from './steps/IntelligencePreviewStep';
 import ReviewStep from './steps/ReviewStep';
 import { OnboardingProvider } from './context/OnboardingContext';
 import ProgressIndicator from './components/ProgressIndicator';
+import OnboardingWelcome from './OnboardingWelcome';
 import { CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Save, AlertCircle } from 'lucide-react';
 
 const ONBOARDING_STEPS = [
-  { id: 'business-info', title: 'Business Information', component: BusinessInfoStep, description: 'Basic studio details' },
-  { id: 'verification', title: 'Verification', component: VerificationStep, description: 'Verify your identity' },
-  { id: 'studio-profile', title: 'Studio Profile', component: StudioProfileStep, description: 'Studio description & photos' },
-  { id: 'services', title: 'Services & Classes', component: ServicesStep, description: 'Define your offerings' },
-  { id: 'payment', title: 'Payment Setup', component: PaymentSetupStep, description: 'Connect payment methods' },
-  { id: 'review', title: 'Review & Submit', component: ReviewStep, description: 'Final review' }
+  { id: 'business-info', title: 'Business Information', component: BusinessInfoStep, description: 'Basic studio details', estimatedTime: '2 min' },
+  { id: 'verification', title: 'Verification', component: VerificationStep, description: 'Verify your identity', estimatedTime: '1 min' },
+  { id: 'studio-profile', title: 'Studio Profile', component: StudioProfileStep, description: 'Studio description & photos', estimatedTime: '3 min' },
+  { id: 'services', title: 'Services & Classes', component: ServicesStep, description: 'Define your offerings', estimatedTime: '3 min' },
+  { id: 'payment', title: 'Payment Setup', component: PaymentSetupStep, description: 'Connect payment methods', estimatedTime: '2 min' },
+  { id: 'calendar-setup', title: 'Calendar Integration', component: CalendarSetupStep, description: 'Import existing schedules (optional)', estimatedTime: '3 min', optional: true },
+  { id: 'intelligence-preview', title: 'Studio Intelligence', component: IntelligencePreviewStep, description: 'AI-powered insights (optional)', estimatedTime: '2 min', optional: true },
+  { id: 'review', title: 'Review & Complete', component: ReviewStep, description: 'Final review & launch', estimatedTime: '1 min' }
 ];
 
 export default function OnboardingWizard() {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [onboardingData, setOnboardingData] = useState({});
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
+
+  // Mock user data - in production this would come from auth context
+  const mockUserData = {
+    accountType: 'studio' as 'studio' | 'instructor',
+    businessName: 'Creative Arts Studio',
+    userName: 'Sarah Johnson'
+  };
 
   const CurrentStepComponent = ONBOARDING_STEPS[currentStep].component;
 
@@ -99,6 +112,18 @@ export default function OnboardingWizard() {
   };
 
   const progressPercentage = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;
+
+  // Show welcome screen first
+  if (showWelcome) {
+    return (
+      <OnboardingWelcome
+        accountType={mockUserData.accountType}
+        businessName={mockUserData.businessName}
+        userName={mockUserData.userName}
+        onStart={() => setShowWelcome(false)}
+      />
+    );
+  }
 
   return (
     <OnboardingProvider value={{ onboardingData, setOnboardingData }}>

@@ -3,8 +3,7 @@
 // HTTP/2 Server Push and Performance Configuration
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true, // Use SWC for faster minification
-  
+
   // Enable experimental features for performance
   experimental: {
     optimizeCss: true, // CSS optimization

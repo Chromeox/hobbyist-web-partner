@@ -613,7 +613,7 @@ export default function SettingsManagement() {
                           )}
                         </button>
                       </div>
-                    }
+                    </div>
 
                     {/* Credit Settings - Show when credits or hybrid is selected */}
                     {(settings.paymentModel.mode === 'credits' || settings.paymentModel.mode === 'hybrid') && (
@@ -668,7 +668,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        }
+                        </div>
                       </div>
                     )}
 
@@ -691,7 +691,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        }
+                        </div>
                         
                         <div className="flex items-center justify-between">
                           <div>
@@ -707,7 +707,7 @@ export default function SettingsManagement() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        }
+                        </div>
                       </div>
                     )}
 
@@ -735,7 +735,7 @@ export default function SettingsManagement() {
                           Platform fee charged on all transactions
                         </p>
                       </div>
-                    }
+                    </div>
 
                     {/* Info Box */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -825,14 +825,14 @@ export default function SettingsManagement() {
                         <div>
                           <p className="font-medium">•••• •••• •••• 4242</p>
                           <p className="text-sm text-gray-600">Expires 12/2027</p>
-                        }
+                        </div>
                       </div>
                       <button className="text-blue-600 hover:text-blue-700 font-medium">
                         Update
                       </button>
-                    }
+                    </div>
                   </div>
-                }
+                </div>
               </div>
             )}
 
@@ -856,7 +856,7 @@ export default function SettingsManagement() {
                       <p className="text-sm text-gray-500 mt-1">
                         Students can cancel up to this many hours before class starts
                       </p>
-                    }
+                    </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -871,14 +871,14 @@ export default function SettingsManagement() {
                         <option value="partial">Partial Refund</option>
                         <option value="none">No Refund</option>
                       </select>
-                    }
+                    </div>
                     
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Enable Waitlist</p>
                           <p className="text-sm text-gray-600">Allow students to join waitlist when classes are full</p>
-                        }
+                        </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -888,13 +888,13 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      }
+                      </div>
                       
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Require Payment</p>
                           <p className="text-sm text-gray-600">Require payment at time of booking</p>
-                        }
+                        </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -904,13 +904,13 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      }
+                      </div>
                       
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Allow Same-Day Booking</p>
                           <p className="text-sm text-gray-600">Allow students to book classes on the same day</p>
-                        }
+                        </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -920,11 +920,11 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
-                        }
+                        </div>
                       </div>
-                    }
+                    </div>
                   </div>
-                }
+                </div>
               </div>
             )}
 
@@ -950,7 +950,7 @@ export default function SettingsManagement() {
                             {key === 'lowCapacity' && 'Get notified when class capacity is low'}
                             {key === 'staffUpdates' && 'Get notified about staff-related updates'}
                           </p>
-                        }
+                        </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -960,10 +960,10 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      }
+                      </div>
                     ))}
                   </div>
-                }
+                </div>
               </div>
             )}
 
@@ -987,7 +987,7 @@ export default function SettingsManagement() {
                             {key === 'allowReviews' && 'Allow students to leave reviews and ratings'}
                             {key === 'publicProfile' && 'Make studio profile visible in public directory'}
                           </p>
-                        }
+                        </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -997,10 +997,10 @@ export default function SettingsManagement() {
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
-                      }
+                      </div>
                     ))}
                   </div>
-                }
+                </div>
               </div>
             )}
 
@@ -1023,12 +1023,12 @@ export default function SettingsManagement() {
                             <h3 className="font-medium text-gray-900">Google Analytics</h3>
                             <p className="text-sm text-gray-600">Track website visitors and booking conversions</p>
                           </div>
-                        }
+                        </div>
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      }
-                    }
+                      </div>
+                    </div>
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1039,13 +1039,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Mailchimp</h3>
                             <p className="text-sm text-gray-600">Send automated emails and newsletters</p>
-                          }
-                        }
+                          </div>
+                        </div>
                         <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                           Connected
                         </button>
-                      }
-                    }
+                      </div>
+                    </div>
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1056,13 +1056,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Zapier</h3>
                             <p className="text-sm text-gray-600">Automate workflows with thousands of apps</p>
-                          }
-                        }
+                          </div>
+                        </div>
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      }
-                    }
+                      </div>
+                    </div>
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1073,13 +1073,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Google Sheets</h3>
                             <p className="text-sm text-gray-600">Sync bookings and student data to spreadsheets</p>
-                          }
-                        }
+                          </div>
+                        </div>
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      }
-                    }
+                      </div>
+                    </div>
                     
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -1090,13 +1090,13 @@ export default function SettingsManagement() {
                           <div>
                             <h3 className="font-medium text-gray-900">Square Appointments</h3>
                             <p className="text-sm text-gray-600">Sync with Square's booking and payment system</p>
-                          }
-                        }
+                          </div>
+                        </div>
                         <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                           Connect
                         </button>
-                      }
-                    }
+                      </div>
+                    </div>
 
                     {/* New Data Import Section */}
                     <div className="border-t pt-6 mt-6">
@@ -1136,13 +1136,13 @@ export default function SettingsManagement() {
                       {uploadStatus === 'error' && (
                         <p className="text-sm text-red-600 mt-2">Failed to upload file. Please try again.</p>
                       )}
-                    }
+                    </div>
                   </div>
-                }
+                </div>
               </div>
             )}
           </div>
-        }
+        </div>
       </div>
     </div>
   );

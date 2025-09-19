@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
+import InstructorAssignment from './InstructorAssignment';
+import RecurringTemplates from './RecurringTemplates';
 
 interface Class {
   id: string;
@@ -226,6 +228,8 @@ export default function ClassManagement() {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isInstructorAssignmentOpen, setIsInstructorAssignmentOpen] = useState(false);
+  const [isRecurringTemplatesOpen, setIsRecurringTemplatesOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const categories = ['all', 'Yoga', 'Pilates', 'Dance', 'Fitness', 'Meditation'];
@@ -365,7 +369,23 @@ export default function ClassManagement() {
             <Calendar className="h-4 w-4 mr-2" />
             Schedule View
           </button>
-          
+
+          <button
+            onClick={() => setIsInstructorAssignmentOpen(true)}
+            className="px-4 py-2 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors flex items-center"
+          >
+            <User className="h-4 w-4 mr-2" />
+            Instructors
+          </button>
+
+          <button
+            onClick={() => setIsRecurringTemplatesOpen(true)}
+            className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors flex items-center"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Templates
+          </button>
+
           <button
             onClick={handleCreateClass}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
@@ -587,6 +607,18 @@ export default function ClassManagement() {
           <ClassSchedule
             classes={classes}
             onClose={() => setIsScheduleOpen(false)}
+          />
+        )}
+
+        {isInstructorAssignmentOpen && (
+          <InstructorAssignment
+            onClose={() => setIsInstructorAssignmentOpen(false)}
+          />
+        )}
+
+        {isRecurringTemplatesOpen && (
+          <RecurringTemplates
+            onClose={() => setIsRecurringTemplatesOpen(false)}
           />
         )}
       </AnimatePresence>

@@ -19,6 +19,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SupabaseTest } from '../../components/SupabaseTest';
+import StudioIntelligenceSummary from '../../components/studio/StudioIntelligenceSummary';
+import SetupReminders from '../../components/dashboard/SetupReminders';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import {
@@ -392,6 +394,96 @@ export default function DashboardOverview() {
               );
             })
         )}
+      </div>
+
+      {/* Setup Reminders */}
+      <SetupReminders className="mb-6" />
+
+      {/* Studio Intelligence Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <StudioIntelligenceSummary
+          studioId="demo-studio-id"
+          className="lg:col-span-1"
+        />
+
+        {/* Quick Action Cards */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            onClick={() => window.location.href = '/dashboard/classes'}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Create Class</h3>
+                <p className="text-sm text-gray-600">Add new workshop</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400 ml-auto group-hover:translate-x-1 transition-transform" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            onClick={() => window.location.href = '/dashboard/reservations'}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Calendar className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">View Schedule</h3>
+                <p className="text-sm text-gray-600">Manage bookings</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400 ml-auto group-hover:translate-x-1 transition-transform" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            onClick={() => window.location.href = '/dashboard/students'}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Users className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Student List</h3>
+                <p className="text-sm text-gray-600">Manage students</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400 ml-auto group-hover:translate-x-1 transition-transform" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            onClick={() => window.location.href = '/dashboard/revenue'}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <DollarSign className="h-5 w-5 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Revenue Report</h3>
+                <p className="text-sm text-gray-600">View earnings</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-gray-400 ml-auto group-hover:translate-x-1 transition-transform" />
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Charts Row */}

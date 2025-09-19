@@ -96,9 +96,9 @@ export const SignUpForm = memo(function SignUpForm() {
         success: true 
       }))
       
-      // Redirect after successful signup
+      // Redirect to email verification flow
       setTimeout(() => {
-        router.push('/onboarding')
+        router.push(`/auth/check-email?email=${encodeURIComponent(state.email)}`)
       }, 2000)
     }
   }, [state, signUp, router])

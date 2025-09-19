@@ -27,7 +27,8 @@ import {
   GraduationCap,
   Crown,
   Wallet,
-  MessageCircle
+  MessageCircle,
+  Brain
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -47,6 +48,7 @@ const navigationItems = [
   { id: 'payouts', label: 'Payouts', icon: Wallet, href: '/dashboard/payouts' },
   
   { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' },
+  { id: 'intelligence', label: 'Studio Intelligence', icon: Brain, href: '/dashboard/intelligence' },
   { id: 'revenue', label: 'Revenue', icon: DollarSign, href: '/dashboard/revenue' },
   { id: 'marketing', label: 'Marketing', icon: Megaphone, href: '/dashboard/marketing' },
   { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/dashboard/messages' },
@@ -87,7 +89,7 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Hobbyist</h2>
                   <p className="text-xs text-gray-500">Partner Portal</p>
-                }
+                </div>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -95,7 +97,7 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
               >
                 <X className="h-6 w-6 text-gray-500" />
               </button>
-            }
+            </div>
           </div>
 
           {/* Studio Info with Glass Effect */}
@@ -136,7 +138,7 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
                   {userName.charAt(0).toUpperCase()}
-                }
+                </div>
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm font-medium text-gray-900">{userName}</p>
@@ -145,9 +147,9 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
               <button className="text-gray-500 hover:text-gray-700">
                 <LogOut className="h-5 w-5" />
               </button>
-            }
+            </div>
           </div>
-        }
+        </div>
       </div>
 
       {/* Main Content */}
@@ -178,8 +180,8 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                   <div className="text-sm">
                     <span className="text-gray-500">Active Classes:</span>
                     <span className="ml-2 font-semibold text-blue-600">12</span>
-                  }
-                }
+                  </div>
+                </div>
 
                 {/* Notifications */}
                 <div className="relative">
@@ -215,9 +217,9 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                       </div>
                     </motion.div>
                   )}
-                }
-              }
-            }
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
