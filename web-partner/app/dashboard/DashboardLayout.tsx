@@ -74,7 +74,7 @@ const navigationSections = [
   },
   {
     id: 'analytics',
-    label: 'Intelligence & Analytics',
+    label: 'AI & Analytics',
     icon: Brain,
     expanded: false,
     items: [
@@ -85,7 +85,7 @@ const navigationSections = [
   },
   {
     id: 'tools',
-    label: 'Tools & Communication',
+    label: 'Tools & Comms',
     icon: Zap,
     expanded: false,
     items: [

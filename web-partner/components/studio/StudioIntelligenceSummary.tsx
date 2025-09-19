@@ -101,6 +101,14 @@ export default function StudioIntelligenceSummary({
       setInsights(result);
     } catch (error) {
       console.error('Failed to load insights:', error);
+      // Set demo insights even if the service fails
+      setInsights({
+        weeklyRevenuePotential: 0,
+        topPriorityAction: "Import calendar data to generate insights",
+        timeSlots: [],
+        roomEfficiency: [],
+        instructorOptimization: []
+      });
     } finally {
       setLoading(false);
     }

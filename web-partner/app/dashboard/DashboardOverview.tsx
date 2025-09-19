@@ -412,7 +412,7 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 group cursor-pointer"
             onClick={() => window.location.href = '/dashboard/classes'}
           >
             <div className="flex items-center gap-3">
@@ -431,7 +431,7 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 group cursor-pointer"
             onClick={() => window.location.href = '/dashboard/reservations'}
           >
             <div className="flex items-center gap-3">
@@ -450,7 +450,7 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 group cursor-pointer"
             onClick={() => window.location.href = '/dashboard/students'}
           >
             <div className="flex items-center gap-3">
@@ -469,7 +469,7 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass-card rounded-xl p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 group cursor-pointer"
             onClick={() => window.location.href = '/dashboard/revenue'}
           >
             <div className="flex items-center gap-3">
@@ -489,7 +489,7 @@ export default function DashboardOverview() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
         {/* Revenue Chart */}
-        <div className="lg:col-span-2 glass-card rounded-xl p-6">
+        <div className="lg:col-span-2 bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Revenue Overview</h2>
             <button 
@@ -530,7 +530,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Occupancy Rate */}
-        <div className="glass-card rounded-xl p-6">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Occupancy Rate</h2>
           <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
             <Doughnut
@@ -570,7 +570,7 @@ export default function DashboardOverview() {
       {/* Class Popularity & Upcoming Classes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
         {/* Class Popularity */}
-        <div className="glass-card rounded-xl p-6">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Popular Classes</h2>
             <span className="text-xs text-gray-500">Your studio's top performers</span>
@@ -613,7 +613,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Upcoming Classes */}
-        <div className="glass-card rounded-xl p-6">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Today's Classes</h2>
             <span className="text-sm text-gray-500">{upcomingClasses.length} classes</span>
@@ -658,7 +658,7 @@ export default function DashboardOverview() {
       </div>
 
       {/* Recent Activity */}
-      <div className="glass-card rounded-xl p-6">
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
           <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
