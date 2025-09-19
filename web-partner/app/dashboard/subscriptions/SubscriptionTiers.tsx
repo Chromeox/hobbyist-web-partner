@@ -204,12 +204,12 @@ export default function SubscriptionTiers() {
   const renderTierCard = (tier: SubscriptionTier) => (
     <motion.div
       key={tier.id}
-      className={`glass-morphism rounded-xl p-6 ${tier.isPopular ? 'ring-2 ring-purple-500' : ''}`}
+      className={`bg-white shadow-lg border border-gray-200 rounded-xl p-6 ${tier.isPopular ? 'ring-2 ring-purple-500' : ''}`}
       whileHover={{ scale: 1.02 }}
     >
       {tier.isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <span className="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full">
+          <span className="px-3 py-1 bg-purple-500 text-gray-900 text-xs font-semibold rounded-full">
             Most Popular
           </span>
         </div>
@@ -217,23 +217,23 @@ export default function SubscriptionTiers() {
 
       <div className="flex items-start justify-between mb-4">
         <div className={`p-3 rounded-xl bg-gradient-to-br ${tier.highlightColor}`}>
-          <tier.icon className="w-6 h-6 text-white" />
+          <tier.icon className="w-6 h-6 text-gray-900" />
         </div>
         <button
           onClick={() => setSelectedTier(tier)}
           className="p-2 hover:bg-white/10 rounded-lg"
         >
-          <Edit className="w-4 h-4 text-gray-400" />
+          <Edit className="w-4 h-4 text-gray-600" />
         </button>
       </div>
 
-      <h3 className="text-xl font-bold text-white mb-2">{tier.name}</h3>
-      <p className="text-sm text-gray-400 mb-4">{tier.description}</p>
+      <h3 className="text-xl font-bold text-gray-900 mb-2">{tier.name}</h3>
+      <p className="text-sm text-gray-600 mb-4">{tier.description}</p>
 
       <div className="mb-6">
         <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold text-white">${tier.price}</span>
-          <span className="text-gray-400">/{tier.interval}</span>
+          <span className="text-3xl font-bold text-gray-900">${tier.price}</span>
+          <span className="text-gray-600">/{tier.interval}</span>
         </div>
       </div>
 
@@ -246,24 +246,24 @@ export default function SubscriptionTiers() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
+      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200">
         <div>
-          <p className="text-2xl font-bold text-white">{tier.currentSubscribers}</p>
-          <p className="text-xs text-gray-400">Subscribers</p>
+          <p className="text-2xl font-bold text-gray-900">{tier.currentSubscribers}</p>
+          <p className="text-xs text-gray-600">Subscribers</p>
         </div>
         <div>
           <p className="text-2xl font-bold text-green-400">
             ${(tier.monthlyRevenue / 1000).toFixed(1)}k
           </p>
-          <p className="text-xs text-gray-400">Monthly</p>
+          <p className="text-xs text-gray-600">Monthly</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-white">{tier.churnRate}%</p>
-          <p className="text-xs text-gray-400">Churn Rate</p>
+          <p className="text-2xl font-bold text-gray-900">{tier.churnRate}%</p>
+          <p className="text-xs text-gray-600">Churn Rate</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-white">${tier.averageLTV}</p>
-          <p className="text-xs text-gray-400">Avg LTV</p>
+          <p className="text-2xl font-bold text-gray-900">${tier.averageLTV}</p>
+          <p className="text-xs text-gray-600">Avg LTV</p>
         </div>
       </div>
     </motion.div>
@@ -273,12 +273,12 @@ export default function SubscriptionTiers() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-white">Active Subscription Plans</h3>
-          <p className="text-sm text-gray-400 mt-1">Manage your membership tiers and pricing</p>
+          <h3 className="text-lg font-semibold text-gray-900">Active Subscription Plans</h3>
+          <p className="text-sm text-gray-600 mt-1">Manage your membership tiers and pricing</p>
         </div>
         <button
           onClick={() => setShowAddTierModal(true)}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+          className="px-4 py-2 bg-purple-600 text-gray-900 rounded-lg hover:bg-purple-700 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Tier
@@ -290,48 +290,48 @@ export default function SubscriptionTiers() {
       </div>
 
       {/* Comparison Table */}
-      <div className="glass-morphism rounded-xl p-6 mt-8">
-        <h3 className="text-lg font-semibold text-white mb-4">Feature Comparison</h3>
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6 mt-8">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Feature Comparison</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-700">
-                <th className="text-left py-3 px-4 text-sm text-gray-400">Feature</th>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 text-sm text-gray-600">Feature</th>
                 {subscriptionTiers.map(tier => (
                   <th key={tier.id} className="text-center py-3 px-4">
-                    <span className="text-sm font-medium text-white">{tier.name}</span>
+                    <span className="text-sm font-medium text-gray-900">{tier.name}</span>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-700/50">
+              <tr className="border-b border-gray-200/50">
                 <td className="py-3 px-4 text-sm text-gray-300">Classes per month</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
-                    <span className="text-sm text-white font-medium">
+                    <span className="text-sm text-gray-900 font-medium">
                       {tier.limitations.classesPerMonth === 'unlimited' ? '∞' : tier.limitations.classesPerMonth}
                     </span>
                   </td>
                 ))}
               </tr>
-              <tr className="border-b border-gray-700/50">
+              <tr className="border-b border-gray-200/50">
                 <td className="py-3 px-4 text-sm text-gray-300">Booking window</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
-                    <span className="text-sm text-white">{tier.limitations.bookingWindow} days</span>
+                    <span className="text-sm text-gray-900">{tier.limitations.bookingWindow} days</span>
                   </td>
                 ))}
               </tr>
-              <tr className="border-b border-gray-700/50">
+              <tr className="border-b border-gray-200/50">
                 <td className="py-3 px-4 text-sm text-gray-300">Guest passes</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
-                    <span className="text-sm text-white">{tier.limitations.guestPasses}</span>
+                    <span className="text-sm text-gray-900">{tier.limitations.guestPasses}</span>
                   </td>
                 ))}
               </tr>
-              <tr className="border-b border-gray-700/50">
+              <tr className="border-b border-gray-200/50">
                 <td className="py-3 px-4 text-sm text-gray-300">Priority booking</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
@@ -366,39 +366,39 @@ export default function SubscriptionTiers() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-white">Subscription Members</h3>
-          <p className="text-sm text-gray-400 mt-1">Manage your subscription members</p>
+          <h3 className="text-lg font-semibold text-gray-900">Subscription Members</h3>
+          <p className="text-sm text-gray-600 mt-1">Manage your subscription members</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700">
+          <button className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200">
             Export
           </button>
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+          <button className="px-4 py-2 bg-purple-600 text-gray-900 rounded-lg hover:bg-purple-700">
             Send Campaign
           </button>
         </div>
       </div>
 
-      <div className="glass-morphism rounded-xl overflow-hidden">
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-800/50">
+          <thead className="bg-gray-100/50">
             <tr>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Member</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Tier</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Status</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Next Billing</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Total Spent</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Classes</th>
-              <th className="text-left py-3 px-4 text-sm text-gray-400">Actions</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Member</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Tier</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Status</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Next Billing</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Total Spent</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Classes</th>
+              <th className="text-left py-3 px-4 text-sm text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody>
             {subscribers.map(subscriber => (
-              <tr key={subscriber.id} className="border-b border-gray-700/50">
+              <tr key={subscriber.id} className="border-b border-gray-200/50">
                 <td className="py-3 px-4">
                   <div>
-                    <p className="text-white font-medium">{subscriber.name}</p>
-                    <p className="text-xs text-gray-400">{subscriber.email}</p>
+                    <p className="text-gray-900 font-medium">{subscriber.name}</p>
+                    <p className="text-xs text-gray-600">{subscriber.email}</p>
                   </div>
                 </td>
                 <td className="py-3 px-4">
@@ -419,7 +419,7 @@ export default function SubscriptionTiers() {
                   </div>
                 </td>
                 <td className="py-3 px-4 text-sm text-gray-300">{subscriber.nextBilling}</td>
-                <td className="py-3 px-4 text-sm text-white font-medium">${subscriber.totalSpent}</td>
+                <td className="py-3 px-4 text-sm text-gray-900 font-medium">${subscriber.totalSpent}</td>
                 <td className="py-3 px-4 text-sm text-gray-300">{subscriber.classesAttended}</td>
                 <td className="py-3 px-4">
                   <button className="text-purple-400 hover:text-purple-300 text-sm">
@@ -437,65 +437,65 @@ export default function SubscriptionTiers() {
   const renderAnalytics = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-morphism p-4 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-4 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-500/20 rounded-lg">
               <DollarSign className="w-5 h-5 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">$72.5k</p>
-              <p className="text-sm text-gray-400">MRR</p>
+              <p className="text-2xl font-bold text-gray-900">$72.5k</p>
+              <p className="text-sm text-gray-600">MRR</p>
             </div>
           </div>
         </div>
 
-        <div className="glass-morphism p-4 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-4 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-500/20 rounded-lg">
               <Users className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">779</p>
-              <p className="text-sm text-gray-400">Active Members</p>
+              <p className="text-2xl font-bold text-gray-900">779</p>
+              <p className="text-sm text-gray-600">Active Members</p>
             </div>
           </div>
         </div>
 
-        <div className="glass-morphism p-4 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-4 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 rounded-lg">
               <TrendingUp className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">5.4%</p>
-              <p className="text-sm text-gray-400">Avg Churn</p>
+              <p className="text-2xl font-bold text-gray-900">5.4%</p>
+              <p className="text-sm text-gray-600">Avg Churn</p>
             </div>
           </div>
         </div>
 
-        <div className="glass-morphism p-4 rounded-xl">
+        <div className="bg-white shadow-lg border border-gray-200 p-4 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-500/20 rounded-lg">
               <Award className="w-5 h-5 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">$485</p>
-              <p className="text-sm text-gray-400">Avg LTV</p>
+              <p className="text-2xl font-bold text-gray-900">$485</p>
+              <p className="text-sm text-gray-600">Avg LTV</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="glass-morphism p-6 rounded-xl">
-        <h3 className="text-lg font-semibold text-white mb-4">Subscription Growth</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Growth</h3>
         <div className="h-64 flex items-center justify-center text-gray-500">
           [Chart showing subscription growth over time]
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-morphism p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Tier Distribution</h3>
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Tier Distribution</h3>
           <div className="space-y-3">
             {subscriptionTiers.map(tier => {
               const percentage = (tier.currentSubscribers / 779) * 100;
@@ -503,7 +503,7 @@ export default function SubscriptionTiers() {
                 <div key={tier.id}>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm text-gray-300">{tier.name}</span>
-                    <span className="text-sm text-white font-medium">
+                    <span className="text-sm text-gray-900 font-medium">
                       {tier.currentSubscribers} ({percentage.toFixed(1)}%)
                     </span>
                   </div>
@@ -519,8 +519,8 @@ export default function SubscriptionTiers() {
           </div>
         </div>
 
-        <div className="glass-morphism p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-white mb-4">Churn Reasons</h3>
+        <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Churn Reasons</h3>
           <div className="space-y-3">
             {[
               { reason: 'Too expensive', count: 45, percentage: 35 },
@@ -538,7 +538,7 @@ export default function SubscriptionTiers() {
                       style={{ width: `${item.percentage}%` }}
                     />
                   </div>
-                  <span className="text-sm text-white w-12 text-right">{item.count}</span>
+                  <span className="text-sm text-gray-900 w-12 text-right">{item.count}</span>
                 </div>
               </div>
             ))}
@@ -551,8 +551,8 @@ export default function SubscriptionTiers() {
   const renderAutomation = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Subscription Automations</h3>
-        <p className="text-sm text-gray-400">Set up automated workflows for subscription management</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Automations</h3>
+        <p className="text-sm text-gray-600">Set up automated workflows for subscription management</p>
       </div>
 
       <div className="grid gap-4">
@@ -586,19 +586,19 @@ export default function SubscriptionTiers() {
             stats: '12% reactivation rate'
           }
         ].map(automation => (
-          <div key={automation.name} className="glass-morphism p-6 rounded-xl">
+          <div key={automation.name} className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
             <div className="flex items-start justify-between">
               <div className="flex gap-4">
                 <div className={`p-3 rounded-lg ${
                   automation.isActive ? 'bg-purple-500/20' : 'bg-gray-700'
                 }`}>
                   <automation.icon className={`w-5 h-5 ${
-                    automation.isActive ? 'text-purple-400' : 'text-gray-400'
+                    automation.isActive ? 'text-purple-400' : 'text-gray-600'
                   }`} />
                 </div>
                 <div>
-                  <h4 className="font-medium text-white">{automation.name}</h4>
-                  <p className="text-sm text-gray-400 mt-1">{automation.description}</p>
+                  <h4 className="font-medium text-gray-900">{automation.name}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{automation.description}</p>
                   <p className="text-xs text-purple-400 mt-2">{automation.stats}</p>
                 </div>
               </div>
@@ -623,8 +623,8 @@ export default function SubscriptionTiers() {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Subscription Management</h1>
-        <p className="text-gray-400">Manage membership tiers and recurring billing</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscription Management</h1>
+        <p className="text-gray-600">Manage membership tiers and recurring billing</p>
       </div>
 
       <div className="flex gap-2 mb-6 overflow-x-auto">
@@ -634,8 +634,8 @@ export default function SubscriptionTiers() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
               activeTab === tab.id
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-purple-600 text-gray-900'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             <tab.icon className="w-4 h-4" />
