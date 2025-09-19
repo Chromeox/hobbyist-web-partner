@@ -28,33 +28,81 @@ import {
   Crown,
   Wallet,
   MessageCircle,
-  Brain
+  Brain,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const navigationItems = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard, href: '/dashboard' },
-  { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' },
-  { id: 'classes', label: 'Classes', icon: BookOpen, href: '/dashboard/classes' },
-  { id: 'instructors', label: 'Instructors', icon: GraduationCap, href: '/dashboard/instructors' },
-  { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
-  { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' },
-  { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
-  { id: 'reviews', label: 'Reviews', icon: Star, href: '/dashboard/reviews' },
-  { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' },
-  { id: 'credits', label: 'Credits & Payments', icon: CreditCard, href: '/dashboard/pricing' },
-  { id: 'subscriptions', label: 'Subscriptions', icon: Crown, href: '/dashboard/subscriptions' },
-  { id: 'payouts', label: 'Payouts', icon: Wallet, href: '/dashboard/payouts' },
-  
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' },
-  { id: 'intelligence', label: 'Studio Intelligence', icon: Brain, href: '/dashboard/intelligence' },
-  { id: 'revenue', label: 'Revenue', icon: DollarSign, href: '/dashboard/revenue' },
-  { id: 'marketing', label: 'Marketing', icon: Megaphone, href: '/dashboard/marketing' },
-  { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/dashboard/messages' },
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
-  // Admin Section
-  { id: 'instructor-approvals', label: 'Instructor Approvals', icon: Users, href: '/dashboard/admin/instructor-approvals' }
+const navigationSections = [
+  {
+    id: 'core',
+    label: 'Core Operations',
+    icon: LayoutDashboard,
+    expanded: true,
+    items: [
+      { id: 'overview', label: 'Overview', icon: LayoutDashboard, href: '/dashboard' },
+      { id: 'classes', label: 'Classes', icon: BookOpen, href: '/dashboard/classes' },
+      { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
+      { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
+      { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' }
+    ]
+  },
+  {
+    id: 'people',
+    label: 'People Management',
+    icon: Users,
+    expanded: false,
+    items: [
+      { id: 'instructors', label: 'Instructors', icon: GraduationCap, href: '/dashboard/instructors' },
+      { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' },
+      { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' }
+    ]
+  },
+  {
+    id: 'financial',
+    label: 'Financial',
+    icon: DollarSign,
+    expanded: false,
+    items: [
+      { id: 'credits', label: 'Pricing & Credits', icon: CreditCard, href: '/dashboard/pricing' },
+      { id: 'subscriptions', label: 'Subscriptions', icon: Crown, href: '/dashboard/subscriptions' },
+      { id: 'payouts', label: 'Payouts', icon: Wallet, href: '/dashboard/payouts' },
+      { id: 'revenue', label: 'Revenue Reports', icon: TrendingUp, href: '/dashboard/revenue' }
+    ]
+  },
+  {
+    id: 'analytics',
+    label: 'Intelligence & Analytics',
+    icon: Brain,
+    expanded: false,
+    items: [
+      { id: 'intelligence', label: 'Studio Intelligence', icon: Brain, href: '/dashboard/intelligence' },
+      { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' },
+      { id: 'reviews', label: 'Reviews', icon: Star, href: '/dashboard/reviews' }
+    ]
+  },
+  {
+    id: 'tools',
+    label: 'Tools & Communication',
+    icon: Zap,
+    expanded: false,
+    items: [
+      { id: 'marketing', label: 'Marketing', icon: Megaphone, href: '/dashboard/marketing' },
+      { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/dashboard/messages' },
+      { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' }
+    ]
+  },
+  {
+    id: 'admin',
+    label: 'Admin',
+    icon: Crown,
+    expanded: false,
+    items: [
+      { id: 'instructor-approvals', label: 'Instructor Approvals', icon: Users, href: '/dashboard/admin/instructor-approvals' }
+    ]
+  }
 ];
 
 interface DashboardLayoutProps {
@@ -66,7 +114,29 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, studioName = 'Your Studio', userName = 'Studio Owner' }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    navigationSections.forEach(section => {
+      initial[section.id] = section.expanded;
+    });
+    return initial;
+  });
   const pathname = usePathname();
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const isItemActive = (href: string) => {
+    return pathname === href;
+  };
+
+  const isSectionActive = (section: any) => {
+    return section.items.some((item: any) => isItemActive(item.href));
+  };
 
   const notifications = [
     { id: 1, type: 'booking', message: 'New booking for Yoga Class', time: '5 min ago' },
@@ -108,26 +178,72 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-4 overflow-y-auto">
-            {navigationItems.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              
+            {navigationSections.map((section) => {
+              const SectionIcon = section.icon;
+              const isExpanded = expandedSections[section.id];
+              const sectionHasActiveItem = isSectionActive(section);
+
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`flex items-center px-4 py-3 mb-2 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className={`h-5 w-5 mr-3 ${isActive ? 'text-blue-700' : 'text-gray-500'}`} />
-                  <span className="font-medium">{item.label}</span>
-                  {item.id === 'messages' && (
-                    <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
-                  )}
-                </Link>
+                <div key={section.id} className="mb-3">
+                  {/* Section Header */}
+                  <button
+                    onClick={() => toggleSection(section.id)}
+                    className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
+                      sectionHasActiveItem
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <SectionIcon className={`h-4 w-4 mr-2 ${sectionHasActiveItem ? 'text-blue-700' : 'text-gray-500'}`} />
+                    <span className="text-sm font-semibold">{section.label}</span>
+                    <motion.div
+                      animate={{ rotate: isExpanded ? 90 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-auto"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </motion.div>
+                  </button>
+
+                  {/* Section Items */}
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      height: isExpanded ? 'auto' : 0,
+                      opacity: isExpanded ? 1 : 0
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      ease: 'easeInOut'
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-6 pt-1 space-y-1">
+                      {section.items.map((item) => {
+                        const isActive = isItemActive(item.href);
+                        const ItemIcon = item.icon;
+
+                        return (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
+                              isActive
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            <ItemIcon className={`h-4 w-4 mr-3 ${isActive ? 'text-blue-700' : 'text-gray-500'}`} />
+                            <span className="text-sm font-medium">{item.label}</span>
+                            {item.id === 'messages' && (
+                              <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </div>
               );
             })}
           </nav>
@@ -166,7 +282,13 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                   <Menu className="h-6 w-6 text-gray-600" />
                 </button>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {navigationItems.find(item => item.href === pathname)?.label || 'Dashboard'}
+                  {(() => {
+                    for (const section of navigationSections) {
+                      const item = section.items.find(item => item.href === pathname);
+                      if (item) return item.label;
+                    }
+                    return 'Dashboard';
+                  })()}
                 </h1>
               </div>
 
