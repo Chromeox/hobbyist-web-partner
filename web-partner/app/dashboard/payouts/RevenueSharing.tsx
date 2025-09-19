@@ -535,7 +535,7 @@ const RevenueSharing: React.FC = () => {
                   <div className="mt-4 flex items-center gap-2">
                     <Select defaultValue={venue.commissionStructureId}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select structure" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {structures.map((structure) => (

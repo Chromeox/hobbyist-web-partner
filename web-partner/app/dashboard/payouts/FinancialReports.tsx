@@ -600,7 +600,7 @@ const FinancialReports: React.FC = () => {
                 <div className="flex gap-4">
                   <Select defaultValue="quarterly">
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select period" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="monthly">Monthly</SelectItem>
