@@ -48,9 +48,32 @@ export default function ConversationCreator({
   const [hasUserEditedName, setHasUserEditedName] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
 
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log('🔍 ConversationCreator State Update:', {
+      isOpen,
+      conversationName,
+      selectedInstructor: selectedInstructor?.id,
+      hasUserEditedName,
+      isAuthenticated,
+      isDemoMode,
+      creating
+    });
+  }, [isOpen, conversationName, selectedInstructor, hasUserEditedName, isAuthenticated, isDemoMode, creating]);
+
   // Load instructors and check auth when modal opens
   useEffect(() => {
     if (isOpen) {
+      console.log('🔄 Modal opened - resetting form state');
+      // Reset all form state when modal opens
+      setSelectedInstructor(null);
+      setConversationName('');
+      setSearchTerm('');
+      setHasUserEditedName(false);
+      setIsDemoMode(false);
+      setCreating(false);
+      setAuthChecking(false);
+
       loadInstructors();
       checkAuthStatus();
     }
@@ -289,6 +312,7 @@ export default function ConversationCreator({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <motion.div
+        key={`conversation-creator-${isOpen ? 'open' : 'closed'}`}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
@@ -410,10 +434,17 @@ export default function ConversationCreator({
                   value={conversationName}
                   onChange={(e) => {
                     const newValue = e.target.value;
-                    console.log('Conversation name changed:', newValue);
+                    console.log('🎯 Input onChange:', {
+                      newValue,
+                      currentState: conversationName,
+                      target: e.target.value,
+                      hasUserEditedName
+                    });
                     setConversationName(newValue);
                     setHasUserEditedName(true); // Mark that user has manually edited
                   }}
+                  onFocus={() => console.log('🎯 Input focused, current value:', conversationName)}
+                  onBlur={() => console.log('🎯 Input blurred, current value:', conversationName)}
                   placeholder="Enter conversation name..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   autoComplete="off"
