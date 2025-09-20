@@ -47,6 +47,7 @@ export default function ConversationCreator({
   const [authChecking, setAuthChecking] = useState(false);
   const [hasUserEditedName, setHasUserEditedName] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Debug logging for state changes
   useEffect(() => {
@@ -119,30 +120,11 @@ export default function ConversationCreator({
   const loadInstructors = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Loading instructors...');
 
-      // Try to load from instructors table first
-      const { data, error } = await supabase
-        .from('instructors')
-        .select(`
-          id,
-          user_id,
-          business_name,
-          verified,
-          user_profiles (
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
-        .eq('verified', true)
-        .order('business_name', { ascending: true });
-
-      if (data && data.length > 0) {
-        setInstructors(data as Instructor[] || []);
-      } else {
-        // Fall back to hardcoded test instructors if table doesn't exist or is empty
-        console.log('No instructors found in database, using test data');
-        const testInstructors: Instructor[] = [
+      // Always use test data for now since Supabase isn't properly configured
+      console.log('Using test instructors (Supabase instructors table not available)');
+      const testInstructors: Instructor[] = [
           {
             id: 'test-instructor-001',
             user_id: 'test-instructor-001',
@@ -178,54 +160,31 @@ export default function ConversationCreator({
           }
         ];
         setInstructors(testInstructors);
-      }
+        console.log('✅ Test instructors loaded:', testInstructors.length);
     } catch (error) {
-      console.log('Database access issue, using test instructors');
-      // Use test data when database access fails
-      const testInstructors: Instructor[] = [
-        {
-          id: 'test-instructor-001',
-          user_id: 'test-instructor-001',
-          business_name: "Sarah's Yoga Studio",
-          verified: true,
-          user_profiles: {
-            first_name: 'Sarah',
-            last_name: 'Johnson',
-            avatar_url: undefined
-          }
-        },
-        {
-          id: 'test-instructor-002',
-          user_id: 'test-instructor-002',
-          business_name: "Mike's Fitness Training",
-          verified: true,
-          user_profiles: {
-            first_name: 'Mike',
-            last_name: 'Chen',
-            avatar_url: undefined
-          }
-        },
-        {
-          id: 'test-instructor-003',
-          user_id: 'test-instructor-003',
-          business_name: "Vancouver Dance Academy",
-          verified: true,
-          user_profiles: {
-            first_name: 'Lisa',
-            last_name: 'Rodriguez',
-            avatar_url: undefined
-          }
-        }
-      ];
-      setInstructors(testInstructors);
+      console.error('Error loading instructors:', error);
+      setInstructors([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateConversation = async () => {
-    const currentConversationName = conversationName.trim();
-    if (!selectedInstructor || !currentConversationName || creating) return;
+    // Get value from both state and DOM as backup
+    const stateValue = conversationName.trim();
+    const domValue = inputRef.current?.value?.trim() || '';
+    const currentConversationName = stateValue || domValue;
+
+    console.log('🎯 Create conversation - values:', {stateValue, domValue, currentConversationName});
+
+    if (!selectedInstructor || !currentConversationName || creating) {
+      console.log('🎯 Create conversation blocked:', {
+        hasInstructor: !!selectedInstructor,
+        hasName: !!currentConversationName,
+        creating
+      });
+      return;
+    }
 
     try {
       setCreating(true);
@@ -430,6 +389,7 @@ export default function ConversationCreator({
               </label>
               <div className="space-y-2">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={conversationName}
                   onChange={(e) => {
@@ -443,11 +403,37 @@ export default function ConversationCreator({
                     setConversationName(newValue);
                     setHasUserEditedName(true); // Mark that user has manually edited
                   }}
-                  onFocus={() => console.log('🎯 Input focused, current value:', conversationName)}
-                  onBlur={() => console.log('🎯 Input blurred, current value:', conversationName)}
+                  onFocus={() => {
+                    console.log('🎯 Input focused, current value:', conversationName);
+                    console.log('🎯 Input DOM value:', inputRef.current?.value);
+                  }}
+                  onBlur={() => {
+                    console.log('🎯 Input blurred, current value:', conversationName);
+                    console.log('🎯 Input DOM value:', inputRef.current?.value);
+                  }}
+                  onKeyDown={(e) => {
+                    console.log('🎯 Key pressed:', e.key);
+                    // Force update with DOM value as fallback
+                    setTimeout(() => {
+                      const domValue = inputRef.current?.value || '';
+                      if (domValue !== conversationName) {
+                        console.log('🎯 DOM/State mismatch detected, syncing:', {domValue, conversationName});
+                        setConversationName(domValue);
+                      }
+                    }, 0);
+                  }}
+                  onInput={(e) => {
+                    const inputValue = (e.target as HTMLInputElement).value;
+                    console.log('🎯 Input event:', inputValue);
+                    // Force sync with state
+                    if (inputValue !== conversationName) {
+                      setConversationName(inputValue);
+                    }
+                  }}
                   placeholder="Enter conversation name..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm relative z-10"
                   autoComplete="off"
+                  style={{ position: 'relative', zIndex: 10 }}
                 />
                 <p className="text-xs text-gray-500">
                   Debug: "{conversationName}" | Edited: {hasUserEditedName ? 'Yes' : 'No'}
