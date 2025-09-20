@@ -74,6 +74,45 @@ class SimpleMessagingService {
   // Get messages for a specific conversation
   async getMessages(conversationId: string): Promise<SimpleMessage[]> {
     try {
+      // Handle demo conversations
+      if (conversationId.startsWith('demo-conversation-')) {
+        console.log('Returning mock messages for demo conversation:', conversationId);
+        return [
+          {
+            id: 'demo-message-1',
+            conversation_id: conversationId,
+            sender_id: 'test-instructor-001',
+            content: 'Hi! Thanks for reaching out. I\'m excited to work with you on your fitness journey.',
+            created_at: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
+            read: true
+          },
+          {
+            id: 'demo-message-2',
+            conversation_id: conversationId,
+            sender_id: 'test-instructor-001',
+            content: 'What kind of classes are you most interested in? I offer both group sessions and private training.',
+            created_at: new Date(Date.now() - 240000).toISOString(), // 4 minutes ago
+            read: true
+          },
+          {
+            id: 'demo-message-3',
+            conversation_id: conversationId,
+            sender_id: 'demo-studio-user',
+            content: 'That sounds great! I\'m particularly interested in your yoga classes. Do you have any beginner-friendly options?',
+            created_at: new Date(Date.now() - 180000).toISOString(), // 3 minutes ago
+            read: true
+          },
+          {
+            id: 'demo-message-4',
+            conversation_id: conversationId,
+            sender_id: 'test-instructor-001',
+            content: 'Absolutely! I have a perfect Hatha Yoga class for beginners every Tuesday and Thursday at 6 PM. It focuses on basic poses and breathing techniques.',
+            created_at: new Date(Date.now() - 120000).toISOString(), // 2 minutes ago
+            read: true
+          }
+        ];
+      }
+
       const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
@@ -99,6 +138,25 @@ class SimpleMessagingService {
     name: string;
   }>): Promise<SimpleMessage | null> {
     try {
+      // Handle demo conversations
+      if (conversationId.startsWith('demo-conversation-')) {
+        console.log('Simulating message send for demo conversation:', conversationId);
+        const mockMessage: SimpleMessage = {
+          id: `demo-message-${Date.now()}`,
+          conversation_id: conversationId,
+          sender_id: 'demo-studio-user',
+          content,
+          attachments: attachments || [],
+          created_at: new Date().toISOString(),
+          read: false
+        };
+
+        // Simulate a brief delay to make it feel realistic
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        return mockMessage;
+      }
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
         console.error('No authenticated user');

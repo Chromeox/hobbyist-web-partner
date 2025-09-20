@@ -166,7 +166,14 @@ export default function MessagesCenter() {
 
     try {
       setSending(true);
-      await simpleMessagingService.sendMessage(selectedConversation.id, newMessage);
+      const sentMessage = await simpleMessagingService.sendMessage(selectedConversation.id, newMessage);
+
+      // For demo conversations, add the message to local state immediately
+      if (selectedConversation.id.startsWith('demo-conversation-') && sentMessage) {
+        setMessages(prev => [...prev, sentMessage]);
+        console.log('Added demo message to local state:', sentMessage);
+      }
+
       setNewMessage('');
 
       // Stop typing indicator
@@ -472,7 +479,7 @@ export default function MessagesCenter() {
                       }
                     }}
                     placeholder="Type a message..."
-                    className="w-full px-4 py-2.5 bg-gray-100 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="w-full px-4 py-2.5 bg-gray-100 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 placeholder-gray-500"
                     rows={1}
                   />
                   <button className="absolute right-2 bottom-2">
