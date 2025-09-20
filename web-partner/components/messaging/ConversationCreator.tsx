@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   MessageSquare,
@@ -64,12 +64,23 @@ export default function ConversationCreator({
   const handleDemoAuth = async () => {
     setAuthChecking(true);
 
-    // Simple bypass for demo mode - set both flags
-    setIsAuthenticated(true);
-    setIsDemoMode(true);
-    alert('Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass. In production, real authentication will be used.');
+    try {
+      // Wait a moment to simulate authentication
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-    setAuthChecking(false);
+      // Simple bypass for demo mode - set both flags
+      setIsAuthenticated(true);
+      setIsDemoMode(true);
+
+      alert('✅ Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass. In production, real authentication will be used.');
+
+      console.log('Demo mode flags set:', { isAuthenticated: true, isDemoMode: true });
+    } catch (error) {
+      console.error('Demo auth error:', error);
+      alert('Demo authentication failed. Please try again.');
+    } finally {
+      setAuthChecking(false);
+    }
   };
 
   // Auto-generate conversation name when instructor is selected (only if user hasn't edited)
@@ -77,7 +88,8 @@ export default function ConversationCreator({
     if (selectedInstructor && !hasUserEditedName) {
       const name = selectedInstructor.business_name ||
                    `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`;
-      setConversationName(`Chat with ${name}`);
+      const generatedName = `Chat with ${name}`;
+      setConversationName(generatedName);
     }
   }, [selectedInstructor, hasUserEditedName]);
 
@@ -189,15 +201,28 @@ export default function ConversationCreator({
   };
 
   const handleCreateConversation = async () => {
-    if (!selectedInstructor || !conversationName.trim() || creating) return;
+    const currentConversationName = conversationName.trim();
+    if (!selectedInstructor || !currentConversationName || creating) return;
 
     try {
       setCreating(true);
 
+      console.log('handleCreateConversation - Current state:', {
+        isDemoMode,
+        isAuthenticated,
+        selectedInstructor: selectedInstructor?.id,
+        currentConversationName,
+        creating
+      });
+
       if (isDemoMode) {
+        console.log('Executing demo mode conversation creation...');
+
         // Demo mode - just show success without real creation
-        alert(`✅ Demo Success!\n\nWould create conversation: "${conversationName.trim()}"\nWith instructor: ${selectedInstructor.business_name}\n\nIn production, this would create a real conversation in the database.`);
-        onClose();
+        const successMessage = `✅ Demo Success!\n\nConversation created: "${currentConversationName}"\nWith instructor: ${selectedInstructor.business_name || `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`}\n\nIn production, this would create a real conversation in the database.`;
+
+        alert(successMessage);
+        console.log('Demo success alert shown');
 
         // Reset form
         setSelectedInstructor(null);
@@ -205,11 +230,15 @@ export default function ConversationCreator({
         setSearchTerm('');
         setHasUserEditedName(false);
         setIsDemoMode(false);
+
+        onClose();
+        console.log('Demo mode: Form reset and modal closed');
+        return;
       } else if (isAuthenticated) {
         // Use real messaging service if authenticated
         const conversation = await simpleMessagingService.createConversation(
           selectedInstructor.id,
-          conversationName.trim()
+          currentConversationName
         );
 
         if (conversation && conversation.id) {
@@ -377,14 +406,11 @@ export default function ConversationCreator({
               </label>
               <div className="space-y-2">
                 <input
-                  key={`conversation-input-${selectedInstructor?.id || 'none'}`}
                   type="text"
-                  value={conversationName || ''}
+                  value={conversationName}
                   onChange={(e) => {
                     const newValue = e.target.value;
                     console.log('Conversation name changed:', newValue);
-                    console.log('Current conversationName state:', conversationName);
-                    console.log('hasUserEditedName:', hasUserEditedName);
                     setConversationName(newValue);
                     setHasUserEditedName(true); // Mark that user has manually edited
                   }}
@@ -410,9 +436,9 @@ export default function ConversationCreator({
           </button>
           <button
             onClick={handleCreateConversation}
-            disabled={!selectedInstructor || !conversationName.trim() || creating || !isAuthenticated}
+            disabled={!selectedInstructor || !conversationName.trim() || creating || (!isAuthenticated && !isDemoMode)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              selectedInstructor && conversationName.trim() && !creating && isAuthenticated
+              selectedInstructor && conversationName.trim() && !creating && (isAuthenticated || isDemoMode)
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
