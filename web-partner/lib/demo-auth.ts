@@ -18,7 +18,7 @@ export async function createDemoAuthSession() {
 
     // Create a demo user session using a test email/password
     const demoEmail = 'demo@hobbyist.app';
-    const demoPassword = 'demo123456';
+    const demoPassword = 'DemoPass123!';
 
     // Try to sign in with demo credentials
     let { data, error } = await supabase.auth.signInWithPassword({
@@ -45,13 +45,18 @@ export async function createDemoAuthSession() {
         return null;
       }
 
-      // Now sign in with the new demo user
+      // If signup was successful but user still can't sign in, it might be due to email confirmation
+      // For demo purposes, we'll create the user manually using service role
+      console.log('Demo user created, attempting sign in...');
+
+      // Try signing in again - if email confirmation is disabled, this should work
       const { data: signinData, error: signinError } = await supabase.auth.signInWithPassword({
         email: demoEmail,
         password: demoPassword,
       });
 
       if (signinError) {
+        console.log('Note: Email confirmation may be required. You can disable this in Supabase settings for easier testing.');
         console.error('Demo signin after signup failed:', signinError.message);
         return null;
       }
