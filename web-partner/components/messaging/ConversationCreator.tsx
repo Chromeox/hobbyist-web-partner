@@ -10,7 +10,7 @@ import {
   X,
   Check
 } from 'lucide-react';
-import { messagingService } from '@/lib/services/messaging';
+import { simpleMessagingService } from '@/lib/services/messaging-simple';
 import { supabase } from '@/lib/supabase';
 
 interface Instructor {
@@ -92,7 +92,7 @@ export default function ConversationCreator({
 
     try {
       setCreating(true);
-      const conversation = await messagingService.createConversation(
+      const conversation = await simpleMessagingService.createConversation(
         selectedInstructor.id,
         conversationName.trim()
       );

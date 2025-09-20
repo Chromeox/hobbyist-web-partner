@@ -30,15 +30,15 @@ import {
   Plus
 } from 'lucide-react';
 
-import { messagingService, ConversationWithDetails, MessageWithSender } from '@/lib/services/messaging';
+import { simpleMessagingService, SimpleConversation, SimpleMessage } from '@/lib/services/messaging-simple';
 import ConversationCreator from '@/components/messaging/ConversationCreator';
 import { useSearchParams } from 'next/navigation';
 
 export default function MessagesCenter() {
   const searchParams = useSearchParams();
-  const [conversations, setConversations] = useState<ConversationWithDetails[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<ConversationWithDetails | null>(null);
-  const [messages, setMessages] = useState<MessageWithSender[]>([]);
+  const [conversations, setConversations] = useState<SimpleConversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<SimpleConversation | null>(null);
+  const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -59,13 +59,13 @@ export default function MessagesCenter() {
     loadConversations();
 
     // Subscribe to real-time conversation updates
-    const unsubscribe = messagingService.subscribeToConversations((updatedConversations) => {
+    const unsubscribe = simpleMessagingService.subscribeToConversations((updatedConversations) => {
       setConversations(updatedConversations);
     });
 
     return () => {
       unsubscribe();
-      messagingService.cleanup();
+      simpleMessagingService.cleanup();
     };
   }, []);
 
@@ -76,12 +76,12 @@ export default function MessagesCenter() {
       markAsRead(selectedConversation.id);
 
       // Subscribe to real-time message updates
-      const unsubscribe = messagingService.subscribeToMessages(selectedConversation.id, (updatedMessages) => {
+      const unsubscribe = simpleMessagingService.subscribeToMessages(selectedConversation.id, (updatedMessages) => {
         setMessages(updatedMessages);
       });
 
       // Subscribe to typing indicators
-      const unsubscribeTyping = messagingService.subscribeToTyping(selectedConversation.id, (data) => {
+      const unsubscribeTyping = simpleMessagingService.subscribeToTyping(selectedConversation.id, (data) => {
         setTypingUsers(prev => {
           const newSet = new Set(prev);
           if (data.is_typing) {
@@ -103,7 +103,7 @@ export default function MessagesCenter() {
   const loadConversations = async () => {
     try {
       setLoading(true);
-      const data = await messagingService.getConversations();
+      const data = await simpleMessagingService.getConversations();
       setConversations(data);
 
       // Check if we should select a specific conversation from URL params
@@ -126,7 +126,7 @@ export default function MessagesCenter() {
 
   const loadMessages = async (conversationId: string) => {
     try {
-      const data = await messagingService.getMessages(conversationId);
+      const data = await simpleMessagingService.getMessages(conversationId);
       setMessages(data);
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -135,7 +135,7 @@ export default function MessagesCenter() {
 
   const markAsRead = async (conversationId: string) => {
     try {
-      await messagingService.markMessagesAsRead(conversationId);
+      await simpleMessagingService.markMessagesAsRead(conversationId);
     } catch (error) {
       console.error('Failed to mark messages as read:', error);
     }
@@ -166,13 +166,13 @@ export default function MessagesCenter() {
 
     try {
       setSending(true);
-      await messagingService.sendMessage(selectedConversation.id, newMessage);
+      await simpleMessagingService.sendMessage(selectedConversation.id, newMessage);
       setNewMessage('');
 
       // Stop typing indicator
       if (isTyping) {
         setIsTyping(false);
-        await messagingService.sendTypingIndicator(selectedConversation.id, false);
+        await simpleMessagingService.sendTypingIndicator(selectedConversation.id, false);
       }
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -192,7 +192,7 @@ export default function MessagesCenter() {
 
     if (wasTyping !== nowTyping) {
       setIsTyping(nowTyping);
-      await messagingService.sendTypingIndicator(selectedConversation.id, nowTyping);
+      await simpleMessagingService.sendTypingIndicator(selectedConversation.id, nowTyping);
     }
   };
 
