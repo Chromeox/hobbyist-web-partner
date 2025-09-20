@@ -20,9 +20,13 @@ export async function GET(request: NextRequest) {
       ? 'https://connect.squareup.com'
       : 'https://connect.squareupsandbox.com';
 
+    // Construct redirect URI dynamically
+    const redirectUri = new URL('/api/auth/square/callback', request.url).toString();
+
     const authUrl = new URL(`${baseUrl}/oauth2/authorize`);
     authUrl.searchParams.set('client_id', applicationId);
     authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('redirect_uri', redirectUri);
     authUrl.searchParams.set('scope', 'APPOINTMENTS_READ APPOINTMENTS_WRITE CUSTOMERS_READ CUSTOMERS_WRITE PAYMENTS_READ');
     authUrl.searchParams.set('state', state);
 

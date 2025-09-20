@@ -14,6 +14,7 @@ import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 interface FormState {
   email: string
   password: string
+  rememberMe: boolean
   isLoading: boolean
   error: string | null
 }
@@ -23,33 +24,49 @@ export const SignInForm = memo(function SignInForm() {
   const searchParams = useSearchParams()
   const { signIn, signInWithOAuth } = useAuthContext()
   
-  const [state, setState] = useState<FormState>({
-    email: '',
-    password: '',
-    isLoading: false,
-    error: null
+  const [state, setState] = useState<FormState>(() => {
+    // Check if we should remember credentials
+    const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('hobbyist_remember_email') : null
+    const rememberMe = typeof window !== 'undefined' ? localStorage.getItem('hobbyist_remember_me') === 'true' : false
+
+    return {
+      email: savedEmail || '',
+      password: '',
+      rememberMe,
+      isLoading: false,
+      error: null
+    }
   })
 
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     const { error } = await signIn(state.email, state.password)
 
     if (error) {
-      setState(prev => ({ 
-        ...prev, 
-        isLoading: false, 
-        error: error.message 
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error.message
       }))
     } else {
+      // Save remember me preferences
+      if (state.rememberMe) {
+        localStorage.setItem('hobbyist_remember_email', state.email)
+        localStorage.setItem('hobbyist_remember_me', 'true')
+      } else {
+        localStorage.removeItem('hobbyist_remember_email')
+        localStorage.removeItem('hobbyist_remember_me')
+      }
+
       // Redirect to return URL or dashboard
       router.push(decodeURIComponent(returnUrl))
     }
-  }, [state.email, state.password, signIn, router, returnUrl])
+  }, [state.email, state.password, state.rememberMe, signIn, router, returnUrl])
 
   const handleOAuthSignIn = useCallback(async (
     provider: 'google' | 'apple' | 'facebook'
@@ -81,6 +98,13 @@ export const SignInForm = memo(function SignInForm() {
       ...prev,
       password: e.target.value,
       error: null
+    }))
+  }, [])
+
+  const handleRememberMeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setState(prev => ({
+      ...prev,
+      rememberMe: e.target.checked
     }))
   }, [])
 
@@ -148,9 +172,12 @@ export const SignInForm = memo(function SignInForm() {
             <label className="flex items-center">
               <input
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                checked={state.rememberMe}
+                onChange={handleRememberMeChange}
+                disabled={state.isLoading}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+              <span className="ml-2 text-sm text-gray-600">Keep me signed in</span>
             </label>
             <button
               type="button"
