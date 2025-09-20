@@ -49,18 +49,18 @@ export default function ConversationCreator({
   const [isDemoMode, setIsDemoMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debug logging for state changes
+  // Debug logging for state changes (reduced frequency)
   useEffect(() => {
     console.log('🔍 ConversationCreator State Update:', {
       isOpen,
-      conversationName,
+      conversationName: conversationName.length > 20 ? `${conversationName.substring(0, 20)}...` : conversationName,
       selectedInstructor: selectedInstructor?.id,
       hasUserEditedName,
       isAuthenticated,
       isDemoMode,
       creating
     });
-  }, [isOpen, conversationName, selectedInstructor, hasUserEditedName, isAuthenticated, isDemoMode, creating]);
+  }, [isOpen, selectedInstructor, hasUserEditedName, isAuthenticated, isDemoMode, creating]); // Removed conversationName to reduce spam
 
   // Load instructors and check auth when modal opens
   useEffect(() => {
@@ -394,12 +394,7 @@ export default function ConversationCreator({
                   value={conversationName}
                   onChange={(e) => {
                     const newValue = e.target.value;
-                    console.log('🎯 Input onChange:', {
-                      newValue,
-                      currentState: conversationName,
-                      target: e.target.value,
-                      hasUserEditedName
-                    });
+                    console.log('🎯 Input onChange:', newValue);
                     setConversationName(newValue);
                     setHasUserEditedName(true); // Mark that user has manually edited
                   }}
@@ -413,22 +408,6 @@ export default function ConversationCreator({
                   }}
                   onKeyDown={(e) => {
                     console.log('🎯 Key pressed:', e.key);
-                    // Force update with DOM value as fallback
-                    setTimeout(() => {
-                      const domValue = inputRef.current?.value || '';
-                      if (domValue !== conversationName) {
-                        console.log('🎯 DOM/State mismatch detected, syncing:', {domValue, conversationName});
-                        setConversationName(domValue);
-                      }
-                    }, 0);
-                  }}
-                  onInput={(e) => {
-                    const inputValue = (e.target as HTMLInputElement).value;
-                    console.log('🎯 Input event:', inputValue);
-                    // Force sync with state
-                    if (inputValue !== conversationName) {
-                      setConversationName(inputValue);
-                    }
                   }}
                   placeholder="Enter conversation name..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm relative z-10"
