@@ -26,6 +26,7 @@ import {
   MapPin,
   Hash
 } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 
 interface Student {
   id: string;
@@ -141,6 +142,7 @@ export default function StudentManagement() {
 
   return (
     <div className="space-y-6">
+      <BackButton href="/dashboard" className="mb-4" />
       {/* Header with Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

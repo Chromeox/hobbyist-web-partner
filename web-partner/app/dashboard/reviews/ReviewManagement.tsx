@@ -30,6 +30,7 @@ import {
   SortAsc,
   SortDesc
 } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 import RatingStars from './RatingStars';
 import ReviewModal, { ReviewSubmissionData } from './ReviewModal';
 
@@ -460,6 +461,7 @@ const ReviewManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <BackButton href="/dashboard" className="mb-4" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

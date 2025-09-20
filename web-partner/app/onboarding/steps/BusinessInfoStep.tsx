@@ -23,10 +23,10 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
       city: data.address?.city || '',
       state: data.address?.state || '',
       zipCode: data.address?.zipCode || '',
-      country: data.address?.country || 'US'
+      country: data.address?.country || 'CA'
     },
     yearEstablished: data.yearEstablished || '',
-    numberOfEmployees: data.numberOfEmployees || ''
+    numberOfEmployees: data.numberOfEmployees || '1'
   });
 
   const [errors, setErrors] = useState<any>({});

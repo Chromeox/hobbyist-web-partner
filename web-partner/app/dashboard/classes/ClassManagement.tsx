@@ -30,6 +30,7 @@ import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
 import InstructorAssignment from './InstructorAssignment';
 import RecurringTemplates from './RecurringTemplates';
+import BackButton from '@/components/common/BackButton';
 import type { Class } from '../../../types/class-management';
 
 // Mock data - in production this would come from API
@@ -330,6 +331,7 @@ export default function ClassManagement() {
 
   return (
     <div className="space-y-6">
+      <BackButton href="/dashboard" className="mb-4" />
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

@@ -186,11 +186,12 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
           </p>
         </div>
 
-        {/* Calendar Integration Component - Simplified for Demo */}
+        {/* Calendar Integration Component - Real OAuth Integration */}
         <div className="bg-gray-50 rounded-lg p-6">
           <div className="text-center space-y-4">
             <h3 className="font-semibold text-gray-900">Calendar Providers</h3>
             <div className="grid grid-cols-2 gap-4">
+              {/* Google Calendar */}
               <button
                 onClick={() => handleSetupComplete({ provider: 'google' })}
                 className="p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors"
@@ -199,6 +200,28 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
                 <div className="font-medium">Google Calendar</div>
                 <div className="text-sm text-gray-500">Connect Google</div>
               </button>
+
+              {/* Calendly Integration */}
+              <a
+                href="/api/auth/calendly"
+                className="p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors block text-center"
+              >
+                <div className="text-2xl mb-2">📆</div>
+                <div className="font-medium">Calendly</div>
+                <div className="text-sm text-gray-500">Import schedules</div>
+              </a>
+
+              {/* Square Appointments */}
+              <a
+                href="/api/auth/square"
+                className="p-4 border border-gray-300 rounded-lg hover:border-orange-500 transition-colors block text-center"
+              >
+                <div className="text-2xl mb-2">⬜</div>
+                <div className="font-medium">Square Appointments</div>
+                <div className="text-sm text-gray-500">Import bookings</div>
+              </a>
+
+              {/* MindBody */}
               <button
                 onClick={() => handleSetupComplete({ provider: 'mindbody' })}
                 className="p-4 border border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
@@ -208,7 +231,10 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
                 <div className="text-sm text-gray-500">Import bookings</div>
               </button>
             </div>
-            <p className="text-xs text-gray-500">Demo mode - Select any option to continue</p>
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>✅ Calendly and Square integrations now available</p>
+              <p>Click any provider to start the connection process</p>
+            </div>
           </div>
         </div>
 

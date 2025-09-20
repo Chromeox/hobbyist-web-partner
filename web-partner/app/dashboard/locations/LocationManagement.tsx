@@ -21,8 +21,10 @@ import {
   TrendingUp,
   Star,
   Copy,
-  Globe
+  Globe,
+  X
 } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 
 interface StudioLocation {
   id: string;
@@ -283,19 +285,19 @@ export default function LocationManagement() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <Phone className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-300">{selectedLocation.phone}</span>
+                        <span className="text-gray-900">{selectedLocation.phone}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Mail className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-300">{selectedLocation.email}</span>
+                        <span className="text-gray-900">{selectedLocation.email}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Globe className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-300">{selectedLocation.timezone}</span>
+                        <span className="text-gray-900">{selectedLocation.timezone}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Users className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-300">Capacity: {selectedLocation.capacity} students</span>
+                        <span className="text-gray-900">Capacity: {selectedLocation.capacity} students</span>
                       </div>
                     </div>
                   </div>
@@ -316,11 +318,11 @@ export default function LocationManagement() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4">Operating Hours</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Operating Hours</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Object.entries(selectedLocation.operatingHours).map(([day, hours]) => (
                       <div key={day} className="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
-                        <span className="text-gray-300 capitalize">{day}</span>
+                        <span className="text-gray-900 capitalize">{day}</span>
                         <span className="text-gray-900">
                           {hours.closed ? 'Closed' : `${hours.open} - ${hours.close}`}
                         </span>
@@ -330,7 +332,7 @@ export default function LocationManagement() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4">Performance Metrics</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-400">
@@ -364,7 +366,7 @@ export default function LocationManagement() {
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4">Location Settings</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Settings</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
                       <div>
@@ -418,6 +420,7 @@ export default function LocationManagement() {
   return (
     <div className="p-6">
       <div className="mb-8">
+        <BackButton href="/dashboard" className="mb-4" />
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Location Management</h1>

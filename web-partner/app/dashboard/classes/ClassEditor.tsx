@@ -87,9 +87,9 @@ export default function ClassEditor({ onClose, class: classData, onSave }: Class
   const [formData, setFormData] = useState<ClassData>({
     name: '',
     description: '',
-    instructor: '',
-    instructorId: '',
-    category: '',
+    instructor: instructors[0]?.name || '',
+    instructorId: instructors[0]?.id || '',
+    category: categories[0] || '',
     level: 'beginner',
     duration: 60,
     capacity: 8,
@@ -97,7 +97,7 @@ export default function ClassEditor({ onClose, class: classData, onSave }: Class
     creditCost: 1,
     image: '',
     tags: [],
-    location: '',
+    location: locations[0] || '',
     status: 'draft',
     recurring: {
       enabled: false,
