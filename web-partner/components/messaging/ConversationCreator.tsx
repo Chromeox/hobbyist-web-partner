@@ -438,6 +438,11 @@ export default function ConversationCreator({
                   <div className="p-2 bg-blue-100 border border-blue-300 rounded text-xs">
                     <strong>Char Count:</strong> {conversationName.length} characters
                   </div>
+                  <div className="p-2 bg-purple-100 border border-purple-300 rounded text-xs">
+                    <strong>Button State:</strong> {(!selectedInstructor || !conversationName.trim() || creating || (!isAuthenticated && !isDemoMode)) ? '🔒 DISABLED' : '✅ ENABLED'}
+                    <br />
+                    <span className="text-xs">Auth: {isAuthenticated ? '✅' : '❌'} | Demo: {isDemoMode ? '✅' : '❌'} | Instructor: {selectedInstructor ? '✅' : '❌'} | Name: {conversationName.trim() ? '✅' : '❌'}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -453,7 +458,18 @@ export default function ConversationCreator({
             Cancel
           </button>
           <button
-            onClick={handleCreateConversation}
+            onClick={(e) => {
+              console.log('🎯 Button clicked!', {
+                selectedInstructor: !!selectedInstructor,
+                conversationName: conversationName,
+                conversationNameTrimmed: conversationName.trim(),
+                creating,
+                isAuthenticated,
+                isDemoMode,
+                buttonDisabled: !selectedInstructor || !conversationName.trim() || creating || (!isAuthenticated && !isDemoMode)
+              });
+              handleCreateConversation();
+            }}
             disabled={!selectedInstructor || !conversationName.trim() || creating || (!isAuthenticated && !isDemoMode)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               selectedInstructor && conversationName.trim() && !creating && (isAuthenticated || isDemoMode)
