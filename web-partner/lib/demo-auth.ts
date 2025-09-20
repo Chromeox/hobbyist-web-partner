@@ -16,16 +16,54 @@ export async function createDemoAuthSession() {
       return user.user;
     }
 
-    // Create a demo user session using anonymous sign-in
-    const { data, error } = await supabase.auth.signInAnonymously();
+    // Create a demo user session using a test email/password
+    const demoEmail = 'demo@hobbyist.app';
+    const demoPassword = 'demo123456';
 
-    if (error) {
+    // Try to sign in with demo credentials
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email: demoEmail,
+      password: demoPassword,
+    });
+
+    if (error && error.message.includes('Invalid login credentials')) {
+      // Demo user doesn't exist, create it
+      console.log('Creating demo user...');
+      const { data: signupData, error: signupError } = await supabase.auth.signUp({
+        email: demoEmail,
+        password: demoPassword,
+        options: {
+          data: {
+            full_name: 'Demo Studio User',
+            user_type: 'studio'
+          }
+        }
+      });
+
+      if (signupError) {
+        console.error('Demo user creation failed:', signupError.message);
+        return null;
+      }
+
+      // Now sign in with the new demo user
+      const { data: signinData, error: signinError } = await supabase.auth.signInWithPassword({
+        email: demoEmail,
+        password: demoPassword,
+      });
+
+      if (signinError) {
+        console.error('Demo signin after signup failed:', signinError.message);
+        return null;
+      }
+
+      data = signinData;
+    } else if (error) {
       console.error('Demo auth failed:', error.message);
       return null;
     }
 
     if (data.user) {
-      console.log('Demo authentication successful:', data.user.id);
+      console.log('Demo authentication successful:', data.user.email);
       return data.user;
     }
 
@@ -48,10 +86,11 @@ export async function signOutDemo() {
 export async function getDemoAuthStatus() {
   try {
     const { data: user } = await supabase.auth.getUser();
+    const isDemo = user.user?.email === 'demo@hobbyist.app';
     return {
       isAuthenticated: !!user.user,
       user: user.user,
-      isDemo: user.user?.is_anonymous || false
+      isDemo: isDemo
     };
   } catch (error) {
     console.error('Auth status error:', error);
