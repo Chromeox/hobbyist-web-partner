@@ -46,6 +46,7 @@ export default function ConversationCreator({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecking, setAuthChecking] = useState(false);
   const [hasUserEditedName, setHasUserEditedName] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Load instructors and check auth when modal opens
   useEffect(() => {
@@ -63,9 +64,9 @@ export default function ConversationCreator({
   const handleDemoAuth = async () => {
     setAuthChecking(true);
 
-    // Simple bypass for demo mode - just set authenticated to true
-    // This bypasses Supabase auth issues for immediate testing
+    // Simple bypass for demo mode - set both flags
     setIsAuthenticated(true);
+    setIsDemoMode(true);
     alert('Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass. In production, real authentication will be used.');
 
     setAuthChecking(false);
@@ -193,7 +194,18 @@ export default function ConversationCreator({
     try {
       setCreating(true);
 
-      if (isAuthenticated) {
+      if (isDemoMode) {
+        // Demo mode - just show success without real creation
+        alert(`✅ Demo Success!\n\nWould create conversation: "${conversationName.trim()}"\nWith instructor: ${selectedInstructor.business_name}\n\nIn production, this would create a real conversation in the database.`);
+        onClose();
+
+        // Reset form
+        setSelectedInstructor(null);
+        setConversationName('');
+        setSearchTerm('');
+        setHasUserEditedName(false);
+        setIsDemoMode(false);
+      } else if (isAuthenticated) {
         // Use real messaging service if authenticated
         const conversation = await simpleMessagingService.createConversation(
           selectedInstructor.id,
@@ -214,15 +226,8 @@ export default function ConversationCreator({
           alert('Failed to create conversation. The messaging system requires database setup.');
         }
       } else {
-        // Demo mode - just show success without real creation
-        alert(`Demo: Would create conversation "${conversationName.trim()}" with ${selectedInstructor.business_name}.\n\nIn production, this would create a real conversation in the database.`);
-        onClose();
-
-        // Reset form
-        setSelectedInstructor(null);
-        setConversationName('');
-        setSearchTerm('');
-        setHasUserEditedName(false);
+        // Not authenticated and not demo mode
+        alert('Please sign in to create conversations.');
       }
     } catch (error) {
       console.error('Failed to create conversation:', error);
@@ -372,13 +377,15 @@ export default function ConversationCreator({
               </label>
               <div className="space-y-2">
                 <input
+                  key={`conversation-input-${selectedInstructor?.id || 'none'}`}
                   type="text"
-                  value={conversationName}
+                  value={conversationName || ''}
                   onChange={(e) => {
-                    console.log('Conversation name changed:', e.target.value);
+                    const newValue = e.target.value;
+                    console.log('Conversation name changed:', newValue);
                     console.log('Current conversationName state:', conversationName);
                     console.log('hasUserEditedName:', hasUserEditedName);
-                    setConversationName(e.target.value);
+                    setConversationName(newValue);
                     setHasUserEditedName(true); // Mark that user has manually edited
                   }}
                   placeholder="Enter conversation name..."
