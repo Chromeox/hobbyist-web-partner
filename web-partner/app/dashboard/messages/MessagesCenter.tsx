@@ -26,145 +26,120 @@ import {
   Image as ImageIcon,
   File,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Plus
 } from 'lucide-react';
 
-interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderAvatar?: string;
-  content: string;
-  timestamp: string;
-  read: boolean;
-  delivered: boolean;
-  attachments?: Array<{
-    type: 'image' | 'file';
-    url: string;
-    name: string;
-  }>;
-}
-
-interface Conversation {
-  id: string;
-  type: 'individual' | 'group';
-  name: string;
-  avatar?: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  participants: Array<{
-    id: string;
-    name: string;
-    avatar?: string;
-  }>;
-  muted: boolean;
-  archived: boolean;
-}
-
-// Mock data
-const mockConversations: Conversation[] = [
-  {
-    id: '1',
-    type: 'individual',
-    name: 'Emma Thompson',
-    lastMessage: 'Thanks for the great class today!',
-    lastMessageTime: '2 min ago',
-    unreadCount: 2,
-    participants: [
-      { id: '1', name: 'Emma Thompson' }
-    ],
-    muted: false,
-    archived: false
-  },
-  {
-    id: '2',
-    type: 'group',
-    name: 'Morning Yoga Class',
-    lastMessage: 'Sarah: See you all tomorrow at 7am!',
-    lastMessageTime: '1 hour ago',
-    unreadCount: 0,
-    participants: [
-      { id: '2', name: 'Sarah Johnson' },
-      { id: '3', name: 'Michael Chen' },
-      { id: '4', name: 'Lisa Wang' }
-    ],
-    muted: false,
-    archived: false
-  },
-  {
-    id: '3',
-    type: 'individual',
-    name: 'Michael Chen',
-    lastMessage: 'Can I reschedule my session?',
-    lastMessageTime: '3 hours ago',
-    unreadCount: 1,
-    participants: [
-      { id: '3', name: 'Michael Chen' }
-    ],
-    muted: false,
-    archived: false
-  }
-];
-
-const mockMessages: Message[] = [
-  {
-    id: '1',
-    conversationId: '1',
-    senderId: '1',
-    senderName: 'Emma Thompson',
-    content: 'Hi! I really enjoyed the yoga class this morning.',
-    timestamp: '10:30 AM',
-    read: true,
-    delivered: true
-  },
-  {
-    id: '2',
-    conversationId: '1',
-    senderId: 'self',
-    senderName: 'You',
-    content: 'Thank you Emma! I\'m glad you enjoyed it. How are you feeling?',
-    timestamp: '10:32 AM',
-    read: true,
-    delivered: true
-  },
-  {
-    id: '3',
-    conversationId: '1',
-    senderId: '1',
-    senderName: 'Emma Thompson',
-    content: 'Much better! The stretches really helped with my back pain.',
-    timestamp: '10:35 AM',
-    read: true,
-    delivered: true
-  },
-  {
-    id: '4',
-    conversationId: '1',
-    senderId: '1',
-    senderName: 'Emma Thompson',
-    content: 'Thanks for the great class today!',
-    timestamp: '10:38 AM',
-    read: false,
-    delivered: true
-  }
-];
+import { messagingService, ConversationWithDetails, MessageWithSender } from '@/lib/services/messaging';
+import ConversationCreator from '@/components/messaging/ConversationCreator';
+import { useSearchParams } from 'next/navigation';
 
 export default function MessagesCenter() {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(mockConversations[0]);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const searchParams = useSearchParams();
+  const [conversations, setConversations] = useState<ConversationWithDetails[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationWithDetails | null>(null);
+  const [messages, setMessages] = useState<MessageWithSender[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [showMobileConversation, setShowMobileConversation] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [showConversationCreator, setShowConversationCreator] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Load conversations on component mount
+  useEffect(() => {
+    loadConversations();
+
+    // Subscribe to real-time conversation updates
+    const unsubscribe = messagingService.subscribeToConversations((updatedConversations) => {
+      setConversations(updatedConversations);
+    });
+
+    return () => {
+      unsubscribe();
+      messagingService.cleanup();
+    };
+  }, []);
+
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (selectedConversation) {
+      loadMessages(selectedConversation.id);
+      markAsRead(selectedConversation.id);
+
+      // Subscribe to real-time message updates
+      const unsubscribe = messagingService.subscribeToMessages(selectedConversation.id, (updatedMessages) => {
+        setMessages(updatedMessages);
+      });
+
+      // Subscribe to typing indicators
+      const unsubscribeTyping = messagingService.subscribeToTyping(selectedConversation.id, (data) => {
+        setTypingUsers(prev => {
+          const newSet = new Set(prev);
+          if (data.is_typing) {
+            newSet.add(data.user_id);
+          } else {
+            newSet.delete(data.user_id);
+          }
+          return newSet;
+        });
+      });
+
+      return () => {
+        unsubscribe();
+        unsubscribeTyping();
+      };
+    }
+  }, [selectedConversation]);
+
+  const loadConversations = async () => {
+    try {
+      setLoading(true);
+      const data = await messagingService.getConversations();
+      setConversations(data);
+
+      // Check if we should select a specific conversation from URL params
+      const conversationId = searchParams.get('conversation');
+      if (conversationId && data.length > 0) {
+        const targetConversation = data.find(c => c.id === conversationId);
+        if (targetConversation) {
+          setSelectedConversation(targetConversation);
+          setShowMobileConversation(true);
+        }
+      } else if (data.length > 0 && !selectedConversation) {
+        setSelectedConversation(data[0]);
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMessages = async (conversationId: string) => {
+    try {
+      const data = await messagingService.getMessages(conversationId);
+      setMessages(data);
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
+
+  const markAsRead = async (conversationId: string) => {
+    try {
+      await messagingService.markMessagesAsRead(conversationId);
+    } catch (error) {
+      console.error('Failed to mark messages as read:', error);
+    }
+  };
 
   // Message skeleton loader
   const MessageSkeleton = () => (
@@ -182,34 +157,95 @@ export default function MessagesCenter() {
   // Filter conversations based on search
   const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
+    (conv.last_message && conv.last_message.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Send message handler
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation || sending) return;
 
-    const message: Message = {
-      id: Date.now().toString(),
-      conversationId: selectedConversation.id,
-      senderId: 'self',
-      senderName: 'You',
-      content: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      read: false,
-      delivered: true
-    };
+    try {
+      setSending(true);
+      await messagingService.sendMessage(selectedConversation.id, newMessage);
+      setNewMessage('');
 
-    setMessages([...messages, message]);
-    setNewMessage('');
-
-    // Update conversation last message
-    setConversations(prev => prev.map(conv => 
-      conv.id === selectedConversation.id
-        ? { ...conv, lastMessage: newMessage, lastMessageTime: 'Just now' }
-        : conv
-    ));
+      // Stop typing indicator
+      if (isTyping) {
+        setIsTyping(false);
+        await messagingService.sendTypingIndicator(selectedConversation.id, false);
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setSending(false);
+    }
   };
+
+  // Handle typing indicators
+  const handleTyping = async (value: string) => {
+    setNewMessage(value);
+
+    if (!selectedConversation) return;
+
+    const wasTyping = isTyping;
+    const nowTyping = value.length > 0;
+
+    if (wasTyping !== nowTyping) {
+      setIsTyping(nowTyping);
+      await messagingService.sendTypingIndicator(selectedConversation.id, nowTyping);
+    }
+  };
+
+  // Format timestamp
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Get display name for conversation
+  const getConversationDisplayName = (conv: ConversationWithDetails) => {
+    if (conv.type === 'group') return conv.name;
+    return conv.instructor?.business_name || conv.name;
+  };
+
+  // Get avatar initials
+  const getAvatarInitials = (conv: ConversationWithDetails) => {
+    if (conv.type === 'group') {
+      return <Users className="h-6 w-6" />;
+    }
+    const name = getConversationDisplayName(conv);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  // Get sender display name
+  const getSenderDisplayName = (message: MessageWithSender) => {
+    if (!message.sender) return 'Unknown';
+    const profile = message.sender.user_profiles;
+    return `${profile.first_name} ${profile.last_name}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-[calc(100vh-8rem)] bg-white rounded-xl border">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading conversations...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-white rounded-xl border overflow-hidden">
@@ -219,17 +255,26 @@ export default function MessagesCenter() {
       }`}>
         {/* Search Header */}
         <div className="p-4 border-b bg-white">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
+          <div className="flex items-center gap-2 mb-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+            </div>
+            <button
+              onClick={() => setShowConversationCreator(true)}
+              className="p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              title="Start new conversation"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
           </div>
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2">
             <button className="flex-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50">
               All
             </button>
@@ -237,7 +282,7 @@ export default function MessagesCenter() {
               Unread
             </button>
             <button className="flex-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50">
-              Groups
+              Instructors
             </button>
           </div>
         </div>
@@ -262,35 +307,41 @@ export default function MessagesCenter() {
                 <div className="flex items-start gap-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
-                      {conversation.type === 'group' ? (
-                        <Users className="h-6 w-6" />
-                      ) : (
-                        conversation.name.split(' ').map(n => n[0]).join('')
-                      )}
+                      {getAvatarInitials(conversation)}
                     </div>
                     {conversation.unreadCount > 0 && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        {conversation.unreadCount}
+                        {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="text-sm font-semibold text-gray-900 truncate">
-                        {conversation.name}
+                        {getConversationDisplayName(conversation)}
                       </h3>
                       <span className="text-xs text-gray-500">
-                        {conversation.lastMessageTime}
+                        {conversation.last_message_at ? formatTimestamp(conversation.last_message_at) : ''}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 truncate">
-                      {conversation.lastMessage}
+                      {conversation.last_message || 'No messages yet'}
                     </p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
+
+          {filteredConversations.length === 0 && (
+            <div className="p-8 text-center text-gray-500">
+              <MessageSquare className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-base font-medium">No conversations</p>
+              <p className="text-sm text-gray-400 mt-1">
+                {searchTerm ? 'No conversations match your search' : 'Start by inviting instructors'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -310,20 +361,16 @@ export default function MessagesCenter() {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
-                  {selectedConversation.type === 'group' ? (
-                    <Users className="h-5 w-5" />
-                  ) : (
-                    selectedConversation.name.split(' ').map(n => n[0]).join('')
-                  )}
+                  {getAvatarInitials(selectedConversation)}
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {selectedConversation.name}
+                    {getConversationDisplayName(selectedConversation)}
                   </h3>
                   <p className="text-xs text-gray-500">
-                    {selectedConversation.type === 'group' 
+                    {selectedConversation.type === 'group'
                       ? `${selectedConversation.participants.length} members`
-                      : 'Active now'
+                      : 'Instructor'
                     }
                   </p>
                 </div>
@@ -343,43 +390,43 @@ export default function MessagesCenter() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-              {messages
-                .filter(msg => msg.conversationId === selectedConversation.id)
-                .map((message, index) => (
+              {messages.map((message, index) => {
+                const isOwnMessage = message.sender?.id === selectedConversation.studio_id;
+                return (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className={`flex ${message.senderId === 'self' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex gap-3 max-w-[70%] ${
-                      message.senderId === 'self' ? 'flex-row-reverse' : ''
+                      isOwnMessage ? 'flex-row-reverse' : ''
                     }`}>
-                      {message.senderId !== 'self' && (
+                      {!isOwnMessage && (
                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                          {message.senderName.split(' ').map(n => n[0]).join('')}
+                          {getSenderDisplayName(message).split(' ').map(n => n[0]).join('')}
                         </div>
                       )}
                       <div>
-                        {message.senderId !== 'self' && (
-                          <p className="text-xs text-gray-500 mb-1">{message.senderName}</p>
+                        {!isOwnMessage && (
+                          <p className="text-xs text-gray-500 mb-1">{getSenderDisplayName(message)}</p>
                         )}
                         <div className={`px-4 py-2.5 rounded-2xl ${
-                          message.senderId === 'self'
+                          isOwnMessage
                             ? 'bg-blue-600 text-white'
                             : 'bg-white border'
                         }`}>
                           <p className="text-sm">{message.content}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{message.timestamp}</span>
-                          {message.senderId === 'self' && (
+                          <span className="text-xs text-gray-500">
+                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {isOwnMessage && (
                             <span className="text-gray-500">
-                              {message.read ? (
+                              {message.read_at ? (
                                 <CheckCheck className="h-3 w-3 text-blue-500" />
-                              ) : message.delivered ? (
-                                <CheckCheck className="h-3 w-3" />
                               ) : (
                                 <Check className="h-3 w-3" />
                               )}
@@ -389,8 +436,10 @@ export default function MessagesCenter() {
                       </div>
                     </div>
                   </motion.div>
-                ))}
-              {isTyping && (
+                );
+              })}
+
+              {typingUsers.size > 0 && (
                 <div className="flex items-center gap-2 text-gray-500">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -415,7 +464,7 @@ export default function MessagesCenter() {
                 <div className="flex-1 relative">
                   <textarea
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={(e) => handleTyping(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -432,9 +481,9 @@ export default function MessagesCenter() {
                 </div>
                 <button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
+                  disabled={!newMessage.trim() || sending}
                   className={`p-2.5 rounded-lg transition-colors ${
-                    newMessage.trim()
+                    newMessage.trim() && !sending
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
@@ -454,6 +503,22 @@ export default function MessagesCenter() {
           </div>
         )}
       </div>
+
+      {/* Conversation Creator Modal */}
+      <ConversationCreator
+        isOpen={showConversationCreator}
+        onClose={() => setShowConversationCreator(false)}
+        onConversationCreated={(conversationId) => {
+          // Reload conversations and select the new one
+          loadConversations().then(() => {
+            const newConversation = conversations.find(c => c.id === conversationId);
+            if (newConversation) {
+              setSelectedConversation(newConversation);
+              setShowMobileConversation(true);
+            }
+          });
+        }}
+      />
     </div>
   );
 }

@@ -341,6 +341,88 @@ export interface Database {
           is_active?: boolean
         }
       }
+      conversations: {
+        Row: {
+          id: string
+          studio_id?: string
+          instructor_id: string
+          type: 'individual' | 'group'
+          name: string
+          participants: string[]
+          last_message?: string
+          last_message_at?: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          studio_id?: string
+          instructor_id: string
+          type: 'individual' | 'group'
+          name: string
+          participants: string[]
+          last_message?: string
+          last_message_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          studio_id?: string
+          instructor_id?: string
+          type?: 'individual' | 'group'
+          name?: string
+          participants?: string[]
+          last_message?: string
+          last_message_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          sender_id: string
+          content: string
+          attachments?: Array<{
+            type: 'image' | 'file'
+            url: string
+            name: string
+          }>
+          read_at?: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          sender_id: string
+          content: string
+          attachments?: Array<{
+            type: 'image' | 'file'
+            url: string
+            name: string
+          }>
+          read_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          sender_id?: string
+          content?: string
+          attachments?: Array<{
+            type: 'image' | 'file'
+            url: string
+            name: string
+          }>
+          read_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
