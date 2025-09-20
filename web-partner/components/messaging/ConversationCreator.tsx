@@ -13,6 +13,7 @@ import {
 import { simpleMessagingService } from '@/lib/services/messaging-simple';
 import { supabase } from '@/lib/supabase';
 import { createDemoAuthSession, getDemoAuthStatus } from '@/lib/demo-auth';
+import toast from 'react-hot-toast';
 
 interface Instructor {
   id: string;
@@ -29,7 +30,7 @@ interface Instructor {
 interface ConversationCreatorProps {
   isOpen: boolean;
   onClose: () => void;
-  onConversationCreated?: (conversationId: string) => void;
+  onConversationCreated?: (conversationId: string, conversationData?: { name: string; instructorId: string; instructorName: string }) => void;
 }
 
 export default function ConversationCreator({
@@ -96,12 +97,12 @@ export default function ConversationCreator({
       setIsAuthenticated(true);
       setIsDemoMode(true);
 
-      alert('✅ Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass. In production, real authentication will be used.');
+      toast.success('✅ Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass.');
 
       console.log('Demo mode flags set:', { isAuthenticated: true, isDemoMode: true });
     } catch (error) {
       console.error('Demo auth error:', error);
-      alert('Demo authentication failed. Please try again.');
+      toast.error('Demo authentication failed. Please try again.');
     } finally {
       setAuthChecking(false);
     }
@@ -200,11 +201,16 @@ export default function ConversationCreator({
       if (isDemoMode) {
         console.log('Executing demo mode conversation creation...');
 
-        // Demo mode - just show success without real creation
-        const successMessage = `✅ Demo Success!\n\nConversation created: "${currentConversationName}"\nWith instructor: ${selectedInstructor.business_name || `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`}\n\nIn production, this would create a real conversation in the database.`;
+        // Demo mode - show success and trigger callback with mock conversation
+        toast.success(`✅ Demo Success! Conversation "${currentConversationName}" created with ${selectedInstructor.business_name || `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`}`, {
+          duration: 4000,
+          icon: '🎉'
+        });
+        console.log('Demo success toast shown');
 
-        alert(successMessage);
-        console.log('Demo success alert shown');
+        // Create mock conversation ID and trigger callback for UI update
+        const mockConversationId = `demo-conversation-${Date.now()}`;
+        console.log('Calling onConversationCreated with mock ID:', mockConversationId);
 
         // Reset form
         setSelectedInstructor(null);
@@ -214,7 +220,16 @@ export default function ConversationCreator({
         setIsDemoMode(false);
 
         onClose();
-        console.log('Demo mode: Form reset and modal closed');
+
+        // Trigger callback to add mock conversation to UI
+        const instructorName = selectedInstructor.business_name || `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`;
+        onConversationCreated?.(mockConversationId, {
+          name: currentConversationName,
+          instructorId: selectedInstructor.id,
+          instructorName: instructorName
+        });
+
+        console.log('Demo mode: Form reset, modal closed, and callback triggered');
         return;
       } else if (isAuthenticated) {
         // Use real messaging service if authenticated
@@ -234,15 +249,15 @@ export default function ConversationCreator({
           setHasUserEditedName(false);
         } else {
           console.error('Failed to create conversation: Authentication required');
-          alert('Failed to create conversation. The messaging system requires database setup.');
+          toast.error('Failed to create conversation. The messaging system requires database setup.');
         }
       } else {
         // Not authenticated and not demo mode
-        alert('Please sign in to create conversations.');
+        toast.error('Please sign in to create conversations.');
       }
     } catch (error) {
       console.error('Failed to create conversation:', error);
-      alert('Failed to create conversation. Please try again later.');
+      toast.error('Failed to create conversation. Please try again later.');
     } finally {
       setCreating(false);
     }

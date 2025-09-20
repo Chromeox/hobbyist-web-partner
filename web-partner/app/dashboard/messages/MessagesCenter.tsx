@@ -508,15 +508,41 @@ export default function MessagesCenter() {
       <ConversationCreator
         isOpen={showConversationCreator}
         onClose={() => setShowConversationCreator(false)}
-        onConversationCreated={(conversationId) => {
-          // Reload conversations and select the new one
-          loadConversations().then(() => {
-            const newConversation = conversations.find(c => c.id === conversationId);
-            if (newConversation) {
-              setSelectedConversation(newConversation);
-              setShowMobileConversation(true);
-            }
-          });
+        onConversationCreated={(conversationId, conversationData) => {
+          // Check if it's a demo conversation
+          if (conversationId.startsWith('demo-conversation-')) {
+            console.log('Demo conversation created, adding to UI state:', conversationId, conversationData);
+
+            // Create a mock conversation for the UI using the provided data
+            const mockConversation: SimpleConversation = {
+              id: conversationId,
+              instructor_id: conversationData?.instructorId || 'test-instructor-001',
+              type: 'individual',
+              name: conversationData?.name || 'Demo Conversation',
+              participants: [conversationData?.instructorId || 'test-instructor-001'],
+              last_message: `Welcome to your conversation with ${conversationData?.instructorName || 'the instructor'}! This is a demo conversation for testing the messaging UI.`,
+              last_message_at: new Date().toISOString(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              unreadCount: 0
+            };
+
+            // Add to conversations state
+            setConversations(prev => [mockConversation, ...prev]);
+            setSelectedConversation(mockConversation);
+            setShowMobileConversation(true);
+
+            console.log('Demo conversation added to UI and selected');
+          } else {
+            // Real conversation - reload from database
+            loadConversations().then(() => {
+              const newConversation = conversations.find(c => c.id === conversationId);
+              if (newConversation) {
+                setSelectedConversation(newConversation);
+                setShowMobileConversation(true);
+              }
+            });
+          }
         }}
       />
     </div>
