@@ -41,9 +41,14 @@ class SimpleMessagingService {
   // Get all conversations for current user
   async getConversations(): Promise<SimpleConversation[]> {
     try {
+      // Check if there's an active session first to avoid auth errors
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        return [];
+      }
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        console.log('No authenticated user, returning empty conversations');
         return [];
       }
 
@@ -157,9 +162,14 @@ class SimpleMessagingService {
         return mockMessage;
       }
 
+      // Check if there's an active session first to avoid auth errors
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        return null;
+      }
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        console.error('No authenticated user');
         return null;
       }
 
@@ -195,9 +205,14 @@ class SimpleMessagingService {
     type: 'individual' | 'group' = 'individual'
   ): Promise<SimpleConversation | null> {
     try {
+      // Check if there's an active session first to avoid auth errors
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        return null;
+      }
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        console.error('No authenticated user');
         return null;
       }
 
@@ -230,6 +245,10 @@ class SimpleMessagingService {
   // Mark messages as read (simplified)
   async markMessagesAsRead(conversationId: string): Promise<void> {
     try {
+      // Check if there's an active session first to avoid auth errors
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) return;
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
@@ -336,6 +355,10 @@ class SimpleMessagingService {
   // Typing indicators (simplified)
   async sendTypingIndicator(conversationId: string, isTyping: boolean): Promise<void> {
     try {
+      // Check if there's an active session first to avoid auth errors
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) return;
+
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
