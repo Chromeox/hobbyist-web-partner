@@ -39,26 +39,14 @@ export default function SetupReminders({ className = '', onComplete }: SetupRemi
   // Mock incomplete setup items - in production, this would come from user's actual setup status
   const incompleteSetups: SetupItem[] = [
     {
-      id: 'calendar',
-      title: 'Import Your Calendar',
-      description: 'Connect your existing booking system to get immediate insights',
-      icon: <Calendar className="h-5 w-5" />,
-      benefit: 'Get instant optimization recommendations',
+      id: 'calendar-intelligence',
+      title: 'Set Up Calendar Integration',
+      description: 'Connect your booking system and activate AI-powered studio intelligence',
+      icon: <Brain className="h-5 w-5" />,
+      benefit: 'Average 20% revenue increase + instant insights',
       estimatedTime: '3 minutes',
       completionRate: '87% of studios complete this',
-      actionUrl: '/dashboard/intelligence',
-      priority: 'high',
-      color: 'blue'
-    },
-    {
-      id: 'intelligence',
-      title: 'Activate Studio Intelligence',
-      description: 'Enable AI-powered insights to optimize your operations',
-      icon: <Brain className="h-5 w-5" />,
-      benefit: 'Average 20% revenue increase',
-      estimatedTime: '2 minutes',
-      completionRate: '73% of studios activate this',
-      actionUrl: '/dashboard/intelligence',
+      actionUrl: '/dashboard/intelligence?setup=calendar',
       priority: 'high',
       color: 'purple'
     }

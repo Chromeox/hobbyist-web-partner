@@ -9,12 +9,24 @@ import { ProtectedRoute } from '@/lib/components/ProtectedRoute'
 import { useUserProfile } from '@/lib/hooks/useAuth'
 import DashboardLayout from '../DashboardLayout'
 import StudioIntelligenceDashboard from '@/components/studio/StudioIntelligenceDashboard'
-import { useState } from 'react'
+import CalendarImportWidget from '@/components/studio/CalendarImportWidget'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 export default function IntelligencePage() {
   const { profile, isLoading } = useUserProfile()
   const [actionInProgress, setActionInProgress] = useState(false)
+  const [showImportWidget, setShowImportWidget] = useState(false)
+  const [hasCalendarData, setHasCalendarData] = useState(false)
+
+  // Check URL params for setup mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const setupMode = urlParams.get('setup')
+    if (setupMode === 'calendar') {
+      setShowImportWidget(true)
+    }
+  }, [])
 
   const handleIntelligenceAction = async (actionType: string, data: any) => {
     setActionInProgress(true)
@@ -57,6 +69,14 @@ export default function IntelligencePage() {
     }
   }
 
+  const handleImportComplete = (provider: string) => {
+    setHasCalendarData(true)
+    setShowImportWidget(false)
+    toast.success(`${provider} calendar connected! Generating insights...`)
+    // Clean up URL params
+    window.history.replaceState({}, '', window.location.pathname)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,6 +105,15 @@ export default function IntelligencePage() {
               </p>
             </div>
           </div>
+
+          {/* Calendar Import Widget - Show if no data or setup mode */}
+          {(showImportWidget || !hasCalendarData) && (
+            <CalendarImportWidget
+              onImportComplete={handleImportComplete}
+              highlightSetup={showImportWidget}
+              className="mb-6"
+            />
+          )}
 
           <StudioIntelligenceDashboard
             studioId={studioId}

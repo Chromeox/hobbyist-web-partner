@@ -201,15 +201,12 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
                 <div className="text-sm text-gray-500">Connect Google</div>
               </button>
 
-              {/* Calendly Integration */}
-              <a
-                href="/api/auth/calendly"
-                className="p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors block text-center"
-              >
+              {/* Calendly Integration - Temporarily disabled */}
+              <div className="p-4 border border-gray-300 rounded-lg bg-gray-100 text-center opacity-50">
                 <div className="text-2xl mb-2">📆</div>
                 <div className="font-medium">Calendly</div>
-                <div className="text-sm text-gray-500">Import schedules</div>
-              </a>
+                <div className="text-sm text-gray-500">Setup pending</div>
+              </div>
 
               {/* Square Appointments */}
               <a

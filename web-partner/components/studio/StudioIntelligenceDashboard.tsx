@@ -40,20 +40,20 @@ export default function StudioIntelligenceDashboard({
   refreshInterval = 3600
 }: StudioIntelligenceDashboardProps) {
   const [insights, setInsights] = useState<StudioIntelligenceInsights | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false to show demo data immediately
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date()); // Set initial last updated
 
-  // Mock data for development - replace with actual API call
+  // Enhanced mock data for development - replace with actual API call
   const [importedEvents] = useState<ImportedEvent[]>([
     {
       id: '1',
-      integration_id: 'google-1',
-      external_id: 'cal-event-1',
-      provider: 'google',
+      integration_id: 'square-1',
+      external_id: 'sq-event-1',
+      provider: 'square',
       studio_id: studioId,
       title: 'Beginner Pottery Wheel',
-      description: 'Introduction to pottery wheel throwing',
+      description: 'Introduction to pottery wheel throwing for newcomers',
       start_time: '2024-01-15T18:00:00Z',
       end_time: '2024-01-15T20:00:00Z',
       all_day: false,
@@ -71,8 +71,59 @@ export default function StudioIntelligenceDashboard({
       raw_data: {},
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: '2',
+      integration_id: 'square-1',
+      external_id: 'sq-event-2',
+      provider: 'square',
+      studio_id: studioId,
+      title: 'Advanced Glazing Workshop',
+      description: 'Learn advanced glazing techniques and color mixing',
+      start_time: '2024-01-16T14:00:00Z',
+      end_time: '2024-01-16T17:00:00Z',
+      all_day: false,
+      instructor_name: 'Michael Chen',
+      instructor_email: 'michael@studio.com',
+      location: 'Studio B',
+      room: 'Studio B',
+      category: 'pottery',
+      skill_level: 'advanced',
+      max_participants: 6,
+      current_participants: 6,
+      price: 95,
+      material_fee: 25,
+      migration_status: 'imported',
+      raw_data: {},
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
+    },
+    {
+      id: '3',
+      integration_id: 'square-1',
+      external_id: 'sq-event-3',
+      provider: 'square',
+      studio_id: studioId,
+      title: 'Watercolor Basics',
+      description: 'Introduction to watercolor painting techniques',
+      start_time: '2024-01-17T10:00:00Z',
+      end_time: '2024-01-17T12:00:00Z',
+      all_day: false,
+      instructor_name: 'Emma Rodriguez',
+      instructor_email: 'emma@studio.com',
+      location: 'Art Room',
+      room: 'Art Room',
+      category: 'painting',
+      skill_level: 'beginner',
+      max_participants: 12,
+      current_participants: 10,
+      price: 45,
+      material_fee: 10,
+      migration_status: 'imported',
+      raw_data: {},
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
     }
-    // Add more mock events as needed
   ]);
 
   useEffect(() => {
