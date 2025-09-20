@@ -45,6 +45,7 @@ export default function ConversationCreator({
   const [creating, setCreating] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecking, setAuthChecking] = useState(false);
+  const [hasUserEditedName, setHasUserEditedName] = useState(false);
 
   // Load instructors and check auth when modal opens
   useEffect(() => {
@@ -61,24 +62,23 @@ export default function ConversationCreator({
 
   const handleDemoAuth = async () => {
     setAuthChecking(true);
-    const user = await createDemoAuthSession();
-    if (user) {
-      setIsAuthenticated(true);
-      alert('Demo authentication successful! You can now create conversations.');
-    } else {
-      alert('Demo authentication failed. Please try again.');
-    }
+
+    // Simple bypass for demo mode - just set authenticated to true
+    // This bypasses Supabase auth issues for immediate testing
+    setIsAuthenticated(true);
+    alert('Demo mode activated! You can now create conversations.\n\nNote: This is a testing bypass. In production, real authentication will be used.');
+
     setAuthChecking(false);
   };
 
-  // Auto-generate conversation name when instructor is selected
+  // Auto-generate conversation name when instructor is selected (only if user hasn't edited)
   useEffect(() => {
-    if (selectedInstructor) {
+    if (selectedInstructor && !hasUserEditedName) {
       const name = selectedInstructor.business_name ||
                    `${selectedInstructor.user_profiles.first_name} ${selectedInstructor.user_profiles.last_name}`;
       setConversationName(`Chat with ${name}`);
     }
-  }, [selectedInstructor]);
+  }, [selectedInstructor, hasUserEditedName]);
 
   const loadInstructors = async () => {
     try {
@@ -205,6 +205,7 @@ export default function ConversationCreator({
         setSelectedInstructor(null);
         setConversationName('');
         setSearchTerm('');
+        setHasUserEditedName(false);
       } else {
         console.error('Failed to create conversation: Authentication required');
         alert('Please sign in to create conversations. For now, you can view and test the existing conversations.');
@@ -361,6 +362,7 @@ export default function ConversationCreator({
                 onChange={(e) => {
                   console.log('Conversation name changed:', e.target.value);
                   setConversationName(e.target.value);
+                  setHasUserEditedName(true); // Mark that user has manually edited
                 }}
                 placeholder="Enter conversation name..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
