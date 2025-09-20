@@ -410,13 +410,35 @@ export default function ConversationCreator({
                     console.log('🎯 Key pressed:', e.key);
                   }}
                   placeholder="Enter conversation name..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm relative z-10"
+                  className="w-full px-3 py-2 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-black"
                   autoComplete="off"
-                  style={{ position: 'relative', zIndex: 10 }}
+                  style={{
+                    position: 'relative',
+                    zIndex: 999,
+                    backgroundColor: 'white !important',
+                    color: 'black !important',
+                    fontSize: '16px',
+                    opacity: 1,
+                    fontFamily: 'monospace',
+                    textAlign: 'left',
+                    display: 'block',
+                    visibility: 'visible',
+                    textIndent: '0px',
+                    letterSpacing: 'normal',
+                    wordSpacing: 'normal'
+                  }}
                 />
-                <p className="text-xs text-gray-500">
-                  Debug: "{conversationName}" | Edited: {hasUserEditedName ? 'Yes' : 'No'}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500">
+                    Debug: "{conversationName}" | Edited: {hasUserEditedName ? 'Yes' : 'No'}
+                  </p>
+                  <div className="p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+                    <strong>Mirror Test:</strong> {conversationName || '[empty]'}
+                  </div>
+                  <div className="p-2 bg-blue-100 border border-blue-300 rounded text-xs">
+                    <strong>Char Count:</strong> {conversationName.length} characters
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
