@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { simpleMessagingService } from '@/lib/services/messaging-simple';
 import { supabase } from '@/lib/supabase';
+import { createDemoAuthSession, getDemoAuthStatus } from '@/lib/demo-auth';
 
 interface Instructor {
   id: string;
@@ -42,13 +43,33 @@ export default function ConversationCreator({
   const [conversationName, setConversationName] = useState('');
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(false);
 
-  // Load instructors when modal opens
+  // Load instructors and check auth when modal opens
   useEffect(() => {
     if (isOpen) {
       loadInstructors();
+      checkAuthStatus();
     }
   }, [isOpen]);
+
+  const checkAuthStatus = async () => {
+    const status = await getDemoAuthStatus();
+    setIsAuthenticated(status.isAuthenticated);
+  };
+
+  const handleDemoAuth = async () => {
+    setAuthChecking(true);
+    const user = await createDemoAuthSession();
+    if (user) {
+      setIsAuthenticated(true);
+      alert('Demo authentication successful! You can now create conversations.');
+    } else {
+      alert('Demo authentication failed. Please try again.');
+    }
+    setAuthChecking(false);
+  };
 
   // Auto-generate conversation name when instructor is selected
   useEffect(() => {
@@ -176,15 +197,21 @@ export default function ConversationCreator({
         conversationName.trim()
       );
 
-      onConversationCreated?.(conversation.id);
-      onClose();
+      if (conversation && conversation.id) {
+        onConversationCreated?.(conversation.id);
+        onClose();
 
-      // Reset form
-      setSelectedInstructor(null);
-      setConversationName('');
-      setSearchTerm('');
+        // Reset form
+        setSelectedInstructor(null);
+        setConversationName('');
+        setSearchTerm('');
+      } else {
+        console.error('Failed to create conversation: Authentication required');
+        alert('Please sign in to create conversations. For now, you can view and test the existing conversations.');
+      }
     } catch (error) {
       console.error('Failed to create conversation:', error);
+      alert('Failed to create conversation. Please sign in or try again later.');
     } finally {
       setCreating(false);
     }
@@ -297,6 +324,27 @@ export default function ConversationCreator({
             </div>
           </div>
 
+          {/* Authentication Status */}
+          {!isAuthenticated && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-sm text-yellow-800 font-medium">Authentication Required</p>
+                  <p className="text-xs text-yellow-700 mt-1">
+                    You need to be signed in to create conversations.
+                  </p>
+                </div>
+                <button
+                  onClick={handleDemoAuth}
+                  disabled={authChecking}
+                  className="px-3 py-1.5 text-xs font-medium bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50"
+                >
+                  {authChecking ? 'Signing In...' : 'Demo Sign In'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Conversation Name */}
           {selectedInstructor && (
             <motion.div
@@ -310,9 +358,13 @@ export default function ConversationCreator({
               <input
                 type="text"
                 value={conversationName}
-                onChange={(e) => setConversationName(e.target.value)}
+                onChange={(e) => {
+                  console.log('Conversation name changed:', e.target.value);
+                  setConversationName(e.target.value);
+                }}
                 placeholder="Enter conversation name..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                autoComplete="off"
               />
             </motion.div>
           )}
@@ -328,9 +380,9 @@ export default function ConversationCreator({
           </button>
           <button
             onClick={handleCreateConversation}
-            disabled={!selectedInstructor || !conversationName.trim() || creating}
+            disabled={!selectedInstructor || !conversationName.trim() || creating || !isAuthenticated}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              selectedInstructor && conversationName.trim() && !creating
+              selectedInstructor && conversationName.trim() && !creating && isAuthenticated
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
