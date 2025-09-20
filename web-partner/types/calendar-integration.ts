@@ -152,6 +152,21 @@ export interface OutlookCalendarSettings {
   timezone: string;
 }
 
+export interface CalendlySettings {
+  organization_uri?: string;
+  webhook_signing_key?: string;
+  default_event_types?: string[];
+  timezone: string;
+}
+
+export interface SquareSettings {
+  location_id: string;
+  merchant_id?: string;
+  sync_services: boolean;
+  sync_team_members: boolean;
+  webhook_signature_key?: string;
+}
+
 export interface MindbodySettings {
   site_id: string;
   location_id: string;
@@ -222,6 +237,92 @@ export interface MindbodyClass {
   MaxCapacity?: number;
   BookedCount?: number;
   Program?: { Name: string };
+}
+
+// Calendly API response types
+export interface CalendlyEvent {
+  uri: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+  event_type: string;
+  location?: {
+    type: string;
+    location?: string;
+  };
+  invitees_counter?: {
+    total: number;
+    active: number;
+  };
+  event_memberships?: Array<{
+    user: string;
+    user_name?: string;
+    user_email?: string;
+  }>;
+  event_guests?: Array<{
+    email: string;
+    created_at: string;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CalendlyEventType {
+  uri: string;
+  name: string;
+  description?: string;
+  duration: number;
+  kind: string;
+  slug: string;
+  active: boolean;
+  booking_url: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Square API response types
+export interface SquareBooking {
+  id: string;
+  version?: number;
+  status?: string;
+  created_at: string;
+  updated_at: string;
+  start_at?: string;
+  location_id?: string;
+  appointment_segments?: Array<{
+    start_at: string;
+    end_at: string;
+    service_variation_id: string;
+    team_member_id: string;
+    any_team_member_id?: string;
+  }>;
+  customer_id?: string;
+  customer_note?: string;
+  seller_note?: string;
+  source?: string;
+}
+
+export interface SquareService {
+  id: string;
+  name: string;
+  description?: string;
+  duration_minutes: number;
+  price: number;
+  category?: string;
+  variation_id: string;
+}
+
+export interface SquareTeamMember {
+  id: string;
+  is_owner?: boolean;
+  status?: string;
+  given_name?: string;
+  family_name?: string;
+  email_address?: string;
+  phone_number?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Workshop Analytics for Dashboard

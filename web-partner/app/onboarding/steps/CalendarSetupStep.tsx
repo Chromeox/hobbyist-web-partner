@@ -72,6 +72,14 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
       estimatedTime: '4 minutes'
     },
     {
+      id: 'calendly',
+      name: 'Calendly',
+      icon: '📆',
+      description: 'Import scheduled events from Calendly',
+      popular: true,
+      estimatedTime: '3 minutes'
+    },
+    {
       id: 'square',
       name: 'Square Appointments',
       icon: '⬜',

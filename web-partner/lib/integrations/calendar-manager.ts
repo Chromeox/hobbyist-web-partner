@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleCalendarIntegration } from './google-calendar';
+import { CalendlyIntegration } from './calendly-integration';
+import { SquareIntegration } from './square-integration';
 import type {
   CalendarIntegration,
   CalendarProvider,
@@ -129,6 +131,22 @@ export class CalendarIntegrationManager {
             integration.settings
           );
           result = await googleIntegration.importEvents(startDate, endDate);
+          break;
+
+        case 'calendly':
+          const calendlyIntegration = new CalendlyIntegration(
+            integration,
+            integration.settings
+          );
+          result = await calendlyIntegration.importEvents(startDate, endDate);
+          break;
+
+        case 'square':
+          const squareIntegration = new SquareIntegration(
+            integration,
+            integration.settings
+          );
+          result = await squareIntegration.importEvents(startDate, endDate);
           break;
 
         case 'outlook':
