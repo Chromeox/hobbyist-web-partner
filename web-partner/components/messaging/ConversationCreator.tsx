@@ -192,13 +192,30 @@ export default function ConversationCreator({
 
     try {
       setCreating(true);
-      const conversation = await simpleMessagingService.createConversation(
-        selectedInstructor.id,
-        conversationName.trim()
-      );
 
-      if (conversation && conversation.id) {
-        onConversationCreated?.(conversation.id);
+      if (isAuthenticated) {
+        // Use real messaging service if authenticated
+        const conversation = await simpleMessagingService.createConversation(
+          selectedInstructor.id,
+          conversationName.trim()
+        );
+
+        if (conversation && conversation.id) {
+          onConversationCreated?.(conversation.id);
+          onClose();
+
+          // Reset form
+          setSelectedInstructor(null);
+          setConversationName('');
+          setSearchTerm('');
+          setHasUserEditedName(false);
+        } else {
+          console.error('Failed to create conversation: Authentication required');
+          alert('Failed to create conversation. The messaging system requires database setup.');
+        }
+      } else {
+        // Demo mode - just show success without real creation
+        alert(`Demo: Would create conversation "${conversationName.trim()}" with ${selectedInstructor.business_name}.\n\nIn production, this would create a real conversation in the database.`);
         onClose();
 
         // Reset form
@@ -206,13 +223,10 @@ export default function ConversationCreator({
         setConversationName('');
         setSearchTerm('');
         setHasUserEditedName(false);
-      } else {
-        console.error('Failed to create conversation: Authentication required');
-        alert('Please sign in to create conversations. For now, you can view and test the existing conversations.');
       }
     } catch (error) {
       console.error('Failed to create conversation:', error);
-      alert('Failed to create conversation. Please sign in or try again later.');
+      alert('Failed to create conversation. Please try again later.');
     } finally {
       setCreating(false);
     }
@@ -356,18 +370,25 @@ export default function ConversationCreator({
               <label className="block text-sm font-medium text-gray-700">
                 Conversation Name
               </label>
-              <input
-                type="text"
-                value={conversationName}
-                onChange={(e) => {
-                  console.log('Conversation name changed:', e.target.value);
-                  setConversationName(e.target.value);
-                  setHasUserEditedName(true); // Mark that user has manually edited
-                }}
-                placeholder="Enter conversation name..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                autoComplete="off"
-              />
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={conversationName}
+                  onChange={(e) => {
+                    console.log('Conversation name changed:', e.target.value);
+                    console.log('Current conversationName state:', conversationName);
+                    console.log('hasUserEditedName:', hasUserEditedName);
+                    setConversationName(e.target.value);
+                    setHasUserEditedName(true); // Mark that user has manually edited
+                  }}
+                  placeholder="Enter conversation name..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  autoComplete="off"
+                />
+                <p className="text-xs text-gray-500">
+                  Debug: "{conversationName}" | Edited: {hasUserEditedName ? 'Yes' : 'No'}
+                </p>
+              </div>
             </motion.div>
           )}
         </div>
