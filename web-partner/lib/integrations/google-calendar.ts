@@ -17,7 +17,7 @@ export class GoogleCalendarIntegration {
     private settings: GoogleCalendarSettings
   ) {
     this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       process.env.GOOGLE_REDIRECT_URI
     );
@@ -37,10 +37,19 @@ export class GoogleCalendarIntegration {
    * Get Google OAuth authorization URL for initial setup
    */
   static getAuthUrl(): string {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+    console.log('Google OAuth Environment Variables:');
+    console.log('- Client ID:', clientId ? `${clientId.substring(0, 20)}...` : 'MISSING');
+    console.log('- Client Secret:', clientSecret ? 'SET' : 'MISSING');
+    console.log('- Redirect URI:', redirectUri);
+
     const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
+      clientId,
+      clientSecret,
+      redirectUri
     );
 
     const scopes = [
@@ -60,7 +69,7 @@ export class GoogleCalendarIntegration {
    */
   static async exchangeCodeForTokens(code: string) {
     const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       process.env.GOOGLE_REDIRECT_URI
     );
