@@ -54,9 +54,14 @@ export default function CalendarImportWidget({
 
     if (success === 'square_connected' && integrationId) {
       setConnectedProviders(prev => new Set([...prev, 'square']));
-      if (onImportComplete) {
-        onImportComplete('square');
-      }
+
+      // Use setTimeout to defer the callback to avoid render-phase state updates
+      setTimeout(() => {
+        if (onImportComplete) {
+          onImportComplete('square');
+        }
+      }, 0);
+
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -261,16 +266,35 @@ export default function CalendarImportWidget({
                     Coming Soon
                   </Button>
                 ) : (
-                  <Button
-                    onClick={() => handleConnect(provider)}
-                    disabled={importing}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Connect
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleConnect(provider)}
+                      disabled={importing}
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Connect
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                    {provider.id === 'square' && (
+                      <Button
+                        onClick={() => {
+                          setConnectedProviders(prev => new Set([...prev, 'square']));
+                          setTimeout(() => {
+                            if (onImportComplete) {
+                              onImportComplete('square');
+                            }
+                          }, 100);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Demo Connect
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
