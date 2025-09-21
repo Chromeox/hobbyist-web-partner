@@ -6,12 +6,12 @@
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 
-// Configuration - Replace these with your actual values
+// Configuration - Your Apple Developer credentials
 const config = {
-  teamId: 'YOUR_TEAM_ID_HERE',        // 10-character Team ID from Apple Developer
+  teamId: '594BDWKT53',               // Team ID from Quantum Hobbyist Group Inc.
   clientId: 'com.hobbyist.partner-portal.web', // Your Services ID
-  keyId: 'YOUR_KEY_ID_HERE',          // 10-character Key ID from downloaded key
-  privateKeyPath: './AuthKey_YOUR_KEY_ID_HERE.p8' // Path to your downloaded .p8 file
+  keyId: 'JMAWKVZS8P',                // Key ID from your downloaded private key
+  privateKeyPath: './AuthKey_JMAWKVZS8P.p8' // Path to your downloaded .p8 file
 };
 
 function generateAppleClientSecret() {
@@ -19,11 +19,12 @@ function generateAppleClientSecret() {
     // Read the private key
     const privateKey = fs.readFileSync(config.privateKeyPath, 'utf8');
 
-    // Create JWT payload
+    // Create JWT payload with proper timing
+    const now = Math.floor(Date.now() / 1000);
     const payload = {
       iss: config.teamId,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (86400 * 180), // 180 days (max allowed)
+      iat: now,
+      exp: now + (86400 * 179), // 179 days to be safe (max is 180)
       aud: 'https://appleid.apple.com',
       sub: config.clientId,
     };
