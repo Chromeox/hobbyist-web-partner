@@ -7,7 +7,7 @@
 import { ProtectedRoute } from '@/lib/components/ProtectedRoute'
 import { useUserProfile } from '@/lib/hooks/useAuth'
 import DashboardLayout from '../DashboardLayout'
-// import SettingsManagement from './SettingsManagement'
+import SettingsManagement from './SettingsManagement'
 
 export default function SettingsPage() {
   const { profile, isLoading } = useUserProfile()
