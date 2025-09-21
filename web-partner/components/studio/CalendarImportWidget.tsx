@@ -113,16 +113,6 @@ export default function CalendarImportWidget({
 
   const providers: CalendarProvider[] = [
     {
-      id: 'square',
-      name: 'Square Appointments',
-      icon: '⬜',
-      description: 'Import bookings, services, and customer data from Square',
-      status: connectedProviders.has('square') ? 'connected' : 'available',
-      features: ['Bookings & Appointments', 'Service Catalog', 'Customer Data', 'Payment History'],
-      setupTime: '2-3 minutes',
-      authUrl: '/api/auth/square'
-    },
-    {
       id: 'google',
       name: 'Google Calendar',
       icon: '📅',
@@ -131,6 +121,16 @@ export default function CalendarImportWidget({
       features: ['Calendar Events', 'Recurring Schedules', 'Room Bookings', 'Attendee Lists'],
       setupTime: '1-2 minutes',
       authUrl: '/api/auth/google?type=calendar'
+    },
+    {
+      id: 'square',
+      name: 'Square Appointments',
+      icon: '⬜',
+      description: 'Advanced booking system integration (coming soon)',
+      status: 'disabled',
+      features: ['Bookings & Appointments', 'Service Catalog', 'Customer Data', 'Payment History'],
+      setupTime: '2-3 minutes',
+      authUrl: '/api/auth/square'
     },
     {
       id: 'calendly',
@@ -258,23 +258,22 @@ export default function CalendarImportWidget({
           </Alert>
         )}
 
-        {/* Square Setup Instructions */}
-        {!connectedProviders.has('square') && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        {/* Google Calendar Setup Info */}
+        {!connectedProviders.has('google') && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-start">
-              <Info className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
+              <Info className="h-5 w-5 text-green-600 mr-3 mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-blue-900">Square OAuth Setup Required</h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  To connect Square Appointments, configure your Square Developer Dashboard:
+                <h3 className="text-sm font-medium text-green-900">Ready to Connect Google Calendar</h3>
+                <p className="text-sm text-green-700 mt-1">
+                  Your Google OAuth is configured and ready. Click "Connect" below to:
                 </p>
-                <ol className="text-xs text-blue-600 mt-2 list-decimal list-inside space-y-1">
-                  <li>Visit <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer" className="underline">Square Developer Dashboard</a></li>
-                  <li>Select your application (ID: <code className="bg-blue-100 px-1">sandbox-sq0idb-PBgKEnc-hf0WJmkgUUFvew</code>)</li>
-                  <li>Add Redirect URI: <code className="bg-blue-100 px-1">http://localhost:3002/api/auth/square/callback</code></li>
-                  <li>Ensure application is using "Code Flow" for server-side applications</li>
-                  <li>Save the configuration and try connecting again</li>
-                </ol>
+                <ul className="text-xs text-green-600 mt-2 list-disc list-inside space-y-1">
+                  <li>Import existing calendar events and schedules</li>
+                  <li>Sync room bookings and availability</li>
+                  <li>Access attendee lists for analytics</li>
+                  <li>Enable real-time calendar synchronization</li>
+                </ul>
               </div>
             </div>
           </div>
