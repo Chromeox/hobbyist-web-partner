@@ -1,8 +1,8 @@
 {
-  "/api/auth/google/route": "app/api/auth/google/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
   "/auth/signin/page": "app/auth/signin/page.js",
-  "/dashboard/intelligence/page": "app/dashboard/intelligence/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js"
+  "/auth/callback-handler/page": "app/auth/callback-handler/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/intelligence/page": "app/dashboard/intelligence/page.js"
 }

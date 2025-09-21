@@ -33,7 +33,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthContext } from '@/lib/context/AuthContext';
 
 const navigationSections = [
   {
@@ -122,6 +123,19 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
     return initial;
   });
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useAuthContext();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      router.push('/auth/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if logout fails
+      router.push('/auth/signin');
+    }
+  };
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => ({
@@ -260,7 +274,11 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                 <p className="text-sm font-medium text-gray-900">{userName}</p>
                 <p className="text-xs text-gray-500">Admin</p>
               </div>
-              <button className="text-gray-500 hover:text-gray-700">
+              <button
+                onClick={handleLogout}
+                className="text-gray-500 hover:text-gray-700"
+                title="Sign Out"
+              >
                 <LogOut className="h-5 w-5" />
               </button>
             </div>
