@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     if (!applicationId) {
       console.error('Missing Square OAuth configuration');
       return NextResponse.redirect(
-        new URL('/dashboard/intelligence?error=square_config_missing', request.url)
+        new URL('/dashboard/intelligence?error=square_config_missing&message=Square Application ID not configured', request.url)
       );
     }
 
@@ -30,16 +30,25 @@ export async function GET(request: NextRequest) {
     authUrl.searchParams.set('scope', 'APPOINTMENTS_READ APPOINTMENTS_WRITE CUSTOMERS_READ CUSTOMERS_WRITE PAYMENTS_READ');
     authUrl.searchParams.set('state', state);
 
-    console.log('Redirecting to Square OAuth:', authUrl.toString());
+    console.log('Square OAuth Configuration:');
+    console.log('- Application ID:', applicationId);
+    console.log('- Environment:', environment);
+    console.log('- Redirect URI:', redirectUri);
+    console.log('- Full OAuth URL:', authUrl.toString());
 
-    // Redirect to Square OAuth
-    return NextResponse.redirect(authUrl.toString());
+    // Add helpful headers for debugging
+    const response = NextResponse.redirect(authUrl.toString());
+    response.headers.set('X-Square-Redirect-URI', redirectUri);
+    response.headers.set('X-Square-Environment', environment);
+
+    return response;
 
   } catch (error) {
     console.error('Square OAuth initiation error:', error);
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.redirect(
-      new URL('/dashboard/intelligence?error=square_auth_init_failed', request.url)
+      new URL(`/dashboard/intelligence?error=square_auth_init_failed&message=${encodeURIComponent(errorMessage)}`, request.url)
     );
   }
 }

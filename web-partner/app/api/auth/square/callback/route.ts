@@ -12,16 +12,18 @@ export async function GET(request: NextRequest) {
     // Handle OAuth errors
     if (error) {
       console.error('Square OAuth error:', error);
+      const errorMessage = encodeURIComponent(`Square OAuth error: ${error}`);
       return NextResponse.redirect(
-        new URL('/dashboard/intelligence?error=square_auth_failed', request.url)
+        new URL(`/dashboard/intelligence?error=square_auth_failed&message=${errorMessage}`, request.url)
       );
     }
 
-    // Validate authorization code
+    // Validate authorization code (expires after 5 minutes per Square docs)
     if (!code) {
       console.error('No authorization code received from Square');
+      const errorMessage = encodeURIComponent('No authorization code received from Square. The authorization may have expired (codes expire after 5 minutes).');
       return NextResponse.redirect(
-        new URL('/dashboard/intelligence?error=missing_auth_code', request.url)
+        new URL(`/dashboard/intelligence?error=missing_auth_code&message=${errorMessage}`, request.url)
       );
     }
 

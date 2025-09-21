@@ -17,7 +17,8 @@ import {
   TrendingUp,
   Users,
   Settings,
-  ExternalLink
+  ExternalLink,
+  Info
 } from 'lucide-react';
 
 interface CalendarProvider {
@@ -46,10 +47,12 @@ export default function CalendarImportWidget({
   const [importProgress, setImportProgress] = useState(0);
   const [connectedProviders, setConnectedProviders] = useState<Set<string>>(new Set());
 
-  // Check URL for successful OAuth callback
+  // Check URL for successful OAuth callback or errors
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
+    const error = urlParams.get('error');
+    const message = urlParams.get('message');
     const integrationId = urlParams.get('integration_id');
 
     if (success === 'square_connected' && integrationId) {
@@ -61,6 +64,29 @@ export default function CalendarImportWidget({
           onImportComplete('square');
         }
       }, 0);
+
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (error) {
+      // Handle OAuth errors
+      let errorMessage = 'Square connection failed';
+
+      switch (error) {
+        case 'square_config_missing':
+          errorMessage = 'Square OAuth configuration missing. Please check environment variables.';
+          break;
+        case 'square_auth_failed':
+          errorMessage = 'Square authorization failed. Please try again.';
+          break;
+        case 'square_connection_failed':
+          errorMessage = 'Failed to establish Square connection. Please check your Square Developer Dashboard configuration.';
+          break;
+        default:
+          errorMessage = message ? decodeURIComponent(message) : 'Square connection failed';
+      }
+
+      console.error('Square OAuth error:', error, message);
+      alert(`Square Integration Error: ${errorMessage}`);
 
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
@@ -213,6 +239,28 @@ export default function CalendarImportWidget({
           </Alert>
         )}
 
+        {/* Square Setup Instructions */}
+        {!connectedProviders.has('square') && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <Info className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-medium text-blue-900">Square OAuth Setup Required</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  To connect Square Appointments, configure your Square Developer Dashboard:
+                </p>
+                <ol className="text-xs text-blue-600 mt-2 list-decimal list-inside space-y-1">
+                  <li>Visit <a href="https://developer.squareup.com/apps" target="_blank" rel="noopener noreferrer" className="underline">Square Developer Dashboard</a></li>
+                  <li>Select your application (ID: <code className="bg-blue-100 px-1">sandbox-sq0idb-PBgKEnc-hf0WJmkgUUFvew</code>)</li>
+                  <li>Add Redirect URI: <code className="bg-blue-100 px-1">http://localhost:3002/api/auth/square/callback</code></li>
+                  <li>Ensure application is using "Code Flow" for server-side applications</li>
+                  <li>Save the configuration and try connecting again</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Provider Cards */}
         <div className="space-y-3">
           {providers.map((provider) => (
@@ -267,16 +315,23 @@ export default function CalendarImportWidget({
                   </Button>
                 ) : (
                   <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleConnect(provider)}
-                      disabled={importing}
-                      size="sm"
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Connect
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        onClick={() => handleConnect(provider)}
+                        disabled={importing}
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Connect
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                      {provider.id === 'square' && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          📋 Redirect URI: <code className="bg-gray-100 px-1">http://localhost:3002/api/auth/square/callback</code>
+                        </div>
+                      )}
+                    </div>
                     {provider.id === 'square' && (
                       <Button
                         onClick={() => {
