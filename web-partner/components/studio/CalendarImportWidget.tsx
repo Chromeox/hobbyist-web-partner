@@ -64,12 +64,13 @@ export default function CalendarImportWidget({
     const merchantName = urlParams.get('merchant_name');
     const locationName = urlParams.get('location_name');
 
-    if (success === 'square_connected' && integrationId) {
-      setConnectedProviders(prev => new Set([...prev, 'square']));
+    if ((success === 'square_connected' || success === 'google_connected') && integrationId) {
+      const provider = success === 'square_connected' ? 'square' : 'google';
+      setConnectedProviders(prev => new Set([...prev, provider]));
 
       // Show success dialog with integration data
       setSuccessData({
-        provider: 'square',
+        provider: provider as 'square' | 'google' | 'calendly',
         merchantName: merchantName || undefined,
         locationName: locationName || undefined
       });
@@ -78,7 +79,7 @@ export default function CalendarImportWidget({
       // Use setTimeout to defer the callback to avoid render-phase state updates
       setTimeout(() => {
         if (onImportComplete) {
-          onImportComplete('square');
+          onImportComplete(provider);
         }
       }, 0);
 
@@ -126,9 +127,10 @@ export default function CalendarImportWidget({
       name: 'Google Calendar',
       icon: '📅',
       description: 'Sync with your Google Calendar events and schedules',
-      status: 'available',
+      status: connectedProviders.has('google') ? 'connected' : 'available',
       features: ['Calendar Events', 'Recurring Schedules', 'Room Bookings', 'Attendee Lists'],
-      setupTime: '1-2 minutes'
+      setupTime: '1-2 minutes',
+      authUrl: '/api/auth/google?type=calendar'
     },
     {
       id: 'calendly',
