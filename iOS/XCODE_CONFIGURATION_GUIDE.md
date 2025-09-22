@@ -11,7 +11,7 @@ This guide provides step-by-step instructions for configuring the HobbyistSwiftU
 
 ## Step 1: Open Project in Xcode
 
-1. Navigate to: `/Users/chromefang.exe/HobbyistSwiftUI/iOS/`
+1. Navigate to: `/Users/chromefang.exe/HobbyApp/iOS/`
 2. Double-click `HobbyistSwiftUI.xcodeproj` to open in Xcode
 3. Ensure you're using Xcode 15.0+ for iOS 16+ deployment
 

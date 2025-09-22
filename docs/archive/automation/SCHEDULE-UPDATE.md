@@ -21,7 +21,7 @@ After analyzing the scraping results, we identified that:
 0 18 * * * [scraper command]
 
 # New (1x daily)
-0 10 * * * /Users/chromefang.exe/HobbyistSwiftUI/run-scraper-with-env.sh
+0 10 * * * /Users/chromefang.exe/HobbyApp/run-scraper-with-env.sh
 ```
 
 ### Scraper Configuration

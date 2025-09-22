@@ -9,7 +9,7 @@ export NODE_PATH="/usr/local/lib/node_modules"
 export PLAYWRIGHT_BROWSERS_PATH="/Users/chromefang.exe/Library/Caches/ms-playwright"
 
 # Navigate to project directory
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Run the scraper with full node path
 /usr/local/bin/node scripts/instagram/instagram-scraper-rotated.js >> scraper.log 2>&1

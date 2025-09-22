@@ -83,7 +83,7 @@ Navigate to: `https://github.com/Chromeox/HobbyistSwiftUI/settings/secrets/actio
 
 2. **Initialize Match**:
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI
+   cd /Users/chromefang.exe/HobbyApp
    fastlane match init
    ```
    
@@ -101,7 +101,7 @@ Navigate to: `https://github.com/Chromeox/HobbyistSwiftUI/settings/secrets/actio
 
 ### 1. Test Security Scan Pipeline
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Trigger security scan manually
 gh workflow run "Swift Dependency Security Scan"
@@ -227,7 +227,7 @@ fastlane match appstore --force
 ### Debug Commands
 ```bash
 # Local fastlane testing
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 fastlane test
 
 # Certificate verification

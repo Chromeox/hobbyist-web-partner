@@ -5,7 +5,7 @@
 ### **Cleanup & Organization**
 - ✅ Removed 10+ outdated documentation files
 - ✅ Deleted old bloated project from Documents folder
-- ✅ Clean single source of truth at `/Users/chromefang.exe/HobbyistSwiftUI`
+- ✅ Clean single source of truth at `/Users/chromefang.exe/HobbyApp`
 
 ### **Fixed Critical Issues**
 - ✅ **Removed Firebase** - Was causing dependency timeout issues
@@ -30,7 +30,7 @@ iOS/
 
 ### **1. Open in Xcode** (5 minutes)
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI/iOS
+cd /Users/chromefang.exe/HobbyApp/iOS
 open HobbyistSwiftUI.xcodeproj
 ```
 

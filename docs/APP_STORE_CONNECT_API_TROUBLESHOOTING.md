@@ -137,7 +137,7 @@ Once you get the API key working, test it:
 
 ```bash
 # Navigate to your project
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Test API key with fastlane
 fastlane run app_store_connect_api_key \

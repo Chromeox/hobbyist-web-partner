@@ -28,7 +28,7 @@ Changed from direct node execution to wrapper script:
 0 6 * * * cd ~/HobbyistSwiftUI && node instagram-scraper-rotated.js
 
 # New (working):
-0 6 * * * /Users/chromefang.exe/HobbyistSwiftUI/run-scraper-with-env.sh
+0 6 * * * /Users/chromefang.exe/HobbyApp/run-scraper-with-env.sh
 ```
 
 ## Status: ✅ WORKING

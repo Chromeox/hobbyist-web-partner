@@ -7,7 +7,7 @@ Since the Supabase CLI requires interactive password input, please run these com
 Open a new terminal and run:
 
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 supabase db push
 ```
 

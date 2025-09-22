@@ -98,7 +98,7 @@ Test the API connection with a simple Fastlane command:
 
 ```bash
 # Navigate to your project directory
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Test App Store Connect API connection
 fastlane run app_store_connect_api_key \

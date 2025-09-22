@@ -153,7 +153,7 @@ OTHER_LDFLAGS = -ObjC
 ```bash
 # Ensure Xcode is installed (not just Command Line Tools)
 # Download from Mac App Store or Apple Developer Portal
-open /Users/chromefang.exe/HobbyistSwiftUI/iOS/HobbyistSwiftUI.xcodeproj
+open /Users/chromefang.exe/HobbyApp/iOS/HobbyistSwiftUI.xcodeproj
 ```
 
 ### Step 2: Project Settings Configuration

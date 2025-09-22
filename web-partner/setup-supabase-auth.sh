@@ -43,7 +43,7 @@ echo ""
 # Check if we're in the right directory
 if [ ! -f "package.json" ]; then
     print_error "Please run this script from the web-partner directory"
-    echo "Run: cd /Users/chromefang.exe/HobbyistSwiftUI/web-partner"
+    echo "Run: cd /Users/chromefang.exe/HobbyApp/web-partner"
     exit 1
 fi
 

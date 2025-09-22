@@ -42,13 +42,13 @@ All three migration files are ready:
 
 ### Option 1: Safe Deployment Script (Recommended)
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 ./supabase/safe_deploy_migrations.sh
 ```
 
 ### Option 2: Manual Deployment
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 supabase db push
 # Enter password when prompted
 ```

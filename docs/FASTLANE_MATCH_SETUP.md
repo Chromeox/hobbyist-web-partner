@@ -79,7 +79,7 @@ echo -n "username:token" | base64
 
 ### 3.1 Initialize Match for Your App
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Initialize Match (this will create initial certificates)
 fastlane match init

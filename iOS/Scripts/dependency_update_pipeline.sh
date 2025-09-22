@@ -8,7 +8,7 @@
 set -e
 
 # Configuration
-PROJECT_DIR="/Users/chromefang.exe/HobbyistSwiftUI/iOS"
+PROJECT_DIR="/Users/chromefang.exe/HobbyApp/iOS"
 PACKAGE_FILE="$PROJECT_DIR/Package.swift"
 RESOLVED_FILE="$PROJECT_DIR/Package.resolved"
 BACKUP_DIR="$PROJECT_DIR/Backups/$(date +%Y%m%d_%H%M%S)"

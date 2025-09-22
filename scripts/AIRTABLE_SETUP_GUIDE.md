@@ -27,7 +27,7 @@ This guide walks you through creating the optimal Airtable base structure for th
 
 ### Run the Automated Setup
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI/scripts
+cd /Users/chromefang.exe/HobbyApp/scripts
 node airtable-base-creator.js
 ```
 

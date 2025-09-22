@@ -5,7 +5,7 @@ Comprehensive API automation suite for creating and managing the optimal Airtabl
 ## 🚀 Quick Start
 
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI/scripts
+cd /Users/chromefang.exe/HobbyApp/scripts
 ./setup-hobby-directory.sh
 ```
 

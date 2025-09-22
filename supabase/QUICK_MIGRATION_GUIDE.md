@@ -22,7 +22,7 @@ Click "Run" to see what tables are already created.
 
 ## Step 3: Apply the Migration
 Copy the ENTIRE contents of this file:
-`/Users/chromefang.exe/HobbyistSwiftUI/supabase/migrations/03_web_partner_portal_schema.sql`
+`/Users/chromefang.exe/HobbyApp/supabase/migrations/03_web_partner_portal_schema.sql`
 
 Paste it into the SQL editor and click "Run".
 
@@ -82,7 +82,7 @@ If you prefer using the CLI:
 1. Reset password here: https://supabase.com/dashboard/project/mcjqvdzdhtcvbrejvrtp/settings/database
 2. Click "Reset Database Password"
 3. Copy the new password
-4. Run: `cd /Users/chromefang.exe/HobbyistSwiftUI`
+4. Run: `cd /Users/chromefang.exe/HobbyApp`
 5. Run: `PGPASSWORD='new-password-here' supabase db push`
 
 But the SQL Editor method above is faster and doesn't require password management!

@@ -33,7 +33,7 @@
 
 3. **🔨 Option A: Automated Build**
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI
+   cd /Users/chromefang.exe/HobbyApp
    ./build_for_testflight.sh
    ```
 

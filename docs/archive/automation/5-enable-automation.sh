@@ -15,7 +15,7 @@ fi
 
 # Add automation
 CRON_JOBS="# Hobby Directory Instagram Scraping - Daily at 10 AM
-0 10 * * * /Users/chromefang.exe/HobbyistSwiftUI/run-scraper-with-env.sh"
+0 10 * * * /Users/chromefang.exe/HobbyApp/run-scraper-with-env.sh"
 
 (crontab -l 2>/dev/null; echo "$CRON_JOBS") | crontab -
 

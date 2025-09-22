@@ -39,7 +39,7 @@ npm install -g vercel
 
 3. **Configure Environment**
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI
+   cd /Users/chromefang.exe/HobbyApp
    
    # Create .env.local file
    cat > .env.local << EOF
@@ -54,7 +54,7 @@ npm install -g vercel
 
 ```bash
 # Navigate to project root
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 
 # Link to Supabase project
 supabase link --project-ref mcjqvdzdhtcvbrejvrtp
@@ -99,7 +99,7 @@ WHERE id IN ('class-images', 'instructor-profiles', 'studio-assets');
 
 1. **Open Project**
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI/iOS
+   cd /Users/chromefang.exe/HobbyApp/iOS
    open HobbyistSwiftUI.xcodeproj
    ```
 
@@ -120,7 +120,7 @@ WHERE id IN ('class-images', 'instructor-profiles', 'studio-assets');
 gem install fastlane
 
 # Initialize Fastlane
-cd /Users/chromefang.exe/HobbyistSwiftUI/iOS
+cd /Users/chromefang.exe/HobbyApp/iOS
 fastlane init
 
 # Create certificates and profiles
@@ -206,7 +206,7 @@ xcrun altool --upload-app \
 
 1. **Update Environment Variables**
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI/web-partner
+   cd /Users/chromefang.exe/HobbyApp/web-partner
    
    # Create production env
    cat > .env.production << EOF

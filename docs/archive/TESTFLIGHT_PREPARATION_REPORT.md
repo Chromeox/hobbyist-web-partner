@@ -61,7 +61,7 @@ Your HobbyistSwiftUI iOS app has a solid code foundation with 95% of the archite
 ### 3. Configure Xcode Project (15 minutes)
 After Xcode installation:
 ```bash
-cd /Users/chromefang.exe/HobbyistSwiftUI/iOS
+cd /Users/chromefang.exe/HobbyApp/iOS
 open HobbyistSwiftUI.xcodeproj
 ```
 
@@ -129,7 +129,7 @@ Once prerequisites are complete:
 4. Organizer window opens automatically
 
 # Or using Fastlane (already configured):
-cd /Users/chromefang.exe/HobbyistSwiftUI
+cd /Users/chromefang.exe/HobbyApp
 fastlane ios build_testflight
 ```
 

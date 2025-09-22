@@ -256,7 +256,7 @@ show_next_steps() {
     echo "   - Create new app with bundle ID: com.hobbyist.app"
     echo ""
     echo "3. Build and upload to TestFlight:"
-    echo "   cd /Users/chromefang.exe/HobbyistSwiftUI"
+    echo "   cd /Users/chromefang.exe/HobbyApp"
     echo "   fastlane ios release_testflight"
     echo ""
     echo "4. Configure TestFlight testing:"

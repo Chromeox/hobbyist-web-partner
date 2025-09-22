@@ -24,7 +24,7 @@ Since `supabase db push` requires a database password, you can apply the migrati
 
 4. **Alternative: Apply via Supabase CLI** (requires password):
    ```bash
-   cd /Users/chromefang.exe/HobbyistSwiftUI
+   cd /Users/chromefang.exe/HobbyApp
    
    # Set the database password as environment variable
    export PGPASSWORD='your-database-password-here'
