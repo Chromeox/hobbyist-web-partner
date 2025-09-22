@@ -1,6 +1,6 @@
 import SwiftUI
 
-//@main  // Disabled - using ProductionApp.swift as main entry point
+@main  // Re-enabled since this is the only App file in Xcode project
 struct HobbyistSwiftUIApp: App {
     init() {
         // Configure app appearance
