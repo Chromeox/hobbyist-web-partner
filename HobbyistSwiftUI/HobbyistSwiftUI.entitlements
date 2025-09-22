@@ -34,13 +34,6 @@
 	<key>aps-environment</key>
 	<string>development</string>
 	
-	<!-- Background Processing -->
-	<key>com.apple.developer.background-processing</key>
-	<array>
-		<string>com.hobbyist.app.refresh</string>
-		<string>com.hobbyist.app.sync</string>
-	</array>
-	
 	<!-- In-App Purchase Testing Environment -->
 	<key>com.apple.developer.in-app-purchase</key>
 	<array>
