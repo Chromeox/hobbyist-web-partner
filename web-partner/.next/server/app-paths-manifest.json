@@ -1,7 +1,0 @@
-{
-  "/dashboard/page": "app/dashboard/page.js",
-  "/onboarding/page": "app/onboarding/page.js",
-  "/dashboard/classes/page": "app/dashboard/classes/page.js",
-  "/dashboard/staff/page": "app/dashboard/staff/page.js",
-  "/auth/signin/page": "app/auth/signin/page.js"
-}

@@ -194,3 +194,13 @@ supabase-management/backups/
 .appstore-connect/
 AuthKey_*.p8
 AppStoreConnectAPI.json
+# Build directories
+.next/
+node_modules/
+.cache/
+dist/
+build/
+
+# Large files
+*.pack
+*.bundle
