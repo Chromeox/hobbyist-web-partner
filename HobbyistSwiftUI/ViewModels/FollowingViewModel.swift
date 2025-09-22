@@ -33,9 +33,9 @@ class FollowingViewModel: ObservableObject {
             }
 
             do {
-                let profiles = try await followingService.getFollowing(for: userId)
+                let profiles = try await followingService.getFollowing(for: userId.uuidString)
                 await MainActor.run {
-                    self.following = profiles
+                    self.following = profiles as? [FollowingProfile] ?? []
                     self.isLoadingFollowing = false
                 }
             } catch {
@@ -60,9 +60,9 @@ class FollowingViewModel: ObservableObject {
             }
 
             do {
-                let profiles = try await followingService.getFollowers(for: userId)
+                let profiles = try await followingService.getFollowers(for: userId.uuidString)
                 await MainActor.run {
-                    self.followers = profiles
+                    self.followers = profiles as? [FollowingProfile] ?? []
                     self.isLoadingFollowers = false
                 }
             } catch {
@@ -87,9 +87,9 @@ class FollowingViewModel: ObservableObject {
             }
 
             do {
-                let profiles = try await followingService.getSuggestions(for: userId)
+                let profiles = try await followingService.getSuggestions(for: userId.uuidString)
                 await MainActor.run {
-                    self.suggestions = profiles
+                    self.suggestions = profiles as? [FollowingProfile] ?? []
                     self.isLoadingSuggestions = false
                 }
             } catch {
@@ -106,9 +106,8 @@ class FollowingViewModel: ObservableObject {
             guard let userId = await authManager.getCurrentUserId() else { return }
             do {
                 try await followingService.follow(
-                    userId: userId,
-                    targetId: profile.id,
-                    targetType: profile.type
+                    userId: userId.uuidString,
+                    targetUserId: profile.id.uuidString
                 )
                 
                 await MainActor.run {
@@ -154,9 +153,8 @@ class FollowingViewModel: ObservableObject {
             guard let userId = await authManager.getCurrentUserId() else { return }
             do {
                 try await followingService.unfollow(
-                    userId: userId,
-                    targetId: profile.id,
-                    targetType: profile.type
+                    userId: userId.uuidString,
+                    targetUserId: profile.id.uuidString
                 )
                 
                 await MainActor.run {

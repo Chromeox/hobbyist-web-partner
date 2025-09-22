@@ -66,7 +66,8 @@ class ActivityFeedViewModel: ObservableObject {
             do {
                 try await activityService.markAsRead(activityId: activity.id)
             } catch {
-                ServiceContainer.shared.crashReportingService.recordError(error, context: ["activityId": activity.id.uuidString])
+                // Error handling - could add logging here
+                print("Error marking activity as read: \(error)")
             }
         }
     }
@@ -74,14 +75,14 @@ class ActivityFeedViewModel: ObservableObject {
 
 // MARK: - Activity Service
 class ActivityService {
-    private let supabaseService = SupabaseService.shared
-    
+    private let supabaseService = SimpleSupabaseService.shared
+
     func fetchActivities(for userId: UUID, filter: String) async throws -> [ActivityFeedItem] {
         // In a real app, this would query the Supabase database
         // For now, return mock data
         return ActivityFeedItem.mockData()
     }
-    
+
     func markAsRead(activityId: UUID) async throws {
         // Mark activity as read in database
     }

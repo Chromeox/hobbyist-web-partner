@@ -15,10 +15,38 @@ struct Review: Identifiable, Codable, Hashable {
     let instructorRespondedAt: Date?
     let createdAt: Date
     let updatedAt: Date?
-    
+
     // User details (populated from join)
     let userName: String?
     let userImageUrl: String?
+
+    // Custom initializer for ClassDetailViewModel compatibility
+    let userInitials: String?
+    let date: Date
+    let comment: String
+
+    // Custom initializer for sample data
+    init(id: String, userName: String, userInitials: String, rating: Int, comment: String, date: Date) {
+        self.id = UUID(uuidString: id) ?? UUID()
+        self.userId = UUID()
+        self.targetType = .class
+        self.targetId = UUID()
+        self.rating = rating
+        self.title = nil
+        self.content = comment
+        self.isVerifiedBooking = false
+        self.helpfulCount = 0
+        self.images = nil
+        self.instructorResponse = nil
+        self.instructorRespondedAt = nil
+        self.createdAt = date
+        self.updatedAt = nil
+        self.userName = userName
+        self.userImageUrl = nil
+        self.userInitials = userInitials
+        self.date = date
+        self.comment = comment
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -37,6 +65,9 @@ struct Review: Identifiable, Codable, Hashable {
         case updatedAt = "updated_at"
         case userName = "user_name"
         case userImageUrl = "user_image_url"
+        case userInitials = "user_initials"
+        case date
+        case comment
     }
 }
 

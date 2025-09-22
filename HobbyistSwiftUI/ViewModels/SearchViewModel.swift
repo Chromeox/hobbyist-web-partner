@@ -188,7 +188,7 @@ class SearchViewModel: ObservableObject {
     private func fetchAutocompleteSuggestions(for query: String) {
         Task {
             do {
-                autocompleteSuggestions = try await searchService.fetchAutocompleteSuggestions(for: query)
+                autocompleteSuggestions = try await searchService.getAutocompleteSuggestions(query: query)
             } catch {
                 // Silently fail for autocomplete
                 autocompleteSuggestions = []
@@ -242,7 +242,16 @@ class SearchViewModel: ObservableObject {
     
     private func loadTrendingCategories() async {
         do {
-            trendingCategories = try await searchService.fetchTrendingCategories()
+            let categories = try await searchService.fetchTrendingCategories()
+            trendingCategories = categories.map {
+                TrendingCategory(
+                    id: UUID(),
+                    name: $0,
+                    iconName: "tag.fill",
+                    classCount: 0,
+                    trendingScore: 0.0
+                )
+            }
         } catch {
             print("Failed to load trending categories: \(error)")
         }
@@ -328,7 +337,8 @@ class SearchViewModel: ObservableObject {
                 query: query,
                 scope: searchScope.rawValue,
                 resultCount: resultCount,
-                locationFilter: locationFilter.rawValue
+                appliedFilters: [],
+                executionTime: 0.0
             )
         }
     }

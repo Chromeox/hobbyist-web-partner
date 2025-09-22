@@ -53,14 +53,15 @@ final class SimpleSupabaseService: ObservableObject {
                 password: password
             )
 
-            let user = response.user
-            currentUser = SimpleUser(
-                id: user.id.uuidString,
-                email: user.email ?? email,
-                name: user.userMetadata["full_name"]?.value as? String ?? "User"
-            )
-            isAuthenticated = true
-            print("✅ User signed in: \(email)")
+            if let user = response.user {
+                currentUser = SimpleUser(
+                    id: user.id.uuidString,
+                    email: user.email ?? email,
+                    name: user.userMetadata["full_name"]?.value as? String ?? "User"
+                )
+                isAuthenticated = true
+                print("✅ User signed in: \(email)")
+            }
         } catch {
             errorMessage = error.localizedDescription
             print("❌ Sign in error: \(error)")
@@ -105,14 +106,15 @@ final class SimpleSupabaseService: ObservableObject {
     private func checkAuthenticationStatus() async {
         do {
             let session = try await supabaseClient.auth.session
-            let user = session.user
-            currentUser = SimpleUser(
-                id: user.id.uuidString,
-                email: user.email ?? "",
-                name: user.userMetadata["full_name"]?.value as? String ?? "User"
-            )
-            isAuthenticated = true
-            print("✅ User already authenticated")
+            if let user = session.user {
+                currentUser = SimpleUser(
+                    id: user.id.uuidString,
+                    email: user.email ?? "",
+                    name: user.userMetadata["full_name"]?.value as? String ?? "User"
+                )
+                isAuthenticated = true
+                print("✅ User already authenticated")
+            }
         } catch {
             print("❌ Auth check error: \(error)")
             // User not authenticated, continue with login flow

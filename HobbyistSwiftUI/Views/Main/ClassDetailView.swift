@@ -583,14 +583,14 @@ struct ReviewCard: View {
                     .fill(Color.accentColor.opacity(0.2))
                     .frame(width: 40, height: 40)
                     .overlay(
-                        Text(review.userInitials)
+                        Text(review.userInitials ?? "?")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.accentColor)
                     )
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(review.userName)
+                    Text(review.userName ?? "Anonymous")
                         .font(.subheadline)
                         .fontWeight(.medium)
                     
