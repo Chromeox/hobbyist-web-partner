@@ -69,7 +69,7 @@ struct Venue: Identifiable, Codable, Hashable {
     func formattedDistance(from userLocation: CLLocation) -> String {
         let distanceInMeters = distance(from: userLocation)
         let distanceInMiles = distanceInMeters / 1609.344
-        
+
         if distanceInMiles < 0.1 {
             return "Nearby"
         } else if distanceInMiles < 1 {
@@ -78,6 +78,31 @@ struct Venue: Identifiable, Codable, Hashable {
             return String(format: "%.0f mi", distanceInMiles)
         }
     }
+
+    static let sample = Venue(
+        id: UUID(),
+        name: "Sample Venue",
+        address: "123 Sample St",
+        city: "Sample City",
+        state: "SC",
+        zipCode: "12345",
+        country: "US",
+        latitude: 37.7749,
+        longitude: -122.4194,
+        description: "Sample venue description",
+        amenities: ["Parking", "WiFi"],
+        capacity: 50,
+        contactEmail: "sample@venue.com",
+        contactPhone: nil,
+        website: nil,
+        parkingInfo: nil,
+        publicTransportInfo: nil,
+        imageUrls: nil,
+        operatingHours: nil,
+        isActive: true,
+        createdAt: Date(),
+        updatedAt: nil
+    )
 }
 
 struct OperatingHours: Codable, Hashable {

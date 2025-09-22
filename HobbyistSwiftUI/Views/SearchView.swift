@@ -314,9 +314,9 @@ struct SearchResultsList: View {
         case .hobbyClass:
             ClassDetailView(classItem: ClassItem.sample) // Using sample for now
         case .instructor:
-            InstructorDetailView(instructor: Instructor.sample) // Using sample for now
+            Text("Instructor Detail") // Placeholder until InstructorDetailView is implemented
         case .venue:
-            VenueDetailView(venue: Venue.sample) // Using sample for now
+            Text("Venue Detail") // Placeholder until VenueDetailView is implemented
         }
     }
 }
@@ -431,7 +431,7 @@ struct SuggestedClassRow: View {
                 ))
                 .frame(width: 60, height: 60)
                 .overlay(
-                    Image(systemName: hobbyClass.category.icon)
+                    Image(systemName: hobbyClass.category.iconName)
                         .font(.title3)
                         .foregroundColor(.white)
                 )
@@ -447,7 +447,7 @@ struct SuggestedClassRow: View {
                     .foregroundColor(.secondary)
                 
                 HStack {
-                    Text(hobbyClass.formattedPrice)
+                    Text("$\(Int(hobbyClass.price))")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
@@ -478,7 +478,7 @@ struct SearchFiltersView: View {
             Form {
                 Section("Location") {
                     Picker("Location Filter", selection: $viewModel.locationFilter) {
-                        ForEach(SearchViewModel.LocationFilter.allCases, id: \.self) { filter in
+                        ForEach(LocationFilter.allCases, id: \.self) { filter in
                             Text(filter.rawValue).tag(filter)
                         }
                     }
@@ -533,7 +533,7 @@ struct InstructorDetailView: View {
     let instructor: Instructor
     
     var body: some View {
-        Text("Instructor Detail: \(instructor.name)")
+        Text("Instructor Detail: \(instructor.fullName)")
     }
 }
 

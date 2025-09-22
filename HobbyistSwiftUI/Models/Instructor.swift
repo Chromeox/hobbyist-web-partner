@@ -52,6 +52,27 @@ struct Instructor: Identifiable, Codable, Hashable {
     var isHighlyRated: Bool {
         NSDecimalNumber(decimal: rating).doubleValue >= 4.5
     }
+
+    static let sample = Instructor(
+        id: UUID(),
+        userId: UUID(),
+        firstName: "Sample",
+        lastName: "Instructor",
+        email: "sample@example.com",
+        phone: nil,
+        bio: "Sample instructor bio",
+        specialties: ["Sample Specialty"],
+        certificationInfo: nil,
+        rating: Decimal(4.5),
+        totalReviews: 10,
+        profileImageUrl: nil,
+        yearsOfExperience: 5,
+        socialLinks: nil,
+        availability: nil,
+        isActive: true,
+        createdAt: Date(),
+        updatedAt: nil
+    )
 }
 
 struct CertificationInfo: Codable, Hashable {
