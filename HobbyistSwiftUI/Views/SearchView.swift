@@ -181,20 +181,23 @@ struct EmptySearchView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(viewModel.trendingCategories) { trending in
                                 Button {
-                                    viewModel.searchByCategory(trending.category)
+                                    // Convert trending name to ClassCategory
+                                    if let category = ClassCategory.allCases.first(where: { $0.rawValue == trending.name }) {
+                                        viewModel.searchByCategory(category)
+                                    }
                                 } label: {
                                     VStack(spacing: 8) {
-                                        Image(systemName: trending.category.icon)
+                                        Image(systemName: trending.iconName)
                                             .font(.title2)
                                             .foregroundColor(.accentColor)
-                                        
-                                        Text(trending.category.rawValue)
+
+                                        Text(trending.name)
                                             .font(.subheadline)
                                             .fontWeight(.medium)
-                                        
-                                        Text("+\(Int(trending.weeklyGrowth))%")
+
+                                        Text("\(trending.classCount) classes")
                                             .font(.caption)
-                                            .foregroundColor(.green)
+                                            .foregroundColor(.secondary)
                                     }
                                     .frame(maxWidth: .infinity)
                                     .padding()
@@ -307,13 +310,13 @@ struct SearchResultsList: View {
     
     @ViewBuilder
     private func destinationView(for result: SearchResult) -> some View {
-        switch result {
-        case .hobbyClass(_):
+        switch result.type {
+        case .hobbyClass:
             ClassDetailView(classItem: ClassItem.sample) // Using sample for now
-        case .instructor(let instructor):
-            InstructorDetailView(instructor: instructor)
-        case .venue(let venue):
-            VenueDetailView(venue: venue)
+        case .instructor:
+            InstructorDetailView(instructor: Instructor.sample) // Using sample for now
+        case .venue:
+            VenueDetailView(venue: Venue.sample) // Using sample for now
         }
     }
 }
@@ -361,9 +364,9 @@ struct SearchResultRow: View {
     }
     
     private var iconForResult: String {
-        switch result {
-        case .hobbyClass(let hobbyClass):
-            return hobbyClass.category.icon
+        switch result.type {
+        case .hobbyClass:
+            return "sportscourt" // Generic hobby class icon
         case .instructor:
             return "person.circle"
         case .venue:
@@ -372,35 +375,44 @@ struct SearchResultRow: View {
     }
     
     private var titleForResult: String {
-        switch result {
-        case .hobbyClass(let hobbyClass):
-            return hobbyClass.title
-        case .instructor(let instructor):
-            return instructor.name
-        case .venue(let venue):
-            return venue.name
+        switch result.type {
+        case .hobbyClass:
+            return result.title
+        case .instructor:
+            return result.title
+        case .venue:
+            return result.title
         }
     }
     
     private var subtitleForResult: String {
-        switch result {
-        case .hobbyClass(let hobbyClass):
-            return hobbyClass.description
-        case .instructor(let instructor):
-            return instructor.specialties.joined(separator: ", ")
-        case .venue(let venue):
-            return venue.address
+        switch result.type {
+        case .hobbyClass:
+            return result.subtitle ?? ""
+        case .instructor:
+            return result.subtitle ?? ""
+        case .venue:
+            return result.subtitle ?? ""
         }
     }
     
     private var metadataForResult: String? {
-        switch result {
-        case .hobbyClass(let hobbyClass):
-            return "\(hobbyClass.formattedPrice) • \(hobbyClass.formattedDuration)"
-        case .instructor(let instructor):
-            return "\(instructor.rating)⭐ • \(instructor.totalStudents) students"
-        case .venue(let venue):
-            return venue.city + ", " + venue.state
+        switch result.type {
+        case .hobbyClass:
+            if let price = result.price {
+                return "$\(String(format: "%.0f", price))"
+            }
+            return nil
+        case .instructor:
+            if let rating = result.rating {
+                return "\(String(format: "%.1f", rating))⭐"
+            }
+            return nil
+        case .venue:
+            if let distance = result.distance {
+                return "\(String(format: "%.1f", distance)) km away"
+            }
+            return nil
         }
     }
 }
