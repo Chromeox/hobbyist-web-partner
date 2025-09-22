@@ -32,20 +32,9 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
   const [errors, setErrors] = useState<any>({});
 
   const validateForm = () => {
-    const newErrors: any = {};
-    
-    if (!formData.businessName) newErrors.businessName = 'Business name is required';
-    if (!formData.legalBusinessName) newErrors.legalBusinessName = 'Legal business name is required';
-    if (!formData.taxId) newErrors.taxId = 'Tax ID is required';
-    if (!formData.businessEmail) newErrors.businessEmail = 'Business email is required';
-    if (!formData.businessPhone) newErrors.businessPhone = 'Business phone is required';
-    if (!formData.address.street) newErrors.addressStreet = 'Street address is required';
-    if (!formData.address.city) newErrors.addressCity = 'City is required';
-    if (!formData.address.state) newErrors.addressState = 'State is required';
-    if (!formData.address.zipCode) newErrors.addressZipCode = 'ZIP code is required';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Remove all required field validations for demo purposes
+    setErrors({});
+    return true;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -366,6 +355,16 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
             context="onboarding"
             showTrustIndicators={true}
           />
+        </div>
+
+        {/* Submit Button */}
+        <div className="mt-8 flex justify-end">
+          <button
+            type="submit"
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            Continue
+          </button>
         </div>
       </form>
     </div>

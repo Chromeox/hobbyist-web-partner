@@ -153,7 +153,7 @@ export default function InstructorMarketplace() {
   const renderInstructorCard = (instructor: Instructor) => (
     <motion.div
       key={instructor.id}
-      className="bg-gray-800 rounded-xl overflow-hidden cursor-pointer"
+      className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-shadow"
       onClick={() => setSelectedInstructor(instructor)}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
@@ -181,7 +181,7 @@ export default function InstructorMarketplace() {
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-white">{instructor.displayName}</h3>
+          <h3 className="font-semibold text-gray-900">{instructor.displayName}</h3>
           {instructor.isVerified && (
             <CheckCircle className="w-4 h-4 text-blue-400" />
           )}
@@ -212,7 +212,7 @@ export default function InstructorMarketplace() {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-white font-semibold">${instructor.hourlyRate}/hr</span>
+          <span className="text-gray-900 font-semibold">${instructor.hourlyRate}/hr</span>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -239,7 +239,7 @@ export default function InstructorMarketplace() {
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
@@ -254,7 +254,7 @@ export default function InstructorMarketplace() {
                 className="w-full h-full object-cover"
               />
               <button
-                className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-600 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
                 onClick={() => setSelectedInstructor(null)}
               >
                 <X className="w-5 h-5" />
@@ -269,7 +269,7 @@ export default function InstructorMarketplace() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-bold text-white">{selectedInstructor.displayName}</h2>
+                      <h2 className="text-2xl font-bold text-gray-900">{selectedInstructor.displayName}</h2>
                       {selectedInstructor.isVerified && (
                         <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 rounded-full">
                           <CheckCircle className="w-4 h-4 text-blue-400" />
@@ -294,22 +294,22 @@ export default function InstructorMarketplace() {
               {/* Stats */}
               <div className="grid grid-cols-4 gap-4 mb-6">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-white">
+                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-gray-900">
                     <Star className="w-5 h-5 text-yellow-400 fill-current" />
                     {selectedInstructor.rating}
                   </div>
                   <p className="text-sm text-gray-400">{selectedInstructor.totalReviews} reviews</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{selectedInstructor.totalStudents}</div>
+                  <div className="text-2xl font-bold text-gray-900">{selectedInstructor.totalStudents}</div>
                   <p className="text-sm text-gray-400">Students taught</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{selectedInstructor.yearsExperience}</div>
+                  <div className="text-2xl font-bold text-gray-900">{selectedInstructor.yearsExperience}</div>
                   <p className="text-sm text-gray-400">Years experience</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white">${selectedInstructor.hourlyRate}</div>
+                  <div className="text-2xl font-bold text-gray-900">${selectedInstructor.hourlyRate}</div>
                   <p className="text-sm text-gray-400">Per hour</p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function InstructorMarketplace() {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors capitalize ${
-                      activeTab === tab ? 'bg-purple-600 text-white' : 'text-gray-300 hover:text-white'
+                      activeTab === tab ? 'bg-purple-600 text-white' : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     {tab}
@@ -333,12 +333,12 @@ export default function InstructorMarketplace() {
               {activeTab === 'about' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">About</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">About</h3>
                     <p className="text-gray-300">{selectedInstructor.bio}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Specialties</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Specialties</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedInstructor.specialties.map((specialty, index) => (
                         <span
@@ -352,13 +352,13 @@ export default function InstructorMarketplace() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Certifications</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Certifications</h3>
                     <div className="space-y-3">
                       {selectedInstructor.certifications.map((cert, i) => (
                         <div key={i} className="flex items-center gap-3">
                           <Award className="w-5 h-5 text-purple-400" />
                           <div>
-                            <p className="text-white">{cert.name}</p>
+                            <p className="text-gray-900">{cert.name}</p>
                             <p className="text-sm text-gray-400">{cert.issuer} - {cert.year}</p>
                           </div>
                         </div>
@@ -383,7 +383,7 @@ export default function InstructorMarketplace() {
                                 />
                               ))}
                             </div>
-                            <span className="text-white font-medium">{review.studentName}</span>
+                            <span className="text-gray-900 font-medium">{review.studentName}</span>
                           </div>
                           <span className="text-sm text-gray-400">{review.date}</span>
                         </div>
@@ -401,7 +401,7 @@ export default function InstructorMarketplace() {
                 <button className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
                   Send Message
                 </button>
-                <button className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors">
+                <button className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition-colors">
                   Schedule Meeting
                 </button>
               </div>
@@ -413,11 +413,11 @@ export default function InstructorMarketplace() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Instructor Marketplace</h1>
-        <p className="text-gray-400">Discover and invite talented instructors to teach at your studio</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Instructor Marketplace</h1>
+        <p className="text-gray-600">Discover and invite talented instructors to teach at your studio</p>
       </div>
 
       {/* Search and Filters */}
@@ -429,14 +429,14 @@ export default function InstructorMarketplace() {
             placeholder="Search instructors or specialties..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
         <select
           value={selectedSpecialty}
           onChange={(e) => setSelectedSpecialty(e.target.value)}
-          className="px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         >
           {specialties.map(specialty => (
             <option key={specialty} value={specialty === 'All' ? '' : specialty}>
@@ -445,7 +445,7 @@ export default function InstructorMarketplace() {
           ))}
         </select>
 
-        <button className="px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+        <button className="px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
           <Filter className="w-5 h-5" />
           More Filters
         </button>
@@ -456,7 +456,7 @@ export default function InstructorMarketplace() {
         <div className="flex items-center gap-3">
           <Sparkles className="w-6 h-6 text-yellow-400" />
           <div>
-            <p className="text-white font-medium">Featured Instructors</p>
+            <p className="text-gray-900 font-medium">Featured Instructors</p>
             <p className="text-sm text-gray-400">Top-rated professionals verified by our team</p>
           </div>
         </div>

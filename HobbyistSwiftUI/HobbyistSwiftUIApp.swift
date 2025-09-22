@@ -1,6 +1,6 @@
 import SwiftUI
 
-//@main  // Temporarily disabled for testing
+//@main  // Disabled - using ProductionApp.swift as main entry point
 struct HobbyistSwiftUIApp: App {
     init() {
         // Configure app appearance

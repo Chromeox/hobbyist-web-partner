@@ -29,26 +29,50 @@ export async function GET(request: NextRequest) {
     console.log('Google OAuth callback successful - authorization code received:', code.substring(0, 10) + '...');
 
     try {
-      // For now, simulate successful token exchange (replace with actual Google API call)
-      // TODO: Implement actual token exchange with Google OAuth API
-      const simulatedTokens = {
-        access_token: 'ya29.google_access_token_simulation',
-        refresh_token: 'refresh_token_simulation',
-        scope: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
-        token_type: 'Bearer',
-        expires_in: 3600
+      // Exchange authorization code for access tokens using Google OAuth API
+      console.log('Exchanging Google authorization code for tokens...');
+
+      const tokens = await GoogleCalendarIntegration.exchangeCodeForTokens(code);
+
+      // Create integration instance to test connection
+      const tempIntegration = {
+        id: 'temp',
+        provider: 'google',
+        access_token: tokens.access_token!,
+        refresh_token: tokens.refresh_token || null,
+        expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
+        settings: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
-      console.log('Google Calendar integration successful (simulated)');
+      const googleCalendar = new GoogleCalendarIntegration(tempIntegration, {
+        calendar_id: 'primary',
+        timezone: 'America/Vancouver',
+        default_reminder_minutes: 60
+      });
 
-      // Simulate integration data (replace with actual Google Calendar API calls)
+      // Test the connection to get account info
+      const connectionTest = await googleCalendar.testConnection();
+
+      if (!connectionTest) {
+        throw new Error('Failed to connect to Google Calendar');
+      }
+
+      console.log('Google Calendar integration successful');
+
+      // Store integration data (in production, save to database)
       const integrationData = {
         provider: 'google',
         status: 'connected',
         account_name: 'Google Calendar',
         calendar_name: 'Primary Calendar',
         connected_at: new Date().toISOString(),
-        tokens: simulatedTokens
+        tokens: {
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null
+        }
       };
 
       // Redirect back to dashboard with success and integration data

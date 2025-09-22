@@ -11,12 +11,8 @@ import {
   TrendingUp,
   Users,
   SkipForward,
-  Upload,
-  Download,
-  Smartphone,
-  MonitorSpeaker
+  Upload
 } from 'lucide-react';
-// import CalendarIntegrationHub from '@/components/studio/CalendarIntegrationHub'; // Temporarily disabled to fix server-side import issue
 import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
 
 interface CalendarSetupStepProps {
@@ -25,67 +21,60 @@ interface CalendarSetupStepProps {
   data: any;
 }
 
+// Google Calendar Logo Component
+const GoogleCalendarLogo = () => (
+  <svg viewBox="0 0 48 48" className="h-8 w-8">
+    <path fill="#1976d2" d="M37 5H11c-3.3 0-6 2.7-6 6v26c0 3.3 2.7 6 6 6h26c3.3 0 6-2.7 6-6V11c0-3.3-2.7-6-6-6z"/>
+    <path fill="#fff" d="M37 5H11c-3.3 0-6 2.7-6 6v26c0 3.3 2.7 6 6 6h26c3.3 0 6-2.7 6-6V11c0-3.3-2.7-6-6-6zm-1 34H12c-2.2 0-4-1.8-4-4V13c0-2.2 1.8-4 4-4h24c2.2 0 4 1.8 4 4v22c0 2.2-1.8 4-4 4z"/>
+    <path fill="#1976d2" d="M24 16h8v3h-8v-3zm-8 7h16v3H16v-3zm0 7h12v3H16v-3z"/>
+    <path fill="#e53935" d="M20 12h8v7h-8z"/>
+    <path fill="#fff" d="M22 14h4v3h-4z"/>
+  </svg>
+);
+
+// Apple Calendar Logo Component
+const AppleCalendarLogo = () => (
+  <svg viewBox="0 0 48 48" className="h-8 w-8">
+    <defs>
+      <linearGradient id="appleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ff6b6b"/>
+        <stop offset="100%" stopColor="#ee5a52"/>
+      </linearGradient>
+    </defs>
+    <rect x="6" y="8" width="36" height="32" rx="6" ry="6" fill="url(#appleGradient)"/>
+    <rect x="6" y="8" width="36" height="10" rx="6" ry="6" fill="#fff"/>
+    <circle cx="16" cy="13" r="1.5" fill="#666"/>
+    <circle cx="32" cy="13" r="1.5" fill="#666"/>
+    <rect x="10" y="4" width="2" height="8" rx="1" ry="1" fill="#666"/>
+    <rect x="36" y="4" width="2" height="8" rx="1" ry="1" fill="#666"/>
+    <text x="24" y="32" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold" fontFamily="Arial">23</text>
+  </svg>
+);
+
 export default function CalendarSetupStep({ onNext, onPrevious, data }: CalendarSetupStepProps) {
   const [setupMode, setSetupMode] = useState<'overview' | 'setup' | 'completed'>('overview');
-  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
 
   const calendarProviders = [
     {
       id: 'google',
       name: 'Google Calendar',
-      icon: '📅',
-      description: 'Import your Google Calendar events',
+      logo: <GoogleCalendarLogo />,
+      description: 'Sync with your Google Calendar events and schedule',
       popular: true,
-      estimatedTime: '2 minutes'
-    },
-    {
-      id: 'outlook',
-      name: 'Outlook Calendar',
-      icon: '📆',
-      description: 'Connect your Microsoft Outlook calendar',
-      popular: false,
-      estimatedTime: '3 minutes'
+      estimatedTime: '2 minutes',
+      benefits: ['Automatic event sync', 'Real-time updates', 'Cross-platform access']
     },
     {
       id: 'apple',
       name: 'Apple Calendar',
-      icon: '🍎',
-      description: 'Sync with your iCloud calendar',
-      popular: false,
-      estimatedTime: '3 minutes'
-    },
-    {
-      id: 'mindbody',
-      name: 'MindBody',
-      icon: '🧘',
-      description: 'Import from your MindBody studio management',
+      logo: <AppleCalendarLogo />,
+      description: 'Connect with your iCloud calendar and Apple devices',
       popular: true,
-      estimatedTime: '5 minutes'
-    },
-    {
-      id: 'acuity',
-      name: 'Acuity Scheduling',
-      icon: '⚡',
-      description: 'Connect your Acuity booking system',
-      popular: false,
-      estimatedTime: '4 minutes'
-    },
-    {
-      id: 'calendly',
-      name: 'Calendly',
-      icon: '📆',
-      description: 'Import scheduled events from Calendly',
-      popular: true,
-      estimatedTime: '3 minutes'
-    },
-    {
-      id: 'square',
-      name: 'Square Appointments',
-      icon: '⬜',
-      description: 'Import from Square booking system',
-      popular: false,
-      estimatedTime: '4 minutes'
+      estimatedTime: '2 minutes',
+      benefits: ['iCloud sync', 'Apple ecosystem integration', 'Privacy focused']
     }
   ];
 
@@ -93,7 +82,7 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
     {
       icon: <Clock className="h-5 w-5" />,
       title: 'Seamless Migration',
-      description: 'Import all your existing classes and bookings instantly'
+      description: 'Import all your existing events and schedules instantly'
     },
     {
       icon: <TrendingUp className="h-5 w-5" />,
@@ -103,7 +92,7 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
     {
       icon: <Users className="h-5 w-5" />,
       title: 'Student Continuity',
-      description: 'Keep all your student data and booking history'
+      description: 'Keep all your existing calendar data and relationships'
     }
   ];
 
@@ -118,16 +107,22 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
     setSetupMode('setup');
   };
 
-  const handleSetupComplete = (integrationData: any) => {
-    setSetupMode('completed');
+  const handleConnectProvider = async (providerId: string) => {
+    setSelectedProvider(providerId);
+    setIsConnecting(true);
+
+    // Simulate connection process
     setTimeout(() => {
-      onNext({
-        calendarSetup: {
-          completed: true,
-          providers: selectedProviders,
-          integrationData
-        }
-      });
+      setSetupMode('completed');
+      setTimeout(() => {
+        onNext({
+          calendarSetup: {
+            completed: true,
+            provider: providerId,
+            connectedAt: new Date().toISOString()
+          }
+        });
+      }, 2000);
     }, 2000);
   };
 
@@ -176,83 +171,115 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
 
   if (setupMode === 'setup') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <Calendar className="h-8 w-8 text-blue-600" />
+          </motion.div>
+
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Connect Your Calendar
           </h2>
-          <p className="text-gray-600">
-            Choose your calendar provider to import existing classes and bookings
+          <p className="text-gray-600 max-w-lg mx-auto">
+            Choose your preferred calendar to sync your existing events and schedules
           </p>
         </div>
 
-        {/* Calendar Integration Component - Real OAuth Integration */}
-        <div className="bg-gray-50 rounded-lg p-6">
-          <div className="text-center space-y-4">
-            <h3 className="font-semibold text-gray-900">Calendar Providers</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Google Calendar */}
-              <button
-                onClick={() => handleSetupComplete({ provider: 'google' })}
-                className="p-4 border border-gray-300 rounded-lg hover:border-blue-500 transition-colors"
+        {/* Calendar Providers */}
+        <div className="max-w-2xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6">
+            {calendarProviders.map((provider, index) => (
+              <motion.div
+                key={provider.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group"
               >
-                <Calendar className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                <div className="font-medium">Google Calendar</div>
-                <div className="text-sm text-gray-500">Connect Google</div>
-              </button>
+                <button
+                  onClick={() => handleConnectProvider(provider.id)}
+                  disabled={isConnecting && selectedProvider !== provider.id}
+                  className={`w-full p-6 border-2 rounded-xl transition-all duration-200 text-left ${
+                    isConnecting && selectedProvider === provider.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : isConnecting
+                      ? 'border-gray-200 bg-gray-50 opacity-50'
+                      : 'border-gray-200 hover:border-blue-300 hover:shadow-lg group-hover:scale-105'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      {isConnecting && selectedProvider === provider.id ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        provider.logo
+                      )}
+                    </div>
 
-              {/* Calendly Integration - Temporarily disabled */}
-              <div className="p-4 border border-gray-300 rounded-lg bg-gray-100 text-center opacity-50">
-                <div className="text-2xl mb-2">📆</div>
-                <div className="font-medium">Calendly</div>
-                <div className="text-sm text-gray-500">Setup pending</div>
-              </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900">{provider.name}</h3>
+                        {provider.popular && (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                            Popular
+                          </span>
+                        )}
+                      </div>
 
-              {/* Square Appointments */}
-              <a
-                href="/api/auth/square"
-                className="p-4 border border-gray-300 rounded-lg hover:border-orange-500 transition-colors block text-center"
-              >
-                <div className="text-2xl mb-2">⬜</div>
-                <div className="font-medium">Square Appointments</div>
-                <div className="text-sm text-gray-500">Import bookings</div>
-              </a>
+                      <p className="text-sm text-gray-600 mb-3">{provider.description}</p>
 
-              {/* MindBody */}
-              <button
-                onClick={() => handleSetupComplete({ provider: 'mindbody' })}
-                className="p-4 border border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
-              >
-                <MonitorSpeaker className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                <div className="font-medium">MindBody</div>
-                <div className="text-sm text-gray-500">Import bookings</div>
-              </button>
-            </div>
-            <div className="text-xs text-gray-500 space-y-1">
-              <p>✅ Calendly and Square integrations now available</p>
-              <p>Click any provider to start the connection process</p>
-            </div>
+                      <div className="space-y-1">
+                        {provider.benefits.map((benefit, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-500">
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            {benefit}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-3 text-xs text-gray-500">
+                        ⏱️ Setup time: {provider.estimatedTime}
+                      </div>
+                    </div>
+                  </div>
+
+                  {isConnecting && selectedProvider === provider.id ? (
+                    <div className="mt-4 text-sm text-blue-600 font-medium">
+                      Connecting to {provider.name}...
+                    </div>
+                  ) : (
+                    <div className="mt-4 text-sm text-blue-600 font-medium group-hover:text-blue-700">
+                      Connect {provider.name} →
+                    </div>
+                  )}
+                </button>
+              </motion.div>
+            ))}
           </div>
-        </div>
-
-        {/* Progress indicator */}
-        <div className="text-center">
-          <p className="text-sm text-gray-500">
-            This usually takes 2-5 minutes depending on your calendar size
-          </p>
         </div>
 
         {/* Navigation */}
         <div className="flex justify-between pt-6">
           <button
             onClick={() => setSetupMode('overview')}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            disabled={isConnecting}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium disabled:opacity-50"
           >
             ← Back
           </button>
           <button
             onClick={handleSkip}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            disabled={isConnecting}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 font-medium disabled:opacity-50"
           >
             Skip for now
             <SkipForward className="h-4 w-4" />
@@ -304,31 +331,48 @@ export default function CalendarSetupStep({ onNext, onPrevious, data }: Calendar
       </div>
 
       {/* Calendar Providers Preview */}
-      <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 mb-4 text-center">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8">
+        <h3 className="font-semibold text-gray-900 mb-6 text-center text-lg">
           Supported Calendar Systems
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {calendarProviders.map((provider, index) => (
-            <motion.div
-              key={provider.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              className={`relative p-3 border rounded-lg text-center hover:shadow-md transition-all ${
-                provider.popular ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'
-              }`}
-            >
-              {provider.popular && (
+        <div className="max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-6">
+            {calendarProviders.map((provider, index) => (
+              <motion.div
+                key={provider.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative p-4 border-2 border-blue-200 bg-white rounded-xl text-center hover:shadow-lg hover:scale-105 transition-all duration-200"
+              >
                 <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                   Popular
                 </div>
-              )}
-              <div className="text-2xl mb-2">{provider.icon}</div>
-              <div className="font-medium text-sm text-gray-900">{provider.name}</div>
-              <div className="text-xs text-gray-500 mt-1">{provider.estimatedTime}</div>
-            </motion.div>
-          ))}
+
+                <div className="flex justify-center mb-3">
+                  {provider.logo}
+                </div>
+
+                <div className="font-semibold text-gray-900 mb-1">{provider.name}</div>
+                <div className="text-xs text-gray-500 mb-2">{provider.estimatedTime}</div>
+
+                <div className="space-y-1">
+                  {provider.benefits.slice(0, 2).map((benefit, idx) => (
+                    <div key={idx} className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                      <CheckCircle className="h-3 w-3 text-green-500" />
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            ✨ Connect in under 2 minutes with one-click authorization
+          </p>
         </div>
       </div>
 

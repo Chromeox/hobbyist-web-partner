@@ -1,7 +1,7 @@
 import SwiftUI
 
 // Simple version for immediate testing
-@main
+//@main  // Disabled - using ProductionApp.swift as main entry point
 struct SimpleHobbyistApp: App {
     var body: some Scene {
         WindowGroup {

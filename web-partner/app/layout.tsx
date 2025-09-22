@@ -1,18 +1,26 @@
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { PaymentModelProvider } from '@/lib/contexts/PaymentModelContext'
 import { Toaster } from 'react-hot-toast'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Hobbyist Partner Portal',
   description: 'Studio management dashboard for fitness and wellness partners',
   keywords: ['fitness', 'wellness', 'studio', 'management', 'booking', 'classes'],
   authors: [{ name: 'Hobbyist Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

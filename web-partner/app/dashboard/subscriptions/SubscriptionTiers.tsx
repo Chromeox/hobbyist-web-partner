@@ -7,7 +7,6 @@ import {
   Check,
   X,
   Plus,
-  Edit,
   Trash2,
   Users,
   TrendingUp,
@@ -24,7 +23,8 @@ import {
   Sparkles,
   Crown,
   Award,
-  Infinity
+  Infinity,
+  Heart
 } from 'lucide-react';
 
 interface SubscriptionTier {
@@ -65,7 +65,6 @@ interface Subscriber {
 export default function SubscriptionTiers() {
   const [activeTab, setActiveTab] = useState('tiers');
   const [showAddTierModal, setShowAddTierModal] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
 
   const subscriptionTiers: SubscriptionTier[] = [
     {
@@ -219,12 +218,6 @@ export default function SubscriptionTiers() {
         <div className={`p-3 rounded-xl bg-gradient-to-br ${tier.highlightColor}`}>
           <tier.icon className="w-6 h-6 text-gray-900" />
         </div>
-        <button
-          onClick={() => setSelectedTier(tier)}
-          className="p-2 hover:bg-white/10 rounded-lg"
-        >
-          <Edit className="w-4 h-4 text-gray-600" />
-        </button>
       </div>
 
       <h3 className="text-xl font-bold text-gray-900 mb-2">{tier.name}</h3>
@@ -241,7 +234,7 @@ export default function SubscriptionTiers() {
         {tier.features.map((feature, i) => (
           <div key={i} className="flex items-start gap-2">
             <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-            <span className="text-sm text-gray-300">{feature}</span>
+            <span className="text-sm text-gray-700">{feature}</span>
           </div>
         ))}
       </div>
@@ -306,7 +299,7 @@ export default function SubscriptionTiers() {
             </thead>
             <tbody>
               <tr className="border-b border-gray-200/50">
-                <td className="py-3 px-4 text-sm text-gray-300">Classes per month</td>
+                <td className="py-3 px-4 text-sm text-gray-700">Classes per month</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
                     <span className="text-sm text-gray-900 font-medium">
@@ -316,7 +309,7 @@ export default function SubscriptionTiers() {
                 ))}
               </tr>
               <tr className="border-b border-gray-200/50">
-                <td className="py-3 px-4 text-sm text-gray-300">Booking window</td>
+                <td className="py-3 px-4 text-sm text-gray-700">Booking window</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
                     <span className="text-sm text-gray-900">{tier.limitations.bookingWindow} days</span>
@@ -324,7 +317,7 @@ export default function SubscriptionTiers() {
                 ))}
               </tr>
               <tr className="border-b border-gray-200/50">
-                <td className="py-3 px-4 text-sm text-gray-300">Guest passes</td>
+                <td className="py-3 px-4 text-sm text-gray-700">Guest passes</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
                     <span className="text-sm text-gray-900">{tier.limitations.guestPasses}</span>
@@ -332,7 +325,7 @@ export default function SubscriptionTiers() {
                 ))}
               </tr>
               <tr className="border-b border-gray-200/50">
-                <td className="py-3 px-4 text-sm text-gray-300">Priority booking</td>
+                <td className="py-3 px-4 text-sm text-gray-700">Priority booking</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
                     {tier.limitations.priorityBooking ? (
@@ -344,7 +337,7 @@ export default function SubscriptionTiers() {
                 ))}
               </tr>
               <tr>
-                <td className="py-3 px-4 text-sm text-gray-300">Exclusive classes</td>
+                <td className="py-3 px-4 text-sm text-gray-700">Exclusive classes</td>
                 {subscriptionTiers.map(tier => (
                   <td key={tier.id} className="text-center py-3 px-4">
                     {tier.limitations.exclusiveClasses ? (
@@ -418,9 +411,9 @@ export default function SubscriptionTiers() {
                     <span className="text-sm capitalize">{subscriber.status}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-300">{subscriber.nextBilling}</td>
+                <td className="py-3 px-4 text-sm text-gray-700">{subscriber.nextBilling}</td>
                 <td className="py-3 px-4 text-sm text-gray-900 font-medium">${subscriber.totalSpent}</td>
-                <td className="py-3 px-4 text-sm text-gray-300">{subscriber.classesAttended}</td>
+                <td className="py-3 px-4 text-sm text-gray-700">{subscriber.classesAttended}</td>
                 <td className="py-3 px-4">
                   <button className="text-purple-400 hover:text-purple-300 text-sm">
                     Manage
@@ -502,7 +495,7 @@ export default function SubscriptionTiers() {
               return (
                 <div key={tier.id}>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-300">{tier.name}</span>
+                    <span className="text-sm text-gray-700">{tier.name}</span>
                     <span className="text-sm text-gray-900 font-medium">
                       {tier.currentSubscribers} ({percentage.toFixed(1)}%)
                     </span>
@@ -530,7 +523,7 @@ export default function SubscriptionTiers() {
               { reason: 'Other', count: 6, percentage: 5 }
             ].map(item => (
               <div key={item.reason} className="flex items-center justify-between">
-                <span className="text-sm text-gray-300">{item.reason}</span>
+                <span className="text-sm text-gray-700">{item.reason}</span>
                 <div className="flex items-center gap-3">
                   <div className="w-32 bg-gray-700 rounded-full h-2">
                     <div 

@@ -127,7 +127,7 @@ export default function DynamicPricing() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h3 className="text-lg font-semibold text-white">Active Pricing Rules</h3>
-          <p className="text-sm text-gray-400 mt-1">Automatically adjust prices based on demand and timing</p>
+          <p className="text-sm text-gray-600 mt-1">Automatically adjust prices based on demand and timing</p>
         </div>
         <button
           onClick={() => {
@@ -164,25 +164,25 @@ export default function DynamicPricing() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-white">{rule.name}</h4>
-                    <p className="text-sm text-gray-400 capitalize">{rule.type.replace('-', ' ')}</p>
+                    <p className="text-sm text-gray-600 capitalize">{rule.type.replace('-', ' ')}</p>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-gray-400">Adjustment:</span>
+                    <span className="text-gray-600">Adjustment:</span>
                     <span className={`font-semibold ${
                       rule.adjustment.value > 0 ? 'text-red-400' : 'text-green-400'
                     }`}>
                       {rule.adjustment.value > 0 ? '+' : ''}{rule.adjustment.value}%
                     </span>
                     {rule.adjustment.maxPrice && (
-                      <span className="text-gray-500">
+                      <span className="text-gray-700">
                         (max ${rule.adjustment.maxPrice})
                       </span>
                     )}
                     {rule.adjustment.minPrice && (
-                      <span className="text-gray-500">
+                      <span className="text-gray-700">
                         (min ${rule.adjustment.minPrice})
                       </span>
                     )}
@@ -190,8 +190,8 @@ export default function DynamicPricing() {
 
                   {rule.conditions.daysOfWeek && (
                     <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-300">{rule.conditions.daysOfWeek.join(', ')}</span>
+                      <Calendar className="w-3 h-3 text-gray-600" />
+                      <span className="text-gray-700">{rule.conditions.daysOfWeek.join(', ')}</span>
                     </div>
                   )}
 

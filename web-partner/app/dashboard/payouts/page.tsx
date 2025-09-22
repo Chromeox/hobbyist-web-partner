@@ -7,7 +7,7 @@ import RevenueSharing from './RevenueSharing';
 import CommissionCalculator from './CommissionCalculator';
 import PayoutSchedule from './PayoutSchedule';
 import FinancialReports from './FinancialReports';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
   DollarSign, 

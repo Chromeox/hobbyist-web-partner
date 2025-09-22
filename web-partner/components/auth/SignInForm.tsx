@@ -69,7 +69,7 @@ export const SignInForm = memo(function SignInForm() {
   }, [state.email, state.password, state.rememberMe, signIn, router, returnUrl])
 
   const handleOAuthSignIn = useCallback(async (
-    provider: 'google' | 'apple' | 'facebook'
+    provider: 'google' | 'apple'
   ) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     
@@ -214,7 +214,7 @@ export const SignInForm = memo(function SignInForm() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => handleOAuthSignIn('google')}
@@ -249,17 +249,6 @@ export const SignInForm = memo(function SignInForm() {
             >
               <svg className="h-5 w-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.569 12.382c-.04-1.29.444-2.342 1.451-3.159-.542-.774-1.355-1.213-2.437-1.317-.981-.094-2.064.585-2.605.585-.541 0-1.396-.57-2.165-.554-1.165.015-2.179.668-2.724 1.677-1.159 2.024-.295 4.981.798 6.616.572.802 1.217 1.683 2.059 1.652.847-.031 1.158-.528 2.179-.528 1.021 0 1.311.528 2.179.513.905-.016 1.456-.795 1.997-1.611.638-.893.883-1.788.898-1.835-.02-.005-1.695-.635-1.73-2.539zm-1.591-4.645c.444-.558.754-1.301.662-2.072-.695.031-1.532.476-2.007 1.034-.428.496-.816 1.301-.719 2.057.76.061 1.545-.381 2.064-1.019z"/>
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('facebook')}
-              disabled={state.isLoading}
-              className="w-full py-2 px-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
-            >
-              <svg className="h-5 w-5 mx-auto" fill="#1877F2" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
             </button>
           </div>

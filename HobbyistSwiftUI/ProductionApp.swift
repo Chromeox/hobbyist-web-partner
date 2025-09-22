@@ -1,8 +1,8 @@
 import SwiftUI
 
 // Production-ready app entry point
-// Uncomment the @main attribute to use this as the production app
-// @main
+// This is now the main entry point for the production app
+@main
 struct ProductionHobbyistApp: App {
     @StateObject private var supabaseService = SimpleSupabaseService.shared
 

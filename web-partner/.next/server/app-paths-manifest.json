@@ -1,7 +1,7 @@
 {
-  "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/auth/signin/page": "app/auth/signin/page.js",
-  "/auth/callback-handler/page": "app/auth/callback-handler/page.js",
-  "/dashboard/intelligence/page": "app/dashboard/intelligence/page.js"
+  "/onboarding/page": "app/onboarding/page.js",
+  "/dashboard/classes/page": "app/dashboard/classes/page.js",
+  "/dashboard/staff/page": "app/dashboard/staff/page.js",
+  "/auth/signin/page": "app/auth/signin/page.js"
 }

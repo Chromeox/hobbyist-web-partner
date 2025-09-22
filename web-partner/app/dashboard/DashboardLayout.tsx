@@ -168,13 +168,13 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
           {/* Logo */}
           <div className="px-6 py-6 border-b">
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
+              <Link href="/dashboard" className="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
                 <Building2 className="h-8 w-8 text-blue-600 mr-3" />
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Hobbyist</h2>
                   <p className="text-xs text-gray-500">Partner Portal</p>
                 </div>
-              </div>
+              </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="lg:hidden"
@@ -270,8 +270,13 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                   {userName.charAt(0).toUpperCase()}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">{userName}</p>
+              <div className="ml-3 flex-1 min-w-0">
+                <p
+                  className="text-sm font-medium text-gray-900 truncate"
+                  title={userName}
+                >
+                  {userName}
+                </p>
                 <p className="text-xs text-gray-500">Admin</p>
               </div>
               <button

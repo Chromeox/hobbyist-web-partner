@@ -33,26 +33,65 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('Square OAuth callback successful - authorization code received:', code.substring(0, 10) + '...');
+    console.log('Exchanging Square authorization code for tokens...');
 
-    // For now, simulate successful token exchange
-    // TODO: Implement actual token exchange with Square API
+    // Exchange authorization code for access token using Square API
     try {
-      // Simulate token exchange (replace with actual Square API call)
-      const simulatedTokens = {
-        access_token: 'EAAA14hlI0D5c0D-II1Ua2gUSHq7S5Gv4QYicD1Z1qeK28j8li5RR2siB4k9mLi0',
-        refresh_token: 'EQAA1zYQFoTvbio7gXaFRhwat_2IukNFivpmcnShWCt9QNgZ0aR8fDJNse0J25bB',
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+      const tokenExchangePayload = {
+        client_id: process.env.SQUARE_APPLICATION_ID,
+        client_secret: process.env.SQUARE_APPLICATION_SECRET,
+        code: code,
+        grant_type: 'authorization_code'
       };
 
-      // Store integration data in localStorage (temporary solution)
+      const squareApiUrl = process.env.SQUARE_ENVIRONMENT === 'production'
+        ? 'https://connect.squareup.com'
+        : 'https://connect.squareupsandbox.com';
+
+      const tokenResponse = await fetch(`${squareApiUrl}/oauth2/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Square-Version': '2023-10-18'
+        },
+        body: JSON.stringify(tokenExchangePayload)
+      });
+
+      if (!tokenResponse.ok) {
+        const errorData = await tokenResponse.text();
+        console.error('Square API token exchange failed:', errorData);
+        throw new Error(`Square API error: ${tokenResponse.status} - ${errorData}`);
+      }
+
+      const tokenData = await tokenResponse.json();
+      console.log('Square token exchange successful:', {
+        expires_at: tokenData.expires_at,
+        merchant_id: tokenData.merchant_id
+      });
+
+      // Get merchant information
+      const merchantResponse = await fetch(`${squareApiUrl}/v2/merchants/${tokenData.merchant_id}`, {
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Square-Version': '2023-10-18'
+        }
+      });
+
+      let merchantInfo = { business_name: 'Square Merchant' };
+      if (merchantResponse.ok) {
+        const merchantData = await merchantResponse.json();
+        merchantInfo = merchantData.merchant;
+      }
+
+      // Store integration data (in production, save to database)
       const integrationData = {
         provider: 'square',
         status: 'connected',
-        merchant_name: 'Hobbyist Partner Portal',
-        location_name: 'Canada',
+        merchant_name: merchantInfo.business_name || 'Square Merchant',
+        location_name: merchantInfo.country || 'Unknown',
         connected_at: new Date().toISOString(),
-        tokens: simulatedTokens
+        merchant_id: tokenData.merchant_id,
+        expires_at: tokenData.expires_at
       };
 
       console.log('Square integration successful');

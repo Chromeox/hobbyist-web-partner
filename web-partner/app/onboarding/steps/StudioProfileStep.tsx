@@ -336,6 +336,16 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
             </div>
           </div>
         </div>
+
+        {/* Submit Button */}
+        <div className="mt-8 flex justify-end">
+          <button
+            type="submit"
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            Continue
+          </button>
+        </div>
       </form>
     </div>
   );
