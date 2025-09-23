@@ -6,8 +6,16 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isSignUp = false
     @State private var fullName = ""
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @FocusState private var focusedField: Field?
 
     let onLoginSuccess: () -> Void
+
+    enum Field: Hashable {
+        case fullName, email, password
+    }
 
     var body: some View {
         NavigationStack {
@@ -35,6 +43,11 @@ struct LoginView: View {
                         TextField("Full Name", text: $fullName)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .textContentType(.name)
+                            .focused($focusedField, equals: .fullName)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .email
+                            }
                     }
 
                     TextField("Email", text: $email)
@@ -42,37 +55,53 @@ struct LoginView: View {
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
+                        .focused($focusedField, equals: .email)
+                        .submitLabel(.next)
+                        .onSubmit {
+                            focusedField = .password
+                        }
 
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .textContentType(.password)
+                        .focused($focusedField, equals: .password)
+                        .submitLabel(.go)
+                        .onSubmit {
+                            if formIsValid {
+                                performAuthentication()
+                            }
+                        }
                 }
                 .padding(.horizontal)
 
+                // Validation hints
+                if !email.isEmpty && !isValidEmail(email) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text("Please enter a valid email address")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                }
+
+                if isSignUp && !password.isEmpty && password.count < 6 {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text("Password must be at least 6 characters")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                }
+
                 // Action Button
                 Button(isSignUp ? "Create Account" : "Sign In") {
-                    Task {
-                        if isSignUp {
-                            await supabaseService.signUp(
-                                email: email,
-                                password: password,
-                                fullName: fullName
-                            )
-                            // For signup, show message about email verification
-                            if supabaseService.errorMessage == nil {
-                                // TODO: Show email verification message
-                            }
-                        } else {
-                            await supabaseService.signIn(
-                                email: email,
-                                password: password
-                            )
-                            // Check if sign in was successful
-                            if supabaseService.isAuthenticated {
-                                onLoginSuccess()
-                            }
-                        }
-                    }
+                    performAuthentication()
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -84,8 +113,12 @@ struct LoginView: View {
 
                 // Toggle
                 Button(isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up") {
-                    isSignUp.toggle()
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isSignUp.toggle()
+                    }
                     fullName = ""
+                    focusedField = nil
+                    supabaseService.errorMessage = nil
                 }
                 .foregroundColor(.blue)
 
@@ -97,14 +130,77 @@ struct LoginView: View {
                 Spacer()
             }
             .padding()
+            .onTapGesture {
+                focusedField = nil
+            }
+            .alert(alertTitle, isPresented: $showAlert) {
+                Button("OK") { }
+            } message: {
+                Text(alertMessage)
+            }
         }
     }
 
     private var formIsValid: Bool {
+        let emailValid = isValidEmail(email)
+
         if isSignUp {
-            return !email.isEmpty && !password.isEmpty && !fullName.isEmpty && password.count >= 6
+            return emailValid && !password.isEmpty && !fullName.isEmpty && password.count >= 6
         } else {
-            return !email.isEmpty && !password.isEmpty
+            return emailValid && !password.isEmpty
+        }
+    }
+
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+    }
+
+    private func performAuthentication() {
+        focusedField = nil // Dismiss keyboard
+
+        Task {
+            if isSignUp {
+                await supabaseService.signUp(
+                    email: email,
+                    password: password,
+                    fullName: fullName
+                )
+
+                if let errorMessage = supabaseService.errorMessage {
+                    // Show error alert
+                    alertTitle = "Signup Failed"
+                    alertMessage = errorMessage
+                    showAlert = true
+                } else {
+                    // Show success alert with email verification instructions
+                    alertTitle = "Account Created!"
+                    alertMessage = "Please check your email (\(email)) for a verification link before signing in."
+                    showAlert = true
+
+                    // Switch to login mode after successful signup
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        isSignUp = false
+                        fullName = ""
+                        password = ""
+                    }
+                }
+            } else {
+                await supabaseService.signIn(
+                    email: email,
+                    password: password
+                )
+
+                if let errorMessage = supabaseService.errorMessage {
+                    // Show error alert
+                    alertTitle = "Login Failed"
+                    alertMessage = errorMessage
+                    showAlert = true
+                } else if supabaseService.isAuthenticated {
+                    // Successful login
+                    onLoginSuccess()
+                }
+            }
         }
     }
 }
