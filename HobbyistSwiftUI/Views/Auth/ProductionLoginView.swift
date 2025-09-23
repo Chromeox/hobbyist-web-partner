@@ -1,13 +1,11 @@
 import SwiftUI
 
-struct LoginView: View {
+struct ProductionLoginView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = false
     @State private var fullName = ""
-
-    let onLoginSuccess: () -> Void
 
     var body: some View {
         NavigationStack {
@@ -24,7 +22,7 @@ struct LoginView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
-                    Text(isSignUp ? "Create your account" : "Welcome back")
+                    Text("Discover your next passion")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -58,19 +56,11 @@ struct LoginView: View {
                                 password: password,
                                 fullName: fullName
                             )
-                            // For signup, show message about email verification
-                            if supabaseService.errorMessage == nil {
-                                // TODO: Show email verification message
-                            }
                         } else {
                             await supabaseService.signIn(
                                 email: email,
                                 password: password
                             )
-                            // Check if sign in was successful
-                            if supabaseService.isAuthenticated {
-                                onLoginSuccess()
-                            }
                         }
                     }
                 }
@@ -109,8 +99,7 @@ struct LoginView: View {
     }
 }
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView(onLoginSuccess: {})
-    }
+#Preview {
+    ProductionLoginView()
+        .environmentObject(SimpleSupabaseService.shared)
 }

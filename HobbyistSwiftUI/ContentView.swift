@@ -1,15 +1,22 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var supabaseService = SimpleSupabaseService.shared
     @State private var isLoggedIn = false
 
     var body: some View {
-        if isLoggedIn {
-            HomeView()
-        } else {
-            LoginView(onLoginSuccess: {
-                isLoggedIn = true
-            })
+        Group {
+            if isLoggedIn || supabaseService.isAuthenticated {
+                HomeView()
+            } else {
+                LoginView(onLoginSuccess: {
+                    isLoggedIn = true
+                })
+                .environmentObject(supabaseService)
+            }
+        }
+        .onAppear {
+            isLoggedIn = supabaseService.isAuthenticated
         }
     }
 }
