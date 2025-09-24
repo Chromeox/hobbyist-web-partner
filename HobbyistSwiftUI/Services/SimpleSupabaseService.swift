@@ -19,9 +19,9 @@ final class SimpleSupabaseService: ObservableObject {
     }
 
     private func setupSupabase() {
-        // Use the existing configuration or fallback to simple setup
+        // Use the current valid configuration (updated API key from Jan 2025)
         let supabaseURL = "https://mcjqvdzdhtcvbrejvrtp.supabase.co"
-        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janF2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTQ4MDMxNjAsImV4cCI6MjAxMDM3OTE2MH0.h4gP4fv7DUo9KzuJyaVsKlgJKX8k3YOzQ3QN3Y3t1Vc"
+        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janF2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5MDIzNzksImV4cCI6MjA2NDQ3ODM3OX0.puthoId8ElCgYzuyKJTTyzR9FeXmVA-Tkc8RV1rqdkc"
 
         guard let url = URL(string: supabaseURL) else {
             print("❌ Invalid Supabase URL")

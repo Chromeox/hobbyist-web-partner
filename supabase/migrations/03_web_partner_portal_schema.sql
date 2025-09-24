@@ -353,8 +353,8 @@ CREATE TABLE IF NOT EXISTS public.analytics_events (
 );
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_studios_status ON public.studios(status);
-CREATE INDEX IF NOT EXISTS idx_studios_slug ON public.studios(slug);
+-- CREATE INDEX IF NOT EXISTS idx_studios_status ON public.studios(status); -- Column 'status' does not exist in studios table
+-- CREATE INDEX IF NOT EXISTS idx_studios_slug ON public.studios(slug); -- Column 'slug' does not exist in studios table
 CREATE INDEX IF NOT EXISTS idx_studio_staff_studio_id ON public.studio_staff(studio_id);
 CREATE INDEX IF NOT EXISTS idx_studio_staff_user_id ON public.studio_staff(user_id);
 CREATE INDEX IF NOT EXISTS idx_studio_classes_studio_id ON public.studio_classes(studio_id);

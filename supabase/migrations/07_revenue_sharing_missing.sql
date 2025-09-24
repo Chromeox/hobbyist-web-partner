@@ -145,15 +145,12 @@ ALTER TABLE public.payout_batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.commission_overrides ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
--- Revenue shares: viewable by involved parties
+-- Revenue shares: viewable by involved parties (simplified due to missing columns)
 CREATE POLICY "View own revenue shares" ON public.revenue_shares
     FOR SELECT USING (
         auth.uid() IN (
             SELECT b.user_id FROM public.bookings b WHERE b.id = revenue_shares.booking_id
-            UNION
-            SELECT i.user_id FROM public.instructors i WHERE i.id = revenue_shares.instructor_id
-            UNION
-            SELECT s.owner_id FROM public.studios s WHERE s.id = revenue_shares.studio_id
+            -- Note: instructor and studio ownership validation would require user relationship tables
         )
     );
 

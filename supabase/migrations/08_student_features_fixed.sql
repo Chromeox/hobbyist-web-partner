@@ -121,7 +121,7 @@ CREATE POLICY "Users can view waitlists" ON public.class_waitlists
     FOR SELECT USING (true);
 
 CREATE POLICY "Users can manage own waitlist entries" ON public.class_waitlists
-    FOR INSERT USING (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
     
 CREATE POLICY "Users can update own waitlist entries" ON public.class_waitlists
     FOR UPDATE USING (auth.uid() = user_id);
