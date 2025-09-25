@@ -15,7 +15,7 @@ struct LoginView: View {
     @State private var showingPasswordResetAlert = false
     @FocusState private var focusedField: Field?
 
-    let onLoginSuccess: () -> Void
+    let onLoginSuccess: (Bool) -> Void // Bool indicates if this is a new user (true) or returning user (false)
 
     enum Field: Hashable {
         case fullName, email, password
@@ -315,16 +315,22 @@ struct LoginView: View {
                     alertMessage = errorMessage
                     showAlert = true
                 } else {
-                    // Show success alert with email verification instructions
-                    alertTitle = "Account Created!"
-                    alertMessage = "Please check your email (\(email)) for a verification link before signing in."
-                    showAlert = true
+                    // Check if user is immediately authenticated (no email verification required)
+                    if supabaseService.isAuthenticated {
+                        // Successful signup with immediate authentication - new user
+                        onLoginSuccess(true)
+                    } else {
+                        // Show success alert with email verification instructions
+                        alertTitle = "Account Created!"
+                        alertMessage = "Please check your email (\(email)) for a verification link before signing in."
+                        showAlert = true
 
-                    // Switch to login mode after successful signup
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                        isSignUp = false
-                        fullName = ""
-                        password = ""
+                        // Switch to login mode after successful signup
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            isSignUp = false
+                            fullName = ""
+                            password = ""
+                        }
                     }
                 }
             } else {
@@ -339,8 +345,8 @@ struct LoginView: View {
                     alertMessage = errorMessage
                     showAlert = true
                 } else if supabaseService.isAuthenticated {
-                    // Successful login
-                    onLoginSuccess()
+                    // Successful login - returning user
+                    onLoginSuccess(false)
                 }
             }
         }
@@ -389,6 +395,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(onLoginSuccess: {})
+        LoginView(onLoginSuccess: { _ in })
     }
 }
