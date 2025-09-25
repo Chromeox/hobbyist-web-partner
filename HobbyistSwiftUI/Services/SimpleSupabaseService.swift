@@ -182,6 +182,67 @@ final class SimpleSupabaseService: ObservableObject {
             return false
         }
     }
+
+    // MARK: - User Preferences & Onboarding
+
+    func saveOnboardingPreferences(_ preferences: [String: Any]) async -> Bool {
+        guard let userId = currentUser?.id else {
+            print("❌ No authenticated user for saving preferences")
+            return false
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            // For now, just save to UserDefaults as a fallback
+            // TODO: Implement proper Supabase integration when user_profiles table is ready
+            UserDefaults.standard.set(true, forKey: "hobbyist_onboarding_completed")
+            UserDefaults.standard.set(preferences, forKey: "hobbyist_user_preferences")
+
+            print("✅ Onboarding preferences saved successfully (to UserDefaults)")
+            isLoading = false
+            return true
+
+        } catch {
+            print("❌ Error saving onboarding preferences: \(error)")
+            errorMessage = "Failed to save your preferences. Please try again."
+            isLoading = false
+            return false
+        }
+    }
+
+    func fetchUserPreferences() async -> [String: Any]? {
+        guard let userId = currentUser?.id else {
+            print("❌ No authenticated user for fetching preferences")
+            return nil
+        }
+
+        // For now, fetch from UserDefaults as fallback
+        // TODO: Implement proper Supabase integration when user_profiles table is ready
+        if let preferences = UserDefaults.standard.dictionary(forKey: "hobbyist_user_preferences") {
+            var result = preferences
+            result["onboarding_completed"] = UserDefaults.standard.bool(forKey: "hobbyist_onboarding_completed")
+            print("✅ User preferences fetched successfully (from UserDefaults)")
+            return result
+        } else {
+            print("ℹ️ No user preferences found")
+            return nil
+        }
+    }
+
+    func updateOnboardingCompletion(_ isCompleted: Bool) async -> Bool {
+        guard let userId = currentUser?.id else {
+            print("❌ No authenticated user for updating onboarding status")
+            return false
+        }
+
+        // For now, update UserDefaults as fallback
+        // TODO: Implement proper Supabase integration when user_profiles table is ready
+        UserDefaults.standard.set(isCompleted, forKey: "hobbyist_onboarding_completed")
+        print("✅ Onboarding completion status updated (to UserDefaults)")
+        return true
+    }
 }
 
 // MARK: - Simple Models

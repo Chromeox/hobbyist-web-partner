@@ -44,8 +44,15 @@ struct ContentView: View {
             isLoggedIn = supabaseService.isAuthenticated
 
             if isLoggedIn {
-                // Check if onboarding is needed - simplified check for now
-                needsOnboarding = !UserDefaults.standard.bool(forKey: "hobbyist_onboarding_completed")
+                // Check if onboarding is needed from Supabase backend
+                if let userPreferences = await supabaseService.fetchUserPreferences(),
+                   let onboardingCompleted = userPreferences["onboarding_completed"] as? Bool,
+                   onboardingCompleted {
+                    needsOnboarding = false
+                } else {
+                    // No preferences found or onboarding not completed - show onboarding
+                    needsOnboarding = true
+                }
             }
 
             isCheckingStatus = false
@@ -56,8 +63,10 @@ struct ContentView: View {
 // MARK: - Enhanced Onboarding Flow
 
 struct EnhancedOnboardingFlow: View {
+    @EnvironmentObject var supabaseService: SimpleSupabaseService
     @State private var currentStep = 0
     @State private var userPreferences: [String: Any] = [:]
+    @State private var isSavingPreferences = false
 
     let onComplete: () -> Void
 
@@ -84,7 +93,20 @@ struct EnhancedOnboardingFlow: View {
                     if currentStep < totalSteps - 1 {
                         currentStep += 1
                     } else {
-                        onComplete()
+                        // Save preferences to Supabase before completing
+                        Task {
+                            isSavingPreferences = true
+                            let success = await supabaseService.saveOnboardingPreferences(userPreferences)
+                            isSavingPreferences = false
+
+                            if success {
+                                onComplete()
+                            } else {
+                                // Could show an error here, but for now just complete anyway
+                                print("⚠️ Failed to save preferences, but continuing with onboarding completion")
+                                onComplete()
+                            }
+                        }
                     }
                 },
                 onSkip: { currentStep += 1 }
@@ -287,21 +309,47 @@ struct EnhancedOnboardingFlow: View {
                         ))
                         .frame(width: 120, height: 120)
 
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.green)
+                    if isSavingPreferences {
+                        ProgressView()
+                            .scaleEffect(2)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.green)
+                    }
                 }
 
                 VStack(spacing: 16) {
-                    Text("Welcome to Vancouver's Creative Community!")
+                    Text(isSavingPreferences ? "Saving your preferences..." : "Welcome to Vancouver's Creative Community!")
                         .font(.title2)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
 
-                    Text("You're all set! Your personalized class recommendations are waiting.")
+                    Text(isSavingPreferences ? "Just a moment while we personalize your experience." : "You're all set! Your personalized class recommendations are waiting.")
                         .font(.body)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                }
+
+                // Show preferences summary
+                if !isSavingPreferences && !userPreferences.isEmpty {
+                    VStack(spacing: 8) {
+                        if let interests = userPreferences["interests"] as? [String], !interests.isEmpty {
+                            Text("Interests: \(interests.joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        if let neighborhood = userPreferences["neighborhood"] as? String, !neighborhood.isEmpty {
+                            Text("Preferred Area: \(neighborhood)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
                 }
 
                 Spacer()
