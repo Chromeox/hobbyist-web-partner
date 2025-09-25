@@ -200,18 +200,37 @@ struct WelcomeView: View {
             VStack(spacing: 32) {
                 Spacer()
 
-                // App Icon/Logo
-                Image(systemName: "figure.yoga")
-                    .font(.system(size: 100))
-                    .foregroundColor(.blue)
+                // Enhanced App Logo with Vancouver elements
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [.blue.opacity(0.2), .green.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 140, height: 140)
+
+                    Image(systemName: "figure.yoga")
+                        .font(.system(size: 60, weight: .light))
+                        .foregroundStyle(LinearGradient(
+                            colors: [.blue, .green],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                }
 
                 VStack(spacing: 16) {
                     Text("Welcome to Hobbyist!")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
+                        .foregroundStyle(LinearGradient(
+                            colors: [.primary, .blue],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ))
 
-                    Text("Discover your next passion and connect with a community of learners.")
+                    Text("Discover Vancouver's most creative hobby classes and connect with a community of passionate learners.")
                         .font(.title3)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -221,20 +240,26 @@ struct WelcomeView: View {
                 VStack(spacing: 12) {
                     FeatureHighlight(
                         icon: "magnifyingglass.circle.fill",
-                        title: "Discover Classes",
-                        description: "Find pottery, yoga, cooking, and more near you"
+                        title: "Discover Vancouver Classes",
+                        description: "Find pottery at Claymates, boxing at Rumble, and more across the city"
                     )
 
                     FeatureHighlight(
                         icon: "calendar.circle.fill",
                         title: "Easy Booking",
-                        description: "Secure booking with instant confirmations"
+                        description: "Secure booking with instant confirmations and local transit info"
                     )
 
                     FeatureHighlight(
                         icon: "person.2.circle.fill",
-                        title: "Join Community",
-                        description: "Connect with fellow hobby enthusiasts"
+                        title: "Join the Community",
+                        description: "Connect with Vancouver's most passionate hobby enthusiasts"
+                    )
+
+                    FeatureHighlight(
+                        icon: "location.circle.fill",
+                        title: "Neighborhood-Focused",
+                        description: "From Gastown to Kitsilano - find classes in your area"
                     )
                 }
 
@@ -416,11 +441,12 @@ struct InterestsView: View {
     @State private var selectedInterests: Set<String> = []
 
     private let interestCategories = [
-        "Arts & Crafts": ["Pottery", "Painting", "Drawing", "Jewelry Making", "Woodworking"],
-        "Fitness & Wellness": ["Yoga", "Pilates", "Dance", "Martial Arts", "Meditation"],
-        "Culinary": ["Cooking", "Baking", "Wine Tasting", "Cocktail Making", "Food Photography"],
-        "Music & Performance": ["Guitar", "Piano", "Singing", "Acting", "Stand-up Comedy"],
-        "Technology": ["Programming", "Photography", "Video Editing", "3D Printing", "App Development"]
+        "Arts & Crafts": ["Pottery at Claymates", "Painting", "Drawing", "Jewelry Making", "Woodworking", "Ceramics"],
+        "Fitness & Wellness": ["Rumble Boxing", "Yoga", "Pilates", "Dance", "Martial Arts", "Meditation", "Rock Climbing"],
+        "Culinary": ["Cooking Classes", "Baking", "Wine Tasting", "Cocktail Making", "Food Photography", "Brewing"],
+        "Music & Performance": ["Guitar", "Piano", "Singing", "Acting", "Stand-up Comedy", "DJ Skills"],
+        "Technology": ["Programming", "Photography", "Video Editing", "3D Printing", "App Development", "Digital Art"],
+        "Outdoor & Adventure": ["Hiking Groups", "Kayaking", "Cycling", "Photography Walks", "Nature Sketching", "Urban Exploration"]
     ]
 
     var body: some View {
@@ -429,7 +455,7 @@ struct InterestsView: View {
                 OnboardingStepHeader(
                     icon: "heart.circle",
                     title: "What interests you?",
-                    description: "Select activities you'd like to explore (you can always change these later)"
+                    description: "Select Vancouver activities you'd like to explore (you can always change these later)"
                 )
 
                 VStack(spacing: 20) {
@@ -553,8 +579,8 @@ struct LocationView: View {
             VStack(spacing: 32) {
                 OnboardingStepHeader(
                     icon: "location.circle",
-                    title: "Find classes near you",
-                    description: "Enable location access to discover amazing classes in your area"
+                    title: "Find classes in Vancouver",
+                    description: "Enable location access to discover amazing classes in your neighborhood"
                 )
 
                 VStack(spacing: 20) {
@@ -567,9 +593,9 @@ struct LocationView: View {
                             .font(.headline)
 
                         VStack(spacing: 8) {
-                            LocationBenefit(icon: "map", text: "Find classes within your preferred distance")
-                            LocationBenefit(icon: "clock", text: "Get accurate travel time estimates")
-                            LocationBenefit(icon: "star", text: "Discover hidden gems in your neighborhood")
+                            LocationBenefit(icon: "map", text: "Find classes within your preferred distance in Vancouver")
+                            LocationBenefit(icon: "clock", text: "Get accurate travel time via TransLink")
+                            LocationBenefit(icon: "star", text: "Discover hidden gems from Gastown to Kitsilano")
                         }
                     }
 
@@ -634,7 +660,7 @@ struct CompletionView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
-                    Text("Welcome to the Hobbyist community. Start exploring amazing classes and discover your next passion.")
+                    Text("Welcome to Vancouver's most vibrant hobby community. Start exploring amazing local classes and discover your next creative passion.")
                         .font(.title3)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -645,19 +671,19 @@ struct CompletionView: View {
                     CompletionFeature(
                         icon: "magnifyingglass.circle.fill",
                         title: "Start Exploring",
-                        description: "Browse classes in your area"
+                        description: "Browse classes across Vancouver's neighborhoods"
                     )
 
                     CompletionFeature(
                         icon: "person.2.circle.fill",
                         title: "Join the Community",
-                        description: "Connect with other learners"
+                        description: "Connect with Vancouver's creative community"
                     )
 
                     CompletionFeature(
                         icon: "trophy.circle.fill",
                         title: "Track Your Progress",
-                        description: "Earn achievements as you learn"
+                        description: "Earn achievements as you explore new hobbies"
                     )
                 }
 
