@@ -9,8 +9,9 @@
 -- Fix exposed auth.users view (ERROR level)
 DROP VIEW IF EXISTS public.users CASCADE;
 
--- Create secure user profile view instead
-CREATE OR REPLACE VIEW public.user_profiles AS
+-- Create secure user profile view instead (handle existing table)
+DROP TABLE IF EXISTS public.user_profiles CASCADE;
+CREATE VIEW public.user_profiles AS
 SELECT
     id,
     email,
