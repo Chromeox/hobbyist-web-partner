@@ -37,7 +37,7 @@ struct BookingsView: View {
                 
                 Spacer()
             }
-            .navigationTitle(NSLocalizedString("my_bookings", comment: ""))
+            .navigationTitle("My Bookings")
         }
     }
 }

@@ -300,7 +300,7 @@ struct PopularClassRowView: View {
 
             Spacer()
 
-            Text(classItem.price)
+            Text("\(classItem.creditsRequired) credits")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(.blue)
@@ -360,7 +360,7 @@ struct SearchResultRowView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text(classItem.price)
+                Text("\(classItem.creditsRequired) credits")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.blue)

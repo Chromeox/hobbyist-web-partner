@@ -167,11 +167,11 @@ struct HomeView: View {
     private var vancouverCategories: [VancouverCategory] {
         [
             VancouverCategory(name: "Ceramics & Pottery", icon: "paintpalette.fill", color: .orange, classCount: 12),
-            VancouverCategory(name: "Fitness & Boxing", icon: "figure.boxing", color: .red, classCount: 8),
             VancouverCategory(name: "Cooking & Baking", icon: "chef.hat.fill", color: .yellow, classCount: 15),
             VancouverCategory(name: "Arts & Crafts", icon: "paintbrush.fill", color: .purple, classCount: 10),
             VancouverCategory(name: "Photography", icon: "camera.fill", color: .blue, classCount: 7),
-            VancouverCategory(name: "Music & Sound", icon: "music.note", color: .green, classCount: 9)
+            VancouverCategory(name: "Music & Sound", icon: "music.note", color: .green, classCount: 9),
+            VancouverCategory(name: "Dance & Movement", icon: "figure.dance", color: .pink, classCount: 6)
         ]
     }
 
@@ -276,7 +276,7 @@ struct VancouverClassCard: View {
                     .lineLimit(1)
 
                 HStack {
-                    Text(classItem.price)
+                    Text("\(classItem.creditsRequired) credits")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.blue)

@@ -153,42 +153,6 @@ struct ClassItem: Identifiable, Codable {
                 ]
             ),
 
-            // Rumble Boxing (Only Fitness Class)
-            ClassItem(
-                id: "rumble-1",
-                name: "Rumble Boxing Foundations",
-                category: "Rumble Boxing",
-                instructor: "Alex Thompson",
-                instructorInitials: "AT",
-                description: "High-energy boxing-inspired fitness class combining boxing techniques with strength training. Learn proper form while getting an incredible full-body workout in a supportive group environment.",
-                duration: "45 min",
-                difficulty: "All Levels",
-                price: "$35",
-                creditsRequired: 10,
-                startTime: Date().addingTimeInterval(3600),
-                endTime: Date().addingTimeInterval(6300),
-                location: "Main Studio",
-                venueName: "Rumble Boxing Vancouver",
-                address: "567 Boxing Ave, Vancouver, BC V6Z 1A2",
-                coordinate: CLLocationCoordinate2D(latitude: 49.2827, longitude: -123.1107),
-                spotsAvailable: 12,
-                totalSpots: 20,
-                rating: "4.7",
-                reviewCount: "156",
-                icon: "figure.boxing",
-                categoryColor: .red,
-                isFeatured: true,
-                requirements: ["Water bottle", "Workout clothes", "Athletic shoes"],
-                amenities: [
-                    Amenity(name: "Showers", icon: "shower.fill"),
-                    Amenity(name: "Lockers", icon: "lock.fill"),
-                    Amenity(name: "Towel Service", icon: "rectangle.stack")
-                ],
-                equipment: [
-                    Equipment(name: "Boxing Gloves", price: "$5"),
-                    Equipment(name: "Hand Wraps", price: "$3")
-                ]
-            ),
 
             // Woodworking
             ClassItem(
