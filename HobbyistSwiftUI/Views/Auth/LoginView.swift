@@ -201,18 +201,17 @@ struct LoginView: View {
                     .scaleEffect(supabaseService.isLoading ? 0.95 : 1.0)
                     .animation(.spring(response: 0.3), value: supabaseService.isLoading)
 
-                    // Apple Sign In Button (only for sign in)
-                    if !isSignUp {
-                        SignInWithAppleButton(
-                            onRequest: { request in
-                                request.requestedScopes = [.email, .fullName]
-                            },
-                            onCompletion: handleAppleSignIn
-                        )
-                        .frame(height: 50)
-                        .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                    }
+                    // Apple Sign In Button (available for both sign in and sign up)
+                    SignInWithAppleButton(
+                        .signIn,
+                        onRequest: { request in
+                            request.requestedScopes = [.email, .fullName]
+                        },
+                        onCompletion: handleAppleSignIn
+                    )
+                    .frame(height: 50)
+                    .cornerRadius(12)
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                 }
                 .padding(.horizontal)
 
@@ -369,11 +368,17 @@ struct LoginView: View {
     }
 
     private func performAppleSignIn(credential: ASAuthorizationAppleIDCredential) async {
-        // This would integrate with AuthenticationManager's Apple Sign In method
-        // For now, we'll use the simpler approach
-        alertTitle = "Apple Sign In"
-        alertMessage = "Apple Sign In integration coming soon! Please use email sign in for now."
-        showAlert = true
+        await supabaseService.signInWithApple(credential: credential)
+
+        if let errorMessage = supabaseService.errorMessage {
+            alertTitle = "Apple Sign In Failed"
+            alertMessage = errorMessage
+            showAlert = true
+        } else if supabaseService.isAuthenticated {
+            // Determine if this is a new user by checking if we have user preferences
+            let hasPreferences = await supabaseService.fetchUserPreferences() != nil
+            onLoginSuccess(!hasPreferences) // true if new user (no preferences)
+        }
     }
 
     // MARK: - Password Reset

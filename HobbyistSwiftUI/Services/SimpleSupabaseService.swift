@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import AuthenticationServices
 
 // Simplified Supabase service for working backend integration
 @MainActor
@@ -80,8 +81,20 @@ final class SimpleSupabaseService: ObservableObject {
                 data: ["full_name": .string(fullName)]
             )
 
-            print("✅ User signed up: \(email)")
-            // Note: User will need to verify email before signing in
+            // Check if user is immediately authenticated (no email confirmation required)
+            if let session = response.session, session.accessToken != nil {
+                let user = response.user
+                currentUser = SimpleUser(
+                    id: user.id.uuidString,
+                    email: user.email ?? email,
+                    name: fullName
+                )
+                isAuthenticated = true
+                print("✅ User signed up and authenticated immediately: \(email)")
+            } else {
+                print("✅ User signed up: \(email)")
+                print("ℹ️ User needs to verify email before signing in")
+            }
         } catch {
             errorMessage = error.localizedDescription
             print("❌ Sign up error: \(error)")
@@ -117,6 +130,47 @@ final class SimpleSupabaseService: ObservableObject {
             print("❌ Auth check error: \(error)")
             // User not authenticated, continue with login flow
         }
+    }
+
+    // MARK: - Apple Sign In
+
+    func signInWithApple(credential: ASAuthorizationAppleIDCredential) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            guard let identityToken = credential.identityToken,
+                  let identityTokenString = String(data: identityToken, encoding: .utf8) else {
+                errorMessage = "Failed to get Apple ID token"
+                return
+            }
+
+            let response = try await supabaseClient.auth.signInWithIdToken(
+                credentials: OpenIDConnectCredentials(
+                    provider: .apple,
+                    idToken: identityTokenString
+                )
+            )
+
+            let user = response.user
+            let fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+
+            currentUser = SimpleUser(
+                id: user.id.uuidString,
+                email: user.email ?? credential.email ?? "",
+                name: fullName.isEmpty ? (user.userMetadata["full_name"]?.value as? String ?? "User") : fullName
+            )
+            isAuthenticated = true
+            print("✅ Apple Sign In successful")
+
+        } catch {
+            errorMessage = error.localizedDescription
+            print("❌ Apple Sign In error: \(error)")
+        }
+
+        isLoading = false
     }
 
     // MARK: - Data Operations

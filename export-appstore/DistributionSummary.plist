@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>HobbyistSwiftUI.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>5</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>5F1C0832F0242E91F01D3B7674A750871E42F006</string>
+				<key>dateExpires</key>
+				<string>2026-09-12</string>
+				<key>type</key>
+				<string>Apple Distribution</string>
+			</dict>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>594BDWKT53.com.hobbyist.bookingapp</string>
+				<key>beta-reports-active</key>
+				<true/>
+				<key>com.apple.developer.team-identifier</key>
+				<string>594BDWKT53</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>HobbyistSwiftUI.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>ec16f419-346a-441f-b10f-55fdd75de28a</string>
+				<key>dateExpires</key>
+				<string>2026-09-22</string>
+				<key>name</key>
+				<string>iOS Team Store Provisioning Profile: com.hobbyist.bookingapp</string>
+			</dict>
+			<key>symbols</key>
+			<true/>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>594BDWKT53</string>
+				<key>name</key>
+				<string></string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.0</string>
+		</dict>
+	</array>
+</dict>
+</plist>
