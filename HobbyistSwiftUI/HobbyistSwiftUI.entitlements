@@ -39,5 +39,11 @@
 	<array>
 		<string>ProductionSandbox</string>
 	</array>
+
+	<!-- Sign In with Apple -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>
