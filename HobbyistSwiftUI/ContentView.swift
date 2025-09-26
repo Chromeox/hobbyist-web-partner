@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var supabaseService = SimpleSupabaseService.shared
+    @StateObject private var hapticService = HapticFeedbackService.shared
+    @StateObject private var creditService = CreditService.shared
     @State private var isLoggedIn = false
     @State private var needsOnboarding = false
     @State private var isCheckingStatus = true
@@ -27,10 +29,13 @@ struct ContentView: View {
                     UserDefaults.standard.set(true, forKey: "hobbyist_onboarding_completed")
                 })
                 .environmentObject(supabaseService)
+                .environmentObject(hapticService)
             } else {
                 // User authenticated and onboarded - show main app
                 MainTabView()
                     .environmentObject(supabaseService)
+                    .environmentObject(hapticService)
+                    .environmentObject(creditService)
             }
         }
         .onAppear {
