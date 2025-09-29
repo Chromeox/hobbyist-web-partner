@@ -151,7 +151,6 @@ struct TabIconView: View {
                     .foregroundColor(isSelected ? .blue : .gray)
                     .scaleEffect(isSelected ? 1.1 : 1.0)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
-                    .symbolEffect(.bounce, value: isSelected)
             }
 
             // Tab label
@@ -162,7 +161,7 @@ struct TabIconView: View {
                 .scaleEffect(isSelected ? 1.0 : 0.9)
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
-        .onChange(of: isSelected) { _, newValue in
+        .onChange(of: isSelected) { newValue in
             if newValue {
                 // Trigger bounce animation when tab becomes selected
                 bounceScale = 1.2
@@ -171,7 +170,7 @@ struct TabIconView: View {
                 }
             }
         }
-        .onChange(of: switchDirection) { _, direction in
+        .onChange(of: switchDirection) { direction in
             guard isSelected && direction != .none else { return }
 
             // Animate based on switch direction
