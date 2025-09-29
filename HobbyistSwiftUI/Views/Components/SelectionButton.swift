@@ -25,16 +25,16 @@ struct SelectionButton: View {
             }
         }) {
             Text(text)
-                .font(.hobbyistBody())
+                .font(.body)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, HobbyistSpacing.md)
-                .padding(.vertical, HobbyistSpacing.sm)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
-                .cornerRadius(HobbyistRadius.sm)
+                .cornerRadius(8)
                 .overlay(
-                    RoundedRectangle(cornerRadius: HobbyistRadius.sm)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(borderColorForState, lineWidth: borderWidthForState)
                 )
                 .scaleEffect(scaleForState)
@@ -122,7 +122,7 @@ struct SelectionButtonGrid: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: HobbyistSpacing.sm) {
+        LazyVGrid(columns: columns, spacing: 8) {
             ForEach(items, id: \.self) { item in
                 SelectionButton(
                     item,
@@ -162,13 +162,13 @@ struct SelectionChip: View {
             }
         }) {
             Text(text)
-                .font(.hobbyistCallout())
+                .font(.callout)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, HobbyistSpacing.md)
-                .padding(.vertical, HobbyistSpacing.sm)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
-                .cornerRadius(HobbyistRadius.pill)
+                .cornerRadius(999)
                 .scaleEffect(scaleForState)
                 .opacity(opacityForState)
         }

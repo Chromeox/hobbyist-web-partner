@@ -15,7 +15,7 @@ struct LoadingView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: HobbyistSpacing.xl) {
+            VStack(spacing: 32) {
                 // Pulsing logo container
                 ZStack {
                     // Outer pulse ring
@@ -47,9 +47,9 @@ struct LoadingView: View {
                 }
 
                 // App title and loading text
-                VStack(spacing: HobbyistSpacing.sm) {
+                VStack(spacing: 8) {
                     Text("Hobbyist")
-                        .font(.hobbyistTitle(28))
+                        .font(.title)
                         .fontWeight(.bold)
                         .foregroundStyle(LinearGradient(
                             colors: [.primary, .blue],
@@ -58,14 +58,14 @@ struct LoadingView: View {
                         ))
 
                     Text("Loading Vancouver's creative classes...")
-                        .font(.hobbyistBody())
+                        .font(.body)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .opacity(fadeOpacity)
                 }
 
                 // Loading indicator
-                HStack(spacing: HobbyistSpacing.xs) {
+                HStack(spacing: 4) {
                     ForEach(0..<3) { index in
                         Circle()
                             .fill(Color.blue)
@@ -79,7 +79,7 @@ struct LoadingView: View {
                             )
                     }
                 }
-                .padding(.top, HobbyistSpacing.md)
+                .padding(.top, 16)
             }
         }
         .onAppear {

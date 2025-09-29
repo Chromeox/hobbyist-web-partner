@@ -80,7 +80,7 @@ struct BookingCard: View {
             Divider()
             
             HStack {
-                Label(localized: "central_studio", systemImage: "location.fill")
+                Label(NSLocalizedString("central_studio", comment: ""), systemImage: "location.fill")
                     .font(.caption)
                     .foregroundColor(.secondary)
 

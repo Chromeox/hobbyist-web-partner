@@ -9,7 +9,7 @@ struct DiscoverView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: HobbyistSpacing.lg) {
+                VStack(alignment: .leading, spacing: 20) {
                     // Search Bar
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -18,14 +18,14 @@ struct DiscoverView: View {
                         TextField(NSLocalizedString("search_classes", comment: ""), text: $searchText)
                             .textFieldStyle(PlainTextFieldStyle())
                     }
-                    .padding(HobbyistSpacing.md)
+                    .padding(16)
                     .background(Color(.systemGray6))
-                    .cornerRadius(HobbyistRadius.md)
-                    .padding(.horizontal, HobbyistSpacing.md)
+                    .cornerRadius(12)
+                    .padding(.horizontal, 16)
                     
                     // Categories
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: HobbyistSpacing.sm) {
+                        HStack(spacing: 8) {
                             ForEach(categories, id: \.self) { category in
                                 SelectionChip(
                                     category,
@@ -36,15 +36,15 @@ struct DiscoverView: View {
                                 )
                             }
                         }
-                        .padding(.horizontal, HobbyistSpacing.md)
+                        .padding(.horizontal, 16)
                     }
-                    
+
                     // Featured Classes
-                    VStack(alignment: .leading, spacing: HobbyistSpacing.md) {
+                    VStack(alignment: .leading, spacing: 16) {
                         Text(NSLocalizedString("featured_classes", comment: ""))
                             .font(.title3)
                             .fontWeight(.semibold)
-                            .padding(.horizontal, HobbyistSpacing.md)
+                            .padding(.horizontal, 16)
                         
                         ForEach(0..<5) { _ in
                             NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {

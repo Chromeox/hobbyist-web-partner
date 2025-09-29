@@ -126,7 +126,7 @@ struct OnboardingProgressBar: View {
     let progress: Double
 
     var body: some View {
-        VStack(spacing: HobbyistSpacing.sm) {
+        VStack(spacing: 8) {
             HStack {
                 Text("Setup Progress")
                     .font(.caption)
@@ -149,7 +149,7 @@ struct OnboardingProgressBar: View {
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
         }
-        .padding(HobbyistSpacing.md)
+        .padding(16)
         .background(Color(.systemGray6))
     }
 }

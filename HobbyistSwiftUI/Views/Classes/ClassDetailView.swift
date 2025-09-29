@@ -8,7 +8,7 @@ struct ClassDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: HobbyistSpacing.lg) {
+            VStack(alignment: .leading, spacing: 24) {
                 // Header Image
                 ZStack(alignment: .topTrailing) {
                     Rectangle()
@@ -31,12 +31,12 @@ struct ClassDetailView: View {
                             .foregroundColor(isFavorited ? .red : .white)
                             .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 40, height: 40))
                     }
-                    .padding(HobbyistSpacing.md)
+                    .padding(16)
                 }
 
-                VStack(alignment: .leading, spacing: HobbyistSpacing.md) {
+                VStack(alignment: .leading, spacing: 16) {
                     // Class Title and Studio
-                    VStack(alignment: .leading, spacing: HobbyistSpacing.sm) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(hobbyClass.title)
                             .font(.largeTitle)
                             .fontWeight(.bold)
@@ -51,7 +51,7 @@ struct ClassDetailView: View {
                     }
 
                     // Quick Info Cards
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: HobbyistSpacing.sm) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
                         InfoCardView(icon: "person", title: "Instructor", value: hobbyClass.instructor)
                         InfoCardView(icon: "clock", title: "Duration", value: hobbyClass.duration)
                         InfoCardView(icon: "calendar", title: "Next Class", value: hobbyClass.nextClassDate)
@@ -215,27 +215,27 @@ struct InfoCardView: View {
     let value: String
 
     var body: some View {
-        VStack(spacing: HobbyistSpacing.sm) {
+        VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 24))
                 .foregroundColor(.blue)
 
-            VStack(spacing: HobbyistSpacing.xs) {
+            VStack(spacing: 4) {
                 Text(title)
-                    .font(.hobbyistCaption())
+                    .font(.caption)
                     .foregroundColor(.secondary)
 
                 Text(value)
-                    .font(.hobbyistCallout())
+                    .font(.callout)
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(HobbyistSpacing.md)
+        .padding(16)
         .background(Color(.systemGray6))
-        .cornerRadius(HobbyistRadius.md)
-        .hobbyistShadow(.small)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
     }
 }
 
