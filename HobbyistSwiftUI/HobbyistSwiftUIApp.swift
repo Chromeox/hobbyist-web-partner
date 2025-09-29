@@ -1,8 +1,12 @@
 import SwiftUI
+import GoogleSignIn
 
 @main  // Re-enabled since this is the only App file in Xcode project
 struct HobbyistSwiftUIApp: App {
     init() {
+        // Configure Google Sign In
+        configureGoogleSignIn()
+
         // Configure app appearance
         configureAppearance()
         print("✅ HobbyistSwiftUI App initialized")
@@ -12,6 +16,16 @@ struct HobbyistSwiftUIApp: App {
         WindowGroup {
             ContentView()
         }
+    }
+
+    private func configureGoogleSignIn() {
+        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: path),
+              let clientId = plist["CLIENT_ID"] as? String else {
+            fatalError("No GoogleService-Info.plist file")
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
+        print("✅ Google Sign In configured with client ID: \(clientId)")
     }
 
     private func configureAppearance() {

@@ -1,0 +1,43 @@
+🍎 SUPABASE APPLE SIGN IN CONFIGURATION
+==========================================
+
+SUPABASE DASHBOARD URL:
+https://supabase.com/dashboard/project/mcjqvdzdhtcvbrejvrtp/auth/providers
+
+APPLE PROVIDER SETTINGS:
+------------------------
+Client ID: com.hobbyist.bookingapp.service
+
+Client Secret (JWT):
+eyJ0eXAiOiJKV1QiLCJraWQiOiJDOTVCVjI1OUE0IiwiYWxnIjoiRVMyNTYifQ.eyJleHAiOjE3NTkxMTE1MzAuNjcyODUyLCJzdWIiOiJjb20uaG9iYnlpc3QuYm9va2luZ2FwcC5zZXJ2aWNlIiwiaXNzIjoiNTk0QkRXS1Q1MyIsImtpZCI6IkM5NUJWMjU5QTQiLCJhdWQiOiJodHRwczpcL1wvYXBwbGVpZC5hcHBsZS5jb20iLCJpYXQiOjE3NTkxMDc5MzAuNjcyODUyfQ.oX_77nxntLustW2jbeD08eTD8laLxcw5UPXMLMHEBRgPq_ytnx2sFDjWrE1ylhVtieJehw7z8jVhtaxtCtBi_Q
+
+CONFIGURATION STEPS:
+--------------------
+1. Go to the Supabase dashboard URL above
+2. Navigate to Authentication → Providers → Apple
+3. Enable Apple Sign In if not already enabled
+4. Paste the Client ID above
+5. Paste the Client Secret (JWT) above
+6. Save configuration
+
+NEXT STEPS AFTER SUPABASE CONFIG:
+---------------------------------
+1. Test the configuration in Supabase
+2. Re-enable Apple Sign In button in LoginView.swift
+3. Clean build in Xcode
+4. Test Apple Sign In flow on device/simulator
+
+TECHNICAL DETAILS:
+------------------
+- Service ID: com.hobbyist.bookingapp.service (created in Apple Developer Console)
+- Bundle ID: com.hobbyist.bookingapp (your iOS app)
+- Team ID: 594BDWKT53
+- Key ID: C95BV259A4
+- Algorithm: ES256 (ECDSA with P-256 curve)
+- JWT expires in 1 hour (Apple generates fresh tokens for actual users)
+
+⚠️ IMPORTANT:
+- Keep this JWT secure
+- Don't commit to git
+- JWT is specifically for the Service ID configuration
+- Your iOS app will still use the bundle ID com.hobbyist.bookingapp

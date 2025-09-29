@@ -1,0 +1,57 @@
+🔧 XCODE PROVISIONING PROFILE FIX
+=================================
+
+PROBLEM: Xcode not recognizing In-App Purchase entitlement in your provisioning profile
+SOLUTION: Force refresh Xcode's provisioning profile cache
+
+STEP 1: Clear Xcode Provisioning Profile Cache
+-----------------------------------------------
+1. Quit Xcode completely
+2. Open Terminal and run these commands:
+
+   cd ~/Library/MobileDevice/Provisioning\ Profiles
+   rm *.mobileprovision
+
+   # Clear Xcode derived data
+   rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+STEP 2: Re-download Provisioning Profile
+-----------------------------------------
+1. Go back to Apple Developer Console
+2. Re-download your "Hobbyist App - New Provision" profile
+3. Double-click the downloaded .mobileprovision file to install
+
+STEP 3: Configure Xcode Project
+--------------------------------
+1. Open Xcode
+2. Go to your project → Signing & Capabilities
+3. For BOTH Debug AND Release:
+   - Turn OFF "Automatically manage signing"
+   - Select "Hobbyist App - New Provision" profile manually
+   - Verify Team is set to "Quantum Hobbyist Group Inc."
+
+STEP 4: Verify Entitlements
+----------------------------
+1. In project navigator, select your .entitlements file
+2. Verify these entries exist:
+   ✅ com.apple.developer.applesignin
+   ✅ com.apple.developer.in-app-purchase
+
+STEP 5: Clean Build
+-------------------
+1. Product → Clean Build Folder (Cmd+Shift+K)
+2. Build project
+3. Test Apple Sign In
+
+ALTERNATIVE: Re-create Provisioning Profile
+--------------------------------------------
+If the above doesn't work:
+1. Delete "Hobbyist App - New Provision" from Apple Developer Console
+2. Create a brand new one with a different name
+3. Ensure In-App Purchase is checked
+4. Download and install the new profile
+
+WHY THIS HAPPENS:
+- Xcode caches provisioning profiles locally
+- Sometimes the cache gets out of sync with Apple's servers
+- Force refreshing resolves most provisioning issues

@@ -2,17 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- App Groups for Sharing Data -->
+	<!-- App Groups for Sharing Data - TEMPORARILY DISABLED FOR APPLE SIGN IN TESTING -->
+	<!--
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.hobbyist.app</string>
 	</array>
+	-->
 
-	<!-- Keychain Access Groups -->
+	<!-- Keychain Access Groups - TEMPORARILY DISABLED FOR APPLE SIGN IN TESTING -->
+	<!--
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)com.hobbyist.app</string>
 	</array>
+	-->
 	
 	<!-- HealthKit Capability (for wellness integration) -->
 	<key>com.apple.developer.healthkit</key>

@@ -1,0 +1,49 @@
+🍎 APPLE SIGN IN - PROVISIONING PROFILE FIX
+==========================================
+
+PROBLEM IDENTIFIED:
+Your Release provisioning profile is missing the "com.apple.developer.in-app-purchase" entitlement, which is required for Apple Sign In to work properly.
+
+SOLUTION - Regenerate Provisioning Profile:
+
+1. Go to Apple Developer Console:
+   https://developer.apple.com/account/resources/profiles/list
+
+2. Find your Release provisioning profile for "com.hobbyist.bookingapp"
+
+3. Delete the current Release profile (it's broken)
+
+4. Create a NEW Release provisioning profile:
+   - Name: "HobbyistSwiftUI Release"
+   - App ID: com.hobbyist.bookingapp
+   - Certificates: Your distribution certificate
+   - Devices: All your registered devices
+   - IMPORTANT: Make sure it includes these capabilities:
+     ✅ Sign In with Apple
+     ✅ In-App Purchase
+     ✅ App Groups (group.com.hobbyist.app)
+     ✅ Push Notifications
+
+5. Download the new provisioning profile
+
+6. In Xcode:
+   - Go to Signing & Capabilities tab
+   - For Release configuration: "Automatically manage signing" OFF
+   - Import the new provisioning profile
+   - Select it for Release builds
+
+ALTERNATIVE (EASIER):
+1. In Xcode, go to Signing & Capabilities
+2. For Release configuration, turn ON "Automatically manage signing"
+3. This will auto-generate a new profile with all required entitlements
+
+WHY THIS FIXES THE ISSUE:
+- Apple Sign In requires the In-App Purchase entitlement to validate tokens
+- Your current Release profile is missing this entitlement
+- The Debug profile works because it has the entitlement
+- Regenerating the profile will include all entitlements from your .entitlements file
+
+AFTER FIXING:
+- Clean build your project (Cmd+Shift+K)
+- Test Apple Sign In again
+- The audience mismatch error should be resolved

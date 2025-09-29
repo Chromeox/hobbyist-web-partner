@@ -1,9 +1,11 @@
 import SwiftUI
 import AuthenticationServices
+import GoogleSignIn
 
 struct LoginView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
     @StateObject private var biometricService = BiometricAuthenticationService.shared
+    @StateObject private var appleSignInCoordinator = AppleSignInCoordinator()
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = false
@@ -238,21 +240,50 @@ struct LoginView: View {
                         .disabled(supabaseService.isLoading)
                     }
 
-                    // Apple Sign In Button (adapts to current form state)
+                    // Custom Apple Sign In Button - Resolves gesture timeout issues ✅
                     let _ = print("🍎 Apple Sign In button - isSignUp: \(isSignUp), will show: \(isSignUp ? "Sign Up" : "Sign In")")
-                    SignInWithAppleButton(
-                        isSignUp ? .signUp : .signIn,
-                        onRequest: { request in
-                            request.requestedScopes = [.email, .fullName]
-                        },
-                        onCompletion: handleAppleSignIn
-                    )
-                    .frame(height: 50)
-                    .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
-                    .allowsHitTesting(true)
-                    .contentShape(Rectangle())
-                    .id("apple-sign-in-\(isSignUp ? "signup" : "signin")")
+                    Button(action: {
+                        print("🍎 Custom Apple Sign In button tapped!")
+                        performCustomAppleSignIn()
+                    }) {
+                        HStack {
+                            Image(systemName: "applelogo")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white)
+
+                            Text(isSignUp ? "Sign up with Apple" : "Sign in with Apple")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(Color.black)
+                        .cornerRadius(12)
+                    }
+                    .disabled(supabaseService.isLoading)
+
+                    // Google Sign In Button ✅
+                    Button(action: {
+                        print("🔵 Google Sign In button tapped!")
+                        performGoogleSignIn()
+                    }) {
+                        HStack {
+                            Image(systemName: "globe")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.black)
+
+                            Text(isSignUp ? "Sign up with Google" : "Sign in with Google")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.black)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                    .disabled(supabaseService.isLoading)
                 }
                 .padding(.horizontal)
 
@@ -301,6 +332,12 @@ struct LoginView: View {
             .onTapGesture {
                 focusedField = nil
             }
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded { _ in
+                        // Allow simultaneous gestures for Apple Sign In button
+                    }
+            )
             .alert(alertTitle, isPresented: $showAlert) {
                 Button("OK") { }
             } message: {
@@ -473,6 +510,84 @@ struct LoginView: View {
         }
     }
 
+    // MARK: - Custom Apple Sign In Handler
+    private func performCustomAppleSignIn() {
+        print("🍎 Starting custom Apple Sign In flow")
+
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.email, .fullName]
+
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = appleSignInCoordinator
+        authorizationController.presentationContextProvider = appleSignInCoordinator
+
+        // Set up the completion handler
+        appleSignInCoordinator.completion = { result in
+            DispatchQueue.main.async {
+                self.handleAppleSignIn(result: result)
+            }
+        }
+
+        authorizationController.performRequests()
+    }
+
+    // MARK: - Google Sign In Handler
+    private func performGoogleSignIn() {
+        print("🔵 Starting Google Sign In flow")
+
+        guard let presentingViewController = UIApplication.shared.windows.first?.rootViewController else {
+            print("❌ Could not find presenting view controller")
+            return
+        }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { result, error in
+            if let error = error {
+                print("❌ Google Sign In error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.alertTitle = "Google Sign In Failed"
+                    self.alertMessage = error.localizedDescription
+                    self.showAlert = true
+                }
+                return
+            }
+
+            guard let result = result,
+                  let idToken = result.user.idToken?.tokenString else {
+                print("❌ Failed to get Google ID token")
+                DispatchQueue.main.async {
+                    self.alertTitle = "Google Sign In Failed"
+                    self.alertMessage = "Failed to get authentication token"
+                    self.showAlert = true
+                }
+                return
+            }
+
+            print("✅ Google Sign In successful")
+            print("🔵 User email: \(result.user.profile?.email ?? "No email")")
+            print("🔵 User name: \(result.user.profile?.name ?? "No name")")
+
+            Task {
+                await self.handleGoogleSignIn(idToken: idToken, user: result.user)
+            }
+        }
+    }
+
+    private func handleGoogleSignIn(idToken: String, user: GIDGoogleUser) async {
+        print("🔵 Processing Google Sign In with Supabase...")
+
+        // Here you would integrate with your Supabase service
+        // For now, let's just show success
+        DispatchQueue.main.async {
+            self.alertTitle = "Google Sign In Success!"
+            self.alertMessage = "Successfully signed in with Google. Integration with Supabase coming next!"
+            self.showAlert = true
+        }
+
+        // TODO: Add Supabase Google auth integration
+        // await supabaseService.signInWithGoogle(idToken: idToken)
+    }
+
     // MARK: - Apple Sign In Handler
     private func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
         switch result {
@@ -517,6 +632,26 @@ struct LoginView: View {
             // For now, show success message
             showingPasswordResetAlert = true
         }
+    }
+}
+
+// MARK: - Apple Sign In Coordinator
+class AppleSignInCoordinator: NSObject, ObservableObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+
+    var completion: ((Result<ASAuthorization, Error>) -> Void)?
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        print("🍎 Apple Sign In authorization completed successfully")
+        completion?(.success(authorization))
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("🍎 Apple Sign In authorization failed with error: \(error)")
+        completion?(.failure(error))
+    }
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return UIApplication.shared.windows.first { $0.isKeyWindow } ?? UIWindow()
     }
 }
 

@@ -1,0 +1,41 @@
+🔧 CERTIFICATE-PROVISIONING PROFILE FIX
+========================================
+
+PROBLEM: Your provisioning profile doesn't include the specific certificate
+
+CERTIFICATES FOUND IN KEYCHAIN:
+✅ Apple Development: Kurt Cuffy (S44X32236J) - TWO COPIES
+✅ Apple Distribution: Quantum Hobbyist Group Inc.
+✅ Developer ID Application: Quantum Hobbyist Group Inc.
+
+QUICK FIX - TRY AUTOMATIC SIGNING FIRST:
+-----------------------------------------
+1. In Xcode → Signing & Capabilities
+2. For Debug: Turn ON "Automatically manage signing"
+3. Xcode should automatically match certificate with capabilities
+4. Test Apple Sign In immediately!
+
+IF AUTOMATIC SIGNING WORKS:
+- You can test Apple Sign In right now
+- Then create proper manual profile later if needed
+
+MANUAL FIX - RECREATE PROVISIONING PROFILE:
+--------------------------------------------
+1. Go to Apple Developer Console → Profiles
+2. Delete "Hobbyist App Provisioning Profile"
+3. Create NEW profile:
+   - Type: iOS App Development
+   - App ID: com.hobbyist.bookingapp
+   - Certificate: SELECT "Apple Development: Kurt Cuffy (S44X32236J)"
+   - Devices: Your test devices
+   - Capabilities: VERIFY In-App Purchase is checked
+4. Download new profile
+5. Use in Xcode
+
+ROOT CAUSE:
+When you created the provisioning profile, it might not have included
+the specific certificate, or there's confusion with duplicate certificates.
+
+RECOMMENDED APPROACH:
+Try automatic signing first - if it works, you can test Apple Sign In
+immediately and deal with manual profiles later.

@@ -1,0 +1,55 @@
+📱 GOOGLE SIGN IN - iOS SETUP GUIDE
+===================================
+
+STEP 1: ADD GoogleService-Info.plist TO XCODE
+----------------------------------------------
+After downloading from Google Cloud Console:
+
+1. Open Xcode with your HobbyistSwiftUI project
+2. In Project Navigator (left panel), right-click on "HobbyistSwiftUI" folder
+3. Select "Add Files to HobbyistSwiftUI"
+4. Navigate to your Downloads folder
+5. Select "GoogleService-Info.plist"
+6. IMPORTANT: Check "Add to target: HobbyistSwiftUI"
+7. Click "Add"
+
+VERIFY: You should see GoogleService-Info.plist in your project navigator
+
+STEP 2: ADD GOOGLE SIGN IN SWIFT PACKAGE
+-----------------------------------------
+1. In Xcode: File → Add Package Dependencies
+2. Enter URL: https://github.com/google/GoogleSignIn-iOS
+3. Click "Add Package"
+4. Select "GoogleSignIn" product
+5. Click "Add Package"
+
+STEP 3: CONFIGURE URL SCHEME
+-----------------------------
+1. Select your project in Navigator (top "HobbyistSwiftUI")
+2. Select "HobbyistSwiftUI" target
+3. Go to "Info" tab
+4. Expand "URL Types"
+5. Click "+" to add new URL Type
+6. In "URL Schemes" field, enter your REVERSED_CLIENT_ID
+   (Found in GoogleService-Info.plist, looks like: com.googleusercontent.apps.540951673808-xxx)
+
+STEP 4: UPDATE APP DELEGATE OR MAIN APP FILE
+---------------------------------------------
+Add import at top of your main app file:
+import GoogleSignIn
+
+Add to application startup:
+guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+      let plist = NSDictionary(contentsOfFile: path),
+      let clientId = plist["CLIENT_ID"] as? String else {
+    fatalError("No GoogleService-Info.plist file")
+}
+GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
+
+STEP 5: ADD GOOGLE SIGN IN BUTTON TO LoginView
+-----------------------------------------------
+1. Import GoogleSignIn at top of LoginView.swift
+2. Add Google Sign In button similar to Apple Sign In button
+3. Implement Google Sign In flow
+
+Would you like me to provide the exact code for each step?
