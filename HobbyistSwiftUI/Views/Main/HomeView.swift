@@ -52,7 +52,7 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
 
-                    // Enhanced Search Section
+                    // Enhanced Search Section with Keyboard Dismissal
                     VStack(spacing: 8) {
                         HStack {
                             Image(systemName: "magnifyingglass")
@@ -61,6 +61,7 @@ struct HomeView: View {
                                 .submitLabel(.search)
                                 .onSubmit {
                                     // Handle search
+                                    hideKeyboard()
                                 }
 
                             if !searchText.isEmpty {
@@ -82,71 +83,81 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
 
-                    // Featured Vancouver Classes
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("Featured This Week")
+                        // Featured Vancouver Classes
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("Featured This Week")
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal)
+
+                                Spacer()
+
+                                Button("View All") {
+                                    // Navigate to full list
+                                }
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal)
+                            }
+
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(vancouverFeaturedClasses, id: \.id) { classItem in
+                                        VancouverClassCard(classItem: classItem)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+
+                        // Vancouver Neighborhoods & Categories
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Explore by Category")
                                 .font(.title3)
                                 .fontWeight(.semibold)
                                 .padding(.horizontal)
 
-                            Spacer()
-
-                            Button("View All") {
-                                // Navigate to full list
-                            }
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                            .padding(.horizontal)
-                        }
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(vancouverFeaturedClasses, id: \.id) { classItem in
-                                    VancouverClassCard(classItem: classItem)
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
+                                ForEach(vancouverCategories, id: \.name) { category in
+                                    VancouverCategoryCard(category: category)
                                 }
                             }
                             .padding(.horizontal)
                         }
-                    }
 
-                    // Vancouver Neighborhoods & Categories
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Explore by Category")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal)
+                        // Popular Studios Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Popular Studios")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal)
 
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-                            ForEach(vancouverCategories, id: \.name) { category in
-                                VancouverCategoryCard(category: category)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-
-                    // Popular Studios Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Popular Studios")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(vancouverStudios, id: \.id) { studio in
-                                    StudioCard(studio: studio)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(vancouverStudios, id: \.id) { studio in
+                                        StudioCard(studio: studio)
+                                    }
                                 }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
                     }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+            .onTapGesture {
+                hideKeyboard()
+            }
         }
+    }
+
+    // MARK: - Helper Methods
+
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     // MARK: - Vancouver Data
@@ -183,7 +194,6 @@ struct HomeView: View {
             VancouverStudio(id: 4, name: "Vancouver Art Studio", neighborhood: "Kitsilano", rating: 4.6, classCount: 8, specialty: "Arts")
         ]
     }
-}
 
 // MARK: - Vancouver Data Models
 
