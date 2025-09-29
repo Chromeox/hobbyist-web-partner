@@ -7,8 +7,8 @@ struct BookingsView: View {
         NavigationStack {
             VStack {
                 Picker("", selection: $selectedSegment) {
-                    Text(NSLocalizedString("upcoming", comment: "")).tag(0)
-                    Text(NSLocalizedString("past", comment: "")).tag(1)
+                    Text("Upcoming").tag(0)
+                    Text("Past").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
@@ -60,7 +60,7 @@ struct BookingCard: View {
                 Spacer()
                 
                 if isPast {
-                    Button(NSLocalizedString("rate", comment: "")) {
+                    Button("Rate") {
                         // Rate action
                     }
                     .font(.caption)
@@ -70,7 +70,7 @@ struct BookingCard: View {
                     .foregroundColor(.white)
                     .cornerRadius(6)
                 } else {
-                    Text(NSLocalizedString("confirmed", comment: ""))
+                    Text("Confirmed")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
@@ -80,7 +80,7 @@ struct BookingCard: View {
             Divider()
             
             HStack {
-                Label(NSLocalizedString("central_studio", comment: ""), systemImage: "location.fill")
+                Label("Central Studio", systemImage: "location.fill")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -88,7 +88,7 @@ struct BookingCard: View {
 
                 if !isPast {
                     NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
-                        Text(NSLocalizedString("view_details", comment: ""))
+                        Text("View Details")
                             .font(.caption)
                             .foregroundColor(.accentColor)
                     }

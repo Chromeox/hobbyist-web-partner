@@ -30,43 +30,43 @@ struct ProfileView: View {
                 }
                 
                 // Account Settings
-                Section(NSLocalizedString("account", comment: "")) {
+                Section("Account") {
                     NavigationLink(destination: EditProfileView()) {
-                        Label(NSLocalizedString("edit_profile", comment: ""), systemImage: "person.fill")
+                        Label("Edit Profile", systemImage: "person.fill")
                     }
                     
                     NavigationLink(destination: PaymentMethodsView()) {
-                        Label(NSLocalizedString("payment_methods", comment: ""), systemImage: "creditcard.fill")
+                        Label("Payment Methods", systemImage: "creditcard.fill")
                     }
                     
                     NavigationLink(destination: CreditsView()) {
-                        Label(NSLocalizedString("my_credits", comment: ""), systemImage: "dollarsign.circle.fill")
+                        Label("My Credits", systemImage: "dollarsign.circle.fill")
                     }
                 }
                 
                 // Preferences
-                Section(NSLocalizedString("preferences", comment: "")) {
+                Section("Preferences") {
                     NavigationLink(destination: NotificationsView()) {
-                        Label(NSLocalizedString("notifications", comment: ""), systemImage: "bell.fill")
+                        Label("Notifications", systemImage: "bell.fill")
                     }
                     
                     NavigationLink(destination: Text("Settings View")) {
-                        Label(NSLocalizedString("settings", comment: ""), systemImage: "gear")
+                        Label("Settings", systemImage: "gear")
                     }
                     
                     NavigationLink(destination: PrivacyView()) {
-                        Label(NSLocalizedString("privacy", comment: ""), systemImage: "lock.fill")
+                        Label("Privacy", systemImage: "lock.fill")
                     }
                 }
                 
                 // Support
-                Section(NSLocalizedString("support", comment: "")) {
+                Section("Support") {
                     NavigationLink(destination: HelpCenterView()) {
-                        Label(NSLocalizedString("help_center", comment: ""), systemImage: "questionmark.circle.fill")
+                        Label("Help Center", systemImage: "questionmark.circle.fill")
                     }
                     
                     NavigationLink(destination: ContactUsView()) {
-                        Label(NSLocalizedString("contact_us", comment: ""), systemImage: "envelope.fill")
+                        Label("Contact Us", systemImage: "envelope.fill")
                     }
                 }
                 
@@ -75,14 +75,14 @@ struct ProfileView: View {
                     Button(action: signOut) {
                         HStack {
                             Spacer()
-                            Text(NSLocalizedString("sign_out", comment: ""))
+                            Text("Sign Out")
                                 .foregroundColor(.red)
                             Spacer()
                         }
                     }
                 }
             }
-            .navigationTitle(NSLocalizedString("profile", comment: ""))
+            .navigationTitle("Profile")
         }
     }
     

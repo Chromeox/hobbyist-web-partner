@@ -18,11 +18,11 @@ struct ClassDetailView: View {
                 ZStack(alignment: .topTrailing) {
                     // Class Image
                     LinearGradient(
-                        colors: [classItem.categoryColor.opacity(0.6), classItem.categoryColor],
+                        colors: [classItem.categoryColor.opacity(0.7), classItem.categoryColor],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
-                    .frame(height: 300)
+                    .frame(height: 320)
                     .overlay(
                         VStack {
                             Spacer()
@@ -37,9 +37,11 @@ struct ClassDetailView: View {
                                         .cornerRadius(20)
                                     
                                     Text(classItem.name)
-                                        .font(.largeTitle)
+                                        .font(.title)
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
+                                        .multilineTextAlignment(.leading)
+                                        .lineLimit(2)
                                     
                                     HStack(spacing: 16) {
                                         Label(classItem.duration, systemImage: "clock.fill")
@@ -117,12 +119,13 @@ struct ClassDetailView: View {
                                 .foregroundColor(.accentColor)
                         }
                     }
-                    .padding()
+                    .padding(16)
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(16)
+                    .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                     
                     // Key Details Grid
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                         DetailCard(
                             icon: "calendar",
                             title: "Date",
@@ -252,10 +255,17 @@ struct ClassDetailView: View {
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 16)
-                            .background(Color.accentColor)
-                            .cornerRadius(25)
+                            .padding(.horizontal, 40)
+                            .padding(.vertical, 18)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .cornerRadius(28)
+                            .shadow(color: .accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                 }
                 .padding()
@@ -320,9 +330,10 @@ struct DetailCard: View {
             
             Spacer()
         }
-        .padding()
+        .padding(12)
         .background(Color(.systemGray6))
-        .cornerRadius(8)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.03), radius: 2, x: 0, y: 1)
     }
 }
 
