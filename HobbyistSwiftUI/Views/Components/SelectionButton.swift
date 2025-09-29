@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SelectionButton: View {
+public struct SelectionButton: View {
     let text: String
     let isSelected: Bool
     let isEnabled: Bool
@@ -139,7 +139,7 @@ struct SelectionButtonGrid: View {
 
 // MARK: - Horizontal Chip Style
 
-struct SelectionChip: View {
+public struct SelectionChip: View {
     let text: String
     let isSelected: Bool
     let isEnabled: Bool

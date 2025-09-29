@@ -1,39 +1,191 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @State private var selectedTab = 0
+    @StateObject private var navigationManager = NavigationManager.shared
+    @State private var tabContentOffset: CGFloat = 0
+    @State private var previousTabIndex: Int = 0
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            HomeView()
-                .tabItem {
-                    Image(systemName: selectedTab == 0 ? "house.fill" : "house")
-                    Text("Home")
-                }
-                .tag(0)
+        TabView(selection: Binding(
+            get: { navigationManager.currentTab.index },
+            set: { newIndex in
+                let newTab = MainTab.allCases[newIndex]
+                navigationManager.switchTab(to: newTab)
+            }
+        )) {
+            // Home Tab
+            NavigationStack(path: $navigationManager.homeNavigationPath) {
+                HomeView()
+                    .navigationTransition(.fade)
+                    .navigationDestination(for: NavigationDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIconView(
+                    tab: .home,
+                    currentTab: navigationManager.currentTab,
+                    switchDirection: navigationManager.tabSwitchDirection
+                )
+            }
+            .tag(0)
 
-            SearchView()
-                .tabItem {
-                    Image(systemName: selectedTab == 1 ? "magnifyingglass" : "magnifyingglass")
-                    Text("Search")
-                }
-                .tag(1)
+            // Search Tab
+            NavigationStack(path: $navigationManager.searchNavigationPath) {
+                SearchView()
+                    .navigationTransition(.slide)
+                    .navigationDestination(for: NavigationDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIconView(
+                    tab: .search,
+                    currentTab: navigationManager.currentTab,
+                    switchDirection: navigationManager.tabSwitchDirection
+                )
+            }
+            .tag(1)
 
-            BookingsView()
-                .tabItem {
-                    Image(systemName: selectedTab == 2 ? "calendar" : "calendar")
-                    Text("Bookings")
-                }
-                .tag(2)
+            // Bookings Tab
+            NavigationStack(path: $navigationManager.bookingsNavigationPath) {
+                BookingsView()
+                    .navigationTransition(.scale)
+                    .navigationDestination(for: NavigationDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIconView(
+                    tab: .bookings,
+                    currentTab: navigationManager.currentTab,
+                    switchDirection: navigationManager.tabSwitchDirection
+                )
+            }
+            .tag(2)
 
-            ProfileView()
-                .tabItem {
-                    Image(systemName: selectedTab == 3 ? "person.fill" : "person")
-                    Text("Profile")
-                }
-                .tag(3)
+            // Profile Tab
+            NavigationStack(path: $navigationManager.profileNavigationPath) {
+                ProfileView()
+                    .navigationTransition(.fade)
+                    .navigationDestination(for: NavigationDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIconView(
+                    tab: .profile,
+                    currentTab: navigationManager.currentTab,
+                    switchDirection: navigationManager.tabSwitchDirection
+                )
+            }
+            .tag(3)
         }
         .accentColor(.blue)
+        .animation(.easeInOut(duration: 0.2), value: navigationManager.currentTab)
+    }
+
+    @ViewBuilder
+    private func destinationView(for destination: NavigationDestination) -> some View {
+        switch destination {
+        case .classDetail(let classID):
+            Text("Class Detail: \(classID)")
+                .navigationTitle("Class Details")
+        case .profile:
+            ProfileView()
+        case .settings:
+            Text("Settings")
+                .navigationTitle("Settings")
+        case .credits:
+            Text("Credits")
+                .navigationTitle("Credits")
+        case .bookingFlow(let classID):
+            Text("Booking Flow for: \(classID)")
+                .navigationTitle("Book Class")
+        case .feedback:
+            Text("Feedback")
+                .navigationTitle("Feedback")
+        case .following:
+            Text("Following")
+                .navigationTitle("Following")
+        case .marketplace:
+            Text("Marketplace")
+                .navigationTitle("Marketplace")
+        }
+    }
+}
+
+// MARK: - Animated Tab Icon Component
+
+struct TabIconView: View {
+    let tab: MainTab
+    let currentTab: MainTab
+    let switchDirection: TabSwitchDirection
+
+    @State private var isAnimating = false
+    @State private var bounceScale: CGFloat = 1.0
+
+    private var isSelected: Bool {
+        currentTab == tab
+    }
+
+    private var iconName: String {
+        isSelected ? tab.filledSystemImage : tab.systemImage
+    }
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ZStack {
+                // Background indicator for selected tab
+                if isSelected {
+                    Circle()
+                        .fill(Color.blue.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                        .scaleEffect(bounceScale)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: bounceScale)
+                }
+
+                // Tab icon with morphing animation
+                Image(systemName: iconName)
+                    .font(.system(size: 20, weight: isSelected ? .medium : .regular))
+                    .foregroundColor(isSelected ? .blue : .gray)
+                    .scaleEffect(isSelected ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
+                    .symbolEffect(.bounce, value: isSelected)
+            }
+
+            // Tab label
+            Text(tab.rawValue)
+                .font(.caption2)
+                .fontWeight(isSelected ? .semibold : .regular)
+                .foregroundColor(isSelected ? .blue : .gray)
+                .scaleEffect(isSelected ? 1.0 : 0.9)
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
+        }
+        .onChange(of: isSelected) { _, newValue in
+            if newValue {
+                // Trigger bounce animation when tab becomes selected
+                bounceScale = 1.2
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    bounceScale = 1.0
+                }
+            }
+        }
+        .onChange(of: switchDirection) { _, direction in
+            guard isSelected && direction != .none else { return }
+
+            // Animate based on switch direction
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isAnimating = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isAnimating = false
+                }
+            }
+        }
+        .offset(y: isAnimating ? (switchDirection == .forward ? -2 : 2) : 0)
     }
 }
 

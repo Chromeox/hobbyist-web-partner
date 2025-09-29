@@ -27,13 +27,18 @@ struct DiscoverView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(categories, id: \.self) { category in
-                                SelectionChip(
-                                    category,
-                                    isSelected: selectedCategory == category,
-                                    action: {
-                                        selectedCategory = selectedCategory == category ? nil : category
-                                    }
-                                )
+                                Button(action: {
+                                    selectedCategory = selectedCategory == category ? nil : category
+                                }) {
+                                    Text(category)
+                                        .font(.callout)
+                                        .fontWeight(selectedCategory == category ? .semibold : .regular)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(selectedCategory == category ? Color.accentColor : Color(.systemGray6))
+                                        .foregroundColor(selectedCategory == category ? .white : .primary)
+                                        .cornerRadius(999)
+                                }
                             }
                         }
                         .padding(.horizontal, 16)
@@ -47,7 +52,7 @@ struct DiscoverView: View {
                             .padding(.horizontal, 16)
                         
                         ForEach(0..<5) { _ in
-                            NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
+                            NavigationLink(destination: Text("Class Details Coming Soon")) {
                                 ClassListItem()
                             }
                             .buttonStyle(PlainButtonStyle())

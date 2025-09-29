@@ -92,7 +92,7 @@ fi
 echo ""
 echo "📄 Checking Entitlements Files:"
 DEBUG_ENTITLEMENTS="/Users/chromefang.exe/HobbyApp/HobbyistSwiftUI/HobbyistSwiftUIDebug.entitlements"
-RELEASE_ENTITLEMENTS="/Users/chromefang.exe/HobbyApp/iOS/HobbyistSwiftUI/HobbyistSwiftUIRelease.entitlements"
+RELEASE_ENTITLEMENTS="/Users/chromefang.exe/HobbyApp/HobbyistSwiftUI/HobbyistSwiftUI.entitlements"
 
 if [ -f "$DEBUG_ENTITLEMENTS" ]; then
     echo "   ✅ Debug entitlements found"
