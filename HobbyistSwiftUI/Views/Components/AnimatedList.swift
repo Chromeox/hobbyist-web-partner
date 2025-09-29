@@ -31,10 +31,11 @@ public struct AnimatedListView<Item: Identifiable, Content: View>: View {
                     .opacity(visibleItems.contains(itemID) ? 1 : 0)
                     .offset(y: visibleItems.contains(itemID) ? 0 : offsetForAnimation)
                     .scaleEffect(visibleItems.contains(itemID) ? 1 : scaleForAnimation)
-                    .animation(
-                        .spring(response: 0.6, dampingFraction: 0.8)
-                        .delay(Double(index) * staggerDelay),
-                        value: visibleItems.contains(itemID)
+                    .optimizedSpring(
+                        response: 0.6,
+                        dampingFraction: 0.8,
+                        type: .content,
+                        priority: .normal
                     )
                     .onAppear {
                         withAnimation {
@@ -109,10 +110,11 @@ public struct AnimatedGridView<Item: Identifiable, Content: View>: View {
                     .opacity(visibleItems.contains(itemID) ? 1 : 0)
                     .scaleEffect(visibleItems.contains(itemID) ? 1 : 0.8)
                     .offset(y: visibleItems.contains(itemID) ? 0 : 10)
-                    .animation(
-                        .spring(response: 0.5, dampingFraction: 0.7)
-                        .delay(Double(index) * staggerDelay),
-                        value: visibleItems.contains(itemID)
+                    .optimizedSpring(
+                        response: 0.5,
+                        dampingFraction: 0.7,
+                        type: .content,
+                        priority: .normal
                     )
                     .onAppear {
                         withAnimation {
@@ -156,10 +158,20 @@ public struct AnimatedCard<Content: View>: View {
                 y: cardStyle.shadowY
             )
             .scaleEffect(isPressed ? 0.98 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+            .optimizedSpring(
+                response: 0.3,
+                dampingFraction: 0.7,
+                type: .essential,
+                priority: .high
+            )
             .opacity(isVisible ? 1 : 0)
             .scaleEffect(isVisible ? 1 : 0.95)
-            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: isVisible)
+            .optimizedSpring(
+                response: 0.6,
+                dampingFraction: 0.8,
+                type: .content,
+                priority: .normal
+            )
             .onAppear {
                 withAnimation {
                     isVisible = true
@@ -235,7 +247,12 @@ public struct AnimatedSearchBar: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(isFocused ? .blue : .secondary)
                 .scaleEffect(isFocused ? 1.1 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
+                .optimizedSpring(
+                    response: 0.3,
+                    dampingFraction: 0.7,
+                    type: .essential,
+                    priority: .high
+                )
 
             // Search Field
             TextField(placeholder, text: $text, onEditingChanged: { editing in
@@ -286,7 +303,12 @@ public struct AnimatedSearchBar: View {
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         )
         .scaleEffect(isFocused ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFocused)
+        .optimizedSpring(
+            response: 0.3,
+            dampingFraction: 0.8,
+            type: .essential,
+            priority: .high
+        )
     }
 
     private func hideKeyboard() {

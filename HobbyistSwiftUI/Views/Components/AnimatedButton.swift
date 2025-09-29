@@ -62,7 +62,12 @@ public struct AnimatedButton: View {
             )
         }
         .scaleEffect(scaleEffect)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .optimizedSpring(
+            response: 0.3,
+            dampingFraction: 0.7,
+            type: .essential,
+            priority: .high
+        )
         .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
@@ -244,7 +249,12 @@ public struct AnimatedIconButton: View {
             )
         }
         .scaleEffect(scaleEffect)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .optimizedSpring(
+            response: 0.3,
+            dampingFraction: 0.7,
+            type: .essential,
+            priority: .high
+        )
         .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
