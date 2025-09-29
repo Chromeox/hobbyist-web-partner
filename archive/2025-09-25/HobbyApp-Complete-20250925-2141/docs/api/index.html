@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - HobbyistSwiftUI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        .endpoint { background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); }
+        .method-get { background-color: #48bb78; }
+        .method-post { background-color: #4299e1; }
+        .method-patch { background-color: #ed8936; }
+        .method-delete { background-color: #f56565; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="../index.html" class="text-2xl font-bold text-indigo-600">← Back to Docs</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="endpoint text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-bold">API Documentation</h1>
+            <p class="mt-2 text-xl">Complete reference for HobbyistSwiftUI REST API</p>
+        </div>
+    </div>
+
+    <!-- Sidebar and Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="md:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-4 sticky top-24">
+                    <h3 class="font-semibold mb-4">Endpoints</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#auth" class="text-indigo-600 hover:underline">Authentication</a></li>
+                        <li><a href="#users" class="text-indigo-600 hover:underline">Users</a></li>
+                        <li><a href="#classes" class="text-indigo-600 hover:underline">Classes</a></li>
+                        <li><a href="#bookings" class="text-indigo-600 hover:underline">Bookings</a></li>
+                        <li><a href="#payments" class="text-indigo-600 hover:underline">Payments</a></li>
+                        <li><a href="#reviews" class="text-indigo-600 hover:underline">Reviews</a></li>
+                        <li><a href="#achievements" class="text-indigo-600 hover:underline">Achievements</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="md:col-span-3">
+                <!-- Authentication -->
+                <section id="auth" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6">Authentication</h2>
+                    
+                    <!-- Sign Up -->
+                    <div class="bg-white rounded-lg shadow-md mb-6">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <span class="method-post text-white px-3 py-1 rounded text-sm font-semibold">POST</span>
+                                <code class="text-lg">/auth/v1/signup</code>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="mb-4">Create a new user account.</p>
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "email": "user@example.com",
+  "password": "securepassword123",
+  "data": {
+    "full_name": "John Doe",
+    "phone_number": "+1234567890"
+  }
+}</code></pre>
+                            <h4 class="font-semibold mb-2 mt-4">Response</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "access_token": "eyJhbGciOiJI...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "refresh_token_here",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "created_at": "2024-08-21T10:00:00Z"
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Sign In -->
+                    <div class="bg-white rounded-lg shadow-md mb-6">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <span class="method-post text-white px-3 py-1 rounded text-sm font-semibold">POST</span>
+                                <code class="text-lg">/auth/v1/token?grant_type=password</code>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="mb-4">Authenticate existing user.</p>
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "email": "user@example.com",
+  "password": "securepassword123"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Classes -->
+                <section id="classes" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6">Classes</h2>
+                    
+                    <!-- List Classes -->
+                    <div class="bg-white rounded-lg shadow-md mb-6">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <span class="method-get text-white px-3 py-1 rounded text-sm font-semibold">GET</span>
+                                <code class="text-lg">/rest/v1/classes</code>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="mb-4">Get paginated list of available classes.</p>
+                            <h4 class="font-semibold mb-2">Query Parameters</h4>
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="text-left py-2">Parameter</th>
+                                        <th class="text-left py-2">Type</th>
+                                        <th class="text-left py-2">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>limit</code></td>
+                                        <td class="py-2">integer</td>
+                                        <td class="py-2">Number of results (default: 20)</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>offset</code></td>
+                                        <td class="py-2">integer</td>
+                                        <td class="py-2">Pagination offset</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>category</code></td>
+                                        <td class="py-2">string</td>
+                                        <td class="py-2">Filter by category</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>difficulty</code></td>
+                                        <td class="py-2">string</td>
+                                        <td class="py-2">Filter by difficulty level</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h4 class="font-semibold mb-2 mt-4">Response</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">[
+  {
+    "id": "uuid",
+    "title": "Pottery for Beginners",
+    "description": "Learn the basics of pottery",
+    "category": "Arts & Crafts",
+    "difficulty": "Beginner",
+    "price": 45.00,
+    "credit_cost": 1,
+    "start_date": "2024-09-01T14:00:00Z",
+    "max_participants": 12,
+    "enrolled_count": 8
+  }
+]</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bookings -->
+                <section id="bookings" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6">Bookings</h2>
+                    
+                    <!-- Create Booking -->
+                    <div class="bg-white rounded-lg shadow-md mb-6">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <span class="method-post text-white px-3 py-1 rounded text-sm font-semibold">POST</span>
+                                <code class="text-lg">/rest/v1/bookings</code>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="mb-4">Book a class for the user.</p>
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "class_id": "uuid",
+  "user_id": "uuid",
+  "participant_count": 1,
+  "payment_method": "credits",
+  "credits_used": 1,
+  "total_amount": 45.00
+}</code></pre>
+                            <h4 class="font-semibold mb-2 mt-4">Response</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "id": "uuid",
+  "class_id": "uuid",
+  "user_id": "uuid",
+  "status": "confirmed",
+  "confirmation_code": "HBY-2024-8921",
+  "created_at": "2024-08-21T10:00:00Z"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Booking -->
+                    <div class="bg-white rounded-lg shadow-md mb-6">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center space-x-2">
+                                <span class="method-patch text-white px-3 py-1 rounded text-sm font-semibold">PATCH</span>
+                                <code class="text-lg">/rest/v1/bookings?id=eq.{booking_id}</code>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="mb-4">Cancel an existing booking.</p>
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "status": "cancelled",
+  "cancellation_reason": "Schedule conflict",
+  "cancelled_at": "2024-08-21T10:00:00Z"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Error Responses -->
+                <section id="errors" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6">Error Responses</h2>
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="p-4">
+                            <p class="mb-4">All endpoints may return error responses in the following format:</p>
+                            <pre class="bg-gray-900 text-white p-4 rounded overflow-x-auto"><code class="language-json">{
+  "code": "PGRST116",
+  "details": "The result contains 0 rows",
+  "hint": null,
+  "message": "Resource not found"
+}</code></pre>
+                            <h4 class="font-semibold mb-2 mt-4">Common Error Codes</h4>
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="text-left py-2">Code</th>
+                                        <th class="text-left py-2">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>400</code></td>
+                                        <td class="py-2">Bad Request - Invalid parameters</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>401</code></td>
+                                        <td class="py-2">Unauthorized - Invalid or missing token</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>403</code></td>
+                                        <td class="py-2">Forbidden - Insufficient permissions</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>404</code></td>
+                                        <td class="py-2">Not Found - Resource doesn't exist</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><code>429</code></td>
+                                        <td class="py-2">Too Many Requests - Rate limit exceeded</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</body>
+</html>

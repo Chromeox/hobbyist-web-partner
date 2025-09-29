@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- DEVELOPMENT CONFIGURATION TEMPLATE -->
+    <!-- Copy this file to Config-Dev.plist and fill in your values -->
+    <!-- NEVER commit Config-Dev.plist to version control -->
+    
+    <key>SUPABASE_URL</key>
+    <string>https://YOUR_PROJECT_ID.supabase.co</string>
+    
+    <key>SUPABASE_ANON_KEY</key>
+    <string>YOUR_SUPABASE_ANON_KEY_HERE</string>
+    
+    <key>STRIPE_PUBLISHABLE_KEY</key>
+    <string>pk_test_YOUR_STRIPE_TEST_KEY</string>
+    
+    <key>GOOGLE_CLIENT_ID</key>
+    <string>YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com</string>
+    
+    <key>SENTRY_DSN</key>
+    <string>https://YOUR_SENTRY_DSN@sentry.io/PROJECT_ID</string>
+    
+    <key>AMPLITUDE_API_KEY</key>
+    <string>YOUR_AMPLITUDE_DEV_KEY</string>
+    
+    <key>API_BASE_URL</key>
+    <string>http://localhost:3000</string>
+    
+    <key>ENVIRONMENT</key>
+    <string>development</string>
+    
+    <key>ENABLE_LOGGING</key>
+    <true/>
+    
+    <key>CERTIFICATE_PINNING</key>
+    <false/>
+    
+    <key>MOCK_DATA_ENABLED</key>
+    <true/>
+</dict>
+</plist>

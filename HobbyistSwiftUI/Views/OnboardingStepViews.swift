@@ -309,7 +309,7 @@ struct InterestsStepView: View {
 
     private let interestCategories = [
         InterestCategory(name: "Pottery & Ceramics", icon: "paintpalette.fill", color: .orange, description: "Hand-building, wheel throwing at Claymates"),
-        InterestCategory(name: "Cooking & Culinary", icon: "chef.hat.fill", color: .red, description: "From basics to advanced cuisine"),
+        InterestCategory(name: "Cooking & Culinary", icon: "fork.knife.circle.fill", color: .red, description: "From basics to advanced cuisine"),
         InterestCategory(name: "Arts & Crafts", icon: "paintbrush.fill", color: .purple, description: "Painting, drawing, mixed media"),
         InterestCategory(name: "Photography", icon: "camera.fill", color: .blue, description: "Digital, film, and street photography"),
         InterestCategory(name: "Music & Performance", icon: "music.note", color: .green, description: "Instruments, singing, performance"),

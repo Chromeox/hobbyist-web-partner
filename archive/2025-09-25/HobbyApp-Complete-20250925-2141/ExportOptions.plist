@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>development</string>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>teamID</key>
+    <string>$(DEVELOPMENT_TEAM)</string>
+    <key>destination</key>
+    <string>export</string>
+    <key>signingStyle</key>
+    <string>automatic</string>
+    <key>stripSwiftSymbols</key>
+    <true/>
+    <key>iCloudContainerEnvironment</key>
+    <string>Production</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.hobbyist.bookingapp</key>
+        <string>match AppStore com.hobbyist.bookingapp</string>
+    </dict>
+</dict>
+</plist>

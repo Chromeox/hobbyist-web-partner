@@ -32,7 +32,7 @@ class HomeViewModel: ObservableObject {
             ClassItem.Category(name: "Photography", icon: "camera"),
             ClassItem.Category(name: "Woodworking", icon: "hammer"),
             ClassItem.Category(name: "Jewelry Making", icon: "diamond"),
-            ClassItem.Category(name: "Cooking", icon: "chef.hat"),
+            ClassItem.Category(name: "Cooking", icon: "fork.knife.circle"),
             ClassItem.Category(name: "Dance", icon: "figure.dance"),
             ClassItem.Category(name: "Music", icon: "music.note"),
             ClassItem.Category(name: "Writing", icon: "pencil"),

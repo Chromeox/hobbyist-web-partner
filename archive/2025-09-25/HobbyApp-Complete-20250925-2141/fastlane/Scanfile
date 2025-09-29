@@ -1,0 +1,49 @@
+# Scheme to test
+scheme("HobbyistSwiftUI")
+
+# Project file path
+project("HobbyistSwiftUI.xcodeproj")
+
+# Test devices
+devices([
+  "iPhone 15 Pro",
+  "iPhone 15 Pro Max", 
+  "iPhone SE (3rd generation)",
+  "iPad Pro (12.9-inch) (6th generation)"
+])
+
+# Clean project before testing
+clean(true)
+
+# Enable code coverage
+code_coverage(true)
+
+# Output directory for test results
+output_directory("./test_output")
+
+# Output types
+output_types("html,junit")
+
+# Test configuration
+configuration("Debug")
+
+# Skip building for testing (if tests are already built)
+skip_build(false)
+
+# Number of times to retry tests on failure
+number_of_retries(2)
+
+# Fail build if any test fails
+fail_build(true)
+
+# Only test specific test plans (optional)
+# testplan("HobbyistSwiftUITests")
+
+# Suppress Xcode output unless there's an error
+suppress_xcode_output(false)
+
+# Include simulator logs in test output
+include_simulator_logs(false)
+
+# For more information about the Scanfile, see:
+#     https://docs.fastlane.tools/actions/scan/#parameters

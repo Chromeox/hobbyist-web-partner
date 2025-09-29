@@ -9,7 +9,7 @@ struct ContentView: View {
     @State private var isCheckingStatus = true
 
     var body: some View {
-        Group {
+        ZStack {
             if isCheckingStatus {
                 // Loading state while checking authentication and onboarding
                 ProgressView("Loading HobbyApp...")

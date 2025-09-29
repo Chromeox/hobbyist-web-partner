@@ -22,6 +22,13 @@
 		E20C132E2E78E1C600F31D4C /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20C13252E78E1C600F31D4C /* SearchViewModel.swift */; };
 		E20C132F2E78E1C600F31D4C /* ClassListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20C13202E78E1C600F31D4C /* ClassListViewModel.swift */; };
 		E2BBE57D2E81B18F00CFDD45 /* SimpleSupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BBE57C2E81B18F00CFDD45 /* SimpleSupabaseService.swift */; };
+		E2D993712E8752AC007D3F6D /* BiometricAuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D993702E8752AC007D3F6D /* BiometricAuthenticationService.swift */; };
+		E2D993732E8752BB007D3F6D /* CreditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D993722E8752BB007D3F6D /* CreditService.swift */; };
+		E2D993752E8752D5007D3F6D /* OnboardingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D993742E8752D5007D3F6D /* OnboardingService.swift */; };
+		E2D993772E87532B007D3F6D /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2D993762E87532B007D3F6D /* LocalAuthentication.framework */; };
+		E2D9937B2E89ED51007D3F6D /* ClassModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937A2E89ED51007D3F6D /* ClassModel.swift */; };
+		E2D9937D2E89ED58007D3F6D /* CreditTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937C2E89ED58007D3F6D /* CreditTypes.swift */; };
+		E2D9937F2E89ED61007D3F6D /* ActivityFeedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937E2E89ED61007D3F6D /* ActivityFeedTypes.swift */; };
 		E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA02E790C1900F90F24 /* Booking.swift */; };
 		E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA72E790C1900F90F24 /* SearchModels.swift */; };
 		E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA22E790C1900F90F24 /* Following.swift */; };
@@ -76,6 +83,14 @@
 		E20C13242E78E1C600F31D4C /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		E20C13252E78E1C600F31D4C /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		E2BBE57C2E81B18F00CFDD45 /* SimpleSupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleSupabaseService.swift; sourceTree = "<group>"; };
+		E2D993702E8752AC007D3F6D /* BiometricAuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthenticationService.swift; sourceTree = "<group>"; };
+		E2D993722E8752BB007D3F6D /* CreditService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditService.swift; sourceTree = "<group>"; };
+		E2D993742E8752D5007D3F6D /* OnboardingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingService.swift; sourceTree = "<group>"; };
+		E2D993762E87532B007D3F6D /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
+		E2D9937A2E89ED51007D3F6D /* ClassModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassModel.swift; sourceTree = "<group>"; };
+		E2D9937C2E89ED58007D3F6D /* CreditTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditTypes.swift; sourceTree = "<group>"; };
+		E2D9937E2E89ED61007D3F6D /* ActivityFeedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityFeedTypes.swift; sourceTree = "<group>"; };
+		E2D993802E89FB18007D3F6D /* HobbyistSwiftUIDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HobbyistSwiftUIDebug.entitlements; sourceTree = "<group>"; };
 		E2E5EFA02E790C1900F90F24 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
 		E2E5EFA12E790C1900F90F24 /* ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItem.swift; sourceTree = "<group>"; };
 		E2E5EFA22E790C1900F90F24 /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
@@ -114,6 +129,7 @@
 			files = (
 				E2E73DF22E764B4800994856 /* PostgREST in Frameworks */,
 				E2E73DF02E764B4800994856 /* Functions in Frameworks */,
+				E2D993772E87532B007D3F6D /* LocalAuthentication.framework in Frameworks */,
 				E2E73DF92E764DF500994856 /* Supabase in Frameworks */,
 				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
 				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
@@ -145,6 +161,7 @@
 		7A1234541234567890ABCDEF /* HobbyistSwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				E2D993802E89FB18007D3F6D /* HobbyistSwiftUIDebug.entitlements */,
 				E20C13262E78E1C600F31D4C /* ViewModels */,
 				7A1234551234567890ABCDEF /* HobbyistSwiftUIApp.swift */,
 				7A1234571234567890ABCDEF /* ContentView.swift */,
@@ -207,6 +224,7 @@
 		E2E73DF72E764DF500994856 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E2D993762E87532B007D3F6D /* LocalAuthentication.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -214,6 +232,9 @@
 		E2E73E032E76522A00994856 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E2D9937E2E89ED61007D3F6D /* ActivityFeedTypes.swift */,
+				E2D9937C2E89ED58007D3F6D /* CreditTypes.swift */,
+				E2D9937A2E89ED51007D3F6D /* ClassModel.swift */,
 				E2E5EFA02E790C1900F90F24 /* Booking.swift */,
 				E2E5EFA12E790C1900F90F24 /* ClassItem.swift */,
 				E2E5EFA22E790C1900F90F24 /* Following.swift */,
@@ -232,6 +253,9 @@
 		E2E73E042E76522F00994856 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E2D993742E8752D5007D3F6D /* OnboardingService.swift */,
+				E2D993722E8752BB007D3F6D /* CreditService.swift */,
+				E2D993702E8752AC007D3F6D /* BiometricAuthenticationService.swift */,
 				E2BBE57C2E81B18F00CFDD45 /* SimpleSupabaseService.swift */,
 				E20C131B2E78E1AD00F31D4C /* HapticFeedbackService.swift */,
 				E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */,
@@ -314,7 +338,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */,
+				E2D9937F2E89ED61007D3F6D /* ActivityFeedTypes.swift in Sources */,
 				E2E73E012E76521100994856 /* AppError.swift in Sources */,
+				E2D9937D2E89ED58007D3F6D /* CreditTypes.swift in Sources */,
 				E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */,
 				E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */,
 				E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */,
@@ -331,6 +357,8 @@
 				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
 				E2E73E091234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift in Sources */,
 				E2E73E131234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift in Sources */,
+				E2D993752E8752D5007D3F6D /* OnboardingService.swift in Sources */,
+				E2D993712E8752AC007D3F6D /* BiometricAuthenticationService.swift in Sources */,
 				E2E73E291234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift in Sources */,
 				E20C131C2E78E1AD00F31D4C /* HapticFeedbackService.swift in Sources */,
 				E2E73E251234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift in Sources */,
@@ -344,6 +372,8 @@
 				E20C132C2E78E1C600F31D4C /* BookingViewModel.swift in Sources */,
 				E20C132D2E78E1C600F31D4C /* ClassDetailViewModel.swift in Sources */,
 				E20C132E2E78E1C600F31D4C /* SearchViewModel.swift in Sources */,
+				E2D9937B2E89ED51007D3F6D /* ClassModel.swift in Sources */,
+				E2D993732E8752BB007D3F6D /* CreditService.swift in Sources */,
 				E20C132F2E78E1C600F31D4C /* ClassListViewModel.swift in Sources */,
 				E2E73E351234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift in Sources */,
 				E2E73E391234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift in Sources */,
@@ -488,15 +518,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HobbyistSwiftUI/HobbyistSwiftUIDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HobbyistSwiftUI/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HobbyistSwiftUI/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Hobbyist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Hobbyist can add your booked classes and workshops to your calendar, ensuring you never miss a session and can plan your creative schedule.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hobbyist needs camera access to let you take profile photos and capture memories from your classes to share with the community.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Hobbyist can access your contacts to help you invite friends to join classes together and build connections in your local creative community.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Hobbyist uses Face ID and Touch ID to securely authenticate your account access and protect your payment information during checkout.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hobbyist needs photo library access to let you select profile pictures and upload photos from your creative classes and workshops.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "Hobbyist can create reminders for your upcoming classes, workshop deadlines, and important events so you stay engaged with your hobbies.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -518,15 +559,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HobbyistSwiftUI/HobbyistSwiftUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HobbyistSwiftUI/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HobbyistSwiftUI/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Hobbyist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Hobbyist can add your booked classes and workshops to your calendar, ensuring you never miss a session and can plan your creative schedule.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hobbyist needs camera access to let you take profile photos and capture memories from your classes to share with the community.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Hobbyist can access your contacts to help you invite friends to join classes together and build connections in your local creative community.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Hobbyist uses Face ID and Touch ID to securely authenticate your account access and protect your payment information during checkout.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Hobbyist uses your location to show nearby classes and studios, helping you discover activities within your preferred distance and get accurate travel times.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hobbyist needs photo library access to let you select profile pictures and upload photos from your creative classes and workshops.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "Hobbyist can create reminders for your upcoming classes, workshop deadlines, and important events so you stay engaged with your hobbies.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;

@@ -366,48 +366,6 @@ struct ExpirationRow: View {
 
 // MARK: - Mock Credit Service Data Models
 
-struct CreditTransactionDisplay: Identifiable {
-    let id = UUID()
-    let description: String
-    let date: Date
-    let amount: Int
-    let balanceAfter: Int
-    let type: TransactionType
-    
-    enum TransactionType {
-        case purchase, usage, bonus, rollover, expiration
-    }
-    
-    var amountText: String {
-        switch type {
-        case .purchase, .bonus, .rollover:
-            return "+\(amount)"
-        case .usage, .expiration:
-            return "-\(amount)"
-        }
-    }
-    
-    var color: Color {
-        switch type {
-        case .purchase: return .blue
-        case .usage: return .red
-        case .bonus: return .green
-        case .rollover: return .orange
-        case .expiration: return .gray
-        }
-    }
-    
-    var iconName: String {
-        switch type {
-        case .purchase: return "creditcard.fill"
-        case .usage: return "minus.circle.fill"
-        case .bonus: return "gift.fill"
-        case .rollover: return "arrow.triangle.2.circlepath"
-        case .expiration: return "clock.badge.xmark"
-        }
-    }
-}
-
 struct CreditExpiration: Identifiable {
     let id = UUID()
     let credits: Int

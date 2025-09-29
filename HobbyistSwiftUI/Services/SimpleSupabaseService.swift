@@ -138,12 +138,28 @@ final class SimpleSupabaseService: ObservableObject {
         isLoading = true
         errorMessage = nil
 
+        print("🍎 Starting Apple Sign In process...")
+        print("🍎 User ID: \(credential.user)")
+        print("🍎 Email: \(credential.email ?? "nil")")
+        print("🍎 Full Name: \(credential.fullName?.givenName ?? "nil") \(credential.fullName?.familyName ?? "nil")")
+
         do {
-            guard let identityToken = credential.identityToken,
-                  let identityTokenString = String(data: identityToken, encoding: .utf8) else {
-                errorMessage = "Failed to get Apple ID token"
+            guard let identityToken = credential.identityToken else {
+                print("❌ Apple Sign In: No identity token found")
+                errorMessage = "Failed to get Apple ID token - no token provided"
+                isLoading = false
                 return
             }
+
+            guard let identityTokenString = String(data: identityToken, encoding: .utf8) else {
+                print("❌ Apple Sign In: Failed to convert identity token to string")
+                errorMessage = "Failed to process Apple ID token - invalid format"
+                isLoading = false
+                return
+            }
+
+            print("🍎 Identity token obtained successfully (length: \(identityTokenString.count))")
+            print("🍎 Attempting Supabase authentication...")
 
             let response = try await supabaseClient.auth.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(
@@ -151,6 +167,9 @@ final class SimpleSupabaseService: ObservableObject {
                     idToken: identityTokenString
                 )
             )
+
+            print("🍎 Supabase authentication successful!")
+            print("🍎 User ID from Supabase: \(response.user.id)")
 
             let user = response.user
             let fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
@@ -163,11 +182,25 @@ final class SimpleSupabaseService: ObservableObject {
                 name: fullName.isEmpty ? (user.userMetadata["full_name"]?.value as? String ?? "User") : fullName
             )
             isAuthenticated = true
-            print("✅ Apple Sign In successful")
+            print("✅ Apple Sign In completed successfully")
+            print("✅ User authenticated: \(currentUser?.name ?? "Unknown")")
 
         } catch {
-            errorMessage = error.localizedDescription
             print("❌ Apple Sign In error: \(error)")
+            print("❌ Error type: \(type(of: error))")
+            print("❌ Error details: \(error.localizedDescription)")
+
+            // Enhanced error messaging based on common issues
+            if error.localizedDescription.contains("invalid_client") {
+                errorMessage = "Apple Sign In configuration error. Please check Apple Developer settings."
+            } else if error.localizedDescription.contains("invalid_request") {
+                errorMessage = "Apple Sign In request error. Please try again or contact support."
+            } else if error.localizedDescription.contains("network") || error.localizedDescription.contains("internet") {
+                errorMessage = "Network error. Please check your internet connection and try again."
+            } else {
+                errorMessage = "Apple Sign In failed: \(error.localizedDescription)"
+            }
+
         }
 
         isLoading = false

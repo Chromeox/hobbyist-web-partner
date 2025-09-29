@@ -1,0 +1,560 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7A1234561234567890ABCDEF /* HobbyistSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1234551234567890ABCDEF /* HobbyistSwiftUIApp.swift */; };
+		7A1234581234567890ABCDEF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1234571234567890ABCDEF /* ContentView.swift */; };
+		7A12345A1234567890ABCDEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A1234591234567890ABCDEF /* Assets.xcassets */; };
+		7A12345D1234567890ABCDEF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A12345C1234567890ABCDEF /* Preview Assets.xcassets */; };
+		E2E73DEE2E764B4800994856 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DED2E764B4800994856 /* Auth */; };
+		E2E73DF02E764B4800994856 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DEF2E764B4800994856 /* Functions */; };
+		E2E73DF22E764B4800994856 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF12E764B4800994856 /* PostgREST */; };
+		E2E73DF42E764B4800994856 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF32E764B4800994856 /* Realtime */; };
+		E2E73DF62E764B4800994856 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF52E764B4800994856 /* Storage */; };
+		E2E73DF92E764DF500994856 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E2E73DF82E764DF500994856 /* Supabase */; };
+		E2E73DFB2E7650E600994856 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFA2E7650E600994856 /* Class.swift */; };
+		E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */; };
+		E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73DFE2E7651EC00994856 /* NavigationManager.swift */; };
+		E2E73E012E76521100994856 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E002E76521100994856 /* AppError.swift */; };
+		E2E73E091234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E081234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift */; };
+		E2E73E0B1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E0A1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift */; };
+		E2E73E0F1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E0E1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/SearchViewModel.swift */; };
+		E2E73E131234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */; };
+		E2E73E251234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */; };
+		E2E73E291234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */; };
+		E2E73E2B1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */; };
+		E2E73E331234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */; };
+		E2E73E351234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E341234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift */; };
+		E2E73E391234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E381234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift */; };
+		E2E73E3B1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E3A1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/LoginView.swift */; };
+		E2E73E3D1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E3C1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/SignUpView.swift */; };
+		E2E73E431234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E421234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/OnboardingView.swift */; };
+		E2E73E451234567890ABCDEF /* HobbyistSwiftUI/Views/BookingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E441234567890ABCDEF /* HobbyistSwiftUI/Views/BookingsView.swift */; };
+		E2E73E471234567890ABCDEF /* HobbyistSwiftUI/Views/ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E461234567890ABCDEF /* HobbyistSwiftUI/Views/ProfileView.swift */; };
+		E2E73E491234567890ABCDEF /* HobbyistSwiftUI/Views/SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E481234567890ABCDEF /* HobbyistSwiftUI/Views/SearchView.swift */; };
+		E2E73E4D1234567890ABCDEF /* HobbyistSwiftUI/Views/DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E4C1234567890ABCDEF /* HobbyistSwiftUI/Views/DiscoverView.swift */; };
+		E2E73E511234567890ABCDEF /* HapticFeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E501234567890ABCDEF /* HapticFeedbackService.swift */; };
+		E2E73E521234567890ABCDFF /* HobbyistSwiftUI/Views/CreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E511234567890ABCDFF /* HobbyistSwiftUI/Views/CreditsView.swift */; };
+		E2E73E691234567890ABCDEF /* CreditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E681234567890ABCDEF /* CreditService.swift */; };
+		E2E73EA51234567890ABCDEF /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73EA41234567890ABCDEF /* SearchService.swift */; };
+		E2E73EA71234567890ABCDEF /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73EA61234567890ABCDEF /* LocationService.swift */; };
+		E2E73EA91234567890ABCDEF /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73EA81234567890ABCDEF /* AnalyticsService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7A1234521234567890ABCDEF /* HobbyistSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HobbyistSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A1234551234567890ABCDEF /* HobbyistSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUIApp.swift; sourceTree = "<group>"; };
+		7A1234571234567890ABCDEF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		7A1234591234567890ABCDEF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7A12345C1234567890ABCDEF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		7A12345E1234567890ABCDEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2E73DFA2E7650E600994856 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
+		E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		E2E73DFE2E7651EC00994856 /* NavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationManager.swift; sourceTree = "<group>"; };
+		E2E73E002E76521100994856 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		E2E73E081234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/ViewModels/HomeViewModel.swift; sourceTree = "<group>"; };
+		E2E73E0A1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift; sourceTree = "<group>"; };
+		E2E73E0E1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/ViewModels/SearchViewModel.swift; sourceTree = "<group>"; };
+		E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/ViewModels/ProfileViewModel.swift; sourceTree = "<group>"; };
+		E2E73E1A1234567890ABCDEF /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/Booking.swift; sourceTree = "<group>"; };
+		E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/UserProfile.swift; sourceTree = "<group>"; };
+		E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/ClassItem.swift; sourceTree = "<group>"; };
+		E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Main/MainTabView.swift; sourceTree = "<group>"; };
+		E2E73E341234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Main/HomeView.swift; sourceTree = "<group>"; };
+		E2E73E381234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Main/ClassDetailView.swift; sourceTree = "<group>"; };
+		E2E73E3A1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Auth/LoginView.swift; sourceTree = "<group>"; };
+		E2E73E3C1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Auth/SignUpView.swift; sourceTree = "<group>"; };
+		E2E73E421234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Auth/OnboardingView.swift; sourceTree = "<group>"; };
+		E2E73E441234567890ABCDEF /* HobbyistSwiftUI/Views/BookingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/BookingsView.swift; sourceTree = "<group>"; };
+		E2E73E461234567890ABCDEF /* HobbyistSwiftUI/Views/ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/ProfileView.swift; sourceTree = "<group>"; };
+		E2E73E481234567890ABCDEF /* HobbyistSwiftUI/Views/SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/SearchView.swift; sourceTree = "<group>"; };
+		E2E73E4C1234567890ABCDEF /* HobbyistSwiftUI/Views/DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/DiscoverView.swift; sourceTree = "<group>"; };
+		E2E73E501234567890ABCDEF /* HapticFeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackService.swift; sourceTree = "<group>"; };
+		E2E73E511234567890ABCDFF /* HobbyistSwiftUI/Views/CreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/CreditsView.swift; sourceTree = "<group>"; };
+		E2E73E681234567890ABCDEF /* CreditService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditService.swift; sourceTree = "<group>"; };
+		E2E73EA41234567890ABCDEF /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
+		E2E73EA61234567890ABCDEF /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		E2E73EA81234567890ABCDEF /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7A12344F1234567890ABCDEF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2E73DF22E764B4800994856 /* PostgREST in Frameworks */,
+				E2E73DF02E764B4800994856 /* Functions in Frameworks */,
+				E2E73DF92E764DF500994856 /* Supabase in Frameworks */,
+				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
+				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
+				E2E73DF42E764B4800994856 /* Realtime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7A1234491234567890ABCDEF = {
+			isa = PBXGroup;
+			children = (
+				7A1234541234567890ABCDEF /* HobbyistSwiftUI */,
+				E2E73DF72E764DF500994856 /* Frameworks */,
+				7A1234531234567890ABCDEF /* Products */,
+				E2F697562E77907400CA93E5 /* Recovered References */,
+			);
+			sourceTree = "<group>";
+		};
+		7A1234531234567890ABCDEF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7A1234521234567890ABCDEF /* HobbyistSwiftUI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7A1234541234567890ABCDEF /* HobbyistSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				7A1234551234567890ABCDEF /* HobbyistSwiftUIApp.swift */,
+				7A1234571234567890ABCDEF /* ContentView.swift */,
+				E2E73E1A1234567890ABCDEF /* Configuration.swift */,
+				E2E73E042E76522F00994856 /* Services */,
+				E2E73E032E76522A00994856 /* Models */,
+				7A1234591234567890ABCDEF /* Assets.xcassets */,
+				7A12345E1234567890ABCDEF /* Info.plist */,
+				7A12345B1234567890ABCDEF /* Preview Content */,
+			);
+			path = HobbyistSwiftUI;
+			sourceTree = "<group>";
+		};
+		7A12345B1234567890ABCDEF /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				7A12345C1234567890ABCDEF /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		E2E73DF72E764DF500994856 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E2E73E032E76522A00994856 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E2E73E002E76521100994856 /* AppError.swift */,
+				E2E73DFA2E7650E600994856 /* Class.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E2E73E042E76522F00994856 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */,
+				E2E73DFE2E7651EC00994856 /* NavigationManager.swift */,
+				E2E73E501234567890ABCDEF /* HapticFeedbackService.swift */,
+				E2E73E681234567890ABCDEF /* CreditService.swift */,
+				E2E73EA41234567890ABCDEF /* SearchService.swift */,
+				E2E73EA61234567890ABCDEF /* LocationService.swift */,
+				E2E73EA81234567890ABCDEF /* AnalyticsService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E2F697562E77907400CA93E5 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				E2E73E081234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift */,
+				E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */,
+				E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */,
+				E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */,
+				E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */,
+				E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */,
+				E2E73E341234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift */,
+				E2E73E381234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift */,
+				E2E73E3A1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/LoginView.swift */,
+				E2E73E3C1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/SignUpView.swift */,
+				E2E73E421234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/OnboardingView.swift */,
+				E2E73E4C1234567890ABCDEF /* HobbyistSwiftUI/Views/DiscoverView.swift */,
+				E2E73E481234567890ABCDEF /* HobbyistSwiftUI/Views/SearchView.swift */,
+				E2E73E441234567890ABCDEF /* HobbyistSwiftUI/Views/BookingsView.swift */,
+				E2E73E461234567890ABCDEF /* HobbyistSwiftUI/Views/ProfileView.swift */,
+				E2E73E511234567890ABCDFF /* HobbyistSwiftUI/Views/CreditsView.swift */,
+				E2E73E0A1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift */,
+				E2E73E0E1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/SearchViewModel.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7A1234511234567890ABCDEF /* HobbyistSwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A1234611234567890ABCDEF /* Build configuration list for PBXNativeTarget "HobbyistSwiftUI" */;
+			buildPhases = (
+				7A12344E1234567890ABCDEF /* Sources */,
+				7A12344F1234567890ABCDEF /* Frameworks */,
+				7A1234501234567890ABCDEF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HobbyistSwiftUI;
+			productName = HobbyistSwiftUI;
+			productReference = 7A1234521234567890ABCDEF /* HobbyistSwiftUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7A12344A1234567890ABCDEF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					7A1234511234567890ABCDEF = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 7A12344D1234567890ABCDEF /* Build configuration list for PBXProject "HobbyistSwiftUI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7A1234491234567890ABCDEF;
+			packageReferences = (
+				E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			productRefGroup = 7A1234531234567890ABCDEF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7A1234511234567890ABCDEF /* HobbyistSwiftUI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7A1234501234567890ABCDEF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A12345D1234567890ABCDEF /* Preview Assets.xcassets in Resources */,
+				7A12345A1234567890ABCDEF /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A12344E1234567890ABCDEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2E73DFB2E7650E600994856 /* Class.swift in Sources */,
+				E2E73DFD2E7651DA00994856 /* AuthenticationManager.swift in Sources */,
+				E2E73E012E76521100994856 /* AppError.swift in Sources */,
+				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
+				7A1234561234567890ABCDEF /* HobbyistSwiftUIApp.swift in Sources */,
+				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
+				E2E73E091234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift in Sources */,
+				E2E73E131234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift in Sources */,
+				E2E73E291234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift in Sources */,
+				E2E73E251234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift in Sources */,
+				E2E73E2B1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift in Sources */,
+				E2E73E331234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift in Sources */,
+				E2E73E351234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift in Sources */,
+				E2E73E391234567890ABCDEF /* HobbyistSwiftUI/Views/Main/ClassDetailView.swift in Sources */,
+				E2E73E3B1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/LoginView.swift in Sources */,
+				E2E73E3D1234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/SignUpView.swift in Sources */,
+				E2E73E431234567890ABCDEF /* HobbyistSwiftUI/Views/Auth/OnboardingView.swift in Sources */,
+				E2E73E4D1234567890ABCDEF /* HobbyistSwiftUI/Views/DiscoverView.swift in Sources */,
+				E2E73E491234567890ABCDEF /* HobbyistSwiftUI/Views/SearchView.swift in Sources */,
+				E2E73E451234567890ABCDEF /* HobbyistSwiftUI/Views/BookingsView.swift in Sources */,
+				E2E73E471234567890ABCDEF /* HobbyistSwiftUI/Views/ProfileView.swift in Sources */,
+				E2E73E511234567890ABCDEF /* HapticFeedbackService.swift in Sources */,
+				E2E73E691234567890ABCDEF /* CreditService.swift in Sources */,
+				E2E73E521234567890ABCDFF /* HobbyistSwiftUI/Views/CreditsView.swift in Sources */,
+				E2E73E0B1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ClassDetailViewModel.swift in Sources */,
+				E2E73E0F1234567890ABCDEF /* HobbyistSwiftUI/ViewModels/SearchViewModel.swift in Sources */,
+				E2E73EA51234567890ABCDEF /* SearchService.swift in Sources */,
+				E2E73EA71234567890ABCDEF /* LocationService.swift in Sources */,
+				E2E73EA91234567890ABCDEF /* AnalyticsService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7A12345F1234567890ABCDEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 594BDWKT53;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7A1234601234567890ABCDEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 594BDWKT53;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = incremental;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7A1234621234567890ABCDEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_ASSET_PATHS = "\"HobbyistSwiftUI/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HobbyistSwiftUI/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7A1234631234567890ABCDEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_ASSET_PATHS = "\"HobbyistSwiftUI/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HobbyistSwiftUI/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hobbyist.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = incremental;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7A12344D1234567890ABCDEF /* Build configuration list for PBXProject "HobbyistSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A12345F1234567890ABCDEF /* Debug */,
+				7A1234601234567890ABCDEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A1234611234567890ABCDEF /* Build configuration list for PBXNativeTarget "HobbyistSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A1234621234567890ABCDEF /* Debug */,
+				7A1234631234567890ABCDEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E2E73DED2E764B4800994856 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		E2E73DEF2E764B4800994856 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		E2E73DF12E764B4800994856 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		E2E73DF32E764B4800994856 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		E2E73DF52E764B4800994856 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		E2E73DF82E764DF500994856 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 7A12344A1234567890ABCDEF /* Project object */;
+}

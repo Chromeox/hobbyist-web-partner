@@ -287,7 +287,7 @@ struct ClassItem: Identifiable, Codable {
                 totalSpots: 12,
                 rating: "4.9",
                 reviewCount: "128",
-                icon: "chef.hat",
+                icon: "fork.knife.circle",
                 categoryColor: .green,
                 isFeatured: true,
                 requirements: ["Apron (provided)", "Hair tie if needed", "Appetite for learning!"],

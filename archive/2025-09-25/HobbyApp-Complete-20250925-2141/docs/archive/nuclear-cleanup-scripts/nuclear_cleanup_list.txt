@@ -1,0 +1,65 @@
+COMPREHENSIVE NUCLEAR CLEANUP - ALL SERVICE FILES TO REMOVE FROM XCODE PROJECT
+
+These 29 service files were moved to archive and need their references removed from Xcode:
+
+1. AnalyticsService.swift
+2. ApplePayProducts.swift
+3. BookingService.swift
+4. ClassService.swift
+5. CrashReportingService.swift
+6. DataServiceProtocol.swift
+7. FavoritesService.swift
+8. FeatureFlagManager.swift
+9. FollowingService.swift
+10. KeychainService.swift
+11. LocationManager.swift
+12. LocationService.swift
+13. ModularServiceProtocol.swift
+14. ModuleContainer.swift
+15. NotificationServiceProtocol.swift
+16. OnboardingModuleProtocol.swift
+17. OnboardingModuleTests.swift
+18. OnboardingService.swift
+19. PaymentServiceProtocol.swift
+20. ProfileModuleProtocol.swift
+21. ProfileModuleTests.swift
+22. ProfileService.swift
+23. SearchService.swift
+24. ServiceHealthMonitor.swift
+25. ServiceModuleRegistry.swift
+26. SupabaseDataService.swift
+27. SupabaseManager.swift
+28. SupabaseService.swift
+29. UserService.swift
+
+PLUS previously removed files:
+- APIRateLimiter.swift
+- PaymentService.swift
+- SecurityMonitor.swift
+- ServiceContainer.swift
+- CreditService.swift
+- PushNotificationService.swift
+- VenueService.swift
+- PricingService.swift
+- RealtimeService.swift
+- IAPService.swift
+- InstructorService.swift
+- GamificationService.swift
+- RateLimitingService.swift
+- FeedbackService.swift
+- GamificationServiceProtocol.swift
+- DataService.swift
+- NotificationService.swift
+
+CLEANUP INSTRUCTIONS:
+1. In Xcode Project Navigator, look for Services folder
+2. Look for ALL RED/missing files (there will be many)
+3. Right-click each red file → Delete → Remove Reference
+4. Clean entire Services folder of all missing references
+5. Build should succeed with only 4 remaining services
+
+KEEP THESE 4 ESSENTIAL SERVICES:
+✅ AuthenticationManager.swift
+✅ SimpleSupabaseService.swift
+✅ NavigationManager.swift
+✅ HapticFeedbackService.swift

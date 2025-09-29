@@ -7,8 +7,8 @@ struct BookingsView: View {
         NavigationStack {
             VStack {
                 Picker("", selection: $selectedSegment) {
-                    Text(NSLocalizedString("upcoming", comment: "")).tag(0)
-                    Text(NSLocalizedString("past", comment: "")).tag(1)
+                    Text("upcoming").tag(0)
+                    Text("past").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
@@ -49,10 +49,10 @@ struct BookingCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(NSLocalizedString("pottery_workshop", comment: ""))
+                    Text("Pottery Making Workshop")
                         .font(.headline)
-                    
-                    Text(isPast ? String(format: NSLocalizedString("completed_on", comment: ""), "Dec 15, 2024") : String(format: NSLocalizedString("tomorrow_at", comment: ""), "2:00 PM"))
+
+                    Text(isPast ? "completed on Dec 15, 2024" : "tomorrow at 2:00 PM")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -60,7 +60,7 @@ struct BookingCard: View {
                 Spacer()
                 
                 if isPast {
-                    Button(NSLocalizedString("rate", comment: "")) {
+                    Button("rate") {
                         // Rate action
                     }
                     .font(.caption)
@@ -70,7 +70,7 @@ struct BookingCard: View {
                     .foregroundColor(.white)
                     .cornerRadius(6)
                 } else {
-                    Text(NSLocalizedString("confirmed", comment: ""))
+                    Text("confirmed")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
@@ -80,15 +80,15 @@ struct BookingCard: View {
             Divider()
             
             HStack {
-                Label(NSLocalizedString("central_studio", comment: ""), systemImage: "location.fill")
+                Label("central_studio", systemImage: "location.fill")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 Spacer()
-                
+
                 if !isPast {
                     NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
-                        Text(NSLocalizedString("view_details", comment: ""))
+                        Text("view_details")
                             .font(.caption)
                             .foregroundColor(.accentColor)
                     }

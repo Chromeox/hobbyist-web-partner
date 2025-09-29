@@ -157,28 +157,28 @@ struct HomeView: View {
 
     private var vancouverFeaturedClasses: [VancouverClass] {
         [
-            VancouverClass(id: 1, title: "Pottery Wheel Basics", studio: "Claymates Studio", instructor: "Maria Chen", price: "$65", neighborhood: "Commercial Drive", category: "Ceramics", rating: 4.8, imageColor: .orange),
-            VancouverClass(id: 2, title: "Rumble Boxing Bootcamp", studio: "Rumble Boxing", instructor: "Alex Thompson", price: "$35", neighborhood: "Mount Pleasant", category: "Fitness", rating: 4.9, imageColor: .red),
-            VancouverClass(id: 3, title: "Sourdough Bread Making", studio: "Culinary Studio", instructor: "Chef David Park", price: "$75", neighborhood: "Gastown", category: "Cooking", rating: 4.7, imageColor: .yellow),
-            VancouverClass(id: 4, title: "Urban Photography Walk", studio: "Lens & Light", instructor: "Emma Wilson", price: "$45", neighborhood: "Downtown", category: "Photography", rating: 4.6, imageColor: .blue)
+            VancouverClass(id: 1, title: "Pottery Wheel Basics", studio: "Claymates Studio", instructor: "Maria Chen", price: "$65", creditsRequired: 18, neighborhood: "Commercial Drive", category: "Ceramics", rating: 4.8, imageColor: .orange),
+            VancouverClass(id: 2, title: "Sourdough Bread Making", studio: "Culinary Studio", instructor: "Chef David Park", price: "$75", creditsRequired: 20, neighborhood: "Gastown", category: "Cooking", rating: 4.7, imageColor: .yellow),
+            VancouverClass(id: 3, title: "Urban Photography Walk", studio: "Lens & Light", instructor: "Emma Wilson", price: "$45", creditsRequired: 12, neighborhood: "Downtown", category: "Photography", rating: 4.6, imageColor: .blue),
+            VancouverClass(id: 4, title: "Watercolor Painting", studio: "Creative Arts Collective", instructor: "Sofia Rodriguez", price: "$55", creditsRequired: 15, neighborhood: "Kitsilano", category: "Dance & Movement", rating: 4.8, imageColor: .purple)
         ]
     }
 
     private var vancouverCategories: [VancouverCategory] {
         [
-            VancouverCategory(name: "Ceramics & Pottery", icon: "paintpalette.fill", color: .orange, classCount: 12),
-            VancouverCategory(name: "Cooking & Baking", icon: "chef.hat.fill", color: .yellow, classCount: 15),
+            VancouverCategory(name: "Ceramics", icon: "paintpalette.fill", color: .orange, classCount: 12),
+            VancouverCategory(name: "Cooking & Baking", icon: "fork.knife.circle.fill", color: .yellow, classCount: 15),
             VancouverCategory(name: "Arts & Crafts", icon: "paintbrush.fill", color: .purple, classCount: 10),
             VancouverCategory(name: "Photography", icon: "camera.fill", color: .blue, classCount: 7),
             VancouverCategory(name: "Music & Sound", icon: "music.note", color: .green, classCount: 9),
-            VancouverCategory(name: "Dance & Movement", icon: "figure.dance", color: .pink, classCount: 6)
+            VancouverCategory(name: "Movement", icon: "figure.dance", color: .pink, classCount: 6)
         ]
     }
 
     private var vancouverStudios: [VancouverStudio] {
         [
             VancouverStudio(id: 1, name: "Claymates Studio", neighborhood: "Commercial Drive", rating: 4.8, classCount: 6, specialty: "Ceramics"),
-            VancouverStudio(id: 2, name: "Rumble Boxing", neighborhood: "Mount Pleasant", rating: 4.9, classCount: 4, specialty: "Fitness"),
+            VancouverStudio(id: 2, name: "Creative Arts Collective", neighborhood: "Mount Pleasant", rating: 4.9, classCount: 8, specialty: "Mixed Media"),
             VancouverStudio(id: 3, name: "The Cooking School", neighborhood: "Gastown", rating: 4.7, classCount: 12, specialty: "Culinary"),
             VancouverStudio(id: 4, name: "Vancouver Art Studio", neighborhood: "Kitsilano", rating: 4.6, classCount: 8, specialty: "Arts")
         ]
@@ -193,6 +193,7 @@ struct VancouverClass {
     let studio: String
     let instructor: String
     let price: String
+    let creditsRequired: Int
     let neighborhood: String
     let category: String
     let rating: Double

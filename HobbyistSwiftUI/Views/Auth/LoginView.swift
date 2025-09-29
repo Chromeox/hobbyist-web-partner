@@ -3,6 +3,7 @@ import AuthenticationServices
 
 struct LoginView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
+    @StateObject private var biometricService = BiometricAuthenticationService.shared
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = false
@@ -165,7 +166,7 @@ struct LoginView: View {
                 }
 
                 // Enhanced Action Buttons Section
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     // Main Action Button
                     Button(action: {
                         performAuthentication()
@@ -182,8 +183,8 @@ struct LoginView: View {
                             Text(isSignUp ? "Create Account" : "Sign In")
                                 .fontWeight(.semibold)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .padding(.horizontal, 16)
                         .background(
                             LinearGradient(
                                 colors: formIsValid && !supabaseService.isLoading ?
@@ -195,15 +196,52 @@ struct LoginView: View {
                         )
                         .foregroundColor(.white)
                         .cornerRadius(12)
-                        .shadow(color: formIsValid ? .blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+                        .shadow(color: formIsValid ? .blue.opacity(0.3) : .clear, radius: 6, x: 0, y: 3)
                     }
                     .disabled(supabaseService.isLoading || !formIsValid)
                     .scaleEffect(supabaseService.isLoading ? 0.95 : 1.0)
                     .animation(.spring(response: 0.3), value: supabaseService.isLoading)
 
-                    // Apple Sign In Button (available for both sign in and sign up)
+                    // Face ID Button (independent authentication)
+                    let _ = print("🔐 Face ID condition check - isSignUp: \(isSignUp), canUseBiometricsIndependently: \(biometricService.canUseBiometricsIndependently())")
+                    if !isSignUp && (biometricService.canUseBiometricsIndependently() || (!email.isEmpty && biometricService.canUseBiometrics())) {
+                        Button(action: {
+                            performBiometricAuthentication()
+                        }) {
+                            HStack {
+                                Image(systemName: biometricService.biometricType == .faceID ? "faceid" : "touchid")
+                                    .font(.system(size: 18))
+
+                                if biometricService.canUseBiometricsIndependently(), let lastUser = biometricService.getLastUserEmail() {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Sign in with \(biometricService.biometricTypeDescription())")
+                                            .fontWeight(.medium)
+                                        Text("as \(lastUser)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                } else {
+                                    Text("Sign in with \(biometricService.biometricTypeDescription())")
+                                        .fontWeight(.medium)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .padding(.horizontal, 16)
+                            .background(Color(.systemGray6))
+                            .foregroundColor(.primary)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                            )
+                        }
+                        .disabled(supabaseService.isLoading)
+                    }
+
+                    // Apple Sign In Button (adapts to current form state)
+                    let _ = print("🍎 Apple Sign In button - isSignUp: \(isSignUp), will show: \(isSignUp ? "Sign Up" : "Sign In")")
                     SignInWithAppleButton(
-                        .signIn,
+                        isSignUp ? .signUp : .signIn,
                         onRequest: { request in
                             request.requestedScopes = [.email, .fullName]
                         },
@@ -211,7 +249,8 @@ struct LoginView: View {
                     )
                     .frame(height: 50)
                     .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
+                    .id("apple-sign-in-\(isSignUp ? "signup" : "signin")")
                 }
                 .padding(.horizontal)
 
@@ -297,6 +336,77 @@ struct LoginView: View {
         return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
     }
 
+    private func performBiometricAuthentication() {
+        print("🔐 Face ID button tapped!")
+        print("🔐 Email: '\(email)'")
+        print("🔐 Can use biometrics independently: \(biometricService.canUseBiometricsIndependently())")
+        print("🔐 Biometric type: \(biometricService.biometricType)")
+
+        Task {
+            let success = await biometricService.authenticateWithBiometrics(
+                reason: "Sign in to HobbyApp with \(biometricService.biometricTypeDescription())"
+            )
+
+            if success {
+                // Try independent authentication first (using stored session)
+                if biometricService.canUseBiometricsIndependently(),
+                   let lastUserEmail = biometricService.getLastUserEmail(),
+                   let sessionToken = biometricService.getStoredSessionToken(for: lastUserEmail) {
+
+                    print("🔐 Using stored session for independent biometric sign in")
+                    // TODO: Implement session restoration with Supabase
+                    // For now, use stored credentials as fallback
+                    if let storedPassword = biometricService.getStoredCredentials(for: lastUserEmail) {
+                        await supabaseService.signIn(email: lastUserEmail, password: storedPassword)
+
+                        if let _ = supabaseService.errorMessage {
+                            // Session/credentials expired, clean up and request normal login
+                            biometricService.deleteStoredSession(for: lastUserEmail)
+                            biometricService.deleteStoredCredentials(for: lastUserEmail)
+                            alertTitle = "Session Expired"
+                            alertMessage = "Please sign in with your email and password to update your saved authentication."
+                            showAlert = true
+                        } else if supabaseService.isAuthenticated {
+                            print("✅ Independent biometric authentication successful")
+                            onLoginSuccess(false) // Existing user
+                        }
+                    } else {
+                        // No fallback credentials available
+                        biometricService.deleteStoredSession(for: lastUserEmail)
+                        alertTitle = "Authentication Required"
+                        alertMessage = "Please sign in with your email and password to refresh your saved authentication."
+                        showAlert = true
+                    }
+                }
+                // Fallback to email-based credential authentication
+                else if !email.isEmpty, let storedPassword = biometricService.getStoredCredentials(for: email) {
+                    print("🔐 Using email-based stored credentials for biometric sign in")
+                    await supabaseService.signIn(email: email, password: storedPassword)
+
+                    if let _ = supabaseService.errorMessage {
+                        // If stored credentials failed, prompt user to sign in normally
+                        alertTitle = "Credentials Updated"
+                        alertMessage = "Please sign in with your current password to update your saved credentials."
+                        showAlert = true
+                        biometricService.deleteStoredCredentials(for: email)
+                    } else if supabaseService.isAuthenticated {
+                        onLoginSuccess(false) // Existing user
+                    }
+                } else {
+                    // No stored authentication available
+                    if email.isEmpty && !biometricService.hasStoredUser() {
+                        alertTitle = "Email Required"
+                        alertMessage = "Please enter your email address to sign in with \(biometricService.biometricTypeDescription())."
+                    } else {
+                        alertTitle = "No Saved Credentials"
+                        alertMessage = "Please sign in with your password first to enable \(biometricService.biometricTypeDescription()) for future logins."
+                    }
+                    showAlert = true
+                }
+            }
+        }
+    }
+
     private func performAuthentication() {
         focusedField = nil // Dismiss keyboard
 
@@ -344,6 +454,16 @@ struct LoginView: View {
                     alertMessage = errorMessage
                     showAlert = true
                 } else if supabaseService.isAuthenticated {
+                    // Successful login - save both credentials and session for biometric auth
+                    if biometricService.canUseBiometrics() {
+                        let credentialsSaved = biometricService.saveCredentials(email: email, password: password)
+                        let sessionSaved = biometricService.saveLastUserSession(email: email, sessionToken: "placeholder_session_token")
+
+                        if credentialsSaved && sessionSaved {
+                            print("✅ Credentials and session saved for biometric authentication")
+                        }
+                    }
+
                     // Successful login - returning user
                     onLoginSuccess(false)
                 }
