@@ -54,7 +54,7 @@
   - Migrations: 6 migration files ready to deploy
 - **Web Partner Portal** (`web-partner/`): Next.js application for studio management
   - OAuth setup configured (Google Sign-In ready)
-  - Bundle ID: `com.hobbyist.app`
+  - Bundle ID: `com.hobbyist.bookingapp`
 - **Documentation**: Comprehensive README, CONTRIBUTING, and ARCHITECTURE docs
 - **Fastlane**: iOS deployment automation configured
 - **Fastlane**: iOS deployment automation
@@ -76,7 +76,7 @@
    - Verify with validation script
 
 2. **OAuth Integration**:
-   - Configure Google Sign-In with bundle ID: `com.hobbyist.app`
+   - Configure Google Sign-In with bundle ID: `com.hobbyist.bookingapp`
    - Client ID needed (no secret required for iOS)
 
 3. **Web Portal Integration**:
@@ -153,7 +153,7 @@
 ## 📝 Notes
 
 - **Bundle IDs**: 
-  - HobbyistSwiftUI: `com.hobbyist.app`
+  - HobbyistSwiftUI: `com.hobbyist.bookingapp`
   - TeeStack: `com.golffinderapp.ios`
 - **Supabase Projects**:
   - Hobbyist: `mcjqvdzdhtcvbrejvrtp` (linked)

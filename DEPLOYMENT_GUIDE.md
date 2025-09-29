@@ -105,7 +105,7 @@ WHERE id IN ('class-images', 'instructor-profiles', 'studio-assets');
 
 2. **Update Bundle Identifier**
    - Select project in navigator
-   - Change Bundle ID to: `com.hobbyist.app`
+   - Change Bundle ID to: `com.hobbyist.bookingapp`
    - Set Team to your Apple Developer account
 
 3. **Configure Capabilities**
@@ -137,7 +137,7 @@ fastlane match appstore
      <dict>
        <key>CFBundleURLSchemes</key>
        <array>
-         <string>com.hobbyist.app</string>
+         <string>com.hobbyist.bookingapp</string>
        </array>
      </dict>
    </array>
@@ -302,7 +302,7 @@ vercel --prod
 3. **Create Credentials**
    ```
    Application type: iOS
-   Bundle ID: com.hobbyist.app
+   Bundle ID: com.hobbyist.bookingapp
    
    Application type: Web
    Authorized redirects: 

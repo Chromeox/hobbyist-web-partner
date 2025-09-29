@@ -29,7 +29,7 @@ You need to create provisioning profiles in Apple Developer Portal:
 2. Navigate to **Certificates, Identifiers & Profiles**
 3. Click **Profiles** → **+** (Add new)
 4. Select **iOS App Development**
-5. Choose App ID: `com.hobbyist.app`
+5. Choose App ID: `com.hobbyist.bookingapp`
 6. Select Certificate: **Apple Development: Kurt Cuffy**
 7. Select Devices: Choose your development devices
 8. Download and double-click to install
@@ -37,20 +37,20 @@ You need to create provisioning profiles in Apple Developer Portal:
 #### App Store Profile
 1. In Apple Developer Portal, click **Profiles** → **+**
 2. Select **App Store**
-3. Choose App ID: `com.hobbyist.app`
+3. Choose App ID: `com.hobbyist.bookingapp`
 4. Select Certificate: **Apple Distribution: Quantum Hobbyist Group Inc.**
 5. Download and double-click to install
 
 ### Step 2: Register App in App Store Connect
 1. Go to [App Store Connect](https://appstoreconnect.apple.com)
 2. Click **My Apps** → **+** → **New App**
-3. **Bundle ID**: Select `com.hobbyist.app`
+3. **Bundle ID**: Select `com.hobbyist.bookingapp`
 4. **App Name**: "Hobbyist" or "HobbyistSwiftUI"
 5. **Primary Language**: English
 6. **SKU**: Use bundle ID or unique identifier
 
 ### Step 3: Configure App Capabilities
-Ensure these capabilities are enabled in Apple Developer Portal for `com.hobbyist.app`:
+Ensure these capabilities are enabled in Apple Developer Portal for `com.hobbyist.bookingapp`:
 
 - ✅ **Sign In with Apple** (Required)
 - ✅ **In-App Purchase** (For credit packs)
@@ -89,7 +89,7 @@ xcodebuild -project HobbyistSwiftUI.xcodeproj -scheme HobbyistSwiftUI -configura
 
 ### If "No matching provisioning profiles found"
 1. Make sure you've downloaded and installed both development and distribution profiles
-2. Check that bundle ID exactly matches: `com.hobbyist.app`
+2. Check that bundle ID exactly matches: `com.hobbyist.bookingapp`
 3. Verify your Apple ID is added to the development team
 
 ### If "Certificate not trusted"
@@ -106,7 +106,7 @@ xcodebuild -project HobbyistSwiftUI.xcodeproj -scheme HobbyistSwiftUI -configura
 
 ```json
 {
-  "bundle_id": "com.hobbyist.app",
+  "bundle_id": "com.hobbyist.bookingapp",
   "development_team": "594BDWKT53",
   "signing_style": "Automatic",
   "certificates": {
@@ -127,7 +127,7 @@ xcodebuild -project HobbyistSwiftUI.xcodeproj -scheme HobbyistSwiftUI -configura
 
 1. **HobbyistSwiftUI.xcodeproj/project.pbxproj**
    - Removed conflicting `CODE_SIGN_IDENTITY` settings
-   - Updated bundle identifier to `com.hobbyist.app`
+   - Updated bundle identifier to `com.hobbyist.bookingapp`
 
 2. **.appstore-connect/config.json**
    - Updated `app_id` to match new bundle identifier

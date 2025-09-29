@@ -12,7 +12,7 @@
 ### Apple Developer Account Requirements
 - [ ] **Apple Developer Program membership** ($99/year)
 - [ ] **App Store Connect access** (same Apple ID as developer account)
-- [ ] **Bundle ID registered**: `com.hobbyist.app`
+- [ ] **Bundle ID registered**: `com.hobbyist.bookingapp`
 - [ ] **App Store Connect app created** (if not done yet)
 
 ### Code Signing & Certificates

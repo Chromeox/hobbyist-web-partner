@@ -9,7 +9,7 @@ struct DiscoverView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: HobbyistSpacing.lg) {
                     // Search Bar
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -18,17 +18,17 @@ struct DiscoverView: View {
                         TextField(NSLocalizedString("search_classes", comment: ""), text: $searchText)
                             .textFieldStyle(PlainTextFieldStyle())
                     }
-                    .padding()
+                    .padding(HobbyistSpacing.md)
                     .background(Color(.systemGray6))
-                    .cornerRadius(10)
-                    .padding(.horizontal)
+                    .cornerRadius(HobbyistRadius.md)
+                    .padding(.horizontal, HobbyistSpacing.md)
                     
                     // Categories
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: HobbyistSpacing.sm) {
                             ForEach(categories, id: \.self) { category in
-                                DiscoverCategoryChip(
-                                    title: category,
+                                SelectionChip(
+                                    category,
                                     isSelected: selectedCategory == category,
                                     action: {
                                         selectedCategory = selectedCategory == category ? nil : category
@@ -36,15 +36,15 @@ struct DiscoverView: View {
                                 )
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, HobbyistSpacing.md)
                     }
                     
                     // Featured Classes
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: HobbyistSpacing.md) {
                         Text(NSLocalizedString("featured_classes", comment: ""))
                             .font(.title3)
                             .fontWeight(.semibold)
-                            .padding(.horizontal)
+                            .padding(.horizontal, HobbyistSpacing.md)
                         
                         ForEach(0..<5) { _ in
                             NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
@@ -62,24 +62,6 @@ struct DiscoverView: View {
     }
 }
 
-struct DiscoverCategoryChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color.accentColor : Color(.systemGray6))
-                .foregroundColor(isSelected ? .white : .primary)
-                .cornerRadius(20)
-        }
-    }
-}
 
 struct ClassListItem: View {
     var body: some View {
