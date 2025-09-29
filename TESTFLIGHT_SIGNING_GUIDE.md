@@ -11,7 +11,7 @@ The code signing conflicts have been resolved! Your project is now properly conf
 
 ### 2. Updated Bundle Identifier
 - **Old**: `com.hobbyist.bookingapp`
-- **New**: `com.hobbyist.app` (matches your project documentation)
+- **New**: `com.hobbyist.bookingapp` (configured and available for use)
 - **Updated in**: Xcode project and App Store Connect configuration
 
 ### 3. Verified Certificates

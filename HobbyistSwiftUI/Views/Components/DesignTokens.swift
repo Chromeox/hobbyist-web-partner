@@ -26,6 +26,23 @@ extension Color {
     static let hobbyistError = Color("StateRed")
     static let hobbyistInfo = Color("StateBlue")
 
+    // Selection State Colors
+    static let hobbyistSelectionDefault = Color(.systemGray6)
+    static let hobbyistSelectionHover = Color(.systemGray5)
+    static let hobbyistSelectionPressed = Color.accentColor.opacity(0.8)
+    static let hobbyistSelectionSelected = Color.accentColor
+    static let hobbyistSelectionDisabled = Color(.systemGray6)
+
+    // Selection Text Colors
+    static let hobbyistSelectionTextDefault = Color.primary
+    static let hobbyistSelectionTextSelected = Color.white
+    static let hobbyistSelectionTextDisabled = Color.secondary
+
+    // Interactive State Colors
+    static let hobbyistInteractiveBackground = Color(.systemBackground)
+    static let hobbyistInteractiveHover = Color(.systemGray6)
+    static let hobbyistInteractivePressed = Color(.systemGray5)
+
     // Fallback colors for development (remove when assets added)
     static var fallbackPrimary: Color { Color.blue }
     static var fallbackSecondary: Color { Color.green }
@@ -115,4 +132,26 @@ enum HobbyistShadow {
         case .large: return 8
         }
     }
+}
+
+// MARK: - Animation System
+enum HobbyistAnimation {
+    static let fastDuration: Double = 0.1
+    static let standardDuration: Double = 0.2
+    static let slowDuration: Double = 0.3
+    static let slowestDuration: Double = 0.5
+
+    static let standardCurve: Animation = .easeInOut(duration: standardDuration)
+    static let fastCurve: Animation = .easeInOut(duration: fastDuration)
+    static let slowCurve: Animation = .easeInOut(duration: slowDuration)
+
+    static let springAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8)
+}
+
+// MARK: - Interaction Scales
+enum HobbyistScale {
+    static let pressed: CGFloat = 0.98
+    static let hover: CGFloat = 1.02
+    static let disabled: CGFloat = 1.0
+    static let loading: CGFloat = 0.95
 }

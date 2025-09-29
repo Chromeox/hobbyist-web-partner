@@ -45,10 +45,13 @@ struct ProductionContentView: View {
     @StateObject private var featureFlagManager = FeatureFlagManager.shared
     @State private var showOnboarding = false
     @State private var hasCompletedOnboarding = false
+    @State private var isLoading = true
 
     var body: some View {
         Group {
-            if showOnboarding {
+            if isLoading {
+                LoadingView()
+            } else if showOnboarding {
                 // Use new modular onboarding if feature flag is enabled
                 if featureFlagManager.isEnabled(.onboardingModule) {
                     OnboardingCoordinator {
@@ -70,16 +73,41 @@ struct ProductionContentView: View {
             }
         }
         .onAppear {
-            checkOnboardingStatus()
+            initializeApp()
         }
     }
 
-    private func checkOnboardingStatus() {
-        hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    private func initializeApp() {
+        // Show loading screen for minimum 2.5 seconds for branding
+        Task {
+            // Initialize services and check authentication in parallel
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    // Minimum loading time for branding
+                    try? await Task.sleep(nanoseconds: 2_500_000_000) // 2.5 seconds
+                }
 
-        // Show onboarding for first-time users
-        if !hasCompletedOnboarding && supabaseService.isAuthenticated {
-            showOnboarding = true
+                group.addTask {
+                    // Check onboarding status
+                    await checkOnboardingStatus()
+                }
+            }
+
+            // Update UI on main thread
+            await MainActor.run {
+                isLoading = false
+            }
+        }
+    }
+
+    private func checkOnboardingStatus() async {
+        await MainActor.run {
+            hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+
+            // Show onboarding for first-time users
+            if !hasCompletedOnboarding && supabaseService.isAuthenticated {
+                showOnboarding = true
+            }
         }
     }
 }

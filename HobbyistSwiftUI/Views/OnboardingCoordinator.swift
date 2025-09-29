@@ -69,19 +69,23 @@ struct OnboardingFlowView: View {
                 canGoBack: onboardingService.currentState.previousAvailableStep != nil,
                 canSkip: onboardingService.currentState.currentStep.isSkippable,
                 onBack: {
+                    HapticFeedbackService.shared.playLight()
                     Task {
                         _ = try? await onboardingService.previousStep()
                     }
                 },
                 onNext: {
+                    HapticFeedbackService.shared.playLight()
                     Task {
                         let hasNext = try? await onboardingService.nextStep()
                         if hasNext == false {
+                            HapticFeedbackService.shared.playSuccess()
                             onComplete()
                         }
                     }
                 },
                 onSkip: {
+                    HapticFeedbackService.shared.playLight()
                     Task {
                         _ = try? await onboardingService.skipCurrentStep()
                     }
@@ -122,7 +126,7 @@ struct OnboardingProgressBar: View {
     let progress: Double
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: HobbyistSpacing.sm) {
             HStack {
                 Text("Setup Progress")
                     .font(.caption)
@@ -145,7 +149,7 @@ struct OnboardingProgressBar: View {
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
         }
-        .padding()
+        .padding(HobbyistSpacing.md)
         .background(Color(.systemGray6))
     }
 }
@@ -367,6 +371,7 @@ struct PreferencesView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                             ForEach(timeSlots, id: \.self) { time in
                                 Button(action: {
+                                    HapticFeedbackService.shared.playSelection()
                                     if preferredTimes.contains(time) {
                                         preferredTimes.remove(time)
                                     } else {
@@ -468,6 +473,7 @@ struct InterestsView: View {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                                 ForEach(interestCategories[category] ?? [], id: \.self) { interest in
                                     Button(action: {
+                                        HapticFeedbackService.shared.playSelection()
                                         if selectedInterests.contains(interest) {
                                             selectedInterests.remove(interest)
                                         } else {
@@ -599,7 +605,10 @@ struct LocationView: View {
                         }
                     }
 
-                    Button(action: requestLocationPermission) {
+                    Button(action: {
+                        HapticFeedbackService.shared.playLight()
+                        requestLocationPermission()
+                    }) {
                         HStack {
                             Image(systemName: "location.fill")
                             Text("Enable Location Access")
