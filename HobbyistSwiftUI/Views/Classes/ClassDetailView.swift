@@ -177,7 +177,7 @@ struct ClassDetailView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(hobbyClass.price)
+                        Text("\(hobbyClass.creditsRequired) Credits")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
@@ -308,7 +308,7 @@ struct BookingSheetView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
 
-                            Text(hobbyClass.price)
+                            Text("\(hobbyClass.creditsRequired) Credits")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.blue)
@@ -354,7 +354,7 @@ struct BookingSheetView: View {
                             Text("Total")
                                 .font(.headline)
                             Spacer()
-                            Text(hobbyClass.price)
+                            Text("\(hobbyClass.creditsRequired) Credits")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.blue)
@@ -408,7 +408,6 @@ struct MockHobbyClass {
     static let pottery = MockHobbyClass(
         title: "Pottery Basics",
         instructor: "Sarah Chen",
-        price: "$45",
         duration: "2 hours",
         studioName: "Clay Studio Vancouver",
         nextClassDate: "Tomorrow 10:00 AM",

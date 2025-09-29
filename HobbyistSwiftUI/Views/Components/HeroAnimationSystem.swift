@@ -380,7 +380,6 @@ extension ClassItem {
         title: "Morning Yoga Flow",
         instructor: "Sarah Chen",
         duration: "60 minutes",
-        price: "$25",
         description: "Start your day with this energizing yoga flow designed for all skill levels. Focus on breath work, gentle stretches, and building mindful movement patterns.",
         imageURL: nil
     )

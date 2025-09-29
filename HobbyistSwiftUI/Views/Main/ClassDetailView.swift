@@ -125,7 +125,7 @@ struct ClassDetailView: View {
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                     
                     // Key Details Grid
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                         DetailCard(
                             icon: "calendar",
                             title: "Date",
@@ -144,11 +144,6 @@ struct ClassDetailView: View {
                             value: "\(classItem.spotsAvailable) of \(classItem.totalSpots)"
                         )
                         
-                        DetailCard(
-                            icon: "dollarsign.circle",
-                            title: "Price",
-                            value: classItem.price
-                        )
                         
                         DetailCard(
                             icon: "creditcard",
@@ -240,7 +235,7 @@ struct ClassDetailView: View {
                         Text("\(classItem.creditsRequired) Credits")
                             .font(.title2)
                             .fontWeight(.bold)
-                        Text(classItem.price + " • per session")
+                        Text("per session")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -311,29 +306,34 @@ struct DetailCard: View {
     let icon: String
     let title: String
     let value: String
-    
+
     var body: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(.title2)
                 .foregroundColor(.accentColor)
-                .frame(width: 30)
-            
-            VStack(alignment: .leading, spacing: 2) {
+                .frame(height: 24)
+
+            VStack(spacing: 4) {
                 Text(title)
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+
                 Text(value)
                     .font(.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
-            
-            Spacer()
         }
-        .padding(12)
+        .frame(maxWidth: .infinity)
+        .frame(height: 80)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 16)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.03), radius: 2, x: 0, y: 1)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
 

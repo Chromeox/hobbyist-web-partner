@@ -168,10 +168,10 @@ struct HomeView: View {
 
     private var vancouverFeaturedClasses: [VancouverClass] {
         [
-            VancouverClass(id: 1, title: "Pottery Wheel Basics", studio: "Claymates Studio", instructor: "Maria Chen", price: "$65", creditsRequired: 18, neighborhood: "Commercial Drive", category: "Ceramics", rating: 4.8, imageColor: .orange),
-            VancouverClass(id: 2, title: "Sourdough Bread Making", studio: "Culinary Studio", instructor: "Chef David Park", price: "$75", creditsRequired: 20, neighborhood: "Gastown", category: "Cooking", rating: 4.7, imageColor: .yellow),
-            VancouverClass(id: 3, title: "Urban Photography Walk", studio: "Lens & Light", instructor: "Emma Wilson", price: "$45", creditsRequired: 12, neighborhood: "Downtown", category: "Photography", rating: 4.6, imageColor: .blue),
-            VancouverClass(id: 4, title: "Watercolor Painting", studio: "Creative Arts Collective", instructor: "Sofia Rodriguez", price: "$55", creditsRequired: 15, neighborhood: "Kitsilano", category: "Dance & Movement", rating: 4.8, imageColor: .purple)
+            VancouverClass(id: 1, title: "Pottery Wheel Basics", studio: "Claymates Studio", instructor: "Maria Chen", creditsRequired: 18, neighborhood: "Commercial Drive", category: "Ceramics", rating: 4.8, imageColor: .orange),
+            VancouverClass(id: 2, title: "Sourdough Bread Making", studio: "Culinary Studio", instructor: "Chef David Park", creditsRequired: 20, neighborhood: "Gastown", category: "Cooking", rating: 4.7, imageColor: .yellow),
+            VancouverClass(id: 3, title: "Urban Photography Walk", studio: "Lens & Light", instructor: "Emma Wilson", creditsRequired: 12, neighborhood: "Downtown", category: "Photography", rating: 4.6, imageColor: .blue),
+            VancouverClass(id: 4, title: "Watercolor Painting", studio: "Creative Arts Collective", instructor: "Sofia Rodriguez", creditsRequired: 15, neighborhood: "Kitsilano", category: "Dance & Movement", rating: 4.8, imageColor: .purple)
         ]
     }
 
@@ -202,7 +202,6 @@ struct VancouverClass {
     let title: String
     let studio: String
     let instructor: String
-    let price: String
     let creditsRequired: Int
     let neighborhood: String
     let category: String
