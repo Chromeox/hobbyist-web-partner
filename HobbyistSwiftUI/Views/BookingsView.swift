@@ -7,8 +7,8 @@ struct BookingsView: View {
         NavigationStack {
             VStack {
                 Picker("", selection: $selectedSegment) {
-                    Text(localized: "upcoming").tag(0)
-                    Text(localized: "past").tag(1)
+                    Text(NSLocalizedString("upcoming", comment: "")).tag(0)
+                    Text(NSLocalizedString("past", comment: "")).tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
@@ -70,7 +70,7 @@ struct BookingCard: View {
                     .foregroundColor(.white)
                     .cornerRadius(6)
                 } else {
-                    Text(localized: "confirmed")
+                    Text(NSLocalizedString("confirmed", comment: ""))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
@@ -88,7 +88,7 @@ struct BookingCard: View {
 
                 if !isPast {
                     NavigationLink(destination: ClassDetailView(classItem: ClassItem.sample)) {
-                        Text(localized: "view_details")
+                        Text(NSLocalizedString("view_details", comment: ""))
                             .font(.caption)
                             .foregroundColor(.accentColor)
                     }

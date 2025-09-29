@@ -10,7 +10,7 @@ echo "================================================"
 
 PROJECT_PATH="/Users/chromefang.exe/HobbyApp/HobbyistSwiftUI.xcodeproj"
 SCHEME="HobbyistSwiftUI"
-BUNDLE_ID="com.hobbyist.app"
+BUNDLE_ID="com.hobbyist.bookingapp"
 
 echo "📋 Project Information:"
 echo "   Bundle ID: $BUNDLE_ID"

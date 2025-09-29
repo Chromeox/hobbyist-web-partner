@@ -77,23 +77,23 @@ extension Font {
 }
 
 // MARK: - Spacing System
-enum HobbyistSpacing {
-    static let xs: CGFloat = 4
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 16
-    static let lg: CGFloat = 24
-    static let xl: CGFloat = 32
-    static let xxl: CGFloat = 48
+public enum HobbyistSpacing {
+    public static let xs: CGFloat = 4
+    public static let sm: CGFloat = 8
+    public static let md: CGFloat = 16
+    public static let lg: CGFloat = 24
+    public static let xl: CGFloat = 32
+    public static let xxl: CGFloat = 48
 }
 
 // MARK: - Corner Radius
-enum HobbyistRadius {
-    static let xs: CGFloat = 4
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 12
-    static let lg: CGFloat = 16
-    static let xl: CGFloat = 24
-    static let pill: CGFloat = 999
+public enum HobbyistRadius {
+    public static let xs: CGFloat = 4
+    public static let sm: CGFloat = 8
+    public static let md: CGFloat = 12
+    public static let lg: CGFloat = 16
+    public static let xl: CGFloat = 24
+    public static let pill: CGFloat = 999
 }
 
 // MARK: - Shadow Styles
@@ -108,7 +108,7 @@ extension View {
     }
 }
 
-enum HobbyistShadow {
+public enum HobbyistShadow {
     case small, medium, large
 
     var color: Color {
@@ -135,23 +135,23 @@ enum HobbyistShadow {
 }
 
 // MARK: - Animation System
-enum HobbyistAnimation {
-    static let fastDuration: Double = 0.1
-    static let standardDuration: Double = 0.2
-    static let slowDuration: Double = 0.3
-    static let slowestDuration: Double = 0.5
+public enum HobbyistAnimation {
+    public static let fastDuration: Double = 0.1
+    public static let standardDuration: Double = 0.2
+    public static let slowDuration: Double = 0.3
+    public static let slowestDuration: Double = 0.5
 
-    static let standardCurve: Animation = .easeInOut(duration: standardDuration)
-    static let fastCurve: Animation = .easeInOut(duration: fastDuration)
-    static let slowCurve: Animation = .easeInOut(duration: slowDuration)
+    public static let standardCurve: Animation = .easeInOut(duration: standardDuration)
+    public static let fastCurve: Animation = .easeInOut(duration: fastDuration)
+    public static let slowCurve: Animation = .easeInOut(duration: slowDuration)
 
-    static let springAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8)
+    public static let springAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8)
 }
 
 // MARK: - Interaction Scales
-enum HobbyistScale {
-    static let pressed: CGFloat = 0.98
-    static let hover: CGFloat = 1.02
-    static let disabled: CGFloat = 1.0
-    static let loading: CGFloat = 0.95
+public enum HobbyistScale {
+    public static let pressed: CGFloat = 0.98
+    public static let hover: CGFloat = 1.02
+    public static let disabled: CGFloat = 1.0
+    public static let loading: CGFloat = 0.95
 }
