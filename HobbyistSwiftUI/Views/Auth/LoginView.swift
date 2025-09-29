@@ -250,6 +250,8 @@ struct LoginView: View {
                     .frame(height: 50)
                     .cornerRadius(12)
                     .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 3)
+                    .allowsHitTesting(true)
+                    .contentShape(Rectangle())
                     .id("apple-sign-in-\(isSignUp ? "signup" : "signin")")
                 }
                 .padding(.horizontal)

@@ -7,7 +7,7 @@
 	<array>
 		<string>group.com.hobbyist.app</string>
 	</array>
-	
+
 	<!-- Keychain Access Groups -->
 	<key>keychain-access-groups</key>
 	<array>

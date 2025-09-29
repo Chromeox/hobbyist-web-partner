@@ -190,13 +190,31 @@ final class SimpleSupabaseService: ObservableObject {
             print("❌ Error type: \(type(of: error))")
             print("❌ Error details: \(error.localizedDescription)")
 
+            // Check for NSError with specific codes
+            if let nsError = error as NSError? {
+                print("❌ NSError domain: \(nsError.domain)")
+                print("❌ NSError code: \(nsError.code)")
+                print("❌ NSError userInfo: \(nsError.userInfo)")
+            }
+
             // Enhanced error messaging based on common issues
             if error.localizedDescription.contains("invalid_client") {
-                errorMessage = "Apple Sign In configuration error. Please check Apple Developer settings."
+                errorMessage = "Apple Sign In configuration error. Bundle ID may not be registered in Apple Developer Console."
             } else if error.localizedDescription.contains("invalid_request") {
-                errorMessage = "Apple Sign In request error. Please try again or contact support."
+                errorMessage = "Apple Sign In request error. Please verify app capabilities and try again."
             } else if error.localizedDescription.contains("network") || error.localizedDescription.contains("internet") {
                 errorMessage = "Network error. Please check your internet connection and try again."
+            } else if let nsError = error as NSError?, nsError.domain == "com.apple.AuthenticationServices.AuthorizationError" {
+                switch nsError.code {
+                case 1000:
+                    errorMessage = "Apple Sign In canceled by user."
+                case 1001:
+                    errorMessage = "Apple Sign In failed. Please verify your Apple Developer Console configuration for bundle ID: com.hobbyist.bookingapp"
+                case 1004:
+                    errorMessage = "Apple Sign In not supported on this device."
+                default:
+                    errorMessage = "Apple Sign In failed with error code \(nsError.code). Please check your app configuration."
+                }
             } else {
                 errorMessage = "Apple Sign In failed: \(error.localizedDescription)"
             }

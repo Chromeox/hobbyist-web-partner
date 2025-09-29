@@ -6,18 +6,26 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.hobbyist.bookingapp.deeplink</string>
+			<string>com.hobbyist.app.deeplink</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hobbyist-bookingapp</string>
+				<string>hobbyist-app</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.hobbyist.bookingapp.stripe</string>
+			<string>com.hobbyist.app.stripe</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hobbyist-bookingapp-stripe</string>
+				<string>hobbyist-app-stripe</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.hobbyist.app.applesignin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.hobbyist.app</string>
 			</array>
 		</dict>
 	</array>
