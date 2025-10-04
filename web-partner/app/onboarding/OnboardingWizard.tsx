@@ -8,7 +8,6 @@ import StudioProfileStep from './steps/StudioProfileStep';
 import ServicesStep from './steps/ServicesStep';
 import PaymentSetupStep from './steps/PaymentSetupStep';
 import CalendarSetupStep from './steps/CalendarSetupStep';
-import IntelligencePreviewStep from './steps/IntelligencePreviewStep';
 import ReviewStep from './steps/ReviewStep';
 import { OnboardingProvider } from './context/OnboardingContext';
 import ProgressIndicator from './components/ProgressIndicator';
@@ -21,9 +20,8 @@ const ONBOARDING_STEPS = [
   { id: 'studio-profile', title: 'Studio Profile', component: StudioProfileStep, description: 'Studio description & photos', estimatedTime: '3 min' },
   { id: 'services', title: 'Services & Classes', component: ServicesStep, description: 'Define your offerings', estimatedTime: '3 min' },
   { id: 'payment', title: 'Payment Setup', component: PaymentSetupStep, description: 'Connect payment methods', estimatedTime: '2 min' },
-  { id: 'calendar-setup', title: 'Calendar Integration', component: CalendarSetupStep, description: 'Import existing schedules (optional)', estimatedTime: '3 min', optional: true },
-  { id: 'intelligence-preview', title: 'Studio Intelligence', component: IntelligencePreviewStep, description: 'AI-powered insights (optional)', estimatedTime: '2 min', optional: true },
-  { id: 'review', title: 'Review & Complete', component: ReviewStep, description: 'Final review & launch', estimatedTime: '1 min' }
+  { id: 'review', title: 'Review & Complete', component: ReviewStep, description: 'Final review & launch', estimatedTime: '1 min' },
+  { id: 'calendar-setup', title: 'Calendar Integration', component: CalendarSetupStep, description: 'Import existing schedules (optional)', estimatedTime: '3 min', optional: true }
 ];
 
 export default function OnboardingWizard() {

@@ -221,6 +221,28 @@ export default function VerificationStep({ onNext, onPrevious, data }: Verificat
             </div>
           </div>
         </div>
+
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          <button
+            type="button"
+            onClick={onPrevious}
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            disabled={!canProceed}
+            className={`px-8 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg ${
+              canProceed
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Continue
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -299,11 +299,12 @@ export default function ReviewStep({ onSubmit, onPrevious, data }: ReviewStepPro
         </div>
       </div>
 
-      {/* Launch Button */}
+      {/* Navigation Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
+        className="space-y-4"
       >
         <button
           onClick={handleSubmit}
@@ -317,6 +318,14 @@ export default function ReviewStep({ onSubmit, onPrevious, data }: ReviewStepPro
           <Sparkles className="h-5 w-5" />
           Launch My Studio on Hobbyist
           <ArrowRight className="h-5 w-5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onPrevious}
+          className="w-full py-3 px-6 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
+        >
+          Back to Edit
         </button>
 
         {!isReadyToLaunch && (

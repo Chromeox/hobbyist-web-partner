@@ -1,32 +1,29 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Building2, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import { Phone, MapPin, FileText } from 'lucide-react';
 import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
 
 interface BusinessInfoStepProps {
   onNext: (data: any) => void;
+  onPrevious?: () => void;
   data: any;
 }
 
-export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps) {
+export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessInfoStepProps) {
   const [formData, setFormData] = useState({
-    businessName: data.businessName || '',
     legalBusinessName: data.legalBusinessName || '',
     businessType: data.businessType || 'llc',
     taxId: data.taxId || '',
-    businessEmail: data.businessEmail || '',
     businessPhone: data.businessPhone || '',
-    website: data.website || '',
     address: {
       street: data.address?.street || '',
       city: data.address?.city || '',
       state: data.address?.state || '',
       zipCode: data.address?.zipCode || '',
-      country: data.address?.country || 'CA'
+      country: data.address?.country || 'US'
     },
-    yearEstablished: data.yearEstablished || '',
-    numberOfEmployees: data.numberOfEmployees || '1'
+    yearEstablished: data.yearEstablished || ''
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -73,42 +70,18 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Building2 className="inline h-4 w-4 mr-1" />
-              Business Name
-            </label>
-            <input
-              type="text"
-              name="businessName"
-              value={formData.businessName}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.businessName ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Your Studio Name"
-            />
-            {errors.businessName && (
-              <p className="text-red-500 text-sm mt-1">{errors.businessName}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
               <FileText className="inline h-4 w-4 mr-1" />
               Legal Business Name
+              <span className="text-gray-500 text-xs ml-2">(if different from Business Name)</span>
             </label>
             <input
               type="text"
               name="legalBusinessName"
               value={formData.legalBusinessName}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.legalBusinessName ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Legal Entity Name"
             />
-            {errors.legalBusinessName && (
-              <p className="text-red-500 text-sm mt-1">{errors.legalBusinessName}</p>
-            )}
           </div>
 
           <div>
@@ -153,26 +126,6 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Mail className="inline h-4 w-4 mr-1" />
-              Business Email
-            </label>
-            <input
-              type="email"
-              name="businessEmail"
-              value={formData.businessEmail}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.businessEmail ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="contact@yourstudio.com"
-            />
-            {errors.businessEmail && (
-              <p className="text-red-500 text-sm mt-1">{errors.businessEmail}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
               <Phone className="inline h-4 w-4 mr-1" />
               Business Phone
             </label>
@@ -181,28 +134,8 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
               name="businessPhone"
               value={formData.businessPhone}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.businessPhone ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="(555) 123-4567"
-            />
-            {errors.businessPhone && (
-              <p className="text-red-500 text-sm mt-1">{errors.businessPhone}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Globe className="inline h-4 w-4 mr-1" />
-              Website (Optional)
-            </label>
-            <input
-              type="url"
-              name="website"
-              value={formData.website}
-              onChange={handleInputChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="https://yourstudio.com"
+              placeholder="(555) 123-4567"
             />
           </div>
 
@@ -327,27 +260,6 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Number of Employees
-          </label>
-          <select
-            name="numberOfEmployees"
-            value={formData.numberOfEmployees}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Select range</option>
-            <option value="1">Just me</option>
-            <option value="2-5">2-5</option>
-            <option value="6-10">6-10</option>
-            <option value="11-25">11-25</option>
-            <option value="26-50">26-50</option>
-            <option value="50+">50+</option>
-          </select>
-        </div>
-
         {/* Privacy Policy Notice */}
         <div className="mt-8 pt-6 border-t border-gray-200">
           <PrivacyPolicyBanner
@@ -357,11 +269,20 @@ export default function BusinessInfoStep({ onNext, data }: BusinessInfoStepProps
           />
         </div>
 
-        {/* Submit Button */}
-        <div className="mt-8 flex justify-end">
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          {onPrevious && (
+            <button
+              type="button"
+              onClick={onPrevious}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
+            >
+              Back
+            </button>
+          )}
           <button
             type="submit"
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg ml-auto"
           >
             Continue
           </button>

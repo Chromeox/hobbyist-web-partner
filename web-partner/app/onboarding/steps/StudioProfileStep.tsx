@@ -11,7 +11,6 @@ interface StudioProfileStepProps {
 
 export default function StudioProfileStep({ onNext, onPrevious, data }: StudioProfileStepProps) {
   const [formData, setFormData] = useState({
-    studioName: data.studioProfile?.studioName || '',
     tagline: data.studioProfile?.tagline || '',
     description: data.studioProfile?.description || '',
     specialties: data.studioProfile?.specialties || [],
@@ -87,19 +86,6 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Studio Display Name
-            </label>
-            <input
-              type="text"
-              value={formData.studioName}
-              onChange={(e) => setFormData(prev => ({ ...prev, studioName: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="How your studio appears to students"
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tagline
@@ -337,8 +323,15 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="mt-8 flex justify-end">
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          <button
+            type="button"
+            onClick={onPrevious}
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
+          >
+            Back
+          </button>
           <button
             type="submit"
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
