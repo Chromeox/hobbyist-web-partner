@@ -56,7 +56,6 @@
 		E2E73E091234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E081234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift */; };
 		E2E73E131234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */; };
 		E2E73E251234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */; };
-		E2E73E291234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */; };
 		E2E73E2B1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */; };
 		E2E73E331234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */; };
 		E2E73E351234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E341234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift */; };
@@ -115,7 +114,6 @@
 		E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/ViewModels/ProfileViewModel.swift; sourceTree = "<group>"; };
 		E2E73E1A1234567890ABCDEF /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/Booking.swift; sourceTree = "<group>"; };
-		E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/UserProfile.swift; sourceTree = "<group>"; };
 		E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Models/ClassItem.swift; sourceTree = "<group>"; };
 		E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Main/MainTabView.swift; sourceTree = "<group>"; };
 		E2E73E341234567890ABCDEF /* HobbyistSwiftUI/Views/Main/HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistSwiftUI/Views/Main/HomeView.swift; sourceTree = "<group>"; };
@@ -201,7 +199,6 @@
 			children = (
 				E2E73E081234567890ABCDEF /* HobbyistSwiftUI/ViewModels/HomeViewModel.swift */,
 				E2E73E121234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift */,
-				E2E73E281234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift */,
 				E2E73E241234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift */,
 				E2E73E2A1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift */,
 				E2E73E321234567890ABCDEF /* HobbyistSwiftUI/Views/Main/MainTabView.swift */,
@@ -374,7 +371,6 @@
 				E2E73E131234567890ABCDEF /* HobbyistSwiftUI/ViewModels/ProfileViewModel.swift in Sources */,
 				E2D993752E8752D5007D3F6D /* OnboardingService.swift in Sources */,
 				E2D993712E8752AC007D3F6D /* BiometricAuthenticationService.swift in Sources */,
-				E2E73E291234567890ABCDEF /* HobbyistSwiftUI/Models/UserProfile.swift in Sources */,
 				E20C131C2E78E1AD00F31D4C /* HapticFeedbackService.swift in Sources */,
 				E2E73E251234567890ABCDEF /* HobbyistSwiftUI/Models/Booking.swift in Sources */,
 				E2E73E2B1234567890ABCDEF /* HobbyistSwiftUI/Models/ClassItem.swift in Sources */,
