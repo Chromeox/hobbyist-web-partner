@@ -11,6 +11,32 @@ struct BrandConstants {
         static let gradientEnd = Color("LandingGradientEnd")
     }
 
+    struct Typography {
+        static let heroTitle = Font.system(size: 34, weight: .bold, design: .rounded)
+        static let largeTitle = Font.system(size: 28, weight: .bold, design: .rounded)
+        static let title = Font.system(size: 22, weight: .semibold, design: .rounded)
+        static let headline = Font.system(size: 18, weight: .semibold)
+        static let body = Font.system(size: 16, weight: .regular)
+        static let subheadline = Font.system(size: 15, weight: .medium)
+        static let caption = Font.system(size: 13, weight: .medium)
+    }
+
+    struct Spacing {
+        static let xs: CGFloat = 4
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 16
+        static let lg: CGFloat = 24
+        static let xl: CGFloat = 32
+        static let xxl: CGFloat = 48
+    }
+
+    struct CornerRadius {
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 12
+        static let lg: CGFloat = 20
+        static let xl: CGFloat = 24
+    }
+
     struct Animation {
         static let spring = SwiftUI.Animation.spring(response: 0.4, dampingFraction: 0.7)
     }
@@ -26,6 +52,56 @@ struct BrandConstants {
             colors: [Colors.primary, Colors.primary.opacity(0.8)],
             startPoint: .leading,
             endPoint: .trailing
+        )
+
+        static let darkBackground = LinearGradient(
+            colors: [
+                Color(hex: "#1a1a2e"),
+                Color(hex: "#16213e"),
+                Color.black
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+}
+
+// MARK: - Category Colors
+
+struct CategoryColors {
+    static let ceramics = Color(hex: "#D97757")      // Warm terracotta/clay
+    static let cooking = Color(hex: "#E8B44C")       // Golden yellow
+    static let arts = Color(hex: "#B565D8")          // Rich purple
+    static let photography = Color(hex: "#4A90E2")   // Sky blue
+    static let music = Color(hex: "#52B788")         // Forest green
+    static let movement = Color(hex: "#E63946")      // Vibrant red/pink
+}
+
+// MARK: - Color Extension
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (1, 1, 1, 0)
+        }
+
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: Double(a) / 255
         )
     }
 }
@@ -43,10 +119,8 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if isCheckingStatus {
-                // Loading state while checking authentication and onboarding
-                ProgressView("Loading HobbyApp...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                // Enhanced loading splash screen
+                SplashView()
             } else if showWelcomeLanding && !isLoggedIn {
                 // First time user - show welcome landing page
                 WelcomeLandingView(
@@ -127,384 +201,60 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Enhanced Onboarding Flow
+// MARK: - Splash View
 
-struct EnhancedOnboardingFlow: View {
-    @EnvironmentObject var supabaseService: SimpleSupabaseService
-    @State private var currentStep = 0
-    @State private var userPreferences: [String: Any] = [:]
-    @State private var isSavingPreferences = false
-
-    let onComplete: () -> Void
-
-    private let totalSteps = 6
+struct SplashView: View {
+    @State private var scale: CGFloat = 0.5
+    @State private var opacity: Double = 0
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Progress Bar
-            OnboardingProgressView(
-                currentStep: currentStep,
-                totalSteps: totalSteps
-            )
+        ZStack {
+            // Background gradient
+            BrandConstants.Gradients.landing
+                .ignoresSafeArea()
 
-            // Current Step Content
-            currentStepView
-                .animation(.easeInOut(duration: 0.3), value: currentStep)
-
-            // Navigation Controls
-            OnboardingNavigationView(
-                currentStep: currentStep,
-                totalSteps: totalSteps,
-                onBack: { currentStep = max(0, currentStep - 1) },
-                onNext: {
-                    if currentStep < totalSteps - 1 {
-                        currentStep += 1
-                    } else {
-                        // Save preferences to Supabase before completing
-                        Task {
-                            isSavingPreferences = true
-                            let success = await supabaseService.saveOnboardingPreferences(userPreferences)
-                            isSavingPreferences = false
-
-                            if success {
-                                onComplete()
-                            } else {
-                                // Could show an error here, but for now just complete anyway
-                                print("⚠️ Failed to save preferences, but continuing with onboarding completion")
-                                onComplete()
-                            }
-                        }
-                    }
-                },
-                onSkip: { currentStep += 1 }
-            )
-        }
-        .background(Color(.systemBackground))
-    }
-
-    @ViewBuilder
-    private var currentStepView: some View {
-        switch currentStep {
-        case 0:
-            // Welcome Step - Vancouver themed
-            VStack(spacing: 32) {
-                Spacer()
-
+            VStack(spacing: 20) {
+                // App icon placeholder with animation
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
-                            colors: [.blue.opacity(0.2), .green.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-                        .frame(width: 140, height: 140)
-
-                    Image(systemName: "figure.yoga")
-                        .font(.system(size: 60, weight: .light))
-                        .foregroundStyle(LinearGradient(
-                            colors: [.blue, .green],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-                }
-
-                VStack(spacing: 16) {
-                    Text("Welcome to HobbyApp!")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-
-                    Text("Discover Vancouver's most creative hobby classes and connect with a community of passionate learners.")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                Spacer()
-            }
-            .padding()
-
-        case 1:
-            // Profile Setup Step
-            VStack(spacing: 24) {
-                Text("Tell us about yourself")
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text("Help us personalize your Vancouver creative class experience")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-
-                VStack(spacing: 16) {
-                    TextField("Full Name", text: .constant(""))
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                    Button("Select Neighborhood") {}
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                }
-
-                Spacer()
-            }
-            .padding()
-
-        case 2:
-            // Preferences Step
-            VStack(spacing: 24) {
-                Text("Your Class Preferences")
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text("Help us find the perfect classes for you")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-
-                VStack(spacing: 16) {
-                    Text("Preferred Times")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                        ForEach(["Morning", "Afternoon", "Evening", "Weekend"], id: \.self) { time in
-                            Button(time) {}
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-
-                Spacer()
-            }
-            .padding()
-
-        case 3:
-            // Interests Step - No fitness/boxing
-            VStack(spacing: 24) {
-                Text("What interests you?")
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text("Select the creative activities that spark your curiosity")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-                    ForEach(["Pottery & Ceramics", "Cooking & Culinary", "Arts & Crafts", "Photography", "Music & Performance", "Dance & Movement"], id: \.self) { interest in
-                        VStack(spacing: 12) {
-                            Circle()
-                                .fill(Color.blue.opacity(0.2))
-                                .frame(width: 50, height: 50)
-                                .overlay(
-                                    Image(systemName: "heart.fill")
-                                        .foregroundColor(.blue)
-                                )
-
-                            Text(interest)
-                                .font(.caption)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                    }
-                }
-
-                Spacer()
-            }
-            .padding()
-
-        case 4:
-            // Notifications Step
-            VStack(spacing: 24) {
-                Image(systemName: "bell.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
-
-                Text("Stay in the Loop")
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text("Get notifications about your classes and discover new opportunities")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-
-                VStack(spacing: 16) {
-                    HStack {
-                        Text("Class Reminders")
-                            .font(.headline)
-                        Spacer()
-                        Toggle("", isOn: .constant(true))
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-
-                    HStack {
-                        Text("New Classes")
-                            .font(.headline)
-                        Spacer()
-                        Toggle("", isOn: .constant(true))
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                }
-
-                Spacer()
-            }
-            .padding()
-
-        case 5:
-            // Completion Step
-            VStack(spacing: 32) {
-                Spacer()
-
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(
-                            colors: [.green.opacity(0.2), .blue.opacity(0.2)],
+                            colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
                         .frame(width: 120, height: 120)
+                        .scaleEffect(scale)
 
-                    if isSavingPreferences {
-                        ProgressView()
-                            .scaleEffect(2)
-                    } else {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.green)
-                    }
+                    Image(systemName: "figure.yoga")
+                        .font(.system(size: 60, weight: .light))
+                        .foregroundColor(.white)
+                        .scaleEffect(scale)
                 }
 
-                VStack(spacing: 16) {
-                    Text(isSavingPreferences ? "Saving your preferences..." : "Welcome to Vancouver's Creative Community!")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
+                Text("HobbyApp")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .opacity(opacity)
 
-                    Text(isSavingPreferences ? "Just a moment while we personalize your experience." : "You're all set! Your personalized class recommendations are waiting.")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-
-                // Show preferences summary
-                if !isSavingPreferences && !userPreferences.isEmpty {
-                    VStack(spacing: 8) {
-                        if let interests = userPreferences["interests"] as? [String], !interests.isEmpty {
-                            Text("Interests: \(interests.joined(separator: ", "))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
-
-                        if let neighborhood = userPreferences["neighborhood"] as? String, !neighborhood.isEmpty {
-                            Text("Preferred Area: \(neighborhood)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                }
-
-                Spacer()
+                ProgressView()
+                    .tint(.white)
+                    .scaleEffect(1.2)
+                    .padding(.top, 8)
+                    .opacity(opacity)
             }
-            .padding()
-
-        default:
-            Text("Welcome!")
-                .font(.title)
-                .padding()
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
+                scale = 1.0
+            }
+            withAnimation(.easeInOut(duration: 0.6).delay(0.2)) {
+                opacity = 1.0
+            }
         }
     }
 }
 
-// MARK: - Progress View
-
-struct OnboardingProgressView: View {
-    let currentStep: Int
-    let totalSteps: Int
-
-    private var progress: Double {
-        Double(currentStep + 1) / Double(totalSteps)
-    }
-
-    var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("Setup Progress")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
-                Text("\(Int(progress * 100))%")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.blue)
-            }
-
-            ProgressView(value: progress, total: 1.0)
-                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                .scaleEffect(y: 2)
-        }
-        .padding()
-        .background(Color(.systemGray6))
-    }
-}
-
-// MARK: - Navigation View
-
-struct OnboardingNavigationView: View {
-    let currentStep: Int
-    let totalSteps: Int
-    let onBack: () -> Void
-    let onNext: () -> Void
-    let onSkip: () -> Void
-
-    var body: some View {
-        HStack {
-            // Back Button
-            if currentStep > 0 {
-                Button("Back", action: onBack)
-                    .foregroundColor(.secondary)
-            } else {
-                Spacer()
-                    .frame(width: 60)
-            }
-
-            Spacer()
-
-            // Skip Button (except for first and last steps)
-            if currentStep > 0 && currentStep < totalSteps - 1 {
-                Button("Skip", action: onSkip)
-                    .foregroundColor(.secondary)
-            }
-
-            // Next/Complete Button
-            Button(currentStep == totalSteps - 1 ? "Complete" : "Next") {
-                onNext()
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .shadow(color: .black.opacity(0.1), radius: 2, y: -2)
-    }
-}
+// MARK: - Enhanced Onboarding Flow
 
 // MARK: - Branded UI Components
 

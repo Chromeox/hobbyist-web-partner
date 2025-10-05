@@ -317,6 +317,126 @@ final class SimpleSupabaseService: ObservableObject {
         }
     }
 
+    // MARK: - Storage (Profile Pictures)
+
+    func uploadProfilePicture(_ imageData: Data) async throws -> String {
+        guard let userId = currentUser?.id else {
+            throw NSError(domain: "SimpleSupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"])
+        }
+
+        // Generate unique filename
+        let fileName = "\(userId)_\(UUID().uuidString).jpg"
+        let filePath = "profile-photos/\(fileName)"
+
+        print("📸 Uploading profile picture to: \(filePath)")
+        print("📸 Image size: \(imageData.count) bytes")
+
+        do {
+            // Upload to Supabase Storage 'avatars' bucket
+            let uploadResponse = try await supabaseClient.storage
+                .from("avatars")
+                .upload(path: filePath, file: imageData, options: .init(upsert: true))
+
+            print("✅ Upload successful: \(uploadResponse)")
+
+            // Get public URL
+            let publicURL = try supabaseClient.storage
+                .from("avatars")
+                .getPublicURL(path: filePath)
+
+            print("✅ Public URL generated: \(publicURL)")
+
+            // Update user_profiles table with avatar URL
+            try await updateUserProfile(avatarURL: publicURL.absoluteString)
+
+            return publicURL.absoluteString
+
+        } catch {
+            print("❌ Profile picture upload failed: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    func updateUserProfile(avatarURL: String) async throws {
+        guard let userId = currentUser?.id else {
+            throw NSError(domain: "SimpleSupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"])
+        }
+
+        print("📝 Upserting user profile with avatar URL...")
+
+        do {
+            // Use UPSERT to insert if row doesn't exist, update if it does
+            let _ = try await supabaseClient
+                .from("user_profiles")
+                .upsert([
+                    "id": userId,
+                    "avatar_url": avatarURL,
+                    "updated_at": ISO8601DateFormatter().string(from: Date())
+                ])
+                .execute()
+
+            print("✅ User profile upserted successfully (avatar URL saved)")
+
+        } catch {
+            print("❌ Failed to upsert user profile: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    func fetchUserProfileAvatarURL() async -> String? {
+        guard let userId = currentUser?.id else {
+            print("❌ No authenticated user for fetching avatar")
+            return nil
+        }
+
+        do {
+            let response = try await supabaseClient
+                .from("user_profiles")
+                .select("avatar_url")
+                .eq("id", value: userId)
+                .single()
+                .execute()
+
+            let data = try response.value as! [String: Any]
+            let avatarURL = data["avatar_url"] as? String
+            print("✅ Fetched avatar URL: \(avatarURL ?? "nil")")
+            return avatarURL
+
+        } catch {
+            print("❌ Failed to fetch avatar URL: \(error)")
+            return nil
+        }
+    }
+
+    func deleteProfilePicture(avatarURL: String) async throws {
+        // Extract file path from URL
+        guard let url = URL(string: avatarURL),
+              let pathComponents = url.pathComponents.last else {
+            throw NSError(domain: "SimpleSupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid avatar URL"])
+        }
+
+        let filePath = "profile-photos/\(pathComponents)"
+
+        print("🗑️ Deleting profile picture: \(filePath)")
+
+        do {
+            let _ = try await supabaseClient.storage
+                .from("avatars")
+                .remove(paths: [filePath])
+
+            print("✅ Profile picture deleted successfully")
+
+            // Clear avatar URL from user profile
+            try await updateUserProfile(avatarURL: "")
+
+        } catch {
+            print("❌ Failed to delete profile picture: \(error)")
+            throw error
+        }
+    }
+
     func fetchUserPreferences() async -> [String: Any]? {
         guard let userId = currentUser?.id else {
             print("❌ No authenticated user for fetching preferences")

@@ -14,7 +14,7 @@ final class NavigationManager: ObservableObject {
     @Published var selectedClass: HobbyClass?
 
     // Phase 3 Enhanced Navigation
-    @Published var currentTab: MainTab = .search
+    @Published var currentTab: MainTab = .home
     @Published var isNavigating = false
     @Published var navigationProgress: Double = 0.0
 

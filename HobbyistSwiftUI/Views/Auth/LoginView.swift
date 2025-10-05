@@ -25,122 +25,150 @@ struct LoginView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Spacer()
+        ZStack {
+            // Brand gradient background
+            BrandConstants.Gradients.landing
+                .ignoresSafeArea()
 
-                // Enhanced Logo Section
+            // Decorative floating circles
+            Circle()
+                .fill(Color.white.opacity(0.05))
+                .frame(width: 200, height: 200)
+                .offset(x: -100, y: -300)
+
+            Circle()
+                .fill(Color.white.opacity(0.08))
+                .frame(width: 150, height: 150)
+                .offset(x: 150, y: -400)
+
+            Circle()
+                .fill(Color.white.opacity(0.06))
+                .frame(width: 180, height: 180)
+                .offset(x: 100, y: 450)
+
+            NavigationStack {
                 VStack(spacing: 20) {
-                    // Logo with gradient background
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient(
-                                colors: [.blue.opacity(0.1), .purple.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                            .frame(width: 120, height: 120)
+                    Spacer(minLength: 20)
 
-                        Image(systemName: "figure.yoga")
-                            .font(.system(size: 50, weight: .light))
-                            .foregroundStyle(LinearGradient(
-                                colors: [.blue, .purple],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                    }
-
-                    VStack(spacing: 8) {
-                        Text("Hobbyist")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundStyle(LinearGradient(
-                                colors: [.primary, .secondary],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ))
-
-                        Text(isSignUp ? "Create your account to discover Vancouver's best hobby classes" : "Welcome back! Let's find your next creative adventure")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                    }
-                }
-
-                // Enhanced Form Section
-                VStack(spacing: 20) {
+                    // Enhanced Logo Section - Compact
                     VStack(spacing: 16) {
-                        if isSignUp {
+                        // Logo with brand gradient background
+                        ZStack {
+                            Circle()
+                                .fill(LinearGradient(
+                                    colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
+                                .frame(width: 100, height: 100)
+
+                            Image(systemName: "figure.yoga")
+                                .font(.system(size: 45, weight: .light))
+                                .foregroundColor(.white)
+                        }
+
+                        VStack(spacing: 8) {
+                            Text(isSignUp ? "Get Started" : "Welcome Back!")
+                                .font(.system(size: 26, weight: .bold))
+                                .foregroundColor(.white)
+
+                            Text(isSignUp ? "Create your account" : "Sign in to continue")
+                                .font(.system(size: 15))
+                                .foregroundColor(.white.opacity(0.9))
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+
+                    // Glassmorphic Form Card - Compact
+                    VStack(spacing: 14) {
+                        VStack(spacing: 12) {
+                            if isSignUp {
+                                HStack {
+                                    Image(systemName: "person.circle.fill")
+                                        .foregroundColor(BrandConstants.Colors.primary)
+                                        .frame(width: 24)
+                                    TextField("Full Name", text: $fullName)
+                                        .textContentType(.name)
+                                        .foregroundColor(.primary)
+                                        .focused($focusedField, equals: .fullName)
+                                        .submitLabel(.next)
+                                        .onSubmit {
+                                            focusedField = .email
+                                        }
+                                }
+                                .padding(14)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(BrandConstants.CornerRadius.md)
+                            }
+
                             HStack {
-                                Image(systemName: "person.circle.fill")
-                                    .foregroundColor(.blue)
+                                Image(systemName: "envelope.fill")
+                                    .foregroundColor(BrandConstants.Colors.primary)
                                     .frame(width: 24)
-                                TextField("Full Name", text: $fullName)
-                                    .textContentType(.name)
-                                    .focused($focusedField, equals: .fullName)
+                                TextField("Email", text: $email)
+                                    .textContentType(.emailAddress)
+                                    .keyboardType(.emailAddress)
+                                    .autocapitalization(.none)
+                                    .foregroundColor(.primary)
+                                    .focused($focusedField, equals: .email)
                                     .submitLabel(.next)
                                     .onSubmit {
-                                        focusedField = .email
+                                        focusedField = .password
                                     }
                             }
-                            .padding()
+                            .padding(14)
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
+                            .cornerRadius(BrandConstants.CornerRadius.md)
 
-                        HStack {
-                            Image(systemName: "envelope.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 24)
-                            TextField("Email", text: $email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
-                                .focused($focusedField, equals: .email)
-                                .submitLabel(.next)
-                                .onSubmit {
-                                    focusedField = .password
-                                }
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-
-                        HStack {
-                            Image(systemName: "lock.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 24)
-                            SecureField("Password", text: $password)
-                                .textContentType(.password)
-                                .focused($focusedField, equals: .password)
-                                .submitLabel(.go)
-                                .onSubmit {
-                                    if formIsValid {
-                                        performAuthentication()
+                            HStack {
+                                Image(systemName: "lock.fill")
+                                    .foregroundColor(BrandConstants.Colors.primary)
+                                    .frame(width: 24)
+                                SecureField("Password", text: $password)
+                                    .textContentType(.password)
+                                    .foregroundColor(.primary)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.go)
+                                    .onSubmit {
+                                        if formIsValid {
+                                            performAuthentication()
+                                        }
                                     }
-                                }
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-
-                    // Forgot Password Button (only for sign in)
-                    if !isSignUp {
-                        HStack {
-                            Spacer()
-                            Button("Forgot Password?") {
-                                resetEmail = email
-                                showPasswordReset = true
                             }
-                            .font(.caption)
-                            .foregroundColor(.blue)
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(BrandConstants.CornerRadius.md)
                         }
-                        .padding(.horizontal)
+
+                        // Forgot Password Button (only for sign in)
+                        if !isSignUp {
+                            HStack {
+                                Spacer()
+                                Button("Forgot Password?") {
+                                    resetEmail = email
+                                    showPasswordReset = true
+                                }
+                                .font(.system(size: 13))
+                                .foregroundColor(BrandConstants.Colors.teal)
+                            }
+                        }
                     }
-                }
+                    .padding(20)
+                    .background(
+                        ZStack {
+                            // Glassmorphic background with blur effect
+                            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
+                                .fill(Color.white.opacity(0.18))
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+
+                            // Subtle border
+                            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
+                                .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                        }
+                        .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                    )
+                    .padding(.horizontal, BrandConstants.Spacing.md)
 
                 // Validation hints
                 if !email.isEmpty && !isValidEmail(email) {
@@ -167,177 +195,185 @@ struct LoginView: View {
                     .padding(.horizontal)
                 }
 
-                // Enhanced Action Buttons Section
-                VStack(spacing: 12) {
-                    // Main Action Button
-                    Button(action: {
-                        performAuthentication()
-                    }) {
-                        HStack {
-                            if supabaseService.isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
-                            } else {
-                                Image(systemName: isSignUp ? "person.badge.plus" : "person.crop.circle.fill")
+                    // Enhanced Action Buttons Section - Compact
+                    VStack(spacing: 10) {
+                            // Main Action Button - Using BrandedButton style
+                            Button(action: {
+                                performAuthentication()
+                            }) {
+                                HStack(spacing: 12) {
+                                    if supabaseService.isLoading {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(0.8)
+                                    }
+
+                                    Text(isSignUp ? "Create Account" : "Sign In")
+                                        .font(.system(size: 17, weight: .semibold))
+
+                                    if !supabaseService.isLoading {
+                                        Image(systemName: "arrow.right.circle.fill")
+                                            .font(.system(size: 18))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .foregroundColor(.white)
+                                .background(
+                                    formIsValid && !supabaseService.isLoading ?
+                                        BrandConstants.Gradients.primary :
+                                        LinearGradient(
+                                            colors: [.gray, .gray.opacity(0.8)],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                )
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+                                .shadow(
+                                    color: formIsValid ? BrandConstants.Colors.primary.opacity(0.3) : .clear,
+                                    radius: 8,
+                                    y: 4
+                                )
+                            }
+                            .disabled(supabaseService.isLoading || !formIsValid)
+                            .scaleEffect(supabaseService.isLoading ? 0.95 : 1.0)
+                            .animation(BrandConstants.Animation.spring, value: supabaseService.isLoading)
+
+                            // Face ID Button - OutlineButton style
+                            let _ = print("🔐 Face ID condition check - isSignUp: \(isSignUp), canUseBiometricsIndependently: \(biometricService.canUseBiometricsIndependently())")
+                            if !isSignUp && (biometricService.canUseBiometricsIndependently() || (!email.isEmpty && biometricService.canUseBiometrics())) {
+                                Button(action: {
+                                    performBiometricAuthentication()
+                                }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: biometricService.biometricType == .faceID ? "faceid" : "touchid")
+                                            .font(.system(size: 20))
+
+                                        if biometricService.canUseBiometricsIndependently(), let lastUser = biometricService.getLastUserEmail() {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Sign in with \(biometricService.biometricTypeDescription())")
+                                                    .font(BrandConstants.Typography.subheadline)
+                                                    .fontWeight(.semibold)
+                                                Text("as \(lastUser)")
+                                                    .font(BrandConstants.Typography.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        } else {
+                                            Text("Sign in with \(biometricService.biometricTypeDescription())")
+                                                .font(BrandConstants.Typography.subheadline)
+                                                .fontWeight(.semibold)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, minHeight: 50)
+                                    .foregroundColor(BrandConstants.Colors.primary)
+                                    .background(Color.white.opacity(0.95))
+                                    .cornerRadius(BrandConstants.CornerRadius.lg)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
+                                            .stroke(BrandConstants.Colors.primary, lineWidth: 2)
+                                    )
+                                }
+                                .disabled(supabaseService.isLoading)
                             }
 
-                            Text(isSignUp ? "Create Account" : "Sign In")
-                                .fontWeight(.semibold)
+                            // Custom Apple Sign In Button - Black branded style
+                            let _ = print("🍎 Apple Sign In button - isSignUp: \(isSignUp), will show: \(isSignUp ? "Sign Up" : "Sign In")")
+                            Button(action: {
+                                print("🍎 Custom Apple Sign In button tapped!")
+                                performCustomAppleSignIn()
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "applelogo")
+                                        .font(.system(size: 20, weight: .medium))
+
+                                    Text(isSignUp ? "Sign up with Apple" : "Sign in with Apple")
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+                            }
+                            .disabled(supabaseService.isLoading)
+
+                            // Google Sign In Button - White outlined
+                            Button(action: {
+                                print("🔵 Google Sign In button tapped!")
+                                performGoogleSignIn()
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "globe")
+                                        .font(.system(size: 20, weight: .medium))
+
+                                    Text(isSignUp ? "Sign up with Google" : "Sign in with Google")
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .foregroundColor(.black)
+                                .background(Color.white.opacity(0.95))
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                            }
+                            .disabled(supabaseService.isLoading)
                         }
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .padding(.horizontal, 16)
-                        .background(
-                            LinearGradient(
-                                colors: formIsValid && !supabaseService.isLoading ?
-                                    [.blue, .blue.opacity(0.8)] :
-                                    [.gray, .gray.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .shadow(color: formIsValid ? .blue.opacity(0.3) : .clear, radius: 6, x: 0, y: 3)
-                    }
-                    .disabled(supabaseService.isLoading || !formIsValid)
-                    .scaleEffect(supabaseService.isLoading ? 0.95 : 1.0)
-                    .animation(.spring(response: 0.3), value: supabaseService.isLoading)
+                        .padding(.horizontal, BrandConstants.Spacing.md)
 
-                    // Face ID Button (independent authentication)
-                    let _ = print("🔐 Face ID condition check - isSignUp: \(isSignUp), canUseBiometricsIndependently: \(biometricService.canUseBiometricsIndependently())")
-                    if !isSignUp && (biometricService.canUseBiometricsIndependently() || (!email.isEmpty && biometricService.canUseBiometrics())) {
-                        Button(action: {
-                            performBiometricAuthentication()
-                        }) {
+                    // Enhanced Toggle Section - Compact
+                    VStack(spacing: 10) {
+                            // Divider with "or"
                             HStack {
-                                Image(systemName: biometricService.biometricType == .faceID ? "faceid" : "touchid")
-                                    .font(.system(size: 18))
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.3))
+                                    .frame(height: 1)
 
-                                if biometricService.canUseBiometricsIndependently(), let lastUser = biometricService.getLastUserEmail() {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Sign in with \(biometricService.biometricTypeDescription())")
-                                            .fontWeight(.medium)
-                                        Text("as \(lastUser)")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                } else {
-                                    Text("Sign in with \(biometricService.biometricTypeDescription())")
-                                        .fontWeight(.medium)
+                                Text("or")
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.horizontal, 8)
+
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.3))
+                                    .frame(height: 1)
+                            }
+                            .padding(.horizontal)
+
+                            // Toggle Button - TextButton style
+                            Button(action: {
+                                withAnimation(BrandConstants.Animation.spring) {
+                                    isSignUp.toggle()
+                                }
+                                fullName = ""
+                                focusedField = nil
+                                supabaseService.errorMessage = nil
+                            }) {
+                                HStack {
+                                    Text(isSignUp ? "Already have an account?" : "Don't have an account?")
+                                        .font(BrandConstants.Typography.subheadline)
+                                        .foregroundColor(.white.opacity(0.8))
+
+                                    Text(isSignUp ? "Sign In" : "Sign Up")
+                                        .font(BrandConstants.Typography.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(BrandConstants.Colors.teal)
+                                        .underline()
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 50)
-                            .padding(.horizontal, 16)
-                            .background(Color(.systemGray6))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
                         }
-                        .disabled(supabaseService.isLoading)
-                    }
 
-                    // Custom Apple Sign In Button - Resolves gesture timeout issues ✅
-                    let _ = print("🍎 Apple Sign In button - isSignUp: \(isSignUp), will show: \(isSignUp ? "Sign Up" : "Sign In")")
-                    Button(action: {
-                        print("🍎 Custom Apple Sign In button tapped!")
-                        performCustomAppleSignIn()
-                    }) {
-                        HStack {
-                            Image(systemName: "applelogo")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white)
-
-                            Text(isSignUp ? "Sign up with Apple" : "Sign in with Apple")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .background(Color.black)
-                        .cornerRadius(12)
-                    }
-                    .disabled(supabaseService.isLoading)
-
-                    // Google Sign In Button ✅
-                    Button(action: {
-                        print("🔵 Google Sign In button tapped!")
-                        performGoogleSignIn()
-                    }) {
-                        HStack {
-                            Image(systemName: "globe")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.black)
-
-                            Text(isSignUp ? "Sign up with Google" : "Sign in with Google")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.black)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
-                    }
-                    .disabled(supabaseService.isLoading)
+                    Spacer(minLength: 24)
                 }
-                .padding(.horizontal)
-
-                // Enhanced Toggle Section
-                VStack(spacing: 12) {
-                    // Divider with "or"
-                    HStack {
-                        Rectangle()
-                            .fill(Color(.systemGray4))
-                            .frame(height: 1)
-
-                        Text("or")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 8)
-
-                        Rectangle()
-                            .fill(Color(.systemGray4))
-                            .frame(height: 1)
-                    }
-                    .padding(.horizontal)
-
-                    // Toggle Button
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isSignUp.toggle()
-                        }
-                        fullName = ""
-                        focusedField = nil
-                        supabaseService.errorMessage = nil
-                    }) {
-                        HStack {
-                            Text(isSignUp ? "Already have an account?" : "Don't have an account?")
-                                .foregroundColor(.secondary)
-
-                            Text(isSignUp ? "Sign In" : "Sign Up")
-                                .fontWeight(.semibold)
-                                .foregroundColor(.blue)
-                        }
-                    }
+                .onTapGesture {
+                    focusedField = nil
                 }
-
-                Spacer()
+                .simultaneousGesture(
+                    TapGesture()
+                        .onEnded { _ in
+                            // Allow simultaneous gestures for Apple Sign In button
+                        }
+                )
             }
-            .padding()
-            .onTapGesture {
-                focusedField = nil
-            }
-            .simultaneousGesture(
-                TapGesture()
-                    .onEnded { _ in
-                        // Allow simultaneous gestures for Apple Sign In button
-                    }
-            )
             .alert(alertTitle, isPresented: $showAlert) {
                 Button("OK") { }
             } message: {

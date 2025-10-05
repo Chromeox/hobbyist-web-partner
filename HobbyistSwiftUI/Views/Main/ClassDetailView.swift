@@ -170,7 +170,7 @@ struct ClassDetailView: View {
                                         .font(.subheadline)
                                         .fontWeight(selectedTab == ["Overview", "Location", "Reviews", "Similar"].firstIndex(of: tab) ? .semibold : .regular)
                                         .foregroundColor(selectedTab == ["Overview", "Location", "Reviews", "Similar"].firstIndex(of: tab) ? .primary : .secondary)
-                                    
+
                                     Rectangle()
                                         .fill(selectedTab == ["Overview", "Location", "Reviews", "Similar"].firstIndex(of: tab) ? Color.accentColor : Color.clear)
                                         .frame(height: 2)
@@ -180,22 +180,19 @@ struct ClassDetailView: View {
                         }
                     }
                     .padding(.horizontal)
-                    
-                    // Tab Content
-                    TabView(selection: $selectedTab) {
-                        OverviewTab(classItem: classItem, viewModel: viewModel)
-                            .tag(0)
-                        
-                        LocationTab(classItem: classItem)
-                            .tag(1)
-                        
-                        ReviewsTab(classItem: classItem, viewModel: viewModel)
-                            .tag(2)
-                        
-                        SimilarClassesTab(viewModel: viewModel)
-                            .tag(3)
+
+                    // Tab Content - Scrollable
+                    Group {
+                        if selectedTab == 0 {
+                            OverviewTab(classItem: classItem, viewModel: viewModel)
+                        } else if selectedTab == 1 {
+                            LocationTab(classItem: classItem)
+                        } else if selectedTab == 2 {
+                            ReviewsTab(classItem: classItem, viewModel: viewModel)
+                        } else {
+                            SimilarClassesTab(viewModel: viewModel)
+                        }
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .frame(minHeight: 400)
                 }
             }
@@ -341,68 +338,70 @@ struct DetailCard: View {
 struct OverviewTab: View {
     let classItem: ClassItem
     @ObservedObject var viewModel: ClassDetailViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            // Description
-            VStack(alignment: .leading, spacing: 8) {
-                Text("About this class")
-                    .font(.headline)
-                
-                Text(classItem.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            
-            // What to Bring
-            VStack(alignment: .leading, spacing: 8) {
-                Text("What to bring")
-                    .font(.headline)
-                
-                ForEach(classItem.requirements, id: \.self) { requirement in
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                        Text(requirement)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Description
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("About this class")
+                        .font(.headline)
+
+                    Text(classItem.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-            }
-            
-            // Amenities
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Amenities")
-                    .font(.headline)
-                
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    ForEach(classItem.amenities, id: \.self) { amenity in
+
+                // What to Bring
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("What to bring")
+                        .font(.headline)
+
+                    ForEach(classItem.requirements, id: \.self) { requirement in
                         HStack(spacing: 8) {
-                            Image(systemName: amenity.icon)
+                            Image(systemName: "checkmark.circle.fill")
                                 .font(.caption)
-                                .foregroundColor(.accentColor)
-                            Text(amenity.name)
-                                .font(.caption)
+                                .foregroundColor(.green)
+                            Text(requirement)
+                                .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+
+                // Amenities
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Amenities")
+                        .font(.headline)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(classItem.amenities, id: \.self) { amenity in
+                            HStack(spacing: 8) {
+                                Image(systemName: amenity.icon)
+                                    .font(.caption)
+                                    .foregroundColor(.accentColor)
+                                Text(amenity.name)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+
+                // Cancellation Policy
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Cancellation Policy")
+                        .font(.headline)
+
+                    Text("Free cancellation up to 24 hours before class starts. 50% refund for cancellations within 24 hours.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
-            
-            // Cancellation Policy
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Cancellation Policy")
-                    .font(.headline)
-                
-                Text("Free cancellation up to 24 hours before class starts. 50% refund for cancellations within 24 hours.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
+            .padding()
         }
-        .padding()
     }
 }
 
