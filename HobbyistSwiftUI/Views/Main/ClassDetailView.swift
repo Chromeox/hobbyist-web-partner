@@ -340,68 +340,70 @@ struct OverviewTab: View {
     @ObservedObject var viewModel: ClassDetailViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Description
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("About this class")
-                        .font(.headline)
+        VStack(alignment: .leading, spacing: 20) {
+            // Description
+            VStack(alignment: .leading, spacing: 8) {
+                Text("About this class")
+                    .font(.headline)
 
-                    Text(classItem.description)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                Text(classItem.description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
-                // What to Bring
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("What to bring")
-                        .font(.headline)
+            // What to Bring
+            VStack(alignment: .leading, spacing: 8) {
+                Text("What to bring")
+                    .font(.headline)
 
-                    ForEach(classItem.requirements, id: \.self) { requirement in
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                            Text(requirement)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
+                ForEach(classItem.requirements, id: \.self) { requirement in
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                        Text(requirement)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
-                }
-
-                // Amenities
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Amenities")
-                        .font(.headline)
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(classItem.amenities, id: \.self) { amenity in
-                            HStack(spacing: 8) {
-                                Image(systemName: amenity.icon)
-                                    .font(.caption)
-                                    .foregroundColor(.accentColor)
-                                Text(amenity.name)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                }
-
-                // Cancellation Policy
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Cancellation Policy")
-                        .font(.headline)
-
-                    Text("Free cancellation up to 24 hours before class starts. 50% refund for cancellations within 24 hours.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
             }
-            .padding()
+
+            // Amenities
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Amenities")
+                    .font(.headline)
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(classItem.amenities, id: \.self) { amenity in
+                        HStack(spacing: 8) {
+                            Image(systemName: amenity.icon)
+                                .font(.caption)
+                                .foregroundColor(.accentColor)
+                            Text(amenity.name)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+
+            // Cancellation Policy
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Cancellation Policy")
+                    .font(.headline)
+
+                Text("Free cancellation up to 24 hours before class starts. 50% refund for cancellations within 24 hours.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            // Bottom padding to account for "Book Now" button overlay
+            Spacer()
+                .frame(height: 100)
         }
+        .padding()
     }
 }
 

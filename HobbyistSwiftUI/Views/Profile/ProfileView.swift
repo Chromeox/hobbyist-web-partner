@@ -144,7 +144,9 @@ struct ProfileView: View {
 
                     // Logout Button
                     Button("Log Out") {
-                        // Handle logout
+                        Task {
+                            await supabaseService.signOut()
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
