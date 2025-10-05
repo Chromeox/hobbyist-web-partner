@@ -280,7 +280,7 @@ struct ClassDetailView: View {
             ShareSheet(items: ["Check out this class: \(classItem.name)"])
         }
         .fullScreenCover(isPresented: $showBookingFlow) {
-            BookingFlowView(classItem: classItem)
+            TemporaryBookingView(classItem: classItem, isPresented: $showBookingFlow)
                 .environmentObject(hapticService)
         }
         .task {
@@ -730,6 +730,140 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// Temporary Booking View (until BookingFlowView is added to Xcode project)
+struct TemporaryBookingView: View {
+    let classItem: ClassItem
+    @Binding var isPresented: Bool
+    @EnvironmentObject var hapticService: HapticFeedbackService
+    @State private var participantCount = 1
+    @State private var showConfirmation = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Class Info
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(classItem.name)
+                            .font(.title2)
+                            .fontWeight(.bold)
+
+                        HStack {
+                            Label(classItem.startTime.formatted(date: .abbreviated, time: .shortened), systemImage: "calendar")
+                            Spacer()
+                            Label(classItem.duration, systemImage: "clock")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+
+                    // Participants
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Participants")
+                            .font(.headline)
+
+                        HStack {
+                            Button {
+                                if participantCount > 1 {
+                                    participantCount -= 1
+                                    hapticService.playLight()
+                                }
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(participantCount > 1 ? .accentColor : .gray)
+                            }
+
+                            Text("\(participantCount)")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                                .frame(minWidth: 50)
+
+                            Button {
+                                if participantCount < min(classItem.spotsAvailable, 10) {
+                                    participantCount += 1
+                                    hapticService.playLight()
+                                }
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(participantCount < min(classItem.spotsAvailable, 10) ? .accentColor : .gray)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+
+                    // Price Summary
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text("Price per person")
+                            Spacer()
+                            Text(classItem.price)
+                        }
+                        if participantCount > 1 {
+                            HStack {
+                                Text("× \(participantCount) participants")
+                                Spacer()
+                            }
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        }
+                        Divider()
+                        HStack {
+                            Text("Total")
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Text("\(classItem.creditsRequired * participantCount) credits")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.accentColor)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+
+                    // Book Button
+                    Button {
+                        hapticService.playSuccess()
+                        showConfirmation = true
+                    } label: {
+                        Text("Confirm Booking")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .cornerRadius(12)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Book Class")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+            }
+            .alert("Booking Confirmed!", isPresented: $showConfirmation) {
+                Button("Done") {
+                    isPresented = false
+                }
+            } message: {
+                Text("Your spot is reserved! Confirmation code: \(String(format: "%06d", Int.random(in: 100000...999999)))")
+            }
+        }
+    }
 }
 
 struct ClassDetailView_Previews: PreviewProvider {
