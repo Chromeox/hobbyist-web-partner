@@ -52,8 +52,18 @@ struct LoginView: View {
 
                     // Enhanced Logo Section - Compact
                     VStack(spacing: 16) {
-                        // Logo with brand gradient background
+                        // Logo with brand gradient background and pulsing animation
                         ZStack {
+                            // Outer glow ring
+                            Circle()
+                                .fill(LinearGradient(
+                                    colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
+                                .frame(width: 120, height: 120)
+
+                            // Inner gradient circle
                             Circle()
                                 .fill(LinearGradient(
                                     colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
@@ -62,6 +72,13 @@ struct LoginView: View {
                                 ))
                                 .frame(width: 100, height: 100)
 
+                            // Large background icon
+                            Image(systemName: "figure.yoga")
+                                .font(.system(size: 60, weight: .ultraLight))
+                                .foregroundColor(.white.opacity(0.3))
+                                .offset(x: 5, y: 5)
+
+                            // Foreground icon
                             Image(systemName: "figure.yoga")
                                 .font(.system(size: 45, weight: .light))
                                 .foregroundColor(.white)

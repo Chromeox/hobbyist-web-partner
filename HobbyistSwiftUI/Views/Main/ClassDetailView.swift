@@ -16,12 +16,21 @@ struct ClassDetailView: View {
             VStack(spacing: 0) {
                 // Hero Image Section
                 ZStack(alignment: .topTrailing) {
-                    // Class Image
-                    LinearGradient(
-                        colors: [classItem.categoryColor.opacity(0.7), classItem.categoryColor],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    // Class Image with Icon Overlay
+                    ZStack {
+                        // Background Gradient
+                        LinearGradient(
+                            colors: [classItem.categoryColor.opacity(0.7), classItem.categoryColor],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+
+                        // Large Icon Watermark
+                        Image(systemName: classItem.icon)
+                            .font(.system(size: 180, weight: .ultraLight))
+                            .foregroundColor(.white.opacity(0.15))
+                            .offset(x: 50, y: -20)
+                    }
                     .frame(height: 320)
                     .overlay(
                         VStack {
@@ -35,14 +44,14 @@ struct ClassDetailView: View {
                                         .padding(.vertical, 4)
                                         .background(Color.white.opacity(0.9))
                                         .cornerRadius(20)
-                                    
+
                                     Text(classItem.name)
                                         .font(.title)
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
                                         .multilineTextAlignment(.leading)
                                         .lineLimit(2)
-                                    
+
                                     HStack(spacing: 16) {
                                         Label(classItem.duration, systemImage: "clock.fill")
                                         Label(classItem.difficulty, systemImage: "chart.bar.fill")
@@ -271,7 +280,8 @@ struct ClassDetailView: View {
             ShareSheet(items: ["Check out this class: \(classItem.name)"])
         }
         .fullScreenCover(isPresented: $showBookingFlow) {
-            Text("Book Class - \(classItem.name)")
+            BookingFlowView(classItem: classItem)
+                .environmentObject(hapticService)
         }
         .task {
             await viewModel.loadClassDetails(for: classItem)
