@@ -183,15 +183,10 @@ fastlane/test_output
 fastlane/.env
 web-partner/.env.local
 web-partner/.env.production
-# Supabase Management
-supabase-management/config/.env.local
-supabase-management/backups/
-*.backup
-*.sql.backup
-.env.instagram
+# Archive
+archive/
 
 # App Store Connect API
-.appstore-connect/
 AuthKey_*.p8
 AppStoreConnectAPI.json
 # Build directories
