@@ -1,15 +1,15 @@
 import SwiftUI
 import GoogleSignIn
 
-@main  // Re-enabled since this is the only App file in Xcode project
-struct HobbyistSwiftUIApp: App {
+@main
+struct HobbyAppApp: App {
     init() {
         // Configure Google Sign In
         configureGoogleSignIn()
 
         // Configure app appearance
         configureAppearance()
-        print("✅ HobbyistSwiftUI App initialized")
+        print("✅ HobbyApp initialized")
     }
 
     var body: some Scene {
