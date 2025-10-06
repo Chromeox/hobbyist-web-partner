@@ -63,8 +63,6 @@
 		E2E73E351234567890ABCDEF /* HobbyApp/Views/Main/HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E341234567890ABCDEF /* HobbyApp/Views/Main/HomeView.swift */; };
 		E2E73E391234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E381234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift */; };
 		E2E73E3B1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E3A1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift */; };
-		E2E73E3D1234567890ABCDEF /* HobbyApp/Views/Auth/SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E3C1234567890ABCDEF /* HobbyApp/Views/Auth/SignUpView.swift */; };
-		E2E73E431234567890ABCDEF /* HobbyApp/Views/Auth/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E421234567890ABCDEF /* HobbyApp/Views/Auth/OnboardingView.swift */; };
 		E2E73E451234567890ABCDEF /* HobbyApp/Views/BookingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E441234567890ABCDEF /* HobbyApp/Views/BookingsView.swift */; };
 		E2E73E471234567890ABCDEF /* HobbyApp/Views/ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E461234567890ABCDEF /* HobbyApp/Views/ProfileView.swift */; };
 		E2E73E491234567890ABCDEF /* HobbyApp/Views/SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E481234567890ABCDEF /* HobbyApp/Views/SearchView.swift */; };
@@ -123,11 +121,9 @@
 		E2E73E341234567890ABCDEF /* HobbyApp/Views/Main/HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Main/HomeView.swift; sourceTree = "<group>"; };
 		E2E73E381234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Main/ClassDetailView.swift; sourceTree = "<group>"; };
 		E2E73E3A1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Auth/LoginView.swift; sourceTree = "<group>"; };
-		E2E73E3C1234567890ABCDEF /* HobbyApp/Views/Auth/SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Auth/SignUpView.swift; sourceTree = "<group>"; };
-		E2E73E421234567890ABCDEF /* HobbyApp/Views/Auth/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Auth/OnboardingView.swift; sourceTree = "<group>"; };
-		E2E73E441234567890ABCDEF /* HobbyApp/Views/BookingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/BookingsView.swift; sourceTree = "<group>"; };
-		E2E73E461234567890ABCDEF /* HobbyApp/Views/ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/ProfileView.swift; sourceTree = "<group>"; };
-		E2E73E481234567890ABCDEF /* HobbyApp/Views/SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/SearchView.swift; sourceTree = "<group>"; };
+		E2E73E441234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Booking/BookingsView.swift; sourceTree = "<group>"; };
+		E2E73E461234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Profile/ProfileView.swift; sourceTree = "<group>"; };
+		E2E73E481234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Search/SearchView.swift; sourceTree = "<group>"; };
 		E2E73E4C1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/DiscoverView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -209,13 +205,11 @@
 				E2E73E341234567890ABCDEF /* HobbyApp/Views/Main/HomeView.swift */,
 				E2E73E381234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift */,
 				E2E73E3A1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift */,
-				E2E73E3C1234567890ABCDEF /* HobbyApp/Views/Auth/SignUpView.swift */,
-				E2E73E421234567890ABCDEF /* HobbyApp/Views/Auth/OnboardingView.swift */,
 				81F42765D26C4AD59A288B6B /* HobbyApp/Views/Auth/EnhancedOnboardingFlow.swift */,
 				E2E73E4C1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift */,
-				E2E73E481234567890ABCDEF /* HobbyApp/Views/SearchView.swift */,
-				E2E73E441234567890ABCDEF /* HobbyApp/Views/BookingsView.swift */,
-				E2E73E461234567890ABCDEF /* HobbyApp/Views/ProfileView.swift */,
+				E2E73E481234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift */,
+				E2E73E441234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift */,
+				E2E73E461234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -396,13 +390,11 @@
 				E2E73E351234567890ABCDEF /* HobbyApp/Views/Main/HomeView.swift in Sources */,
 				E2E73E391234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift in Sources */,
 				E2E73E3B1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift in Sources */,
-				E2E73E3D1234567890ABCDEF /* HobbyApp/Views/Auth/SignUpView.swift in Sources */,
-				E2E73E431234567890ABCDEF /* HobbyApp/Views/Auth/OnboardingView.swift in Sources */,
 				2EDB9E7A80454170B9475645 /* HobbyApp/Views/Auth/EnhancedOnboardingFlow.swift in Sources */,
 				E2E73E4D1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift in Sources */,
-				E2E73E491234567890ABCDEF /* HobbyApp/Views/SearchView.swift in Sources */,
-				E2E73E451234567890ABCDEF /* HobbyApp/Views/BookingsView.swift in Sources */,
-				E2E73E471234567890ABCDEF /* HobbyApp/Views/ProfileView.swift in Sources */,
+				E2E73E491234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift in Sources */,
+				E2E73E451234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift in Sources */,
+				E2E73E471234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
