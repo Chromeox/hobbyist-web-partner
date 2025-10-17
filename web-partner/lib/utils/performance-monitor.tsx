@@ -1,3 +1,5 @@
+import React from 'react'
+
 /**
  * Performance Monitoring Utility for V8 Runtime Optimization
  * 

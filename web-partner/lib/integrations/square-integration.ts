@@ -393,7 +393,8 @@ export class SquareIntegration {
 
       return response.booking.id;
     } catch (error) {
-      throw new Error(`Failed to create Square booking: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to create Square booking: ${err.message}`);
     }
   }
 
@@ -420,7 +421,8 @@ export class SquareIntegration {
         })
       });
     } catch (error) {
-      throw new Error(`Failed to update Square booking: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to update Square booking: ${err.message}`);
     }
   }
 
@@ -436,7 +438,8 @@ export class SquareIntegration {
         })
       });
     } catch (error) {
-      throw new Error(`Failed to cancel Square booking: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to cancel Square booking: ${err.message}`);
     }
   }
 
@@ -459,7 +462,8 @@ export class SquareIntegration {
 
       return response.subscription;
     } catch (error) {
-      throw new Error(`Failed to create Square webhook: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to create Square webhook: ${err.message}`);
     }
   }
 
@@ -502,7 +506,8 @@ export class SquareIntegration {
         eventData
       };
     } catch (error) {
-      console.error('Failed to process Square webhook:', error);
+      const err = toError(error);
+      console.error('Failed to process Square webhook:', err);
       return null;
     }
   }

@@ -107,7 +107,8 @@ export default function StudioIntelligenceSummary({
         topPriorityAction: "Import calendar data to generate insights",
         timeSlots: [],
         roomEfficiency: [],
-        instructorOptimization: []
+        instructorOptimization: [],
+        capacityAdjustments: []
       });
     } finally {
       setLoading(false);

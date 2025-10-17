@@ -64,8 +64,10 @@ class LRUCache {
   set(key: string, data: any): void {
     // Remove oldest if at capacity
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
-      const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      const iterator = this.cache.keys().next()
+      if (!iterator.done) {
+        this.cache.delete(iterator.value)
+      }
     }
     
     this.cache.set(key, new CacheEntry(key, data))

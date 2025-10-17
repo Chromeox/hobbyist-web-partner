@@ -6,11 +6,85 @@ import { toError } from '@/lib/utils/integration-helpers';
 import type {
   CalendarIntegration,
   CalendarProvider,
+  CalendarIntegrationSettings,
   ImportResult,
   CalendarSyncConfig,
   ImportedEvent,
-  EventMapping
+  EventMapping,
+  GoogleCalendarSettings,
+  CalendlySettings,
+  SquareSettings
 } from '@/types/calendar-integration';
+
+const defaultGoogleSettings: GoogleCalendarSettings = {
+  calendar_id: 'primary',
+  timezone: 'UTC',
+  default_reminder_minutes: 30,
+  sync_attendees: true,
+};
+
+const normalizeGoogleSettings = (
+  settings?: CalendarIntegrationSettings
+): GoogleCalendarSettings => {
+  if (settings && typeof settings === 'object' && 'calendar_id' in settings) {
+    const typed = settings as Partial<GoogleCalendarSettings>;
+    return {
+      calendar_id: typed.calendar_id ?? defaultGoogleSettings.calendar_id,
+      timezone: typed.timezone ?? defaultGoogleSettings.timezone,
+      default_reminder_minutes:
+        typed.default_reminder_minutes ?? defaultGoogleSettings.default_reminder_minutes,
+      sync_attendees: typed.sync_attendees ?? defaultGoogleSettings.sync_attendees,
+    };
+  }
+
+  return { ...defaultGoogleSettings };
+};
+
+const defaultCalendlySettings: CalendlySettings = {
+  timezone: 'UTC',
+  default_event_types: [],
+};
+
+const normalizeCalendlySettings = (
+  settings?: CalendarIntegrationSettings
+): CalendlySettings => {
+  if (settings && typeof settings === 'object' && 'timezone' in settings) {
+    const typed = settings as Partial<CalendlySettings>;
+    return {
+      timezone: typed.timezone ?? defaultCalendlySettings.timezone,
+      organization_uri: typed.organization_uri,
+      webhook_signing_key: typed.webhook_signing_key,
+      default_event_types: typed.default_event_types ?? defaultCalendlySettings.default_event_types,
+    };
+  }
+
+  return { ...defaultCalendlySettings };
+};
+
+const defaultSquareSettings: SquareSettings = {
+  location_id: '',
+  merchant_id: undefined,
+  sync_services: true,
+  sync_team_members: true,
+  webhook_signature_key: undefined,
+};
+
+const normalizeSquareSettings = (
+  settings?: CalendarIntegrationSettings
+): SquareSettings => {
+  if (settings && typeof settings === 'object' && 'location_id' in settings) {
+    const typed = settings as Partial<SquareSettings>;
+    return {
+      location_id: typed.location_id ?? defaultSquareSettings.location_id,
+      merchant_id: typed.merchant_id,
+      sync_services: typed.sync_services ?? defaultSquareSettings.sync_services,
+      sync_team_members: typed.sync_team_members ?? defaultSquareSettings.sync_team_members,
+      webhook_signature_key: typed.webhook_signature_key,
+    };
+  }
+
+  return { ...defaultSquareSettings };
+};
 
 export class CalendarIntegrationManager {
   private supabase;
@@ -125,11 +199,13 @@ export class CalendarIntegrationManager {
     try {
       let result: ImportResult;
 
+      const settings = integration.settings as CalendarIntegrationSettings | undefined;
+
       switch (integration.provider) {
         case 'google':
           const googleIntegration = new GoogleCalendarIntegration(
             integration,
-            integration.settings
+            normalizeGoogleSettings(settings)
           );
           result = await googleIntegration.importEvents(startDate, endDate);
           break;
@@ -137,7 +213,7 @@ export class CalendarIntegrationManager {
         case 'calendly':
           const calendlyIntegration = new CalendlyIntegration(
             integration,
-            integration.settings
+            normalizeCalendlySettings(settings)
           );
           result = await calendlyIntegration.importEvents(startDate, endDate);
           break;
@@ -145,7 +221,7 @@ export class CalendarIntegrationManager {
         case 'square':
           const squareIntegration = new SquareIntegration(
             integration,
-            integration.settings
+            normalizeSquareSettings(settings)
           );
           result = await squareIntegration.importEvents(startDate, endDate);
           break;

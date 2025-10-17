@@ -193,7 +193,7 @@ export default function StudioIntelligenceDashboard({
     return (
       <Card className={className}>
         <CardContent className="p-6">
-          <Alert variant="destructive">
+          <Alert className="border-red-200 bg-red-50 text-red-900">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Error Loading Insights</AlertTitle>
             <AlertDescription>{error}</AlertDescription>

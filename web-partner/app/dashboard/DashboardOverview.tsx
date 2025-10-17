@@ -53,8 +53,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
-  Chart
+  Filler
 } from 'chart.js';
 
 ChartJS.register(
@@ -114,7 +113,7 @@ export default function DashboardOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [studioClasses, setStudioClasses] = useState<any>(null);
   const [kpiData, setKpiData] = useState<KPICard[]>([]);
-  const chartRef = useRef<ChartJS>(null);
+const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null);
 
   // KPI data will be fetched and stored in state
 
@@ -536,7 +535,9 @@ export default function DashboardOverview() {
           </div>
           <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
             <Line
-              ref={chartRef}
+              ref={(chart) => {
+                chartRef.current = chart ?? null;
+              }}
               data={revenueChartData}
               onClick={handleChartClick}
               options={{
