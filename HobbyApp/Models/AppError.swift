@@ -131,22 +131,59 @@ class VenueService {
 
 class ClassService {
     static let shared = ClassService()
+    private let supabaseService = SimpleSupabaseService.shared
+
     private init() {}
 
     func fetchUpcomingClasses() async throws -> [ClassItem] {
-        return []
+        let classes = await supabaseService.fetchClasses()
+        if classes.isEmpty {
+            throw makeServiceError()
+        }
+        return Array(classes.prefix(10)).map { ClassItem.from(simpleClass: $0) }
     }
 
     func searchClasses(query: String) async throws -> [ClassItem] {
-        return []
+        let classes = await supabaseService.fetchClasses()
+        if classes.isEmpty {
+            throw makeServiceError()
+        }
+
+        guard !query.isEmpty else {
+            return classes.map { ClassItem.from(simpleClass: $0) }
+        }
+
+        let lowerQuery = query.lowercased()
+        let filtered = classes.filter { simpleClass in
+            simpleClass.title.lowercased().contains(lowerQuery) ||
+            simpleClass.description.lowercased().contains(lowerQuery) ||
+            simpleClass.instructor.lowercased().contains(lowerQuery) ||
+            simpleClass.category.lowercased().contains(lowerQuery)
+        }
+
+        return filtered.map { ClassItem.from(simpleClass: $0) }
     }
 
     func fetchClasses() async throws -> [HobbyClass] {
-        return []
+        let classes = await supabaseService.fetchClasses()
+        if classes.isEmpty {
+            throw makeServiceError()
+        }
+        return classes.map { HobbyClass(simpleClass: $0) }
     }
 
     func fetchMoreClasses(offset: Int) async throws -> [HobbyClass] {
-        return []
+        let classes = try await fetchClasses()
+        guard offset < classes.count else { return [] }
+        return Array(classes[offset...].prefix(10))
+    }
+
+    private func makeServiceError() -> NSError {
+        NSError(
+            domain: "ClassService",
+            code: -1,
+            userInfo: [NSLocalizedDescriptionKey: supabaseService.errorMessage ?? "Unable to load classes from Supabase."]
+        )
     }
 }
 
@@ -181,46 +218,83 @@ class LocationService: ObservableObject {
 
 class SearchService {
     static let shared = SearchService()
+    private let classService = ClassService.shared
+    private let userDefaultsKey = "hobbyist.recentSearches"
+
     private init() {}
 
     func searchClasses(query: String) async throws -> [HobbyClass] {
-        return []
+        let classes = try await classService.fetchClasses()
+
+        let filtered: [HobbyClass]
+        if query.isEmpty {
+            filtered = classes
+        } else {
+            let lowerQuery = query.lowercased()
+            filtered = classes.filter { hobbyClass in
+                hobbyClass.title.lowercased().contains(lowerQuery) ||
+                hobbyClass.description.lowercased().contains(lowerQuery) ||
+                hobbyClass.instructor.name.lowercased().contains(lowerQuery) ||
+                hobbyClass.category.rawValue.lowercased().contains(lowerQuery)
+            }
+        }
+
+        return filtered.sorted { $0.startDate < $1.startDate }
     }
 
     func getAutocompleteSuggestions(query: String) async throws -> [String] {
-        return []
+        guard !query.isEmpty else { return [] }
+
+        let classes = try await classService.fetchClasses()
+        let lowerQuery = query.lowercased()
+        let titles = classes.map(\.title)
+            .filter { $0.lowercased().contains(lowerQuery) }
+        let instructors = classes.map { $0.instructor.name }
+            .filter { $0.lowercased().contains(lowerQuery) }
+
+        return Array(Set(titles + instructors)).sorted().prefix(5).map { $0 }
     }
 
     func search(with parameters: SearchParameters) async throws -> [SearchResult] {
-        return []
+        let classes = try await classService.fetchClasses()
+        return classes
+            .map { SearchResult(hobbyClass: $0) }
+            .filter { parameters.matches($0) }
+            .sorted { ($0.startDate ?? Date.distantFuture) < ($1.startDate ?? Date.distantFuture) }
     }
 
     func fetchRecentSearches() async throws -> [String] {
-        return []
+        UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
     }
 
     func fetchPopularSearches() async throws -> [String] {
-        return []
+        let classes = try await classService.fetchClasses()
+        let categories = classes.map { $0.category.rawValue }
+        return Array(Set(categories)).sorted().prefix(5).map { $0 }
     }
 
     func fetchSuggestedClasses() async throws -> [HobbyClass] {
-        return []
+        let classes = try await classService.fetchClasses()
+        return classes.sorted { $0.startDate < $1.startDate }
     }
 
     func fetchNearbyClasses(location: CLLocation, radius: Double) async throws -> [HobbyClass] {
-        return []
+        // Placeholder until geolocation support is implemented
+        let classes = try await classService.fetchClasses()
+        return classes.sorted { $0.startDate < $1.startDate }
     }
 
     func fetchTrendingCategories() async throws -> [String] {
-        return []
+        let classes = try await classService.fetchClasses()
+        return Array(Set(classes.map { $0.category.rawValue })).sorted()
     }
 
     func saveRecentSearches(_ searches: [String]) async throws {
-        // Save to storage
+        UserDefaults.standard.set(Array(searches.prefix(10)), forKey: userDefaultsKey)
     }
 
     func clearRecentSearches() async throws {
-        // Clear storage
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 }
 
@@ -256,9 +330,22 @@ class SupabaseManager {
     private init() {}
 
     lazy var client: SupabaseClient = {
+        guard let configuration = AppConfiguration.shared.current else {
+            fatalError("Supabase configuration missing. Configure environment before using SupabaseManager.")
+        }
+
+        guard !configuration.supabaseURL.isEmpty,
+              let url = URL(string: configuration.supabaseURL) else {
+            fatalError("Invalid Supabase URL in configuration.")
+        }
+
+        guard !configuration.supabaseAnonKey.isEmpty else {
+            fatalError("Supabase anon key is missing in configuration.")
+        }
+
         return SupabaseClient(
-            supabaseURL: URL(string: "https://mcjqvdzdhtcvbrejvrtp.supabase.co")!,
-            supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janF2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5MDIzNzksImV4cCI6MjA2NDQ3ODM3OX0.puthoId8ElCgYzuyKJTTyzR9FeXmVA-Tkc8RV1rqdkc"
+            supabaseURL: url,
+            supabaseKey: configuration.supabaseAnonKey
         )
     }()
 }

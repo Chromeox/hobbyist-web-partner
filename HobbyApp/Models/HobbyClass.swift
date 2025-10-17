@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import SwiftUI
 
 // MARK: - HobbyClass
 struct HobbyClass: Identifiable, Codable, Hashable {
@@ -114,7 +115,19 @@ extension HobbyClass {
     
     // Convert HobbyClass to ClassItem
     var toClassItem: ClassItem {
-        ClassItem(
+        let priceString = price == 0 ? "Free" : String(format: "$%.0f", price)
+        let credits = price <= 0 ? 0 : max(Int(ceil(price / 3.5)), 1)
+        let locationText = isOnline ? "Online" : (venue.name.isEmpty ? venue.address : venue.name)
+        let addressComponents = [venue.address, venue.city, venue.state].filter { !$0.isEmpty }
+        let addressText = addressComponents.isEmpty ? venue.city : addressComponents.joined(separator: ", ")
+        let coordinate = CLLocationCoordinate2D(latitude: venue.latitude, longitude: venue.longitude)
+        let spotsAvailable = max(0, maxParticipants - enrolledCount)
+        let amenities = venue.amenities.map { Amenity(name: $0, icon: "sparkles") }
+        let equipment = whatToBring.map { Equipment(name: $0, price: "Bring your own") }
+        let categoryColor = HobbyClass.color(for: category)
+        let isFeatured = tags.contains { $0.lowercased() == "featured" }
+
+        return ClassItem(
             id: id,
             name: title,
             category: category.rawValue,
@@ -123,25 +136,50 @@ extension HobbyClass {
             description: description,
             duration: "\(duration) min",
             difficulty: difficulty.rawValue,
-            price: "$\(Int(price))",
-            creditsRequired: Int(price / 3.5), // Approximate conversion
+            price: priceString,
+            creditsRequired: credits,
             startTime: startDate,
             endTime: endDate,
-            location: "Studio",
+            location: locationText,
             venueName: venue.name,
-            address: venue.address,
-            coordinate: CLLocationCoordinate2D(latitude: venue.latitude, longitude: venue.longitude),
-            spotsAvailable: maxParticipants - enrolledCount,
+            address: addressText,
+            coordinate: coordinate,
+            spotsAvailable: spotsAvailable,
             totalSpots: maxParticipants,
             rating: String(format: "%.1f", averageRating),
             reviewCount: "\(totalReviews)",
             icon: category.iconName,
-            categoryColor: .blue,
-            isFeatured: false,
+            categoryColor: categoryColor,
+            isFeatured: isFeatured,
             requirements: requirements,
-            amenities: [],
-            equipment: []
+            amenities: amenities,
+            equipment: equipment
         )
+    }
+
+    private static func color(for category: ClassCategory) -> Color {
+        switch category {
+        case .arts:
+            return BrandConstants.Colors.Category.arts
+        case .cooking:
+            return BrandConstants.Colors.Category.cooking
+        case .fitness:
+            return BrandConstants.Colors.teal
+        case .music:
+            return BrandConstants.Colors.Category.music
+        case .photography:
+            return BrandConstants.Colors.Category.photography
+        case .technology:
+            return BrandConstants.Colors.primary
+        case .language:
+            return BrandConstants.Colors.Category.writing
+        case .business:
+            return BrandConstants.Colors.primary
+        case .outdoor:
+            return BrandConstants.Colors.Category.woodworking
+        case .other:
+            return BrandConstants.Colors.coral
+        }
     }
     
     // Create from ClassItem
@@ -197,5 +235,71 @@ extension HobbyClass {
             isOnline: false,
             meetingUrl: nil
         )
+    }
+
+    init(simpleClass: SimpleClass) {
+        let startDate = simpleClass.startDate ?? Date()
+        let endDate = simpleClass.endDate ?? startDate.addingTimeInterval(TimeInterval(simpleClass.duration * 60))
+        let categoryValue = ClassCategory(rawValue: simpleClass.category) ?? .other
+        let difficultyValue = DifficultyLevel(
+            rawValue: simpleClass.difficulty
+                .replacingOccurrences(of: "_", with: " ")
+                .capitalized
+        ) ?? .allLevels
+
+        let currentParticipants = simpleClass.currentParticipants ?? 0
+        let inferredMax = simpleClass.maxParticipants
+            ?? (simpleClass.spotsRemaining.map { $0 + currentParticipants })
+            ?? max(currentParticipants, 10)
+
+        self.id = simpleClass.id
+        self.title = simpleClass.title
+        self.description = simpleClass.description
+        self.category = categoryValue
+        self.difficulty = difficultyValue
+        self.price = simpleClass.price
+        self.startDate = startDate
+        self.endDate = endDate
+        self.duration = simpleClass.duration
+        self.maxParticipants = inferredMax
+        self.enrolledCount = min(currentParticipants, inferredMax)
+        self.instructor = InstructorInfo(
+            id: UUID().uuidString,
+            name: simpleClass.instructor,
+            bio: nil,
+            profileImageUrl: simpleClass.imageURL,
+            rating: simpleClass.averageRating,
+            totalClasses: 0,
+            totalStudents: 0,
+            specialties: simpleClass.tags,
+            certifications: [],
+            yearsOfExperience: 0,
+            socialLinks: nil
+        )
+        self.venue = VenueInfo(
+            id: UUID().uuidString,
+            name: simpleClass.locationName ?? simpleClass.displayLocation,
+            address: simpleClass.locationAddress ?? "",
+            city: simpleClass.locationCity ?? "",
+            state: simpleClass.locationState ?? "",
+            zipCode: simpleClass.locationZip ?? "",
+            latitude: simpleClass.latitude ?? 49.2827,
+            longitude: simpleClass.longitude ?? -123.1207,
+            amenities: simpleClass.tags,
+            parkingInfo: nil,
+            publicTransit: nil,
+            imageUrls: simpleClass.imageURL.map { [$0] },
+            accessibilityInfo: nil
+        )
+        self.imageUrl = simpleClass.imageURL
+        self.thumbnailUrl = simpleClass.imageURL
+        self.averageRating = simpleClass.averageRating
+        self.totalReviews = simpleClass.totalReviews
+        self.tags = simpleClass.tags
+        self.requirements = simpleClass.requirements
+        self.whatToBring = simpleClass.whatToBring
+        self.cancellationPolicy = simpleClass.cancellationPolicy ?? "Standard cancellation policy applies"
+        self.isOnline = simpleClass.isOnline
+        self.meetingUrl = simpleClass.onlineLink
     }
 }

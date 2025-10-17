@@ -1,694 +1,553 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var homeViewModel = HomeViewModel()
-    @State private var searchText = ""
-    @State private var selectedNeighborhood = "All Vancouver"
+    @EnvironmentObject private var supabaseService: SimpleSupabaseService
+    @StateObject private var viewModel = HomeViewModel()
+    @State private var isShowingSearch = false
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Dark gradient background
-                BrandConstants.Gradients.darkBackground
-                    .ignoresSafeArea()
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        // Enhanced Header
-                        DiscoveryHeader(selectedLocation: $selectedNeighborhood)
-
-                        // Glassmorphic Search Bar
-                        GlassmorphicSearchBar(searchText: $searchText)
-
-                        // Featured Classes Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            SectionHeader(
-                                title: "Featured This Week",
-                                actionTitle: "View All",
-                                action: { /* Navigate to full list */ }
+            Group {
+                if viewModel.isLoading {
+                    LoadingStateView()
+                } else if let error = viewModel.errorMessage {
+                    ErrorStateView(
+                        message: error,
+                        retryAction: {
+                            Task { await viewModel.load() }
+                        }
+                    )
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            WelcomeSection(
+                                userName: supabaseService.currentUser?.name ?? "Hobbyist",
+                                bookingsCount: viewModel.totalUpcomingBookings
                             )
 
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 16) {
-                                    ForEach(vancouverFeaturedClasses, id: \.id) { classItem in
-                                        EnhancedFeaturedCard(classItem: classItem)
-                                            .frame(width: 280)
-                                    }
-                                }
-                                .padding(.horizontal, 20)
+                            SearchShortcutButton {
+                                isShowingSearch = true
+                            }
+
+                            TimeFilterPicker(selectedFilter: $viewModel.timeFilter)
+
+                            if !viewModel.featuredClasses.isEmpty {
+                                FeaturedClassesSection(classes: viewModel.featuredClasses)
+                            }
+
+                            if !viewModel.categories.isEmpty {
+                                CategoriesSection(categories: viewModel.categories)
+                            }
+
+                            if !viewModel.recommendedClasses.isEmpty {
+                                RecommendedClassesSection(classes: viewModel.recommendedClasses)
+                            }
+
+                            if viewModel.featuredClasses.isEmpty && viewModel.recommendedClasses.isEmpty {
+                                EmptyHomeState(selectedFilter: viewModel.timeFilter)
                             }
                         }
-
-                        // Categories Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            SectionHeader(
-                                title: "Explore by Category",
-                                actionTitle: nil,
-                                action: nil
-                            )
-
-                            LazyVGrid(
-                                columns: [
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible())
-                                ],
-                                spacing: 16
-                            ) {
-                                ForEach(vancouverCategories, id: \.name) { category in
-                                    EnhancedCategoryCard(category: category)
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
-
-                        // Popular Studios Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            SectionHeader(
-                                title: "Popular Studios",
-                                actionTitle: "View All",
-                                action: { /* Navigate */ }
-                            )
-
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 16) {
-                                    ForEach(vancouverStudios, id: \.id) { studio in
-                                        EnhancedStudioCard(studio: studio)
-                                    }
-                                }
-                                .padding(.horizontal, 20)
-                            }
-                        }
-
-                        // Bottom padding for tab bar
-                        Spacer()
-                            .frame(height: 100)
+                        .padding(.vertical, 16)
                     }
-                    .padding(.top, 8)
+                    .background(Color(.systemGroupedBackground))
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .onTapGesture {
-                hideKeyboard()
+            .navigationTitle("Discover")
+            .sheet(isPresented: $isShowingSearch) {
+                NavigationStack {
+                    SearchView()
+                        .environmentObject(supabaseService)
+                }
+            }
+            .task {
+                await viewModel.load()
+            }
+            .refreshable {
+                await viewModel.refresh()
             }
         }
     }
+}
 
-    // MARK: - Helper Methods
+// MARK: - View Model
 
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+@MainActor
+final class HomeViewModel: ObservableObject {
+    @Published var featuredClasses: [SimpleClass] = []
+    @Published var recommendedClasses: [SimpleClass] = []
+    @Published var categories: [String] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published private(set) var totalUpcomingBookings: Int = 0
+    @Published var timeFilter: TimeFilter = .today {
+        didSet { updateSections() }
     }
 
-    // MARK: - Vancouver Data
+    private let supabaseService = SimpleSupabaseService.shared
+    private var allClasses: [SimpleClass] = []
 
-    private var vancouverNeighborhoods: [String] {
-        ["All Vancouver", "Downtown", "Gastown", "Yaletown", "West End", "Kitsilano", "Commercial Drive", "Mount Pleasant", "Fairview", "North Vancouver"]
+    enum TimeFilter: String, CaseIterable, Identifiable {
+        case today = "Today"
+        case thisWeek = "This Week"
+        case allUpcoming = "All Upcoming"
+
+        var id: TimeFilter { self }
+        var title: String { rawValue }
     }
 
-    private var vancouverFeaturedClasses: [VancouverClass] {
-        [
-            VancouverClass(
-                id: 1,
-                title: "Pottery Wheel Basics",
-                studio: "Claymates Studio",
-                instructor: "Maria Chen",
-                creditsRequired: 18,
-                neighborhood: "Commercial Drive",
-                category: "Ceramics",
-                rating: 4.8,
-                imageGradient: [Color(hex: "#8B5A3C"), Color(hex: "#6B4423")],
-                icon: "paintpalette.fill",
-                categoryColor: CategoryColors.ceramics
-            ),
-            VancouverClass(
-                id: 2,
-                title: "Sourdough Bread Making",
-                studio: "Culinary Studio",
-                instructor: "Chef David Park",
-                creditsRequired: 20,
-                neighborhood: "Gastown",
-                category: "Cooking",
-                rating: 4.9,
-                imageGradient: [Color(hex: "#D4A574"), Color(hex: "#B8860B")],
-                icon: "fork.knife",
-                categoryColor: CategoryColors.cooking
-            ),
-            VancouverClass(
-                id: 3,
-                title: "Urban Photography Walk",
-                studio: "Lens & Light",
-                instructor: "Emma Wilson",
-                creditsRequired: 12,
-                neighborhood: "Downtown",
-                category: "Photography",
-                rating: 4.7,
-                imageGradient: [Color(hex: "#5A9FD4"), Color(hex: "#2C5F8D")],
-                icon: "camera.fill",
-                categoryColor: CategoryColors.photography
-            ),
-            VancouverClass(
-                id: 4,
-                title: "Watercolor Painting",
-                studio: "Creative Arts Collective",
-                instructor: "Sofia Rodriguez",
-                creditsRequired: 15,
-                neighborhood: "Kitsilano",
-                category: "Arts & Crafts",
-                rating: 4.8,
-                imageGradient: [Color(hex: "#C48ED8"), Color(hex: "#8B3FA8")],
-                icon: "paintbrush.fill",
-                categoryColor: CategoryColors.arts
-            )
-        ]
+    func load() async {
+        guard !isLoading else { return }
+        isLoading = true
+        errorMessage = nil
+
+        let classes = await supabaseService.fetchClasses()
+        let bookings = await supabaseService.fetchUserBookings()
+
+        if !classes.isEmpty {
+            allClasses = classes.sorted { lhs, rhs in
+                let leftDate = lhs.startDate ?? Date.distantFuture
+                let rightDate = rhs.startDate ?? Date.distantFuture
+                return leftDate < rightDate
+            }
+            updateSections()
+        } else if let error = supabaseService.errorMessage {
+            errorMessage = error
+        } else {
+            errorMessage = "No classes available right now. Check back soon!"
+        }
+
+        totalUpcomingBookings = bookings.filter { $0.bookingDate >= Date() }.count
+
+        isLoading = false
     }
 
-    private var vancouverCategories: [VancouverCategory] {
-        [
-            VancouverCategory(name: "Ceramics", icon: "paintpalette.fill", color: CategoryColors.ceramics, classCount: 12),
-            VancouverCategory(name: "Cooking & Baking", icon: "fork.knife", color: CategoryColors.cooking, classCount: 15),
-            VancouverCategory(name: "Arts & Crafts", icon: "paintbrush.fill", color: CategoryColors.arts, classCount: 10),
-            VancouverCategory(name: "Photography", icon: "camera.fill", color: CategoryColors.photography, classCount: 7),
-            VancouverCategory(name: "Music & Sound", icon: "music.note", color: CategoryColors.music, classCount: 9),
-            VancouverCategory(name: "Movement", icon: "figure.dance", color: CategoryColors.movement, classCount: 6)
-        ]
+    func refresh() async {
+        supabaseService.errorMessage = nil
+        await load()
     }
 
-    private var vancouverStudios: [VancouverStudio] {
-        [
-            VancouverStudio(id: 1, name: "Claymates Studio", neighborhood: "Commercial Drive", rating: 4.8, classCount: 6, specialty: "Ceramics", gradientColors: [CategoryColors.ceramics.opacity(0.6), CategoryColors.ceramics.opacity(0.3)]),
-            VancouverStudio(id: 2, name: "Creative Arts Collective", neighborhood: "Mount Pleasant", rating: 4.9, classCount: 8, specialty: "Mixed Media", gradientColors: [CategoryColors.arts.opacity(0.6), CategoryColors.arts.opacity(0.3)]),
-            VancouverStudio(id: 3, name: "The Cooking School", neighborhood: "Gastown", rating: 4.7, classCount: 12, specialty: "Culinary", gradientColors: [CategoryColors.cooking.opacity(0.6), CategoryColors.cooking.opacity(0.3)]),
-            VancouverStudio(id: 4, name: "Vancouver Art Studio", neighborhood: "Kitsilano", rating: 4.6, classCount: 8, specialty: "Arts", gradientColors: [CategoryColors.photography.opacity(0.6), CategoryColors.photography.opacity(0.3)])
-        ]
+    private func updateSections() {
+        let filtered = filteredClasses(allClasses, for: timeFilter)
+
+        let featuredSlice = filtered.prefix(6)
+        featuredClasses = Array(featuredSlice)
+
+        let recommendedSlice = filtered.dropFirst(featuredSlice.count).prefix(10)
+        recommendedClasses = Array(recommendedSlice)
+
+        categories = Array(Set(filtered.map(\.category))).sorted()
+    }
+
+    private func filteredClasses(_ classes: [SimpleClass], for filter: TimeFilter) -> [SimpleClass] {
+        guard !classes.isEmpty else { return [] }
+
+        switch filter {
+        case .today:
+            return classes.filter { simpleClass in
+                guard let startDate = simpleClass.startDate else { return false }
+                return Calendar.current.isDateInToday(startDate)
+            }
+        case .thisWeek:
+            return classes.filter { simpleClass in
+                guard let startDate = simpleClass.startDate else { return false }
+                return Calendar.current.isDate(startDate, equalTo: Date(), toGranularity: .weekOfYear)
+            }
+        case .allUpcoming:
+            return classes.filter { simpleClass in
+                guard let startDate = simpleClass.startDate else { return true }
+                return startDate >= Calendar.current.startOfDay(for: Date())
+            }
+        }
     }
 }
 
-// MARK: - Data Models
+// MARK: - Sections
 
-struct VancouverClass {
-    let id: Int
-    let title: String
-    let studio: String
-    let instructor: String
-    let creditsRequired: Int
-    let neighborhood: String
-    let category: String
-    let rating: Double
-    let imageGradient: [Color]
-    let icon: String
-    let categoryColor: Color
-}
-
-struct VancouverCategory {
-    let name: String
-    let icon: String
-    let color: Color
-    let classCount: Int
-}
-
-struct VancouverStudio {
-    let id: Int
-    let name: String
-    let neighborhood: String
-    let rating: Double
-    let classCount: Int
-    let specialty: String
-    let gradientColors: [Color]
-}
-
-// MARK: - Enhanced Components
-
-struct DiscoveryHeader: View {
-    @Binding var selectedLocation: String
+private struct WelcomeSection: View {
+    let userName: String
+    let bookingsCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    // Title with gradient
-                    HStack(spacing: 0) {
-                        Text("Discover")
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.white)
+            Text("Hi \(userName.split(separator: " ").first ?? "there") 👋")
+                .font(.largeTitle)
+                .fontWeight(.bold)
 
-                        Text(" Vancouver")
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [
-                                        Color(hex: "#4ECDC4"),  // Teal
-                                        Color(hex: "#FF6B6B")   // Coral
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                    }
-                    .fixedSize(horizontal: true, vertical: false)
+            Text(bookingsCount > 0 ?
+                 "You have \(bookingsCount) upcoming \(bookingsCount == 1 ? "class" : "classes") this week." :
+                    "Find a new class to keep your creativity flowing.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal)
+    }
+}
 
-                    Text("Find your next creative adventure")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                }
+private struct SearchShortcutButton: View {
+    let action: () -> Void
 
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Color.blue)
+                Text("Search classes, studios, or instructors")
+                    .foregroundStyle(Color.secondary)
                 Spacer()
-
-                // Location selector
-                Menu {
-                    ForEach(["All Vancouver", "Downtown", "Gastown", "Yaletown", "Kitsilano", "Commercial Drive"], id: \.self) { location in
-                        Button(location) {
-                            selectedLocation = location
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "location.fill")
-                            .font(.system(size: 14))
-                        Text(selectedLocation)
-                            .font(.system(size: 14, weight: .medium))
-                            .lineLimit(1)
-                    }
-                    .foregroundColor(BrandConstants.Colors.teal)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(
-                        Capsule()
-                            .fill(Color.white.opacity(0.15))
-                            .overlay(
-                                Capsule()
-                                    .stroke(BrandConstants.Colors.teal.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                }
             }
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 8)
-    }
-}
-
-struct GlassmorphicSearchBar: View {
-    @Binding var searchText: String
-    @FocusState private var isFocused: Bool
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(
-                    isFocused ?
-                        BrandConstants.Colors.teal :
-                        Color.white.opacity(0.6)
-                )
-
-            TextField("Search pottery, cooking, arts...", text: $searchText)
-                .font(.system(size: 16))
-                .foregroundColor(.white)
-                .focused($isFocused)
-                .submitLabel(.search)
-                .onSubmit {
-                    // Handle search
-                    isFocused = false
-                }
-
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.white.opacity(0.6))
-                }
-            }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(isFocused ? 0.2 : 0.15),
-                            Color.white.opacity(isFocused ? 0.12 : 0.08)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    isFocused ?
-                                        BrandConstants.Colors.teal.opacity(0.5) :
-                                        Color.white.opacity(0.3),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: isFocused ? 2 : 1
-                        )
-                )
-        )
-        .shadow(
-            color: isFocused ?
-                BrandConstants.Colors.teal.opacity(0.3) :
-                Color.black.opacity(0.1),
-            radius: isFocused ? 15 : 10,
-            y: 5
-        )
-        .animation(BrandConstants.Animation.spring, value: isFocused)
-        .padding(.horizontal, 20)
-    }
-}
-
-struct EnhancedCategoryCard: View {
-    let category: VancouverCategory
-    @State private var isPressed = false
-
-    var body: some View {
-        Button(action: {
-            // Navigate to category
-        }) {
-            VStack(spacing: 16) {
-                // Icon with gradient background
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    category.color.opacity(0.3),
-                                    category.color.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 80, height: 80)
-                        .shadow(
-                            color: category.color.opacity(0.4),
-                            radius: isPressed ? 8 : 12,
-                            y: isPressed ? 3 : 6
-                        )
-
-                    Image(systemName: category.icon)
-                        .font(.system(size: 32, weight: .medium))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [category.color, category.color.opacity(0.7)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                }
-
-                VStack(spacing: 4) {
-                    Text(category.name)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-
-                    Text("\(category.classCount) classes")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
+            .padding()
             .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.15),
-                                Color.white.opacity(0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.3),
-                                        Color.white.opacity(0.1)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    )
-                    .shadow(
-                        color: .black.opacity(isPressed ? 0.15 : 0.1),
-                        radius: isPressed ? 8 : 12,
-                        y: isPressed ? 3 : 6
-                    )
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
             )
+            .padding(.horizontal)
         }
-        .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? 0.95 : 1.0)
-        .animation(BrandConstants.Animation.spring, value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
-        )
+        .buttonStyle(.plain)
     }
 }
 
-struct EnhancedFeaturedCard: View {
-    let classItem: VancouverClass
+private struct FeaturedClassesSection: View {
+    let classes: [SimpleClass]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Image section with gradient and decorative icon
-            ZStack(alignment: .topTrailing) {
-                LinearGradient(
-                    colors: classItem.imageGradient,
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .frame(height: 180)
-                .overlay(
-                    // Decorative icon
-                    Image(systemName: classItem.icon)
-                        .font(.system(size: 70, weight: .ultraLight))
-                        .foregroundColor(.white.opacity(0.15))
-                        .offset(x: 30, y: 20)
-                        .rotationEffect(.degrees(-15))
-                )
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader(
+                title: "Featured Classes",
+                actionTitle: nil,
+                action: nil
+            )
 
-                // Rating badge
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.yellow)
-                    Text(String(format: "%.1f", classItem.rating))
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule()
-                        .fill(.ultraThinMaterial)
-                        .overlay(
-                            Capsule()
-                                .fill(Color.black.opacity(0.3))
-                        )
-                )
-                .padding(12)
-            }
-
-            // Details section
-            VStack(alignment: .leading, spacing: 10) {
-                Text(classItem.title)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(BrandConstants.Colors.teal)
-                        Text(classItem.neighborhood)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.8))
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(classes) { classItem in
+                        HomeClassCard(classItem: classItem, style: .featured)
                     }
-
-                    Text("at \(classItem.studio)")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(.white.opacity(0.6))
                 }
-
-                HStack {
-                    Text("\(classItem.creditsRequired) credits")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(BrandConstants.Colors.coral)
-
-                    Spacer()
-
-                    // Category badge
-                    Text(classItem.category)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.9))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(
-                            Capsule()
-                                .fill(classItem.categoryColor.opacity(0.3))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(classItem.categoryColor.opacity(0.5), lineWidth: 1)
-                                )
-                        )
-                }
+                .padding(.horizontal)
             }
-            .padding(16)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.12),
-                            Color.white.opacity(0.06)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.2),
-                            Color.white.opacity(0.05)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        )
-        .shadow(color: .black.opacity(0.2), radius: 15, y: 8)
     }
 }
 
-struct EnhancedStudioCard: View {
-    let studio: VancouverStudio
+private struct CategoriesSection: View {
+    let categories: [String]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Studio header with gradient
-            Rectangle()
-                .fill(LinearGradient(
-                    colors: studio.gradientColors,
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .frame(height: 100)
-                .cornerRadius(12)
-                .overlay(
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            HStack(spacing: 2) {
-                                Image(systemName: "star.fill")
-                                    .font(.caption)
-                                Text(String(format: "%.1f", studio.rating))
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.black.opacity(0.3))
-                            .cornerRadius(999)
-                            .padding(8)
-                        }
-                    }
-                )
+            Text("Popular Categories")
+                .font(.headline)
+                .padding(.horizontal)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(studio.name)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-
-                HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
-                        .font(.caption)
-                        .foregroundColor(BrandConstants.Colors.teal)
-                    Text(studio.neighborhood)
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                spacing: 12
+            ) {
+                ForEach(categories, id: \.self) { category in
+                    Text(category)
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                        .lineLimit(1)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemBackground))
+                                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                        )
                 }
-
-                Text("\(studio.classCount) classes • \(studio.specialty)")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
             }
+            .padding(.horizontal)
         }
-        .frame(width: 200)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.12),
-                            Color.white.opacity(0.06)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 10, y: 5)
     }
 }
 
-struct SectionHeader: View {
+private struct RecommendedClassesSection: View {
+    let classes: [SimpleClass]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SectionHeader(
+                title: "Recommended For You",
+                actionTitle: nil,
+                action: nil
+            )
+
+            LazyVStack(spacing: 16) {
+                ForEach(classes) { classItem in
+                    HomeClassCard(classItem: classItem, style: .standard)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+// MARK: - Reusable UI
+
+private struct SectionHeader: View {
     let title: String
     let actionTitle: String?
     let action: (() -> Void)?
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack {
             Text(title)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
+                .font(.headline)
 
             Spacer()
 
-            if let actionTitle = actionTitle, let action = action {
-                Button(action: action) {
-                    Text(actionTitle)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(BrandConstants.Colors.teal)
-                }
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .font(.subheadline)
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal)
     }
 }
 
-#Preview {
-    HomeView()
+private struct TimeFilterPicker: View {
+    @Binding var selectedFilter: HomeViewModel.TimeFilter
+
+    var body: some View {
+        Picker("Time Filter", selection: $selectedFilter) {
+            ForEach(HomeViewModel.TimeFilter.allCases) { filter in
+                Text(filter.title).tag(filter)
+            }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .padding(.horizontal)
+    }
+}
+
+struct HomeClassCard: View {
+    enum Style {
+        case featured
+        case standard
+    }
+
+    let classItem: SimpleClass
+    let style: Style
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                if let imageURL = classItem.imageURL, let url = URL(string: imageURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            PlaceholderImage()
+                        @unknown default:
+                            PlaceholderImage()
+                        }
+                    }
+                    .frame(width: style == .featured ? 120 : 80, height: style == .featured ? 120 : 80)
+                    .clipped()
+                    .cornerRadius(12)
+                } else {
+                    PlaceholderImage()
+                        .frame(width: style == .featured ? 120 : 80, height: style == .featured ? 120 : 80)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(classItem.title)
+                        .font(style == .featured ? .title3 : .headline)
+                        .fontWeight(.semibold)
+                        .lineLimit(2)
+
+                    Text("with \(classItem.instructor)")
+                        .font(.subheadline)
+                        .foregroundStyle(.blue)
+
+                    HStack(alignment: .center, spacing: 8) {
+                        Text(classItem.category)
+                            .font(.caption)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(Color.blue.opacity(0.12))
+                            )
+                            .foregroundStyle(Color.blue)
+
+                        Spacer()
+
+                        Text(classItem.priceFormatted)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+
+                    Label("\(classItem.duration) min", systemImage: "stopwatch")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .leading, spacing: 6) {
+                if let startDate = classItem.startDate {
+                    Label(
+                        HomeClassCard.dayFormatter.string(from: startDate),
+                        systemImage: "calendar"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                    if let endDate = classItem.endDate {
+                        let timeRange = "\(HomeClassCard.timeFormatter.string(from: startDate)) – \(HomeClassCard.timeFormatter.string(from: endDate))"
+                        Label(timeRange, systemImage: "clock")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Label(HomeClassCard.timeFormatter.string(from: startDate), systemImage: "clock")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Label(
+                    classItem.displayLocation,
+                    systemImage: classItem.isOnline ? "wifi" : "mappin.and.ellipse"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+                if let spots = classItem.spotsRemaining, spots > 0 {
+                    Label(
+                        "\(spots) spot\(spots == 1 ? "" : "s") left",
+                        systemImage: "person.3.fill"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(spots <= 3 ? Color.red : Color.secondary)
+                } else if let maxCapacity = classItem.maxParticipants, maxCapacity > 0 {
+                    Label(
+                        "Fully booked",
+                        systemImage: "checkmark.circle"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 4)
+        )
+        .frame(width: style == .featured ? 260 : nil)
+    }
+
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d"
+        return formatter
+    }()
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter
+    }()
+}
+
+private struct PlaceholderImage: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.blue.opacity(0.08))
+            Image(systemName: "photo")
+                .font(.title2)
+                .foregroundStyle(Color.blue)
+        }
+    }
+}
+
+private struct LoadingStateView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView("Loading classes...")
+            Text("Fetching the latest schedules from Supabase.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+private struct ErrorStateView: View {
+    let message: String
+    let retryAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "wifi.exclamationmark")
+                .font(.system(size: 48))
+                .foregroundStyle(.red)
+
+            Text("We had trouble loading classes.")
+                .font(.headline)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button("Retry", action: retryAction)
+                .buttonStyle(.borderedProminent)
+
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+private struct EmptyHomeState: View {
+    let selectedFilter: HomeViewModel.TimeFilter
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "calendar.badge.exclamationmark")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.secondary)
+
+            Text("No classes match your filter.")
+                .font(.headline)
+
+            Text(emptyMessage)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 4)
+        )
+        .padding(.horizontal)
+    }
+
+    private var emptyMessage: String {
+        switch selectedFilter {
+        case .today:
+            return "No classes are starting today. Try expanding your timeframe."
+        case .thisWeek:
+            return "We don’t have classes scheduled this week yet. Check back soon or view all upcoming classes."
+        case .allUpcoming:
+            return "No upcoming classes are available at the moment. Please check again later."
+        }
+    }
 }

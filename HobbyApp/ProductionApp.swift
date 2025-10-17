@@ -1,9 +1,13 @@
 import SwiftUI
+import Stripe
 
 // Production-ready app entry point
 // This is now the main entry point for the production app
 @main
 struct ProductionHobbyistApp: App {
+    init() {
+        StripeAPI.defaultPublishableKey = Configuration.shared.stripePublishableKey
+    }
     @StateObject private var supabaseService = SimpleSupabaseService.shared
 
     var body: some Scene {
@@ -236,100 +240,375 @@ struct OnboardingPage: View {
 
 struct ProductionLoginView: View {
     @EnvironmentObject var supabaseService: SimpleSupabaseService
+    @Namespace private var toggleNamespace
+    @FocusState private var focusedField: Field?
+
+    @State private var mode: AuthMode = .signIn
     @State private var email = ""
     @State private var password = ""
-    @State private var isSignUp = false
     @State private var fullName = ""
+    @State private var isPasswordVisible = false
+    @State private var animateBadge = false
+
+    private enum AuthMode: String, CaseIterable {
+        case signIn = "Sign In"
+        case signUp = "Sign Up"
+    }
+
+    private enum Field: Hashable {
+        case fullName, email, password
+    }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Spacer()
+        ZStack {
+            LinearGradient(
+                colors: [
+                    BrandConstants.Colors.primary,
+                    BrandConstants.Colors.teal.opacity(0.85),
+                    BrandConstants.Colors.coral.opacity(0.75)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
 
-                // Logo
-                VStack(spacing: 16) {
-                    Image(systemName: "figure.yoga")
-                        .font(.system(size: 80))
-                        .foregroundColor(.blue)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 28) {
+                    headerSection
+                        .padding(.top, 40)
 
-                    Text("Hobbyist")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                    modeSwitcher
+                        .padding(.horizontal, 32)
 
-                    Text("Discover your next passion")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                    formSection
 
-                // Form
-                VStack(spacing: 16) {
-                    if isSignUp {
-                        TextField("Full Name", text: $fullName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .textContentType(.name)
+                    primaryActionButton
+
+                    supplementalButtons
+
+                    if supabaseService.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .padding(.top, 8)
                     }
 
-                    TextField("Email", text: $email)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .textContentType(.password)
+                    Spacer(minLength: 20)
                 }
-                .padding(.horizontal)
-
-                // Action Button
-                Button(isSignUp ? "Create Account" : "Sign In") {
-                    Task {
-                        if isSignUp {
-                            await supabaseService.signUp(
-                                email: email,
-                                password: password,
-                                fullName: fullName
-                            )
-                        } else {
-                            await supabaseService.signIn(
-                                email: email,
-                                password: password
-                            )
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(formIsValid ? Color.blue : Color.gray)
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                .disabled(supabaseService.isLoading || !formIsValid)
-                .padding(.horizontal)
-
-                // Toggle
-                Button(isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up") {
-                    isSignUp.toggle()
-                    fullName = ""
-                }
-                .foregroundColor(.blue)
-
-                if supabaseService.isLoading {
-                    ProgressView(isSignUp ? "Creating account..." : "Signing in...")
-                        .padding()
-                }
-
-                Spacer()
+                .padding(.bottom, 40)
             }
-            .padding()
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture {
+                focusedField = nil
+            }
+        }
+        .alert(
+            supabaseService.errorMessage ?? "",
+            isPresented: .constant(supabaseService.errorMessage != nil),
+            actions: {
+                Button("OK") {
+                    supabaseService.errorMessage = nil
+                }
+            },
+            message: {
+                Text("Please check your credentials and try again.")
+            }
+        )
+        .onAppear {
+            guard !animateBadge else { return }
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
+                animateBadge = true
+            }
         }
     }
 
     private var formIsValid: Bool {
-        if isSignUp {
-            return !email.isEmpty && !password.isEmpty && !fullName.isEmpty && password.count >= 6
-        } else {
-            return !email.isEmpty && !password.isEmpty
+        guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
+              !password.trimmingCharacters(in: .whitespaces).isEmpty else {
+            return false
         }
+
+        if mode == .signUp {
+            return !fullName.trimmingCharacters(in: .whitespaces).isEmpty && password.count >= 6
+        }
+
+        return true
+    }
+
+    private var headerSection: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 180, height: 180)
+                    .scaleEffect(animateBadge ? 1.05 : 0.95)
+
+                Circle()
+                    .fill(Color.white.opacity(0.3))
+                    .frame(width: 140, height: 140)
+                    .scaleEffect(animateBadge ? 0.98 : 1.02)
+                    .blur(radius: 2)
+
+                Image(systemName: "figure.yoga")
+                    .font(.system(size: 70, weight: .thin))
+                    .foregroundColor(.white)
+            }
+            .frame(maxWidth: .infinity)
+
+            VStack(spacing: 6) {
+                Text(mode == .signUp ? "Create Your Account" : "Welcome Back")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.white)
+
+                Text(mode == .signUp ? "Join the community and start booking classes instantly." :
+                        "Sign in to continue your creative journey.")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.white.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+        }
+    }
+
+    private var modeSwitcher: some View {
+        HStack(spacing: 0) {
+            ForEach(AuthMode.allCases, id: \.self) { value in
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        mode = value
+                        focusedField = nil
+                        password = ""
+                        if mode == .signIn {
+                            fullName = ""
+                        }
+                    }
+                } label: {
+                    Text(value.rawValue)
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .foregroundColor(mode == value ? .black : .white.opacity(0.7))
+                        .background(
+                            ZStack {
+                                if mode == value {
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .fill(Color.white)
+                                        .matchedGeometryEffect(id: "modeSelection", in: toggleNamespace)
+                                }
+                            }
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(6)
+        .background(Color.white.opacity(0.2))
+        .clipShape(Capsule())
+    }
+
+    private var formSection: some View {
+        VStack(spacing: 18) {
+            Group {
+                if mode == .signUp {
+                    AuthTextField(
+                        icon: "person.fill",
+                        placeholder: "Full Name",
+                        text: $fullName,
+                        textContentType: .name,
+                        capitalization: .words,
+                        focusState: _focusedField,
+                        field: .fullName,
+                        onSubmit: { focusedField = .email }
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                AuthTextField(
+                    icon: "envelope.fill",
+                    placeholder: "Email",
+                    text: $email,
+                    keyboard: .emailAddress,
+                    textContentType: .emailAddress,
+                    capitalization: .never,
+                    focusState: _focusedField,
+                    field: .email,
+                    onSubmit: { focusedField = .password }
+                )
+
+                AuthTextField(
+                    icon: "lock.fill",
+                    placeholder: "Password",
+                    text: $password,
+                    isSecure: !isPasswordVisible,
+                    trailingIcon: AnyView(
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isPasswordVisible.toggle()
+                            }
+                        }) {
+                            Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    ),
+                    textContentType: .password,
+                    focusState: _focusedField,
+                    field: .password,
+                    submitLabel: .go,
+                    onSubmit: handlePrimaryAction
+                )
+            }
+
+            if mode == .signIn {
+                HStack {
+                    Spacer()
+                    Button("Forgot Password?") {
+                        // Placeholder for future password reset flow
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.white.opacity(0.9))
+                }
+            }
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 28)
+                .fill(Color.white.opacity(0.15))
+                .background(.ultraThinMaterial.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 28))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
+        .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 12)
+    }
+
+    private var primaryActionButton: some View {
+        Button(action: handlePrimaryAction) {
+            HStack {
+                Spacer()
+                Text(mode == .signUp ? "Create Account" : "Sign In")
+                    .font(.system(size: 17, weight: .bold))
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                Spacer()
+            }
+            .padding(.vertical, 16)
+            .foregroundStyle(Color.black)
+            .background(
+                LinearGradient(
+                    colors: [Color.white, Color.white.opacity(0.85)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 8)
+            .opacity(formIsValid ? 1 : 0.6)
+        }
+        .padding(.horizontal, 32)
+        .disabled(!formIsValid || supabaseService.isLoading)
+        .padding(.top, 10)
+    }
+
+    private var supplementalButtons: some View {
+        VStack(spacing: 18) {
+            Text("or continue with")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.8))
+
+            HStack(spacing: 18) {
+                socialButton(icon: "apple.logo")
+                socialButton(icon: "globe")
+                socialButton(icon: "sparkles")
+            }
+        }
+    }
+
+    private func socialButton(icon: String) -> some View {
+        Button(action: {}) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Color.white)
+                .frame(width: 48, height: 48)
+                .background(Color.white.opacity(0.18))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func handlePrimaryAction() {
+        focusedField = nil
+
+        Task {
+            switch mode {
+            case .signIn:
+                await supabaseService.signIn(
+                    email: email,
+                    password: password
+                )
+            case .signUp:
+                await supabaseService.signUp(
+                    email: email,
+                    password: password,
+                    fullName: fullName
+                )
+            }
+        }
+    }
+}
+
+private struct AuthTextField: View {
+    let icon: String
+    let placeholder: String
+    @Binding var text: String
+    var keyboard: UIKeyboardType = .default
+    var textContentType: UITextContentType? = nil
+    var capitalization: TextInputAutocapitalization = .sentences
+    var isSecure: Bool = false
+    var trailingIcon: AnyView? = nil
+    var focusState: FocusState<ProductionLoginView.Field?>.Binding
+    let field: ProductionLoginView.Field
+    var submitLabel: SubmitLabel = .next
+    var onSubmit: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white.opacity(0.85))
+                .frame(width: 22)
+
+            Group {
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                } else {
+                    TextField(placeholder, text: $text)
+                }
+            }
+            .foregroundColor(.white)
+            .textInputAutocapitalization(capitalization)
+            .disableAutocorrection(true)
+            .keyboardType(keyboard)
+            .textContentType(textContentType)
+            .focused(focusState, equals: field)
+            .submitLabel(submitLabel)
+            .onSubmit {
+                onSubmit?()
+            }
+
+            if let trailingIcon {
+                trailingIcon
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(Color.white.opacity(0.12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18))
     }
 }
 

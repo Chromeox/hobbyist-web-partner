@@ -546,6 +546,97 @@ extension ClassItem {
         let name: String
         let icon: String
     }
+
+    static func from(simpleClass: SimpleClass) -> ClassItem {
+        let startDate = simpleClass.startDate ?? Date()
+        let endDate = simpleClass.endDate ?? startDate.addingTimeInterval(TimeInterval(simpleClass.duration * 60))
+        let difficultyLabel = simpleClass.difficulty
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+        let currentParticipants = simpleClass.currentParticipants ?? 0
+        let inferredTotal = simpleClass.maxParticipants
+            ?? simpleClass.spotsRemaining.map { $0 + currentParticipants }
+            ?? max(currentParticipants, 10)
+        let spotsAvailable = simpleClass.spotsRemaining ?? max(0, inferredTotal - currentParticipants)
+        let totalSpots = max(inferredTotal, spotsAvailable)
+        let coordinate = CLLocationCoordinate2D(
+            latitude: simpleClass.latitude ?? 49.2827,
+            longitude: simpleClass.longitude ?? -123.1207
+        )
+        let amenities = simpleClass.tags.map {
+            Amenity(name: $0.replacingOccurrences(of: "_", with: " ").capitalized, icon: "sparkles")
+        }
+        let equipment = simpleClass.whatToBring.map {
+            Equipment(name: $0, price: "Bring your own")
+        }
+        let creditsEstimate = simpleClass.price <= 0
+            ? 0
+            : max(Int(ceil(simpleClass.price / 3.5)), 1)
+        let isFeatured = simpleClass.tags.contains { $0.lowercased() == "featured" }
+
+        return ClassItem(
+            id: simpleClass.id,
+            name: simpleClass.title,
+            category: simpleClass.category,
+            instructor: simpleClass.instructor,
+            instructorInitials: String(simpleClass.instructor.prefix(2)).uppercased(),
+            description: simpleClass.description,
+            duration: "\(simpleClass.duration) min",
+            difficulty: difficultyLabel,
+            price: simpleClass.priceFormatted,
+            creditsRequired: creditsEstimate,
+            startTime: startDate,
+            endTime: endDate,
+            location: simpleClass.displayLocation,
+            venueName: simpleClass.locationName ?? simpleClass.displayLocation,
+            address: simpleClass.fullAddress ?? simpleClass.displayLocation,
+            coordinate: coordinate,
+            spotsAvailable: spotsAvailable,
+            totalSpots: max(totalSpots, spotsAvailable),
+            rating: String(format: "%.1f", simpleClass.averageRating),
+            reviewCount: "\(simpleClass.totalReviews)",
+            icon: icon(for: simpleClass.category),
+            categoryColor: color(for: simpleClass.category),
+            isFeatured: isFeatured,
+            requirements: simpleClass.requirements,
+            amenities: amenities,
+            equipment: equipment
+        )
+    }
+
+    private static func icon(for category: String) -> String {
+        switch category.lowercased() {
+        case "ceramics": return "paintpalette.fill"
+        case "cooking", "cooking & baking": return "fork.knife"
+        case "fitness", "fitness & wellness": return "figure.walk"
+        case "dance": return "figure.dance"
+        case "music", "music & performance": return "music.note"
+        case "photography": return "camera.fill"
+        case "technology": return "laptopcomputer"
+        default: return "sparkles"
+        }
+    }
+
+    private static func color(for category: String) -> Color {
+        switch category.lowercased() {
+        case "ceramics":
+            return BrandConstants.Colors.Category.ceramics
+        case "cooking", "cooking & baking":
+            return BrandConstants.Colors.Category.cooking
+        case "fitness", "fitness & wellness":
+            return BrandConstants.Colors.teal
+        case "dance":
+            return BrandConstants.Colors.Category.dance
+        case "music", "music & performance":
+            return BrandConstants.Colors.Category.music
+        case "photography":
+            return BrandConstants.Colors.Category.photography
+        case "technology":
+            return BrandConstants.Colors.primary
+        default:
+            return BrandConstants.Colors.primary
+        }
+    }
 }
 
 // Extension for Color to make it Codable

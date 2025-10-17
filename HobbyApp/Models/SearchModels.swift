@@ -18,6 +18,9 @@ struct SearchResult: Identifiable {
     let title: String
     let subtitle: String?
     let imageUrl: String?
+    let startDate: Date?
+    let endDate: Date?
+    let location: String?
     let rating: Double?
     let price: Double?
     let distance: Double?
@@ -45,4 +48,34 @@ enum LocationFilter: String, CaseIterable {
     case nearby = "Nearby"
     case withinCity = "Within City"
     case custom = "Custom Range"
+}
+
+// MARK: - Helpers
+
+extension SearchResult {
+    init(hobbyClass: HobbyClass) {
+        self.id = UUID()
+        self.type = .hobbyClass
+        self.title = hobbyClass.title
+        self.subtitle = hobbyClass.instructor.name
+        self.imageUrl = hobbyClass.imageUrl
+        self.startDate = hobbyClass.startDate
+        self.endDate = hobbyClass.endDate
+        self.location = hobbyClass.isOnline ? "Online" : (hobbyClass.venue.name.isEmpty ? hobbyClass.venue.city : hobbyClass.venue.name)
+        self.rating = hobbyClass.averageRating
+        self.price = hobbyClass.price
+        self.distance = nil
+        self.relevanceScore = 1.0
+    }
+}
+
+extension SearchParameters {
+    func matches(_ result: SearchResult) -> Bool {
+        guard !query.isEmpty else { return true }
+        let lowerQuery = query.lowercased()
+        if result.title.lowercased().contains(lowerQuery) { return true }
+        if let subtitle = result.subtitle?.lowercased(), subtitle.contains(lowerQuery) { return true }
+        if let location = result.location?.lowercased(), location.contains(lowerQuery) { return true }
+        return false
+    }
 }

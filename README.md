@@ -62,6 +62,8 @@ open iOS/HobbyistSwiftUI.xcodeproj
 ```bash
 cp iOS/.env.example iOS/.env
 # Edit .env with your Supabase and Stripe keys
+cp HobbyApp/Config-Dev.plist.template HobbyApp/Config-Dev.plist
+# Populate the plist with Supabase URL/anon key (kept local, gitignored)
 ```
 
 4. Install dependencies:

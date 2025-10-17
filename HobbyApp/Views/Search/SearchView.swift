@@ -1,134 +1,241 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State private var searchText = ""
-    @State private var selectedCategory = "All"
-    @State private var searchResults: [MockSearchClass] = []
-    @State private var recentSearches: [String] = ["Pottery", "Yoga", "Cooking"]
-    @State private var isSearching = false
-
-    private let categories = ["All", "Art & Craft", "Fitness", "Cooking", "Music", "Dance", "Technology"]
-    private let allClasses = MockSearchClass.sampleClasses
+    @EnvironmentObject private var supabaseService: SimpleSupabaseService
+    @StateObject private var viewModel = SearchViewModel()
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Search Bar
-                VStack(spacing: 16) {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
-
-                        TextField("Search classes, studios, or instructors...", text: $searchText)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .onSubmit {
-                                performSearch()
-                            }
-                            .onChange(of: searchText) { _, newValue in
-                                if newValue.isEmpty {
-                                    searchResults = []
-                                    isSearching = false
-                                } else {
-                                    performSearch()
-                                }
-                            }
-
-                        if !searchText.isEmpty {
-                            Button(action: {
-                                searchText = ""
-                                searchResults = []
-                                isSearching = false
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-
-                    // Category Filter
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(categories, id: \.self) { category in
-                                CategoryChipView(
-                                    title: category,
-                                    isSelected: selectedCategory == category
-                                ) {
-                                    selectedCategory = category
-                                    performSearch()
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
+        VStack(spacing: 0) {
+            SearchBar(
+                text: $viewModel.searchText,
+                onSubmit: {
+                    viewModel.applyFilters()
+                },
+                onClear: {
+                    viewModel.searchText = ""
+                    viewModel.applyFilters()
                 }
+            )
+            .padding(.horizontal)
+            .padding(.top, 12)
+
+            FilterScrollView(
+                categories: viewModel.categories,
+                selectedCategory: $viewModel.selectedCategory
+            ) {
+                viewModel.applyFilters()
+            }
+            .padding(.vertical, 12)
+
+            DateFilterPicker(selectedFilter: $viewModel.dateFilter)
                 .padding(.horizontal)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
 
-                // Content
-                if searchText.isEmpty {
-                    // Empty State - Recent Searches and Suggestions
-                    EmptySearchStateView(recentSearches: recentSearches) { searchTerm in
-                        searchText = searchTerm
-                        performSearch()
+            Group {
+                if viewModel.isLoading {
+                    LoadingStateView()
+                } else if let error = viewModel.errorMessage {
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.loadClasses() }
                     }
+                } else if viewModel.filteredClasses.isEmpty {
+                    EmptyStateView()
                 } else {
-                    // Search Results
-                    SearchResultsView(
-                        results: searchResults,
-                        isSearching: isSearching,
-                        searchText: searchText
-                    )
+                    List {
+                        ForEach(viewModel.filteredClasses, id: \.id) { classItem in
+                            HomeClassCard(classItem: classItem, style: .standard)
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                        }
+                    }
+                    .listStyle(.plain)
                 }
             }
-            .navigationTitle("Search")
-            .navigationBarTitleDisplayMode(.large)
         }
-    }
-
-    private func performSearch() {
-        isSearching = true
-
-        // Add to recent searches if not empty and not already present
-        if !searchText.isEmpty && !recentSearches.contains(searchText) {
-            recentSearches.insert(searchText, at: 0)
-            if recentSearches.count > 5 {
-                recentSearches.removeLast()
-            }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Search")
+        .task {
+            viewModel.supabaseService = supabaseService
+            await viewModel.loadClasses()
         }
-
-        // Simulate search delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            searchResults = filteredClasses()
-            isSearching = false
+        .refreshable {
+            await viewModel.loadClasses()
         }
-    }
-
-    private func filteredClasses() -> [MockSearchClass] {
-        var filtered = allClasses
-
-        // Filter by search text
-        if !searchText.isEmpty {
-            filtered = filtered.filter { classItem in
-                classItem.title.localizedCaseInsensitiveContains(searchText) ||
-                classItem.instructor.localizedCaseInsensitiveContains(searchText) ||
-                classItem.studio.localizedCaseInsensitiveContains(searchText) ||
-                classItem.category.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-
-        // Filter by category
-        if selectedCategory != "All" {
-            filtered = filtered.filter { $0.category == selectedCategory }
-        }
-
-        return filtered
     }
 }
 
-struct CategoryChipView: View {
+@MainActor
+final class SearchViewModel: ObservableObject {
+    @Published var classes: [SimpleClass] = []
+    @Published var filteredClasses: [SimpleClass] = []
+    @Published var categories: [String] = []
+    @Published var selectedCategory: String?
+    @Published var searchText: String = ""
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published var dateFilter: DateFilter = .any {
+        didSet { applyFilters() }
+    }
+
+    var supabaseService: SimpleSupabaseService?
+    private var allClasses: [SimpleClass] = []
+
+    enum DateFilter: String, CaseIterable, Identifiable {
+        case any = "Any Time"
+        case today = "Today"
+        case thisWeek = "This Week"
+
+        var id: DateFilter { self }
+        var title: String { rawValue }
+    }
+
+    func loadClasses() async {
+        guard let supabaseService else { return }
+        isLoading = true
+        errorMessage = nil
+
+        let fetchedClasses = await supabaseService.fetchClasses()
+
+        if !fetchedClasses.isEmpty {
+            let sortedClasses = fetchedClasses.sorted { lhs, rhs in
+                let leftDate = lhs.startDate ?? Date.distantFuture
+                let rightDate = rhs.startDate ?? Date.distantFuture
+                return leftDate < rightDate
+            }
+
+            allClasses = sortedClasses
+            classes = sortedClasses
+            categories = Array(Set(sortedClasses.map(\.category))).sorted()
+            applyFilters()
+        } else if let error = supabaseService.errorMessage {
+            errorMessage = error
+        } else {
+            classes = []
+            allClasses = []
+            filteredClasses = []
+        }
+
+        isLoading = false
+    }
+
+    func applyFilters() {
+        guard !allClasses.isEmpty else {
+            filteredClasses = []
+            return
+        }
+
+        var result = allClasses
+
+        if let selectedCategory, !selectedCategory.isEmpty {
+            result = result.filter { $0.category == selectedCategory }
+        }
+
+        if !searchText.isEmpty {
+            let query = searchText.lowercased()
+            result = result.filter { classItem in
+                classItem.title.lowercased().contains(query) ||
+                classItem.description.lowercased().contains(query) ||
+                classItem.instructor.lowercased().contains(query) ||
+                classItem.category.lowercased().contains(query)
+            }
+        }
+
+        result = filter(result, by: dateFilter)
+
+        result.sort { lhs, rhs in
+            let leftDate = lhs.startDate ?? Date.distantFuture
+            let rightDate = rhs.startDate ?? Date.distantFuture
+            return leftDate < rightDate
+        }
+
+        filteredClasses = result
+    }
+
+    private func filter(_ classes: [SimpleClass], by filter: DateFilter) -> [SimpleClass] {
+        switch filter {
+        case .any:
+            return classes
+        case .today:
+            return classes.filter { simpleClass in
+                guard let startDate = simpleClass.startDate else { return false }
+                return Calendar.current.isDateInToday(startDate)
+            }
+        case .thisWeek:
+            return classes.filter { simpleClass in
+                guard let startDate = simpleClass.startDate else { return false }
+                return Calendar.current.isDate(startDate, equalTo: Date(), toGranularity: .weekOfYear)
+            }
+        }
+    }
+}
+
+private struct SearchBar: View {
+    @Binding var text: String
+    let onSubmit: () -> Void
+    let onClear: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(Color.blue)
+
+            TextField("Search classes, studios, or instructors", text: $text)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .onSubmit(onSubmit)
+                .onChange(of: text) { _, newValue in
+                    if newValue.isEmpty {
+                        onClear()
+                    } else {
+                        onSubmit()
+                    }
+                }
+
+            if !text.isEmpty {
+                Button(action: onClear) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color.secondary)
+                }
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.secondarySystemBackground))
+        )
+    }
+}
+
+private struct FilterScrollView: View {
+    let categories: [String]
+    @Binding var selectedCategory: String?
+    let onSelect: () -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                FilterChip(title: "All", isSelected: selectedCategory == nil) {
+                    selectedCategory = nil
+                    onSelect()
+                }
+
+                ForEach(categories, id: \.self) { category in
+                    FilterChip(title: category, isSelected: selectedCategory == category) {
+                        if selectedCategory == category {
+                            selectedCategory = nil
+                        } else {
+                            selectedCategory = category
+                        }
+                        onSelect()
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+private struct FilterChip: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
@@ -140,307 +247,87 @@ struct CategoryChipView: View {
                 .fontWeight(.medium)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemGray6))
-                .foregroundColor(isSelected ? .white : .primary)
-                .cornerRadius(20)
-        }
-    }
-}
-
-struct EmptySearchStateView: View {
-    let recentSearches: [String]
-    let onSearchTap: (String) -> Void
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Recent Searches
-                if !recentSearches.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Recent Searches")
-                            .font(.headline)
-                            .padding(.horizontal)
-
-                        ForEach(recentSearches, id: \.self) { search in
-                            Button(action: { onSearchTap(search) }) {
-                                HStack {
-                                    Image(systemName: "clock")
-                                        .foregroundColor(.secondary)
-
-                                    Text(search)
-                                        .foregroundColor(.primary)
-
-                                    Spacer()
-
-                                    Image(systemName: "arrow.up.left")
-                                        .foregroundColor(.secondary)
-                                        .font(.caption)
-                                }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                }
-
-                // Popular Classes
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Popular This Week")
-                        .font(.headline)
-                        .padding(.horizontal)
-
-                    ForEach(MockSearchClass.popularClasses, id: \.id) { classItem in
-                        PopularClassRowView(classItem: classItem)
-                            .padding(.horizontal)
-                    }
-                }
-
-                // Browse by Category
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Browse Categories")
-                        .font(.headline)
-                        .padding(.horizontal)
-
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                        ForEach(["Art & Craft", "Fitness", "Cooking", "Music"], id: \.self) { category in
-                            CategoryBrowseCard(category: category) {
-                                onSearchTap(category)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-            .padding(.vertical)
-        }
-    }
-}
-
-struct SearchResultsView: View {
-    let results: [MockSearchClass]
-    let isSearching: Bool
-    let searchText: String
-
-    var body: some View {
-        if isSearching {
-            VStack {
-                Spacer()
-                ProgressView("Searching...")
-                Spacer()
-            }
-        } else if results.isEmpty {
-            VStack(spacing: 16) {
-                Spacer()
-
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 50))
-                    .foregroundColor(.secondary)
-
-                Text("No results found")
-                    .font(.headline)
-
-                Text("Try adjusting your search or browse popular classes")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-
-                Spacer()
-            }
-            .padding()
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(results, id: \.id) { classItem in
-                        SearchResultRowView(classItem: classItem)
-                            .padding(.horizontal)
-                    }
-                }
-                .padding(.vertical)
-            }
-        }
-    }
-}
-
-struct PopularClassRowView: View {
-    let classItem: MockSearchClass
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Rectangle()
-                .fill(Color.blue.opacity(0.3))
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-                .overlay(
-                    Image(systemName: classItem.iconName)
-                        .foregroundColor(.blue)
+                .background(
+                    Capsule()
+                        .fill(isSelected ? Color.blue : Color(.secondarySystemBackground))
                 )
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+        }
+        .buttonStyle(.plain)
+    }
+}
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(classItem.title)
-                    .font(.headline)
-                    .lineLimit(1)
+private struct DateFilterPicker: View {
+    @Binding var selectedFilter: SearchViewModel.DateFilter
 
-                Text(classItem.studio)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                HStack {
-                    ForEach(0..<5) { star in
-                        Image(systemName: star < classItem.rating ? "star.fill" : "star")
-                            .foregroundColor(.yellow)
-                            .font(.system(size: 12))
-                    }
-                    Text("(\(classItem.reviewCount))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+    var body: some View {
+        Picker("Date Filter", selection: $selectedFilter) {
+            ForEach(SearchViewModel.DateFilter.allCases) { filter in
+                Text(filter.title).tag(filter)
             }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+    }
+}
 
+private struct EmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 16) {
             Spacer()
-
-            Text("\(classItem.creditsRequired) credits")
+            Image(systemName: "questionmark.folder")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.secondary)
+            Text("No classes match your search.")
+                .font(.headline)
+            Text("Try adjusting your filters or search for another class name.")
                 .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.blue)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Spacer()
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2)
     }
 }
 
-struct SearchResultRowView: View {
-    let classItem: MockSearchClass
+private struct LoadingStateView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView("Searching classes...")
+            Text("We're loading the latest data from Supabase.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+private struct ErrorStateView: View {
+    let message: String
+    let retryAction: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Rectangle()
-                .fill(Color.blue.opacity(0.3))
-                .frame(width: 60, height: 60)
-                .cornerRadius(8)
-                .overlay(
-                    Image(systemName: classItem.iconName)
-                        .foregroundColor(.blue)
-                )
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "wifi.slash")
+                .font(.system(size: 48))
+                .foregroundStyle(.red)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(classItem.title)
-                    .font(.headline)
-                    .lineLimit(1)
+            Text("Unable to load classes.")
+                .font(.headline)
 
-                Text("with \(classItem.instructor)")
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
 
-                Text(classItem.studio)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                HStack {
-                    ForEach(0..<5) { star in
-                        Image(systemName: star < classItem.rating ? "star.fill" : "star")
-                            .foregroundColor(.yellow)
-                            .font(.system(size: 10))
-                    }
-                    Text("(\(classItem.reviewCount))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-
-                    Text(classItem.nextClass)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+            Button("Retry", action: retryAction)
+                .buttonStyle(.borderedProminent)
 
             Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("\(classItem.creditsRequired) credits")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.blue)
-
-                Button("Book") {
-                    // Handle booking
-                }
-                .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2)
     }
-}
-
-struct CategoryBrowseCard: View {
-    let category: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: iconForCategory(category))
-                    .font(.system(size: 30))
-                    .foregroundColor(.blue)
-
-                Text(category)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 80)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-        }
-    }
-
-    private func iconForCategory(_ category: String) -> String {
-        switch category {
-        case "Art & Craft": return "paintbrush.fill"
-        case "Fitness": return "figure.run"
-        case "Cooking": return "fork.knife"
-        case "Music": return "music.note"
-        default: return "star.fill"
-        }
-    }
-}
-
-struct MockSearchClass {
-    let id = UUID()
-    let title: String
-    let instructor: String
-    let studio: String
-    let category: String
-    let price: String
-    let rating: Int
-    let reviewCount: Int
-    let nextClass: String
-    let iconName: String
-
-    static let sampleClasses = [
-        MockSearchClass(title: "Pottery Basics", instructor: "Sarah Chen", studio: "Clay Studio Vancouver", category: "Art & Craft", price: "$45", rating: 5, reviewCount: 24, nextClass: "Tomorrow 10AM", iconName: "paintbrush.fill"),
-        MockSearchClass(title: "Yoga Flow", instructor: "Emma Wilson", studio: "Zen Yoga Studio", category: "Fitness", price: "$25", rating: 4, reviewCount: 18, nextClass: "Today 6PM", iconName: "figure.yoga"),
-        MockSearchClass(title: "Italian Cooking", instructor: "Marco Rossi", studio: "Culinary Arts Center", category: "Cooking", price: "$65", rating: 5, reviewCount: 32, nextClass: "Saturday 2PM", iconName: "fork.knife"),
-        MockSearchClass(title: "Guitar Basics", instructor: "Alex Johnson", studio: "Music Hub", category: "Music", price: "$40", rating: 4, reviewCount: 15, nextClass: "Wednesday 7PM", iconName: "music.note"),
-        MockSearchClass(title: "Watercolor Painting", instructor: "Lisa Park", studio: "Art Collective", category: "Art & Craft", price: "$35", rating: 5, reviewCount: 28, nextClass: "Friday 1PM", iconName: "paintbrush"),
-        MockSearchClass(title: "HIIT Training", instructor: "Mike Chen", studio: "FitLife Gym", category: "Fitness", price: "$30", rating: 4, reviewCount: 22, nextClass: "Daily 8AM", iconName: "figure.run"),
-    ]
-
-    static let popularClasses = Array(sampleClasses.prefix(3))
-}
-
-#Preview {
-    SearchView()
 }

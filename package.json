@@ -1,11 +1,12 @@
-ense{
+{
   "name": "hobbyapp",
   "version": "1.0.0",
   "description": "HobbyApp - Vancouver's premier creative class discovery platform",
   "private": true,
   "scripts": {
-    "monitor": "./scripts/start-monitor.sh",
-    "partner-portal": "cd web-partner && npm start"
+    "monitor": "../scripts/start-monitor.sh",
+    "partner-portal": "cd ../web-partner && npm start",
+    "type-check": "cd web-partner && npm run type-check"
   },
   "keywords": [
     "ios",

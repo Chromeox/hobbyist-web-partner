@@ -1,8 +1,103 @@
 import Foundation
 import Combine
+import Supabase
+
+struct PaymentSheetSetupResponse: Decodable {
+    let success: Bool
+    let message: String?
+    let publishableKey: String?
+    let paymentIntentClientSecret: String
+    let paymentIntentId: String
+    let customerId: String
+    let ephemeralKeySecret: String
+    let amountCents: Int
+    let credits: Int
+    let bonusCredits: Int
+    let totalCredits: Int
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case message
+        case publishableKey = "publishable_key"
+        case paymentIntentClientSecret = "payment_intent_client_secret"
+        case paymentIntentId = "payment_intent_id"
+        case customerId = "customer_id"
+        case ephemeralKeySecret = "ephemeral_key_secret"
+        case amountCents = "amount_cents"
+        case credits
+        case bonusCredits = "bonus_credits"
+        case totalCredits = "total_credits"
+    }
+}
+
+struct FinalizePurchaseResponse: Decodable {
+    let success: Bool
+    let message: String?
+    let paymentIntentId: String?
+    let creditsAdded: Int?
+    let bonusCredits: Int?
+    let squadBonus: Int?
+    let totalCreditsAdded: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case message
+        case paymentIntentId = "payment_intent_id"
+        case creditsAdded = "credits_added"
+        case bonusCredits = "bonus_credits"
+        case squadBonus = "squad_bonus"
+        case totalCreditsAdded = "total_credits_added"
+    }
+}
+
+private struct PaymentSheetRequest: Encodable {
+    let action = "create_payment_sheet"
+    let package_id: String
+
+    init(packageId: UUID) {
+        self.package_id = packageId.uuidString
+    }
+}
+
+private struct FinalizePurchaseRequest: Encodable {
+    let action = "finalize_purchase"
+    let payment_intent_id: String
+
+    init(paymentIntentId: String) {
+        self.payment_intent_id = paymentIntentId
+    }
+}
+
+private struct UserCreditsRecord: Decodable {
+    let credit_balance: Int
+    let current_month_credits: Int?
+    let rollover_credits: Int?
+    let credits_used_this_month: Int?
+    let next_rollover_at: Date?
+    let has_active_subscription: Bool?
+    let subscription_plan_name: String?
+    let rollover_percentage: Int?
+}
+
+enum CreditServiceError: LocalizedError {
+    case userNotAuthenticated
+    case paymentSetupFailed(String)
+    case purchaseFailed(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .userNotAuthenticated:
+            return "Please sign in to purchase credits."
+        case .paymentSetupFailed(let message):
+            return message
+        case .purchaseFailed(let message):
+            return message
+        }
+    }
+}
 
 @MainActor
-class CreditService: ObservableObject {
+final class CreditService: ObservableObject {
     static let shared = CreditService()
 
     @Published var totalCredits: Int = 0
@@ -16,11 +111,17 @@ class CreditService: ObservableObject {
     @Published var creditHistory: [CreditTransactionDisplay] = []
     @Published var upcomingExpirations: [CreditExpiration] = []
 
-    private var cancellables = Set<AnyCancellable>()
+    @Published var availableCreditPacks: [CreditPack] = []
+    @Published var isLoadingPacks: Bool = false
+    @Published var packsError: String?
+    @Published var purchaseMessage: String?
+
+    private let supabaseService = SimpleSupabaseService.shared
+    private let decoder: JSONDecoder
 
     private init() {
-        // Load mock data for development
-        loadMockData()
+        decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
     }
 
     // MARK: - Computed Properties
@@ -30,50 +131,133 @@ class CreditService: ObservableObject {
     }
 
     var estimatedClasses: Int {
-        // Using average of 8 credits per class (middle of 6-15 range)
         Int(Double(totalCredits) / 8.0)
     }
 
     var estimatedSavings: Double {
-        // Assuming average class price of $40 vs $1.20 per credit
-        let dropInCost = Double(totalCredits) * 5.0 // $5 per credit equivalent at $40/8 credits
-        let creditCost = Double(totalCredits) * 1.20 // Our average credit cost
+        let dropInCost = Double(totalCredits) * 5.0
+        let creditCost = Double(totalCredits) * 1.20
         return max(0, dropInCost - creditCost)
     }
 
     // MARK: - Public Methods
 
     func refreshCredits() {
-        // In a real app, this would fetch from Supabase
-        // For now, simulate loading with mock data
         Task {
-            try await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay
-            loadMockData()
+            await loadCreditSummary()
         }
     }
 
-    func purchaseCredits(packageId: String, completion: @escaping (Bool) -> Void) {
-        // Simulate purchase process
-        Task {
-            try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
-
-            // Add credits based on package
-            let creditsToAdd = getCreditAmountForPackage(packageId)
-            currentMonthCredits += creditsToAdd
-            totalCredits += creditsToAdd
-
-            // Add transaction to history
-            let transaction = CreditTransactionDisplay(
-                description: "Credit Package Purchase",
-                date: Date(),
-                amount: creditsToAdd,
-                balanceAfter: totalCredits,
-                type: .purchase
-            )
-            creditHistory.insert(transaction, at: 0)
-
-            completion(true)
+    func loadCreditSummary() async {
+        guard let userId = supabaseService.currentUser?.id else {
+            loadMockData()
+            return
         }
+
+        do {
+            let client = supabaseService.client
+            let response = try await client
+                .from("user_credits")
+                .select()
+                .eq("user_id", value: userId)
+                .single()
+                .execute()
+
+            let record = try decoder.decode(UserCreditsRecord.self, from: response.data)
+            totalCredits = record.credit_balance
+            currentMonthCredits = record.current_month_credits ?? record.credit_balance
+            rolloverCredits = record.rollover_credits ?? 0
+            creditsUsedThisMonth = record.credits_used_this_month ?? 0
+            nextRolloverDate = record.next_rollover_at
+            hasActiveSubscription = record.has_active_subscription ?? false
+            subscriptionPlanName = record.subscription_plan_name ?? ""
+            rolloverPercentage = record.rollover_percentage ?? 0
+
+            // TODO: Replace with real history + expirations when endpoints are available
+            creditHistory = []
+            upcomingExpirations = []
+        } catch {
+            print("⚠️ Failed to load credits from Supabase: \(error)")
+            totalCredits = 0
+            currentMonthCredits = 0
+            rolloverCredits = 0
+            creditsUsedThisMonth = 0
+            nextRolloverDate = nil
+            hasActiveSubscription = false
+            subscriptionPlanName = ""
+            rolloverPercentage = 0
+            creditHistory = []
+            upcomingExpirations = []
+        }
+    }
+
+    func loadCreditPacks(force: Bool = false) async {
+        if !force && !availableCreditPacks.isEmpty { return }
+        guard supabaseService.isAuthenticated else {
+            packsError = "Sign in to view credit packs."
+            return
+        }
+
+        isLoadingPacks = true
+        packsError = nil
+
+        do {
+            let client = supabaseService.client
+            let response = try await client
+                .from("credit_packs")
+                .select()
+                .eq("is_active", value: true)
+                .order("display_order", ascending: true)
+                .execute()
+
+            let packs = try decoder.decode([CreditPack].self, from: response.data)
+            availableCreditPacks = packs
+        } catch {
+            print("⚠️ Failed to load credit packs: \(error)")
+            packsError = "Unable to load credit packs right now."
+        }
+
+        isLoadingPacks = false
+    }
+
+    func preparePaymentSheet(for pack: CreditPack) async throws -> PaymentSheetSetupResponse {
+        guard supabaseService.isAuthenticated else {
+            throw CreditServiceError.userNotAuthenticated
+        }
+
+        let request = PaymentSheetRequest(packageId: pack.id)
+        let client = supabaseService.client
+        let response: PaymentSheetSetupResponse = try await client.functions.invoke(
+            "purchase-credits",
+            with: request
+        )
+
+        guard response.success else {
+            throw CreditServiceError.paymentSetupFailed(response.message ?? "Unable to start purchase.")
+        }
+
+        return response
+    }
+
+    func finalizePurchase(paymentIntentId: String) async throws -> FinalizePurchaseResponse {
+        guard supabaseService.isAuthenticated else {
+            throw CreditServiceError.userNotAuthenticated
+        }
+
+        let request = FinalizePurchaseRequest(paymentIntentId: paymentIntentId)
+        let client = supabaseService.client
+        let response: FinalizePurchaseResponse = try await client.functions.invoke(
+            "purchase-credits",
+            with: request
+        )
+
+        guard response.success else {
+            throw CreditServiceError.purchaseFailed(response.message ?? "Purchase failed.")
+        }
+
+        await loadCreditSummary()
+        purchaseMessage = response.message
+        return response
     }
 
     func useCredits(amount: Int, for activity: String, completion: @escaping (Bool) -> Void) {
@@ -82,7 +266,6 @@ class CreditService: ObservableObject {
             return
         }
 
-        // Deduct credits (prioritize rollover credits first)
         if rolloverCredits >= amount {
             rolloverCredits -= amount
         } else {
@@ -94,7 +277,6 @@ class CreditService: ObservableObject {
         totalCredits -= amount
         creditsUsedThisMonth += amount
 
-        // Add transaction to history
         let transaction = CreditTransactionDisplay(
             description: activity,
             date: Date(),
@@ -110,19 +292,16 @@ class CreditService: ObservableObject {
     // MARK: - Private Methods
 
     private func loadMockData() {
-        // Simulate user with Creative Enthusiast subscription
         hasActiveSubscription = true
         subscriptionPlanName = "Creative Enthusiast"
         rolloverPercentage = 75
         nextRolloverDate = Calendar.current.date(byAdding: .month, value: 1, to: Date())
 
-        // Mock credit amounts (reflecting new system)
-        currentMonthCredits = 120 // Some used from 150 monthly credits
-        rolloverCredits = 45     // Rollover from previous month
+        currentMonthCredits = 120
+        rolloverCredits = 45
         totalCredits = currentMonthCredits + rolloverCredits
         creditsUsedThisMonth = 30
 
-        // Mock transaction history with fixed data types
         creditHistory = [
             CreditTransactionDisplay(
                 description: "Pottery Class at Claymates",
@@ -161,58 +340,6 @@ class CreditService: ObservableObject {
             )
         ]
 
-        // Mock upcoming expirations (empty for subscription users with good rollover)
         upcomingExpirations = []
     }
-
-    private func getCreditAmountForPackage(_ packageId: String) -> Int {
-        // Map package IDs to credit amounts (matching our new system)
-        switch packageId {
-        case "starter": return 20
-        case "explorer": return 45
-        case "regular": return 80
-        case "enthusiast": return 145
-        case "power": return 260
-        default: return 20
-        }
-    }
-}
-
-// MARK: - Real Supabase Integration (commented for now)
-
-extension CreditService {
-    /*
-    private func fetchCreditsFromSupabase() async throws {
-        // This would integrate with the Supabase user_credits table
-        let supabase = SupabaseClient.shared
-
-        let userCredits: UserCredits = try await supabase
-            .from("user_credits")
-            .select()
-            .eq("user_id", AuthenticationManager.shared.currentUser?.id ?? "")
-            .single()
-            .execute()
-            .value
-
-        await MainActor.run {
-            self.totalCredits = userCredits.total_credits
-            self.rolloverCredits = userCredits.rollover_credits
-            // ... etc
-        }
-    }
-
-    private func fetchCreditHistory() async throws {
-        // This would fetch from credit_transactions table
-        let transactions: [CreditTransaction] = try await supabase
-            .from("credit_transactions")
-            .select()
-            .eq("user_id", AuthenticationManager.shared.currentUser?.id ?? "")
-            .order("created_at", ascending: false)
-            .limit(20)
-            .execute()
-            .value
-
-        // Transform to display models...
-    }
-    */
 }

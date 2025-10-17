@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 struct Configuration {
     static let shared = Configuration()
@@ -18,20 +19,17 @@ struct Configuration {
     }
     
     var supabaseURL: String {
-        #if DEBUG
-        return ProcessInfo.processInfo.environment["SUPABASE_URL"] ?? "https://mcjqvdzdhtcvbrejvrtp.supabase.co"
-        #else
+        if let configuredURL = AppConfiguration.shared.supabaseURL, !configuredURL.isEmpty {
+            return configuredURL
+        }
         return ProcessInfo.processInfo.environment["SUPABASE_URL"] ?? ""
-        #endif
     }
     
     var supabaseAnonKey: String {
-        #if DEBUG
-        // This is the anon key (safe for client-side)
-        return ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"] ?? "YOUR_SUPABASE_ANON_KEY_HERE"
-        #else
+        if let configuredKey = AppConfiguration.shared.supabaseAnonKey, !configuredKey.isEmpty {
+            return configuredKey
+        }
         return ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"] ?? ""
-        #endif
     }
     
     var appleMerchantId: String {
@@ -71,4 +69,24 @@ struct Configuration {
     }
     
     private init() {}
+}
+
+// MARK: - Legacy Feature Flag Manager
+
+final class FeatureFlagManager: ObservableObject {
+    static let shared = FeatureFlagManager()
+
+    private init() {}
+
+    func isEnabled(_ feature: FeatureFlag) -> Bool {
+        // All features enabled for current release cycle.
+        return true
+    }
+}
+
+enum FeatureFlag {
+    case onboardingModule
+    case profileModule
+    case paymentProcessing
+    case pushNotifications
 }

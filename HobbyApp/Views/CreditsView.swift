@@ -5,6 +5,8 @@ struct CreditsView: View {
     @EnvironmentObject var hapticService: HapticFeedbackService
     @State private var showingPurchaseView = false
     @State private var selectedTab = 0
+    @State private var purchaseResultMessage = ""
+    @State private var showingPurchaseResult = false
     
     var body: some View {
         NavigationStack {
@@ -42,10 +44,22 @@ struct CreditsView: View {
                 }
             }
             .sheet(isPresented: $showingPurchaseView) {
-                Text("Purchase Credits")
+                CreditPurchaseView()
             }
             .onAppear {
                 creditService.refreshCredits()
+            }
+            .task {
+                await creditService.loadCreditPacks(force: true)
+            }
+            .onChange(of: creditService.purchaseMessage) { newValue in
+                guard let message = newValue else { return }
+                purchaseResultMessage = message
+                showingPurchaseResult = true
+                creditService.purchaseMessage = nil
+            }
+            .alert(purchaseResultMessage, isPresented: $showingPurchaseResult) {
+                Button("OK") { showingPurchaseResult = false }
             }
         }
     }

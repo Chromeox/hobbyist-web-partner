@@ -7,7 +7,28 @@ import AuthenticationServices
 final class SimpleSupabaseService: ObservableObject {
     static let shared = SimpleSupabaseService()
 
-    private var supabaseClient: SupabaseClient!
+    private lazy var supabaseClient: SupabaseClient = {
+        guard let configuration = AppConfiguration.shared.current else {
+            fatalError("""
+            Supabase configuration missing.
+            Configure Config-Dev.plist or environment variables before running the app.
+            """)
+        }
+
+        guard !configuration.supabaseURL.isEmpty,
+              let url = URL(string: configuration.supabaseURL) else {
+            fatalError("Invalid Supabase URL in configuration.")
+        }
+
+        guard !configuration.supabaseAnonKey.isEmpty else {
+            fatalError("Supabase anon key is missing in configuration.")
+        }
+
+        return SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: configuration.supabaseAnonKey
+        )
+    }()
 
     // Published properties for UI binding
     @Published var isAuthenticated = false
@@ -19,20 +40,12 @@ final class SimpleSupabaseService: ObservableObject {
         setupSupabase()
     }
 
+    var client: SupabaseClient {
+        supabaseClient
+    }
+
     private func setupSupabase() {
-        // Use the current valid configuration (updated API key from Jan 2025)
-        let supabaseURL = "https://mcjqvdzdhtcvbrejvrtp.supabase.co"
-        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janF2ZHpkaHRjdmJyZWp2cnRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5MDIzNzksImV4cCI6MjA2NDQ3ODM3OX0.puthoId8ElCgYzuyKJTTyzR9FeXmVA-Tkc8RV1rqdkc"
-
-        guard let url = URL(string: supabaseURL) else {
-            print("❌ Invalid Supabase URL")
-            return
-        }
-
-        supabaseClient = SupabaseClient(
-            supabaseURL: url,
-            supabaseKey: supabaseKey
-        )
+        _ = supabaseClient
 
         print("✅ Simple Supabase client initialized")
 
@@ -230,7 +243,8 @@ final class SimpleSupabaseService: ObservableObject {
         do {
             let response = try await supabaseClient
                 .from("classes")
-                .select("*")
+                .select("*, instructor:instructor_profiles(*), category:categories(name)")
+                .eq("status", value: "published")
                 .execute()
 
             let classes = try response.value as! [[String: Any]]
@@ -358,7 +372,7 @@ final class SimpleSupabaseService: ObservableObject {
         }
     }
 
-    func updateUserProfile(avatarURL: String) async throws {
+    func updateUserProfile(avatarURL: String? = nil, fullName: String? = nil, bio: String? = nil) async throws {
         guard let userId = currentUser?.id else {
             throw NSError(domain: "SimpleSupabaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"])
         }
@@ -367,16 +381,37 @@ final class SimpleSupabaseService: ObservableObject {
 
         do {
             // Use UPSERT to insert if row doesn't exist, update if it does
+            var payload: [String: Any] = [
+                "id": userId,
+                "updated_at": ISO8601DateFormatter().string(from: Date())
+            ]
+
+            if let avatarURL {
+                payload["avatar_url"] = avatarURL
+            }
+
+            if let fullName {
+                payload["full_name"] = fullName
+            }
+
+            if let bio {
+                payload["bio"] = bio
+            }
+
             let _ = try await supabaseClient
                 .from("user_profiles")
-                .upsert([
-                    "id": userId,
-                    "avatar_url": avatarURL,
-                    "updated_at": ISO8601DateFormatter().string(from: Date())
-                ])
+                .upsert(payload)
                 .execute()
 
             print("✅ User profile upserted successfully (avatar URL saved)")
+
+            if let fullName = fullName, let currentUser = currentUser {
+                self.currentUser = SimpleUser(
+                    id: currentUser.id,
+                    email: currentUser.email,
+                    name: fullName
+                )
+            }
 
         } catch {
             print("❌ Failed to upsert user profile: \(error)")
@@ -468,6 +503,39 @@ final class SimpleSupabaseService: ObservableObject {
         print("✅ Onboarding completion status updated (to UserDefaults)")
         return true
     }
+
+    // MARK: - User Profile Summary
+
+    func fetchUserProfile() async -> SimpleUserProfile? {
+        guard let userId = currentUser?.id else {
+            print("❌ No authenticated user for fetching profile")
+            return nil
+        }
+
+        do {
+            let response = try await supabaseClient
+                .from("user_profiles")
+                .select("""
+                    id,
+                    full_name,
+                    first_name,
+                    last_name,
+                    avatar_url,
+                    bio,
+                    created_at,
+                    updated_at
+                """)
+                .eq("id", value: userId)
+                .single()
+                .execute()
+
+            let data = try response.value as! [String: Any]
+            return SimpleUserProfile(from: data, fallbackEmail: currentUser?.email ?? "")
+        } catch {
+            print("❌ Failed to fetch user profile: \(error)")
+            return nil
+        }
+    }
 }
 
 // MARK: - Simple Models
@@ -478,7 +546,7 @@ struct SimpleUser {
     let name: String
 }
 
-struct SimpleClass {
+struct SimpleClass: Identifiable {
     let id: String
     let title: String
     let description: String
@@ -486,24 +554,363 @@ struct SimpleClass {
     let price: Double
     let duration: Int // minutes
     let category: String
+    let difficulty: String
+    let maxParticipants: Int?
+    let currentParticipants: Int?
+    let tags: [String]
+    let requirements: [String]
+    let whatToBring: [String]
+    let scheduleType: String?
+    let startDate: Date?
+    let endDate: Date?
+    let locationType: String?
+    let locationName: String?
+    let locationAddress: String?
+    let locationCity: String?
+    let locationState: String?
+    let locationZip: String?
+    let locationCountry: String?
+    let latitude: Double?
+    let longitude: Double?
+    let isOnline: Bool
+    let onlineLink: String?
     let imageURL: String?
+    let averageRating: Double
+    let totalReviews: Int
+    let cancellationPolicy: String?
+
+    var priceFormatted: String {
+        if price == 0 { return "Free" }
+        return price.truncatingRemainder(dividingBy: 1) == 0
+            ? "$\(Int(price))"
+            : String(format: "$%.2f", price)
+    }
+
+    var spotsRemaining: Int? {
+        guard let maxParticipants else { return nil }
+        let current = currentParticipants ?? 0
+        return max(0, maxParticipants - current)
+    }
+
+    var displayLocation: String {
+        if isOnline {
+            return "Online"
+        }
+
+        if let locationName, !locationName.isEmpty {
+            return locationName
+        }
+
+        if let street = locationAddress, !street.isEmpty,
+           let city = locationCity, !city.isEmpty {
+            return "\(street), \(city)"
+        }
+
+        if let city = locationCity, !city.isEmpty {
+            return city
+        }
+
+        if let street = locationAddress, !street.isEmpty {
+            return street
+        }
+
+        return "In person"
+    }
+
+    var fullAddress: String? {
+        guard !isOnline else { return nil }
+
+        var components: [String] = []
+
+        if let street = locationAddress, !street.isEmpty {
+            components.append(street)
+        }
+
+        var cityStateZip: [String] = []
+        if let city = locationCity, !city.isEmpty {
+            cityStateZip.append(city)
+        }
+        if let state = locationState, !state.isEmpty {
+            cityStateZip.append(state)
+        }
+        if let zip = locationZip, !zip.isEmpty {
+            cityStateZip.append(zip)
+        }
+        if !cityStateZip.isEmpty {
+            components.append(cityStateZip.joined(separator: ", "))
+        }
+
+        if let country = locationCountry, !country.isEmpty {
+            components.append(country)
+        }
+
+        return components.isEmpty ? nil : components.joined(separator: "\n")
+    }
 
     init?(from data: [String: Any]) {
-        guard let id = data["id"] as? String,
-              let title = data["title"] as? String,
-              let instructor = data["instructor"] as? String else {
+        // Identifier
+        guard let rawId = data["id"] else { return nil }
+        if let stringId = rawId as? String {
+            self.id = stringId
+        } else if let uuid = rawId as? UUID {
+            self.id = uuid.uuidString
+        } else {
             return nil
         }
 
-        self.id = id
+        // Title / description
+        guard let title = data["title"] as? String ?? data["name"] as? String else {
+            return nil
+        }
         self.title = title
-        self.description = data["description"] as? String ?? ""
-        self.instructor = instructor
-        self.price = data["price"] as? Double ?? 0.0
-        self.duration = data["duration"] as? Int ?? 60
-        self.category = data["category"] as? String ?? "General"
-        self.imageURL = data["image_url"] as? String
+        self.description = data["description"] as? String
+            ?? data["summary"] as? String
+            ?? ""
+
+        // Instructor details (support multiple shapes)
+        if let instructor = data["instructor"] as? String {
+            self.instructor = instructor
+        } else if let instructorName = data["instructor_name"] as? String {
+            self.instructor = instructorName
+        } else if let instructorProfile = data["instructor"] as? [String: Any],
+                  let displayName = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
+            self.instructor = displayName
+        } else if let instructorProfile = data["instructor_profile"] as? [String: Any],
+                  let displayName = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
+            self.instructor = displayName
+        } else {
+            self.instructor = "Instructor"
+        }
+
+        // Duration in minutes (accept multiple key formats)
+        let durationValue: Int
+        if let duration = data["duration"] as? Int {
+            durationValue = duration
+        } else if let duration = data["duration_minutes"] as? Int {
+            durationValue = duration
+        } else if let durationDouble = data["duration"] as? Double {
+            durationValue = Int(durationDouble)
+        } else if let durationString = data["duration"] as? String,
+                  let durationParsed = Int(durationString) {
+            durationValue = durationParsed
+        } else {
+            durationValue = 60
+        }
+        self.duration = durationValue
+
+        // Category
+        if let category = data["category"] as? String {
+            self.category = category
+        } else if let categoryName = data["category_name"] as? String {
+            self.category = categoryName
+        } else if let categoryDict = data["category"] as? [String: Any],
+                  let categoryName = categoryDict["name"] as? String {
+            self.category = categoryName
+        } else if let categoryDict = data["categories"] as? [String: Any],
+                  let categoryName = categoryDict["name"] as? String {
+            self.category = categoryName
+        } else {
+            self.category = "General"
+        }
+
+        // Difficulty
+        let difficultyRaw = (data["difficulty_level"] as? String ?? data["difficulty"] as? String ?? "all_levels")
+        self.difficulty = difficultyRaw
+
+        // Participants
+        self.maxParticipants = SimpleClass.int(from: data["max_participants"])
+        self.currentParticipants = SimpleClass.int(from: data["current_participants"])
+
+        // Tags and requirements
+        if let tags = data["tags"] as? [String] {
+            self.tags = tags
+        } else if let tagsAny = data["tags"] as? [Any] {
+            self.tags = tagsAny.compactMap { $0 as? String }
+        } else {
+            self.tags = []
+        }
+
+        if let requirements = data["requirements"] as? [String] {
+            self.requirements = requirements
+        } else if let requirementsAny = data["requirements"] as? [Any] {
+            self.requirements = requirementsAny.compactMap { $0 as? String }
+        } else {
+            self.requirements = []
+        }
+
+        if let whatToBring = data["what_to_bring"] as? [String] {
+            self.whatToBring = whatToBring
+        } else if let whatToBringAny = data["what_to_bring"] as? [Any] {
+            self.whatToBring = whatToBringAny.compactMap { $0 as? String }
+        } else {
+            self.whatToBring = []
+        }
+
+        // Price (support cents, strings, decimals)
+        let rawPrice = data["price"]
+            ?? data["price_cents"]
+            ?? data["base_price"]
+            ?? (data["pricing"] as? [String: Any])?["amount"]
+        if let price = rawPrice as? Double {
+            self.price = price >= 1000 ? price / 100.0 : price
+        } else if let price = rawPrice as? Int {
+            self.price = price >= 100 ? Double(price) / 100.0 : Double(price)
+        } else if let priceNSNumber = rawPrice as? NSNumber {
+            let value = priceNSNumber.doubleValue
+            self.price = value >= 100 ? value / 100.0 : value
+        } else if let priceString = rawPrice as? String,
+                  let priceValue = Double(priceString) {
+            self.price = priceValue >= 100 ? priceValue / 100.0 : priceValue
+        } else {
+            self.price = 0
+        }
+
+        // Location
+        let locationDict = data["location"] as? [String: Any]
+        let addressDict = locationDict?["address"] as? [String: Any]
+        self.locationType = locationDict?["type"] as? String
+        self.isOnline = (locationType == "online")
+        self.onlineLink = locationDict?["online_link"] as? String
+
+        let locationNameCandidates: [String?] = [
+            locationDict?["name"] as? String,
+            locationDict?["venue_name"] as? String,
+            locationDict?["business_name"] as? String,
+            locationDict?["label"] as? String,
+            addressDict?["street"] as? String
+        ]
+        self.locationName = locationNameCandidates.first(where: { ($0?.isEmpty ?? true) == false }) ?? nil
+        self.locationAddress = addressDict?["street"] as? String
+        self.locationCity = addressDict?["city"] as? String
+        self.locationState = addressDict?["state"] as? String
+        self.locationZip = addressDict?["zip"] as? String
+        self.locationCountry = addressDict?["country"] as? String
+        self.latitude = SimpleClass.double(from: addressDict?["lat"])
+        self.longitude = SimpleClass.double(from: addressDict?["lng"])
+
+        // Schedule
+        let scheduleDict = data["schedule"] as? [String: Any]
+        self.scheduleType = scheduleDict?["type"] as? String
+        let startDateValue = SimpleClass.parseDate(
+            date: scheduleDict?["start_date"] as? String,
+            time: scheduleDict?["start_time"] as? String
+        )
+        let endDateRaw = SimpleClass.parseDate(
+            date: (scheduleDict?["end_date"] as? String) ?? (scheduleDict?["start_date"] as? String),
+            time: (scheduleDict?["end_time"] as? String) ?? (scheduleDict?["start_time"] as? String)
+        )
+        self.startDate = startDateValue
+        self.endDate = endDateRaw ?? startDateValue.map { $0.addingTimeInterval(Double(durationValue) * 60) }
+
+        // Ratings / reviews
+        if let rating = data["average_rating"] as? Double {
+            self.averageRating = rating
+        } else if let rating = data["rating"] as? Double {
+            self.averageRating = rating
+        } else if let ratingNumber = data["average_rating"] as? NSNumber {
+            self.averageRating = ratingNumber.doubleValue
+        } else if let ratingString = data["average_rating"] as? String,
+                  let ratingValue = Double(ratingString) {
+            self.averageRating = ratingValue
+        } else {
+            self.averageRating = 0
+        }
+
+        self.totalReviews = SimpleClass.int(from: data["total_reviews"])
+            ?? SimpleClass.int(from: data["reviews_count"])
+            ?? 0
+
+        // Cancellation policy
+        if let policy = data["cancellation_policy"] as? String {
+            self.cancellationPolicy = policy
+        } else if let policyDict = data["cancellation_policy"] as? [String: Any],
+                  let summary = policyDict["summary"] as? String {
+            self.cancellationPolicy = summary
+        } else {
+            self.cancellationPolicy = nil
+        }
+
+        // Preferred image
+        if let directURL = data["image_url"] as? String {
+            self.imageURL = directURL
+        } else if let images = data["images"] as? [[String: Any]] {
+            let primaryImage = images.first { ($0["is_primary"] as? Bool) == true } ?? images.first
+            self.imageURL = primaryImage?["url"] as? String
+        } else if let media = data["media"] as? [[String: Any]] {
+            self.imageURL = media.first?["url"] as? String
+        } else {
+            self.imageURL = nil
+        }
     }
+
+    private static func parseDate(date: String?, time: String?) -> Date? {
+        guard let date else { return nil }
+
+        if let time, !time.isEmpty {
+            let combined = "\(date) \(time)"
+            if let dateTime = dateTimeFormatter.date(from: combined) {
+                return dateTime
+            }
+            if let dateTimeWithSeconds = dateTimeWithSecondsFormatter.date(from: combined) {
+                return dateTimeWithSeconds
+            }
+        }
+
+        return dateFormatter.date(from: date)
+    }
+
+    private static func double(from value: Any?) -> Double? {
+        switch value {
+        case let doubleValue as Double:
+            return doubleValue
+        case let number as NSNumber:
+            return number.doubleValue
+        case let string as String:
+            return Double(string)
+        default:
+            return nil
+        }
+    }
+
+    private static func int(from value: Any?) -> Int? {
+        switch value {
+        case let intValue as Int:
+            return intValue
+        case let number as NSNumber:
+            return number.intValue
+        case let string as String:
+            return Int(string)
+        default:
+            return nil
+        }
+    }
+
+    private static let dateTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return formatter
+    }()
+
+    private static let dateTimeWithSecondsFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter
+    }()
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }
 
 struct SimpleBooking {
@@ -514,31 +921,195 @@ struct SimpleBooking {
     let bookingDate: Date
     let status: String
     let price: Double
+    let venue: String?
+
+    var formattedPrice: String {
+        if price == 0 { return "Free" }
+        return price.truncatingRemainder(dividingBy: 1) == 0
+            ? "$\(Int(price))"
+            : String(format: "$%.2f", price)
+    }
 
     init?(from data: [String: Any]) {
-        guard let id = data["id"] as? String,
-              let classId = data["class_id"] as? String,
-              let bookingDateString = data["booking_date"] as? String else {
+        // Identifier handling
+        guard let rawId = data["id"] else { return nil }
+        let bookingId: String
+        if let stringId = rawId as? String {
+            bookingId = stringId
+        } else if let uuid = rawId as? UUID {
+            bookingId = uuid.uuidString
+        } else {
             return nil
         }
 
-        self.id = id
+        guard let classId = data["class_id"] as? String ?? (data["classes"] as? [String: Any])?["id"] as? String else {
+            return nil
+        }
+
+        // Booking date
+        let bookingDateString = data["booking_date"] as? String
+            ?? data["scheduled_at"] as? String
+            ?? data["created_at"] as? String
+
+        guard let bookingDateString else {
+            return nil
+        }
+
+        self.id = bookingId
         self.classId = classId
         self.status = data["status"] as? String ?? "pending"
 
         // Handle nested class data
         if let classData = data["classes"] as? [String: Any] {
             self.className = classData["title"] as? String ?? "Unknown Class"
-            self.instructor = classData["instructor"] as? String ?? "Unknown Instructor"
-            self.price = classData["price"] as? Double ?? 0.0
+            if let instructor = classData["instructor"] as? String {
+                self.instructor = instructor
+            } else if let instructorProfile = classData["instructor"] as? [String: Any],
+                      let name = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
+                self.instructor = name
+            } else if let instructorProfile = classData["instructor_profile"] as? [String: Any],
+                      let name = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
+                self.instructor = name
+            } else {
+                self.instructor = "Unknown Instructor"
+            }
+
+            // Price may be stored as cents or string
+            let rawPrice = classData["price"]
+                ?? classData["price_cents"]
+                ?? (classData["pricing"] as? [String: Any])?["amount"]
+            if let price = rawPrice as? Double {
+                self.price = price >= 1000 ? price / 100.0 : price
+            } else if let price = rawPrice as? Int {
+                self.price = price >= 100 ? Double(price) / 100.0 : Double(price)
+            } else if let priceNSNumber = rawPrice as? NSNumber {
+                let value = priceNSNumber.doubleValue
+                self.price = value >= 100 ? value / 100.0 : value
+            } else if let priceString = rawPrice as? String,
+                      let priceValue = Double(priceString) {
+                self.price = priceValue >= 100 ? priceValue / 100.0 : priceValue
+            } else {
+                self.price = 0.0
+            }
+
+            // Venue / location information
+            var venueValue: String?
+
+            if let locationDict = classData["location"] as? [String: Any] {
+                if let type = locationDict["type"] as? String, type == "online" {
+                    venueValue = "Online"
+                } else if let address = locationDict["address"] as? [String: Any] {
+                    let street = address["street"] as? String
+                    let city = address["city"] as? String
+                    if let street, !street.isEmpty, let city, !city.isEmpty {
+                        venueValue = "\(street), \(city)"
+                    } else if let street, !street.isEmpty {
+                        venueValue = street
+                    } else if let city, !city.isEmpty {
+                        venueValue = city
+                    }
+                }
+            }
+
+            if venueValue == nil, let venueData = classData["venue"] as? [String: Any] {
+                venueValue = venueData["name"] as? String ?? venueData["city"] as? String
+            }
+
+            if venueValue == nil, let locationString = classData["location"] as? String {
+                venueValue = locationString
+            }
+
+            self.venue = venueValue
         } else {
             self.className = "Unknown Class"
             self.instructor = "Unknown Instructor"
             self.price = 0.0
+            self.venue = nil
         }
 
         // Parse date
-        let formatter = ISO8601DateFormatter()
-        self.bookingDate = formatter.date(from: bookingDateString) ?? Date()
+        let fractionalFormatter = ISO8601DateFormatter()
+        fractionalFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let standardFormatter = ISO8601DateFormatter()
+
+        if let parsed = fractionalFormatter.date(from: bookingDateString) ?? standardFormatter.date(from: bookingDateString) {
+            self.bookingDate = parsed
+        } else {
+            self.bookingDate = Date()
+        }
+    }
+}
+
+struct SimpleUserProfile {
+    let id: String
+    let firstName: String
+    let lastName: String
+    let fullName: String
+    let email: String
+    let avatarURL: String?
+    let bio: String?
+    let createdAt: Date?
+    let updatedAt: Date?
+
+    var memberSinceText: String {
+        guard let createdAt else { return "Member" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return "Member since \(formatter.string(from: createdAt))"
+    }
+
+    init?(from data: [String: Any], fallbackEmail: String) {
+        guard let id = data["id"] as? String else { return nil }
+
+        self.id = id
+        self.firstName = data["first_name"] as? String
+            ?? (data["full_name"] as? String)?.components(separatedBy: " ").first
+            ?? ""
+        self.lastName = data["last_name"] as? String
+            ?? (data["full_name"] as? String)?.components(separatedBy: " ").dropFirst().joined(separator: " ")
+            ?? ""
+        let combinedName = data["full_name"] as? String
+            ?? [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+        self.fullName = combinedName.isEmpty ? "Hobbyist" : combinedName
+        self.email = data["email"] as? String ?? fallbackEmail
+        self.avatarURL = data["avatar_url"] as? String
+        self.bio = data["bio"] as? String
+
+        let isoFormatter = ISO8601DateFormatter()
+        if let createdAtString = data["created_at"] as? String,
+           let date = isoFormatter.date(from: createdAtString) {
+            self.createdAt = date
+        } else {
+            self.createdAt = nil
+        }
+
+        if let updatedAtString = data["updated_at"] as? String,
+           let date = isoFormatter.date(from: updatedAtString) {
+            self.updatedAt = date
+        } else {
+            self.updatedAt = nil
+        }
+    }
+
+    init(
+        id: String,
+        firstName: String,
+        lastName: String,
+        fullName: String,
+        email: String,
+        avatarURL: String?,
+        bio: String?,
+        createdAt: Date?,
+        updatedAt: Date?
+    ) {
+        self.id = id
+        self.firstName = firstName
+        self.lastName = lastName
+        self.fullName = fullName
+        self.email = email
+        self.avatarURL = avatarURL
+        self.bio = bio
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }

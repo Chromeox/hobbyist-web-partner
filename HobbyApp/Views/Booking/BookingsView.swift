@@ -1,288 +1,130 @@
 import SwiftUI
 
 struct BookingsView: View {
-    @State private var selectedTab = 0
-    @State private var upcomingBookings = MockBooking.upcomingBookings
-    @State private var pastBookings = MockBooking.pastBookings
+    @EnvironmentObject private var supabaseService: SimpleSupabaseService
+    @StateObject private var viewModel = BookingsViewModel()
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Custom Tab Picker
-                HStack(spacing: 0) {
-                    TabButton(title: "Upcoming", isSelected: selectedTab == 0) {
-                        selectedTab = 0
-                    }
+                Picker("Booking Status", selection: $viewModel.selectedSegment) {
+                    Text("Upcoming").tag(BookingsViewModel.Segment.upcoming)
+                    Text("Past").tag(BookingsViewModel.Segment.past)
+                }
+                .pickerStyle(.segmented)
+                .padding()
 
-                    TabButton(title: "Past", isSelected: selectedTab == 1) {
-                        selectedTab = 1
+                Group {
+                    if viewModel.isLoading {
+                        LoadingStateView()
+                    } else if let error = viewModel.errorMessage {
+                        ErrorStateView(message: error) {
+                            Task { await viewModel.loadBookings() }
+                        }
+                    } else if viewModel.currentBookings.isEmpty {
+                        EmptyStateView(segment: viewModel.selectedSegment)
+                    } else {
+                        List {
+                            ForEach(viewModel.currentBookings, id: \.id) { booking in
+                                BookingCard(booking: booking)
+                                    .listRowSeparator(.hidden)
+                                    .listRowBackground(Color.clear)
+                            }
+                        }
+                        .listStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 16)
-
-                // Content
-                TabView(selection: $selectedTab) {
-                    // Upcoming Bookings
-                    UpcomingBookingsView(bookings: upcomingBookings)
-                        .tag(0)
-
-                    // Past Bookings
-                    PastBookingsView(bookings: pastBookings)
-                        .tag(1)
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
             .navigationTitle("My Bookings")
-            .navigationBarTitleDisplayMode(.large)
+            .background(Color(.systemGroupedBackground))
+            .task {
+                viewModel.supabaseService = supabaseService
+                await viewModel.loadBookings()
+            }
+            .refreshable {
+                await viewModel.loadBookings()
+            }
         }
     }
 }
 
-struct TabButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundColor(isSelected ? .blue : .secondary)
-
-                Rectangle()
-                    .fill(isSelected ? Color.blue : Color.clear)
-                    .frame(height: 2)
-            }
-        }
-        .frame(maxWidth: .infinity)
+@MainActor
+final class BookingsViewModel: ObservableObject {
+    enum Segment: Hashable {
+        case upcoming
+        case past
     }
-}
 
-struct UpcomingBookingsView: View {
-    let bookings: [MockBooking]
-    @State private var showCancelAlert = false
-    @State private var bookingToCancel: MockBooking?
+    @Published var upcomingBookings: [SimpleBooking] = []
+    @Published var pastBookings: [SimpleBooking] = []
+    @Published var selectedSegment: Segment = .upcoming
+    @Published var isLoading = false
+    @Published var errorMessage: String?
 
-    var body: some View {
-        if bookings.isEmpty {
-            VStack(spacing: 16) {
-                Spacer()
+    var supabaseService: SimpleSupabaseService?
 
-                Image(systemName: "calendar")
-                    .font(.system(size: 50))
-                    .foregroundColor(.secondary)
+    var currentBookings: [SimpleBooking] {
+        switch selectedSegment {
+        case .upcoming:
+            return upcomingBookings
+        case .past:
+            return pastBookings
+        }
+    }
 
-                Text("No Upcoming Bookings")
-                    .font(.headline)
+    func loadBookings() async {
+        guard let supabaseService else { return }
 
-                Text("Book your first class to get started!")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+        isLoading = true
+        errorMessage = nil
 
-                Button("Browse Classes") {
-                    // Navigate to search/browse
-                }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(12)
+        let bookings = await supabaseService.fetchUserBookings()
 
-                Spacer()
-            }
-            .padding()
+        if !bookings.isEmpty {
+            let now = Date()
+            upcomingBookings = bookings.filter { $0.bookingDate >= now }
+                .sorted { $0.bookingDate < $1.bookingDate }
+            pastBookings = bookings.filter { $0.bookingDate < now }
+                .sorted { $0.bookingDate > $1.bookingDate }
+        } else if let error = supabaseService.errorMessage {
+            errorMessage = error
+            upcomingBookings = []
+            pastBookings = []
         } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(bookings, id: \.id) { booking in
-                        UpcomingBookingCard(booking: booking) {
-                            bookingToCancel = booking
-                            showCancelAlert = true
-                        }
-                    }
-                }
-                .padding()
-            }
+            upcomingBookings = []
+            pastBookings = []
         }
+
+        isLoading = false
     }
 }
 
-struct PastBookingsView: View {
-    let bookings: [MockBooking]
+private struct BookingCard: View {
+    let booking: SimpleBooking
 
     var body: some View {
-        if bookings.isEmpty {
-            VStack(spacing: 16) {
-                Spacer()
-
-                Image(systemName: "clock")
-                    .font(.system(size: 50))
-                    .foregroundColor(.secondary)
-
-                Text("No Past Bookings")
-                    .font(.headline)
-
-                Text("Your completed classes will appear here")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-            }
-            .padding()
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(bookings, id: \.id) { booking in
-                        PastBookingCard(booking: booking)
-                    }
-                }
-                .padding()
-            }
-        }
-    }
-}
-
-struct UpcomingBookingCard: View {
-    let booking: MockBooking
-    let onCancel: () -> Void
-    @State private var showDetails = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header with class info
-            HStack(spacing: 12) {
-                Rectangle()
-                    .fill(Color.blue.opacity(0.3))
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                BookingThumbnail()
                     .frame(width: 60, height: 60)
-                    .cornerRadius(8)
-                    .overlay(
-                        Image(systemName: booking.iconName)
-                            .foregroundColor(.blue)
-                    )
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(booking.className)
                         .font(.headline)
-                        .lineLimit(1)
+                        .lineLimit(2)
 
                     Text("with \(booking.instructor)")
                         .font(.subheadline)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
 
-                    Text(booking.studio)
+                    if let venue = booking.venue, !venue.isEmpty {
+                        Label(
+                            venue,
+                            systemImage: venue.lowercased() == "online" ? "wifi" : "mappin.and.ellipse"
+                        )
                         .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    StatusBadge(status: booking.status)
-
-                    Text(booking.price)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            // Date and Time
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundColor(.blue)
-                Text(booking.date)
-                    .font(.subheadline)
-
-                Spacer()
-
-                Image(systemName: "clock")
-                    .foregroundColor(.blue)
-                Text(booking.time)
-                    .font(.subheadline)
-            }
-
-            // Location
-            HStack {
-                Image(systemName: "location")
-                    .foregroundColor(.blue)
-                Text(booking.location)
-                    .font(.subheadline)
-                    .lineLimit(1)
-            }
-
-            // Action Buttons
-            HStack(spacing: 12) {
-                Button("View Details") {
-                    showDetails = true
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color(.systemGray6))
-                .foregroundColor(.primary)
-                .cornerRadius(8)
-
-                if booking.canCancel {
-                    Button("Cancel") {
-                        onCancel()
+                        .foregroundStyle(.secondary)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red.opacity(0.1))
-                    .foregroundColor(.red)
-                    .cornerRadius(8)
-                }
-
-                Button("Reschedule") {
-                    // Handle reschedule
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 4)
-        .sheet(isPresented: $showDetails) {
-            BookingDetailView(booking: booking)
-        }
-    }
-}
-
-struct PastBookingCard: View {
-    let booking: MockBooking
-    @State private var showReview = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header
-            HStack(spacing: 12) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(8)
-                    .overlay(
-                        Image(systemName: booking.iconName)
-                            .foregroundColor(.gray)
-                    )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(booking.className)
-                        .font(.headline)
-                        .lineLimit(1)
-
-                    Text(booking.instructor)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    Text(booking.date)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
 
                 Spacer()
@@ -290,282 +132,136 @@ struct PastBookingCard: View {
                 StatusBadge(status: booking.status)
             }
 
-            // Action Buttons
-            HStack(spacing: 12) {
-                Button("Book Again") {
-                    // Handle re-booking
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
+            Divider()
 
-                if booking.status == .completed && !booking.hasReview {
-                    Button("Write Review") {
-                        showReview = true
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .foregroundColor(.primary)
-                    .cornerRadius(8)
-                }
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2)
-        .sheet(isPresented: $showReview) {
-            ReviewView(booking: booking)
-        }
-    }
-}
-
-struct StatusBadge: View {
-    let status: BookingStatus
-
-    var body: some View {
-        Text(status.rawValue)
-            .font(.caption)
-            .fontWeight(.semibold)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(backgroundColor)
-            .foregroundColor(textColor)
-            .cornerRadius(8)
-    }
-
-    private var backgroundColor: Color {
-        switch status {
-        case .confirmed: return Color.green.opacity(0.2)
-        case .pending: return Color.orange.opacity(0.2)
-        case .cancelled: return Color.red.opacity(0.2)
-        case .completed: return Color.blue.opacity(0.2)
-        }
-    }
-
-    private var textColor: Color {
-        switch status {
-        case .confirmed: return .green
-        case .pending: return .orange
-        case .cancelled: return .red
-        case .completed: return .blue
-        }
-    }
-}
-
-struct BookingDetailView: View {
-    let booking: MockBooking
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Class Image/Icon
-                    Rectangle()
-                        .fill(Color.blue.opacity(0.3))
-                        .frame(height: 200)
-                        .cornerRadius(12)
-                        .overlay(
-                            Image(systemName: booking.iconName)
-                                .font(.system(size: 60))
-                                .foregroundColor(.blue)
-                        )
-
-                    // Booking Details
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text(booking.className)
-                            .font(.title)
-                            .fontWeight(.bold)
-
-                        DetailRow(icon: "person", title: "Instructor", value: booking.instructor)
-                        DetailRow(icon: "building.2", title: "Studio", value: booking.studio)
-                        DetailRow(icon: "calendar", title: "Date", value: booking.date)
-                        DetailRow(icon: "clock", title: "Time", value: booking.time)
-                        DetailRow(icon: "location", title: "Location", value: booking.location)
-                        DetailRow(icon: "dollarsign.circle", title: "Price", value: booking.price)
-
-                        HStack {
-                            Text("Status")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            StatusBadge(status: booking.status)
-                        }
-                    }
-
-                    // Booking ID
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Booking Information")
-                            .font(.headline)
-
-                        Text("Booking ID: \(booking.id)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-
-                        Text("Booked on: \(booking.bookingDate)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                }
-                .padding()
-            }
-            .navigationTitle("Booking Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct DetailRow: View {
-    let icon: String
-    let title: String
-    let value: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-                .frame(width: 20)
-
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            Spacer()
-
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-        }
-    }
-}
-
-struct ReviewView: View {
-    let booking: MockBooking
-    @Environment(\.dismiss) private var dismiss
-    @State private var rating = 0
-    @State private var reviewText = ""
-
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
-                // Class Info
-                HStack(spacing: 12) {
-                    Rectangle()
-                        .fill(Color.blue.opacity(0.3))
-                        .frame(width: 50, height: 50)
-                        .cornerRadius(8)
-
-                    VStack(alignment: .leading) {
-                        Text(booking.className)
-                            .font(.headline)
-                        Text("with \(booking.instructor)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                }
-
-                // Rating
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("How was your experience?")
-                        .font(.headline)
-
-                    HStack(spacing: 8) {
-                        ForEach(1...5, id: \.self) { star in
-                            Button(action: { rating = star }) {
-                                Image(systemName: star <= rating ? "star.fill" : "star")
-                                    .foregroundColor(.yellow)
-                                    .font(.system(size: 24))
-                            }
-                        }
-                    }
-                }
-
-                // Review Text
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Write a review")
-                        .font(.headline)
-
-                    TextField("Tell others about your experience...", text: $reviewText, axis: .vertical)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .lineLimit(5, reservesSpace: true)
-                }
+            HStack {
+                Label(booking.bookingDate.formatted(date: .abbreviated, time: .shortened), systemImage: "calendar")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 Spacer()
 
-                // Submit Button
-                Button("Submit Review") {
-                    // Handle review submission
-                    dismiss()
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(rating > 0 ? Color.blue : Color.gray)
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                .disabled(rating == 0)
+                Text(booking.formattedPrice)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
             }
-            .padding()
-            .navigationTitle("Write Review")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
+        )
+        .padding(.horizontal)
+    }
+}
+
+private struct StatusBadge: View {
+    let status: String
+
+    var body: some View {
+        Text(status.capitalized)
+            .font(.caption)
+            .fontWeight(.medium)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(statusColor.opacity(0.15))
+            .foregroundStyle(statusColor)
+            .clipShape(Capsule())
+    }
+
+    private var statusColor: Color {
+        switch status.lowercased() {
+        case "confirmed":
+            return .green
+        case "pending":
+            return .orange
+        case "cancelled":
+            return .red
+        default:
+            return .blue
         }
     }
 }
 
-enum BookingStatus: String, CaseIterable {
-    case confirmed = "Confirmed"
-    case pending = "Pending"
-    case cancelled = "Cancelled"
-    case completed = "Completed"
+private struct LoadingStateView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView("Loading bookings...")
+            Text("Syncing with your Supabase account.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding()
+    }
 }
 
-struct MockBooking {
-    let id = UUID().uuidString.prefix(8).uppercased()
-    let className: String
-    let instructor: String
-    let studio: String
-    let date: String
-    let time: String
-    let location: String
-    let price: String
-    let status: BookingStatus
-    let bookingDate: String
-    let canCancel: Bool
-    let hasReview: Bool
-    let iconName: String
+private struct ErrorStateView: View {
+    let message: String
+    let retryAction: () -> Void
 
-    static let upcomingBookings = [
-        MockBooking(className: "Pottery Basics", instructor: "Sarah Chen", studio: "Clay Studio Vancouver", date: "Tomorrow, Mar 16", time: "10:00 AM - 12:00 PM", location: "1234 Art Street, Vancouver", price: "$45", status: .confirmed, bookingDate: "Mar 10, 2024", canCancel: true, hasReview: false, iconName: "paintbrush.fill"),
-        MockBooking(className: "Yoga Flow", instructor: "Emma Wilson", studio: "Zen Yoga Studio", date: "Friday, Mar 18", time: "6:00 PM - 7:00 PM", location: "567 Wellness Ave, Vancouver", price: "$25", status: .confirmed, bookingDate: "Mar 12, 2024", canCancel: true, hasReview: false, iconName: "figure.yoga"),
-    ]
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(.red)
 
-    static let pastBookings = [
-        MockBooking(className: "Italian Cooking", instructor: "Marco Rossi", studio: "Culinary Arts Center", date: "Mar 10, 2024", time: "2:00 PM - 4:00 PM", location: "890 Food Street, Vancouver", price: "$65", status: .completed, bookingDate: "Mar 5, 2024", canCancel: false, hasReview: false, iconName: "fork.knife"),
-        MockBooking(className: "Watercolor Painting", instructor: "Lisa Park", studio: "Art Collective", date: "Mar 8, 2024", time: "1:00 PM - 3:00 PM", location: "234 Creative Blvd, Vancouver", price: "$35", status: .completed, bookingDate: "Mar 3, 2024", canCancel: false, hasReview: true, iconName: "paintbrush"),
-    ]
+            Text("We couldn't load your bookings.")
+                .font(.headline)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button("Retry", action: retryAction)
+                .buttonStyle(.borderedProminent)
+
+            Spacer()
+        }
+        .padding()
+    }
 }
 
-#Preview {
-    BookingsView()
+private struct EmptyStateView: View {
+    let segment: BookingsViewModel.Segment
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: segment == .upcoming ? "calendar.badge.plus" : "clock")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+
+            Text(segment == .upcoming ? "No upcoming bookings yet." : "No past bookings.")
+                .font(.headline)
+
+            Text(segment == .upcoming ?
+                 "Find a class you love and book it in seconds." :
+                    "Your completed classes will appear here.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+private struct BookingThumbnail: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.blue.opacity(0.1))
+            Image(systemName: "calendar")
+                .font(.title3)
+                .foregroundStyle(Color.blue)
+        }
+    }
 }

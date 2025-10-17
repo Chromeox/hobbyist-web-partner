@@ -1,15 +1,4 @@
-import Foundation
 import SwiftUI
-
-struct Configuration {
-    static let shared = Configuration()
-
-    let appleMerchantId = "merchant.com.hobbyist.app"
-
-    private init() {}
-}
-
-// MARK: - Brand Design System
 
 /// HobbyApp Brand Design System
 /// Central source of truth for colors, typography, spacing, and other design tokens
@@ -30,6 +19,19 @@ struct BrandConstants {
         /// Landing page gradient colors
         static let gradientStart = Color("LandingGradientStart")
         static let gradientEnd = Color("LandingGradientEnd")
+
+        /// Category-specific colors
+        struct Category {
+            static let ceramics = Color(red: 0.573, green: 0.251, blue: 0.055)
+            static let cooking = Color(red: 0.086, green: 0.639, blue: 0.290)
+            static let arts = Color(red: 0.114, green: 0.306, blue: 0.847)
+            static let photography = Color(red: 0.486, green: 0.227, blue: 0.929)
+            static let music = Color(red: 0.310, green: 0.275, blue: 0.898)
+            static let dance = Color(red: 0.859, green: 0.153, blue: 0.467)
+            static let writing = Color(red: 0.471, green: 0.208, blue: 0.059)
+            static let jewelry = Color(red: 0.033, green: 0.569, blue: 0.698)
+            static let woodworking = Color(red: 0.918, green: 0.345, blue: 0.075)
+        }
     }
 
     // MARK: - Typography
@@ -42,6 +44,7 @@ struct BrandConstants {
         static let body = Font.system(size: 16, weight: .regular)
         static let subheadline = Font.system(size: 15, weight: .medium)
         static let caption = Font.system(size: 13, weight: .medium)
+        static let footnote = Font.system(size: 11, weight: .regular)
     }
 
     // MARK: - Spacing
@@ -98,5 +101,44 @@ struct BrandConstants {
             startPoint: .leading,
             endPoint: .trailing
         )
+
+        static let teal = LinearGradient(
+            colors: [Colors.teal, Colors.teal.opacity(0.7)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+
+        static let coral = LinearGradient(
+            colors: [Colors.coral, Colors.coral.opacity(0.8)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
+}
+
+// MARK: - View Extensions for Easy Access
+
+extension View {
+    /// Apply standard brand shadow
+    func brandShadow(_ size: BrandConstants.Shadow.Type = BrandConstants.Shadow.self) -> some View {
+        self.shadow(
+            color: BrandConstants.Shadow.md.color,
+            radius: BrandConstants.Shadow.md.radius,
+            x: BrandConstants.Shadow.md.x,
+            y: BrandConstants.Shadow.md.y
+        )
+    }
+
+    /// Apply rounded corners with brand radius
+    func brandCornerRadius(_ size: CGFloat = BrandConstants.CornerRadius.md) -> some View {
+        self.cornerRadius(size)
+    }
+}
+
+// MARK: - Color Extension for Brand Colors
+
+extension Color {
+    static var brandPrimary: Color { BrandConstants.Colors.primary }
+    static var brandTeal: Color { BrandConstants.Colors.teal }
+    static var brandCoral: Color { BrandConstants.Colors.coral }
 }
