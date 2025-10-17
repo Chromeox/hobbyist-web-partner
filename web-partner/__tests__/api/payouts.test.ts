@@ -9,36 +9,27 @@ import Stripe from 'stripe';
 // with mock versions. This allows us to test our API routes in isolation,
 // without making real network requests or interacting with live services.
 
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          order: jest.fn(() => ({
-            lte: jest.fn(() => ({
-              single: jest.fn(() => ({ data: {}, error: null })),
-              limit: jest.fn(() => ({ data: [], error: null })),
-            })),
-          })),
-        })),
-        in: jest.fn(() => ({ data: [], error: null })),
-      })),
-      update: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          in: jest.fn(() => ({ data: {}, error: null })),
-        })),
-      })),
-      insert: jest.fn(() => ({
-        data: {}, error: null
-      })),
-    })),
-  })),
-}));
+jest.mock('@supabase/supabase-js', () => {
+  const mockFrom = jest.fn();
+  const supabaseClientMock = { from: mockFrom } as any;
+  return {
+    createClient: jest.fn(() => supabaseClientMock),
+    __mock: { mockFrom, supabaseClientMock },
+  };
+});
+
+const {
+  __mock: { mockFrom },
+} = jest.requireMock('@supabase/supabase-js') as {
+  __mock: {
+    mockFrom: jest.Mock;
+  };
+};
 
 jest.mock('stripe', () => {
   const mockTransfers = {
     create: jest.fn(() => ({
-      id: 'transfer_test_id'
+      id: 'transfer_test_id',
     })),
   };
   const mockWebhooks = {
@@ -50,19 +41,37 @@ jest.mock('stripe', () => {
   }));
 });
 
+// Utility builders to simulate the chained Supabase query interfaces our handlers expect.
+const createBookingsSelectChain = (result: any) => {
+  const lte = jest.fn(async () => result);
+  const secondEq = jest.fn(() => ({ lte }));
+  const firstEq = jest.fn(() => ({ eq: secondEq, lte }));
+  return { eq: firstEq };
+};
+
+const createBookingsUpdateChain = (result: any) => {
+  const inFn = jest.fn(async () => result);
+  const update = jest.fn(() => ({ in: inFn }));
+  return { update, inFn };
+};
+
+const createInsertMock = (result: any) => jest.fn(async () => result);
+
+const createPaymentsUpdateChain = (result: any) => {
+  const eq = jest.fn(async () => result);
+  const update = jest.fn(() => ({ eq }));
+  return { update, eq };
+};
+
 // Cast the mocked clients to their expected types for type safety in tests.
-const mockSupabase = createClient(
-  'mock-url',
-  'mock-anon-key',
-  {} as any
-);
-const mockStripe = new Stripe('mock-key');
+const mockStripe = new Stripe('mock-key') as any;
 
 // --- Payouts API Tests ---
 describe('Payouts API', () => {
   // Before each test, clear all mock calls to ensure test isolation.
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFrom.mockReset();
     // Set mock environment variables that the API route depends on.
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'test_url';
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test_anon_key';
@@ -73,31 +82,54 @@ describe('Payouts API', () => {
 
   // Test case: Successfully processes payouts for completed bookings.
   it('should process payouts for completed bookings', async () => {
-    // Mock Supabase to return sample booking data.
-    (mockSupabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            lte: jest.fn(() => ({
-              data: [
-                { id: 'b1', amount: 100, instructor_id: 'inst1', instructors: { stripe_account_id: 'acct_1' } },
-                { id: 'b2', amount: 200, instructor_id: 'inst1', instructors: { stripe_account_id: 'acct_1' } },
-              ],
-              error: null,
-            })),
-          })),
-        })),
-      })),
-      insert: jest.fn(() => ({
-        data: {},
-        error: null
-      })),
-      update: jest.fn(() => ({
-        in: jest.fn(() => ({
-          data: {},
-          error: null
-        })),
-      })),
+    const bookingsResult = {
+      data: [
+        {
+          id: 'b1',
+          amount: 100,
+          instructor_id: 'inst1',
+          instructors: { stripe_account_id: 'acct_1' },
+        },
+        {
+          id: 'b2',
+          amount: 200,
+          instructor_id: 'inst1',
+          instructors: { stripe_account_id: 'acct_1' },
+        },
+      ],
+      error: null,
+    };
+
+    const bookingsSelectChain = createBookingsSelectChain(bookingsResult);
+    const bookingsSelect = jest.fn(() => bookingsSelectChain);
+    const bookingsUpdateChain = createBookingsUpdateChain({
+      data: {},
+      error: null,
+    });
+    const payoutInsert = createInsertMock({ data: {}, error: null });
+    const paymentsUpdateChain = createPaymentsUpdateChain({
+      data: {},
+      error: null,
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      switch (table) {
+        case 'bookings':
+          return {
+            select: bookingsSelect,
+            update: bookingsUpdateChain.update,
+          };
+        case 'payout_history':
+          return {
+            insert: payoutInsert,
+          };
+        case 'payments':
+          return {
+            update: paymentsUpdateChain.update,
+          };
+        default:
+          throw new Error(`Unexpected table ${table}`);
+      }
     });
 
     // Create a mock Next.js request object.
@@ -124,24 +156,33 @@ describe('Payouts API', () => {
       },
     });
     // Verify Supabase database interactions.
-    expect(mockSupabase.from('payout_history').insert).toHaveBeenCalledTimes(1);
-    expect(mockSupabase.from('bookings').update).toHaveBeenCalledTimes(1);
+    expect(payoutInsert).toHaveBeenCalledTimes(1);
+    expect(bookingsUpdateChain.update).toHaveBeenCalledTimes(1);
+    expect(bookingsUpdateChain.inFn).toHaveBeenCalledWith('id', ['b1', 'b2']);
   });
 
   // Test case: Handles scenarios where there are no new bookings to payout.
   it('should handle no new bookings to payout', async () => {
-    // Mock Supabase to return an empty array for bookings.
-    (mockSupabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            lte: jest.fn(() => ({
-              data: [],
-              error: null,
-            })),
-          })),
-        })),
-      })),
+    const bookingsSelect = jest.fn(() =>
+      createBookingsSelectChain({
+        data: [],
+        error: null,
+      })
+    );
+
+    mockFrom.mockImplementation((table: string) => {
+      switch (table) {
+        case 'bookings':
+          return { select: bookingsSelect };
+        case 'payments':
+          return {
+            update: createPaymentsUpdateChain({ data: {}, error: null }).update,
+          };
+        case 'payout_history':
+          return { insert: createInsertMock({ data: {}, error: null }) };
+        default:
+          return {};
+      }
     });
 
     const mockRequest = new NextRequest('http://localhost/api/payouts', {
@@ -160,20 +201,20 @@ describe('Payouts API', () => {
 
   // Test case: Handles errors that occur during the fetching of bookings from Supabase.
   it('should handle errors during booking fetch', async () => {
-    // Mock Supabase to return an error when fetching bookings.
-    (mockSupabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          eq: jest.fn(() => ({
-            lte: jest.fn(() => ({
-              data: null,
-              error: {
-                message: 'DB Error'
-              },
-            })),
-          })),
-        })),
-      })),
+    const bookingsSelect = jest.fn(() =>
+      createBookingsSelectChain({
+        data: null,
+        error: {
+          message: 'DB Error',
+        },
+      })
+    );
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'bookings') {
+        return { select: bookingsSelect };
+      }
+      return {};
     });
 
     const mockRequest = new NextRequest('http://localhost/api/payouts', {
@@ -185,7 +226,7 @@ describe('Payouts API', () => {
 
     // Assertions:
     expect(response.status).toBe(500);
-    expect(data.error).toBe('Failed to fetch bookings');
+    expect(data.error).toBe('Failed to fetch bookings for payout');
   });
 });
 
@@ -216,6 +257,15 @@ describe('Stripe Webhooks API', () => {
     // Mock Stripe's webhook construction to return our mock event.
     (mockStripe.webhooks.constructEvent as jest.Mock).mockReturnValue(mockEvent);
 
+    const paymentsUpdateChain = createPaymentsUpdateChain({ data: {}, error: null });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'payments') {
+        return { update: paymentsUpdateChain.update };
+      }
+      return {};
+    });
+
     // Create a mock Next.js request with necessary headers and body.
     const mockRequest = new NextRequest('http://localhost/api/stripe-webhooks', {
       method: 'POST',
@@ -230,10 +280,10 @@ describe('Stripe Webhooks API', () => {
     // Assertions:
     expect(response.status).toBe(200);
     // Verify Supabase database update for payment status.
-    expect(mockSupabase.from('payments').update).toHaveBeenCalledWith({
-      status: 'succeeded'
+    expect(paymentsUpdateChain.update).toHaveBeenCalledWith({
+      status: 'succeeded',
     });
-    expect(mockSupabase.from('payments').update().eq).toHaveBeenCalledWith('stripe_pi_id', 'pi_test_succeeded');
+    expect(paymentsUpdateChain.eq).toHaveBeenCalledWith('stripe_pi_id', 'pi_test_succeeded');
   });
 
   // Test case: Successfully handles a 'charge.refunded' webhook event.
@@ -249,6 +299,15 @@ describe('Stripe Webhooks API', () => {
     };
     (mockStripe.webhooks.constructEvent as jest.Mock).mockReturnValue(mockEvent);
 
+    const paymentsUpdateChain = createPaymentsUpdateChain({ data: {}, error: null });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'payments') {
+        return { update: paymentsUpdateChain.update };
+      }
+      return {};
+    });
+
     const mockRequest = new NextRequest('http://localhost/api/stripe-webhooks', {
       method: 'POST',
       headers: {
@@ -259,10 +318,10 @@ describe('Stripe Webhooks API', () => {
 
     const response = await webhooksPost(mockRequest);
     expect(response.status).toBe(200);
-    expect(mockSupabase.from('payments').update).toHaveBeenCalledWith({
-      status: 'refunded'
+    expect(paymentsUpdateChain.update).toHaveBeenCalledWith({
+      status: 'refunded',
     });
-    expect(mockSupabase.from('payments').update().eq).toHaveBeenCalledWith('stripe_charge_id', 'ch_test_refunded');
+    expect(paymentsUpdateChain.eq).toHaveBeenCalledWith('stripe_charge_id', 'ch_test_refunded');
   });
 
   // Test case: Successfully handles a 'charge.dispute.created' webhook event.
@@ -279,6 +338,15 @@ describe('Stripe Webhooks API', () => {
     };
     (mockStripe.webhooks.constructEvent as jest.Mock).mockReturnValue(mockEvent);
 
+    const paymentsUpdateChain = createPaymentsUpdateChain({ data: {}, error: null });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'payments') {
+        return { update: paymentsUpdateChain.update };
+      }
+      return {};
+    });
+
     const mockRequest = new NextRequest('http://localhost/api/stripe-webhooks', {
       method: 'POST',
       headers: {
@@ -289,10 +357,10 @@ describe('Stripe Webhooks API', () => {
 
     const response = await webhooksPost(mockRequest);
     expect(response.status).toBe(200);
-    expect(mockSupabase.from('payments').update).toHaveBeenCalledWith({
-      status: 'disputed'
+    expect(paymentsUpdateChain.update).toHaveBeenCalledWith({
+      status: 'disputed',
     });
-    expect(mockSupabase.from('payments').update().eq).toHaveBeenCalledWith('stripe_charge_id', 'ch_test_disputed');
+    expect(paymentsUpdateChain.eq).toHaveBeenCalledWith('stripe_charge_id', 'ch_test_disputed');
   });
 
   // Test case: Returns a 400 response for an invalid webhook signature.
