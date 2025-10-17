@@ -8,6 +8,7 @@ import type {
   SquareService,
   SquareTeamMember
 } from '@/types/calendar-integration';
+import { toError } from '@/lib/utils/integration-helpers';
 
 export class SquareIntegration {
   private apiBaseUrl = 'https://connect.squareup.com';
@@ -76,7 +77,8 @@ export class SquareIntegration {
       const response = await this.makeApiRequest('/v2/merchants');
       return !!response.merchant?.[0];
     } catch (error) {
-      console.error('Square connection test failed:', error);
+      const err = toError(error);
+      console.error('Square connection test failed:', err);
       return false;
     }
   }
@@ -111,8 +113,9 @@ export class SquareIntegration {
 
       return services.map(this.convertCatalogItemToService);
     } catch (error) {
-      console.error('Failed to fetch Square services:', error);
-      throw new Error(`Square API error: ${error.message}`);
+      const err = toError(error);
+      console.error('Failed to fetch Square services:', err);
+      throw new Error(`Square API error: ${err.message}`);
     }
   }
 
@@ -124,7 +127,8 @@ export class SquareIntegration {
       const response = await this.makeApiRequest('/v2/team-members');
       return response.team_members || [];
     } catch (error) {
-      console.error('Failed to fetch Square team members:', error);
+      const err = toError(error);
+      console.error('Failed to fetch Square team members:', err);
       return [];
     }
   }
@@ -152,8 +156,9 @@ export class SquareIntegration {
 
       return response.bookings || [];
     } catch (error) {
-      console.error('Failed to fetch Square bookings:', error);
-      throw new Error(`Square API error: ${error.message}`);
+      const err = toError(error);
+      console.error('Failed to fetch Square bookings:', err);
+      throw new Error(`Square API error: ${err.message}`);
     }
   }
 
@@ -280,7 +285,8 @@ export class SquareIntegration {
           const importedEvent = await this.convertToImportedEvent(booking, services, teamMembers);
           importedEvents.push(importedEvent);
         } catch (error) {
-          errors.push(`Failed to convert booking ${booking.id}: ${error.message}`);
+          const err = toError(error);
+          errors.push(`Failed to convert booking ${booking.id}: ${err.message}`);
         }
       }
 
@@ -297,7 +303,8 @@ export class SquareIntegration {
         mapping_suggestions: mappingSuggestions,
       };
     } catch (error) {
-      throw new Error(`Square import failed: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Square import failed: ${err.message}`);
     }
   }
 

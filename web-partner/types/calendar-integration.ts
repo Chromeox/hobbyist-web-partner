@@ -8,6 +8,14 @@ export type SyncStatus = 'active' | 'error' | 'paused' | 'expired';
 
 export type MigrationStatus = 'pending' | 'mapped' | 'imported' | 'error' | 'skipped';
 
+export interface CalendarAuthTokens {
+  access_token?: string | null;
+  refresh_token?: string | null;
+  expires_at?: string | null;
+  token_type?: string | null;
+  scope?: string | null;
+}
+
 export interface CalendarIntegration {
   id: string;
   studio_id: string;
@@ -18,7 +26,16 @@ export interface CalendarIntegration {
   last_sync_at?: string;
   sync_status: SyncStatus;
   error_message?: string;
-  settings: Record<string, any>;
+  access_token?: string | null;
+  refresh_token?: string | null;
+  expires_at?: string | null;
+  token_type?: string | null;
+  scope?: string | null;
+  merchant_id?: string;
+  location_id?: string;
+  country?: string;
+  settings: CalendarIntegrationSettings;
+  metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -166,6 +183,14 @@ export interface SquareSettings {
   sync_team_members: boolean;
   webhook_signature_key?: string;
 }
+export type CalendarIntegrationSettings =
+  | GoogleCalendarSettings
+  | OutlookCalendarSettings
+  | CalendlySettings
+  | SquareSettings
+  | MindbodySettings
+  | AcuitySettings
+  | Record<string, any>;
 
 export interface MindbodySettings {
   site_id: string;

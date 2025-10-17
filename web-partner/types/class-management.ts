@@ -6,23 +6,66 @@ export interface Class {
   description: string;
   instructor: string;
   instructorId: string;
+  instructorEmail?: string;
   category: string;
+  categoryId?: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   duration: number;
   capacity: number;
   price: number;
   creditCost: number;
-  image: string;
+  image?: string;
   tags: string[];
   location: string;
   status: 'active' | 'inactive' | 'draft';
+  materials?: string[];
+  prerequisites?: string[];
+  cancellationPolicy?: string;
+  recurring?: {
+    enabled: boolean;
+    pattern: 'weekly' | 'biweekly' | 'monthly';
+    daysOfWeek: number[];
+    endDate?: string;
+  };
   rating: number;
   totalBookings: number;
+  createdAt: string;
+  updatedAt: string;
   nextSession?: {
     date: string;
     time: string;
-    spots: number;
+    enrolled: number;
+    capacity?: number;
   };
+}
+
+export interface ClassFormData {
+  id?: string;
+  name: string;
+  description: string;
+  instructor: string;
+  instructorId: string;
+  instructorEmail?: string;
+  category: string;
+  categoryId?: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  duration: number;
+  capacity: number;
+  price: number;
+  creditCost: number;
+  image?: string;
+  tags: string[];
+  location: string;
+  status: 'active' | 'inactive' | 'draft';
+  recurring?: {
+    enabled: boolean;
+    pattern: 'weekly' | 'biweekly' | 'monthly';
+    daysOfWeek: number[];
+    endDate?: string;
+  };
+  materials?: string[];
+  prerequisites?: string[];
+  cancellationPolicy: string;
 }
 
 export interface Student {

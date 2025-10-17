@@ -77,7 +77,8 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      let merchantInfo = { business_name: 'Square Merchant' };
+      type SquareMerchantProfile = { business_name?: string; country?: string };
+      let merchantInfo: SquareMerchantProfile = {};
       if (merchantResponse.ok) {
         const merchantData = await merchantResponse.json();
         merchantInfo = merchantData.merchant;
@@ -87,8 +88,8 @@ export async function GET(request: NextRequest) {
       const integrationData = {
         provider: 'square',
         status: 'connected',
-        merchant_name: merchantInfo.business_name || 'Square Merchant',
-        location_name: merchantInfo.country || 'Unknown',
+        merchant_name: merchantInfo.business_name ?? 'Square Merchant',
+        location_name: merchantInfo.country ?? 'Unknown',
         connected_at: new Date().toISOString(),
         merchant_id: tokenData.merchant_id,
         expires_at: tokenData.expires_at

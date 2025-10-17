@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleCalendarIntegration } from '@/lib/integrations/google-calendar';
+import type { CalendarIntegration, GoogleCalendarSettings } from '@/types/calendar-integration';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,23 +35,40 @@ export async function GET(request: NextRequest) {
 
       const tokens = await GoogleCalendarIntegration.exchangeCodeForTokens(code);
 
-      // Create integration instance to test connection
-      const tempIntegration = {
-        id: 'temp',
-        provider: 'google',
-        access_token: tokens.access_token!,
-        refresh_token: tokens.refresh_token || null,
-        expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
-        settings: {},
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      const googleCalendar = new GoogleCalendarIntegration(tempIntegration, {
+      const nowIso = new Date().toISOString();
+      const defaultGoogleSettings: GoogleCalendarSettings = {
         calendar_id: 'primary',
         timezone: 'America/Vancouver',
-        default_reminder_minutes: 60
-      });
+        default_reminder_minutes: 60,
+        sync_attendees: true
+      };
+
+      // Create integration instance to test connection
+      const tempIntegration: CalendarIntegration = {
+        id: 'temp',
+        studio_id: 'temp-studio',
+        provider: 'google',
+        provider_account_id: undefined,
+        sync_enabled: true,
+        sync_direction: 'bidirectional',
+        sync_status: 'active',
+        last_sync_at: undefined,
+        error_message: undefined,
+        access_token: tokens.access_token ?? null,
+        refresh_token: tokens.refresh_token ?? null,
+        expires_at: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
+        token_type: tokens.token_type ?? null,
+        scope: typeof tokens.scope === 'string' ? tokens.scope : null,
+        merchant_id: undefined,
+        location_id: undefined,
+        country: undefined,
+        settings: defaultGoogleSettings,
+        metadata: {},
+        created_at: nowIso,
+        updated_at: nowIso
+      };
+
+      const googleCalendar = new GoogleCalendarIntegration(tempIntegration, defaultGoogleSettings);
 
       // Test the connection to get account info
       const connectionTest = await googleCalendar.testConnection();

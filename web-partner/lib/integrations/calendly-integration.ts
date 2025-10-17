@@ -7,6 +7,7 @@ import type {
   CalendlyEvent,
   CalendlyEventType
 } from '@/types/calendar-integration';
+import { toError } from '@/lib/utils/integration-helpers';
 
 export class CalendlyIntegration {
   private apiBaseUrl = 'https://api.calendly.com';
@@ -74,7 +75,8 @@ export class CalendlyIntegration {
       const response = await this.makeApiRequest('/users/me');
       return !!response.resource;
     } catch (error) {
-      console.error('Calendly connection test failed:', error);
+      const err = toError(error);
+      console.error('Calendly connection test failed:', err);
       return false;
     }
   }
@@ -104,8 +106,9 @@ export class CalendlyIntegration {
 
       return response.collection || [];
     } catch (error) {
-      console.error('Failed to fetch Calendly event types:', error);
-      throw new Error(`Calendly API error: ${error.message}`);
+      const err = toError(error);
+      console.error('Failed to fetch Calendly event types:', err);
+      throw new Error(`Calendly API error: ${err.message}`);
     }
   }
 
@@ -130,8 +133,9 @@ export class CalendlyIntegration {
 
       return response.collection || [];
     } catch (error) {
-      console.error('Failed to fetch Calendly events:', error);
-      throw new Error(`Calendly API error: ${error.message}`);
+      const err = toError(error);
+      console.error('Failed to fetch Calendly events:', err);
+      throw new Error(`Calendly API error: ${err.message}`);
     }
   }
 
@@ -239,7 +243,8 @@ export class CalendlyIntegration {
           const importedEvent = this.convertToImportedEvent(calendlyEvent, eventType);
           importedEvents.push(importedEvent);
         } catch (error) {
-          errors.push(`Failed to convert event ${calendlyEvent.uri}: ${error.message}`);
+          const err = toError(error);
+          errors.push(`Failed to convert event ${calendlyEvent.uri}: ${err.message}`);
         }
       }
 
@@ -256,7 +261,8 @@ export class CalendlyIntegration {
         mapping_suggestions: mappingSuggestions,
       };
     } catch (error) {
-      throw new Error(`Calendly import failed: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Calendly import failed: ${err.message}`);
     }
   }
 
@@ -328,7 +334,8 @@ export class CalendlyIntegration {
 
       return response.resource;
     } catch (error) {
-      throw new Error(`Failed to create Calendly webhook: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to create Calendly webhook: ${err.message}`);
     }
   }
 
@@ -375,7 +382,8 @@ export class CalendlyIntegration {
         eventData
       };
     } catch (error) {
-      console.error('Failed to process Calendly webhook:', error);
+      const err = toError(error);
+      console.error('Failed to process Calendly webhook:', err);
       return null;
     }
   }
@@ -412,7 +420,8 @@ export class CalendlyIntegration {
       // For now, just test the connection
       return await this.testConnection();
     } catch (error) {
-      console.error('Failed to refresh Calendly token:', error);
+      const err = toError(error);
+      console.error('Failed to refresh Calendly token:', err);
       return false;
     }
   }

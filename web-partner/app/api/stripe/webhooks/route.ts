@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: STRIPE_API_VERSION,
 });
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;

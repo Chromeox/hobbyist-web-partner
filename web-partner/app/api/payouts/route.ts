@@ -11,8 +11,9 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 // Initialize Stripe client with secret key for secure API calls
+const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16', // Specify Stripe API version for compatibility
+  apiVersion: STRIPE_API_VERSION,
 });
 
 // Platform commission rate as defined in PAYMENT_LOGIC.md
@@ -29,16 +30,31 @@ export async function POST(request: Request) {
     // --- Fetch Bookings for Payout ---
     // Queries the 'bookings' table for all completed bookings that are pending payout.
     // It also joins with the 'instructors' table to get the Stripe account ID for each instructor.
-    const { data: bookings, error: bookingsError } = await supabase
+    type BookingRecord = {
+      id: string;
+      amount: number | null;
+      instructor_id: string | null;
+      payment_type: 'credits' | 'cash' | 'card' | 'free' | null;
+      credit_value: number | null;
+      instructors: {
+        stripe_account_id: string | null;
+      } | null;
+    };
+
+    const { data: rawBookings, error: bookingsError } = await supabase
       .from('bookings')
-.select(`
+      .select(
+        `
         id,
         amount,
         instructor_id,
         payment_type,
         credit_value,
-        instructors ( stripe_account_id ) // Fetches the connected Stripe account ID for the instructor
-      `)
+        instructors (
+          stripe_account_id
+        )
+      `
+      )
       .eq('status', 'completed') // Only consider bookings that are marked as completed
       .eq('payout_status', 'pending') // Only process bookings that haven't been paid out yet
       .lte('created_at', new Date().toISOString()); // Include all completed bookings up to the current time
@@ -49,17 +65,40 @@ export async function POST(request: Request) {
     }
 
     // If no bookings are found, return a success message indicating nothing to payout.
-    if (!bookings || bookings.length === 0) {
+    if (!rawBookings || rawBookings.length === 0) {
       return NextResponse.json({ message: 'No new bookings to payout' }, { status: 200 });
     }
 
+    const bookings: BookingRecord[] = rawBookings.map((booking: any) => {
+      const instructorValue = Array.isArray(booking.instructors)
+        ? booking.instructors[0]
+        : booking.instructors;
+
+      return {
+        id: booking.id,
+        amount: typeof booking.amount === 'number' ? booking.amount : null,
+        instructor_id: booking.instructor_id ?? null,
+        payment_type: booking.payment_type ?? null,
+        credit_value: typeof booking.credit_value === 'number' ? booking.credit_value : null,
+        instructors: instructorValue
+          ? { stripe_account_id: instructorValue.stripe_account_id ?? null }
+          : null,
+      };
+    });
+
     // --- Aggregate Payouts by Instructor ---
     // Groups all eligible bookings by instructor to calculate their total net earnings.
-    const payoutsByInstructor: { [key: string]: { amount: number; stripeAccountId: string; bookingIds: string[] } } = {};
+    type AggregatedPayout = {
+      amount: number;
+      stripeAccountId: string;
+      bookingIds: string[];
+    };
+
+    const payoutsByInstructor: Record<string, AggregatedPayout> = {};
 
     for (const booking of bookings) {
-      const instructorId = booking.instructor_id;
-      const instructorStripeAccountId = (booking.instructors as any)?.stripe_account_id; 
+      const instructorId = booking.instructor_id ?? undefined;
+      const instructorStripeAccountId = booking.instructors?.stripe_account_id ?? undefined;
 
       // Skip bookings if instructor ID or Stripe account ID is missing (critical for payouts).
       if (!instructorId || !instructorStripeAccountId) {
@@ -68,7 +107,15 @@ export async function POST(request: Request) {
       }
 
       // Calculate the base amount for payout based on payment type
-      const baseBookingAmount = booking.payment_type === 'credits' ? booking.credit_value : booking.amount;
+      const baseBookingAmount =
+        booking.payment_type === 'credits'
+          ? booking.credit_value ?? 0
+          : booking.amount ?? 0;
+
+      if (baseBookingAmount <= 0) {
+        console.warn(`Skipping booking ${booking.id}: Non-positive booking amount.`);
+        continue;
+      }
 
       // Calculate the net amount for the instructor after platform commission.
       const netAmount = baseBookingAmount * (1 - PLATFORM_COMMISSION_RATE);
@@ -85,7 +132,11 @@ export async function POST(request: Request) {
       payoutsByInstructor[instructorId].bookingIds.push(booking.id);
     }
 
-    const payoutResults = [];
+    type PayoutResult =
+      | { instructorId: string; status: 'success'; transferId: string }
+      | { instructorId: string; status: 'failed'; error: string };
+
+    const payoutResults: PayoutResult[] = [];
 
     // --- Process Payouts for Each Instructor ---
     // Iterates through each instructor's aggregated earnings and initiates a Stripe transfer.
@@ -137,11 +188,12 @@ export async function POST(request: Request) {
 
         payoutResults.push({ instructorId, status: 'success', transferId: transfer.id });
 
-      } catch (stripeError: any) {
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error('Stripe payout failed');
         // --- Handle Stripe Payout Failures ---
         // Records failed payouts and logs the error message from Stripe.
-        console.error(`Stripe payout failed for instructor ${instructorId}:`, stripeError.message);
-        payoutResults.push({ instructorId, status: 'failed', error: stripeError.message });
+        console.error(`Stripe payout failed for instructor ${instructorId}:`, err.message);
+        payoutResults.push({ instructorId, status: 'failed', error: err.message });
 
         // Record the failed payout in history for auditing.
         await supabase.from('payout_history').insert({
@@ -151,7 +203,7 @@ export async function POST(request: Request) {
           status: 'failed',
           payout_date: new Date().toISOString(),
           booking_ids: payout.bookingIds,
-          error_message: stripeError.message,
+          error_message: err.message,
         });
       }
     }

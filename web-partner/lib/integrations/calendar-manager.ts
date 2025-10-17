@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { GoogleCalendarIntegration } from './google-calendar';
 import { CalendlyIntegration } from './calendly-integration';
 import { SquareIntegration } from './square-integration';
+import { toError } from '@/lib/utils/integration-helpers';
 import type {
   CalendarIntegration,
   CalendarProvider,
@@ -175,8 +176,9 @@ export class CalendarIntegrationManager {
 
       return result;
     } catch (error) {
-      await this.updateSyncStatus(integrationId, 'error', error.message);
-      throw error;
+      const err = toError(error);
+      await this.updateSyncStatus(integrationId, 'error', err.message);
+      throw err;
     }
   }
 
@@ -357,13 +359,14 @@ export class CalendarIntegrationManager {
         );
         results[integration.provider] = result;
       } catch (error) {
+        const err = toError(error);
         results[integration.provider] = {
           total_events: 0,
           successfully_imported: 0,
           failed_imports: 1,
           requires_review: 0,
           duplicate_events: 0,
-          error_details: [error.message],
+          error_details: [err.message],
           mapping_suggestions: [],
         };
       }

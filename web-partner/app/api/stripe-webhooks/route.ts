@@ -12,8 +12,9 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 // Initialize Stripe client
+const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16', // Specify Stripe API version
+  apiVersion: STRIPE_API_VERSION,
 });
 
 // The webhook secret is used to verify the authenticity of incoming Stripe events.

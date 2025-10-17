@@ -7,6 +7,7 @@ import type {
   EventMapping,
   GoogleCalendarSettings
 } from '@/types/calendar-integration';
+import { extractDateTime, toError } from '@/lib/utils/integration-helpers';
 
 export class GoogleCalendarIntegration {
   private oauth2Client: any;
@@ -88,7 +89,8 @@ export class GoogleCalendarIntegration {
       });
       return !!response.data;
     } catch (error) {
-      console.error('Google Calendar connection test failed:', error);
+      const err = toError(error);
+      console.error('Google Calendar connection test failed:', err);
       return false;
     }
   }
@@ -112,8 +114,9 @@ export class GoogleCalendarIntegration {
 
       return response.data.items || [];
     } catch (error) {
-      console.error('Failed to fetch Google Calendar events:', error);
-      throw new Error(`Google Calendar API error: ${error.message}`);
+      const err = toError(error);
+      console.error('Failed to fetch Google Calendar events:', err);
+      throw new Error(`Google Calendar API error: ${err.message}`);
     }
   }
 
@@ -123,9 +126,9 @@ export class GoogleCalendarIntegration {
   private convertToImportedEvent(
     googleEvent: GoogleCalendarEvent
   ): Partial<ImportedEvent> {
-    const startTime = googleEvent.start.dateTime || googleEvent.start.date;
-    const endTime = googleEvent.end.dateTime || googleEvent.end.date;
-    const allDay = !googleEvent.start.dateTime;
+    const startInfo = extractDateTime(googleEvent.start);
+    const endInfo = extractDateTime(googleEvent.end);
+    const allDay = startInfo.allDay && endInfo.allDay;
 
     // Try to extract workshop details from title and description
     const { category, skillLevel, maxParticipants } = this.extractWorkshopDetails(
@@ -138,8 +141,8 @@ export class GoogleCalendarIntegration {
       provider: 'google',
       title: googleEvent.summary,
       description: googleEvent.description,
-      start_time: startTime,
-      end_time: endTime,
+      start_time: startInfo.dateTime,
+      end_time: endInfo.dateTime,
       all_day: allDay,
       location: googleEvent.location,
       instructor_name: googleEvent.creator?.displayName,
@@ -200,7 +203,8 @@ export class GoogleCalendarIntegration {
           const importedEvent = this.convertToImportedEvent(googleEvent);
           importedEvents.push(importedEvent);
         } catch (error) {
-          errors.push(`Failed to convert event ${googleEvent.id}: ${error.message}`);
+          const err = toError(error);
+          errors.push(`Failed to convert event ${googleEvent.id}: ${err.message}`);
         }
       }
 
@@ -217,7 +221,8 @@ export class GoogleCalendarIntegration {
         mapping_suggestions: mappingSuggestions,
       };
     } catch (error) {
-      throw new Error(`Import failed: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Import failed: ${err.message}`);
     }
   }
 
@@ -305,7 +310,8 @@ export class GoogleCalendarIntegration {
 
       return response.data.id;
     } catch (error) {
-      throw new Error(`Failed to create Google Calendar event: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to create Google Calendar event: ${err.message}`);
     }
   }
 
@@ -341,7 +347,8 @@ export class GoogleCalendarIntegration {
         resource: event,
       });
     } catch (error) {
-      throw new Error(`Failed to update Google Calendar event: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to update Google Calendar event: ${err.message}`);
     }
   }
 
@@ -355,7 +362,8 @@ export class GoogleCalendarIntegration {
         eventId,
       });
     } catch (error) {
-      throw new Error(`Failed to delete Google Calendar event: ${error.message}`);
+      const err = toError(error);
+      throw new Error(`Failed to delete Google Calendar event: ${err.message}`);
     }
   }
 
