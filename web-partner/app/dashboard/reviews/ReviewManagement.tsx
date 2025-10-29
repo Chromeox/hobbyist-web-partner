@@ -984,7 +984,14 @@ const ReviewManagement: React.FC = () => {
             reviewText: selectedReview.reviewText,
             isAnonymous: selectedReview.isAnonymous,
             tags: selectedReview.tags,
-            media: selectedReview.media,
+            media: selectedReview.media.map((media) => ({
+              id: media.id,
+              type: media.type,
+              url: media.url,
+              thumbnailUrl: media.thumbnailUrl,
+              name: media.name,
+              size: 0
+            })),
             verifiedBooking: selectedReview.verifiedBooking
           } : null}
         />

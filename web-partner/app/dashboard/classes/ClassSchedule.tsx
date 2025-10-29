@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit3,
+  Eye,
+  Trash2,
   User,
   MapPin,
   DollarSign,
@@ -435,8 +437,14 @@ export default function ClassSchedule({ classes, onClose, onSave }: ClassSchedul
                       {selectedSession.bookings.slice(0, 3).map((booking) => (
                         <div key={booking.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <div className="font-medium text-sm">{booking.studentName}</div>
-                            <div className="text-xs text-gray-600">{booking.studentEmail}</div>
+                            <div className="font-medium text-sm">
+                              {booking.student?.name ?? 'Student'}
+                            </div>
+                            {booking.student?.email && (
+                              <div className="text-xs text-gray-600">
+                                {booking.student.email}
+                              </div>
+                            )}
                           </div>
                           <div className="text-right">
                             <div className={`text-xs px-2 py-1 rounded-full ${

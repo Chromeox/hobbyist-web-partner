@@ -404,6 +404,19 @@ struct RealClassCard: View {
                     .lineLimit(2)
             }
 
+            if let startDate = classItem.startDate {
+                Text(startDate.formatted(date: .abbreviated, time: .shortened))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            if let spots = classItem.spotsRemaining {
+                Text("\(spots) spots left")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(spots > 0 ? .green : .red)
+            }
+
             Button("Book This Class") {
                 showBooking = true
             }
@@ -427,8 +440,13 @@ struct RealBookingSheet: View {
     let classItem: SimpleClass
     @EnvironmentObject var supabaseService: SimpleSupabaseService
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date
     @State private var isBooking = false
+
+    init(classItem: SimpleClass) {
+        self.classItem = classItem
+        _selectedDate = State(initialValue: classItem.startDate ?? Date())
+    }
 
     var body: some View {
         NavigationStack {
@@ -456,6 +474,16 @@ struct RealBookingSheet: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)
+
+                        if let startDate = classItem.startDate {
+                            Text(startDate.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Text(classItem.displayLocation)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer()
@@ -466,7 +494,7 @@ struct RealBookingSheet: View {
 
                 // Date Selection
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Select Date & Time")
+                    Text("Scheduled Time")
                         .font(.headline)
 
                     DatePicker(
@@ -476,6 +504,7 @@ struct RealBookingSheet: View {
                         displayedComponents: [.date, .hourAndMinute]
                     )
                     .datePickerStyle(GraphicalDatePickerStyle())
+                    .disabled(classItem.startDate != nil)
                 }
 
                 Spacer()
@@ -486,7 +515,8 @@ struct RealBookingSheet: View {
                         isBooking = true
                         let success = await supabaseService.createBooking(
                             classId: classItem.id,
-                            date: selectedDate
+                            date: selectedDate,
+                            scheduleId: classItem.scheduleId
                         )
                         isBooking = false
 

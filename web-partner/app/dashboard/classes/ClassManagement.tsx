@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -24,208 +30,168 @@ import {
   CheckCircle,
   X,
   BookOpen,
-  CreditCard
+  CreditCard,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
 import InstructorAssignment from './InstructorAssignment';
 import RecurringTemplates from './RecurringTemplates';
 import BackButton from '@/components/common/BackButton';
-import type { Class } from '../../../types/class-management';
+import { useUserProfile } from '@/lib/hooks/useAuth';
+import type { Class, ClassFormData } from '@/types/class-management';
+import { mapClassToFormData, mapDbClassToUiClass } from '@/lib/utils/class-mappers';
 
-// Mock data - in production this would come from API
+type ClassStatus = Class['status'];
 
-const mockClasses: Class[] = [
-  {
-    id: '1',
-    name: 'Pottery Wheel Basics',
-    description: 'Learn wheel throwing techniques and create your first ceramic pieces',
-    instructor: 'Sarah Johnson',
-    instructorId: 'inst_1',
-    category: 'Pottery',
-    level: 'beginner',
-    duration: 120,
-    capacity: 8,
-    price: 65,
-    creditCost: 3,
-    image: '/images/pottery.jpg',
-    tags: ['hands-on', 'creative', 'beginner-friendly'],
-    location: 'Ceramics Studio',
-    status: 'active',
-    rating: 4.8,
-    totalBookings: 124,
-    nextSession: {
-      date: '2025-08-09',
-      time: '09:00',
-      enrolled: 7
-    },
-    createdAt: '2025-07-01T10:00:00Z',
-    updatedAt: '2025-08-08T14:30:00Z'
-  },
-  {
-    id: '2',
-    name: 'Watercolor Landscapes',
-    description: 'Master watercolor techniques while painting beautiful landscapes',
-    instructor: 'Mike Chen',
-    instructorId: 'inst_2',
-    category: 'Painting',
-    level: 'intermediate',
-    duration: 90,
-    capacity: 12,
-    price: 45,
-    creditCost: 2,
-    image: '/images/watercolor.jpg',
-    tags: ['artistic', 'relaxing', 'landscapes'],
-    location: 'Art Studio',
-    status: 'active',
-    rating: 4.9,
-    totalBookings: 89,
-    nextSession: {
-      date: '2025-08-09',
-      time: '10:30',
-      enrolled: 8
-    },
-    createdAt: '2025-06-15T08:00:00Z',
-    updatedAt: '2025-08-07T16:45:00Z'
-  },
-  {
-    id: '3',
-    name: 'Flower Bouquet Workshop',
-    description: 'Create stunning floral arrangements and learn bouquet design principles',
-    instructor: 'Emily Davis',
-    instructorId: 'inst_3',
-    category: 'Flower Arranging',
-    level: 'beginner',
-    duration: 90,
-    capacity: 10,
-    price: 55,
-    creditCost: 2,
-    image: '/images/flowers.jpg',
-    tags: ['creative', 'relaxing', 'seasonal'],
-    location: 'Garden Room',
-    status: 'active',
-    rating: 4.9,
-    totalBookings: 156,
-    nextSession: {
-      date: '2025-08-09',
-      time: '14:00',
-      enrolled: 9
-    },
-    createdAt: '2025-05-20T12:00:00Z',
-    updatedAt: '2025-08-08T09:15:00Z'
-  },
-  {
-    id: '4',
-    name: 'DJ Mixing Fundamentals',
-    description: 'Learn beat matching, mixing techniques, and DJ equipment basics',
-    instructor: 'Alex Rivera',
-    instructorId: 'inst_4',
-    category: 'DJ Workshops',
-    level: 'beginner',
-    duration: 120,
-    capacity: 6,
-    price: 75,
-    creditCost: 3,
-    image: '/images/dj.jpg',
-    tags: ['music', 'electronic', 'hands-on'],
-    location: 'Music Lab',
-    status: 'active',
-    rating: 4.8,
-    totalBookings: 67,
-    nextSession: {
-      date: '2025-08-10',
-      time: '18:00',
-      enrolled: 5
-    },
-    createdAt: '2025-06-15T10:00:00Z',
-    updatedAt: '2025-08-08T11:30:00Z'
-  },
-  {
-    id: '5',
-    name: 'Introduction to Fencing',
-    description: 'Learn the basics of foil fencing - footwork, attacks, and defense',
-    instructor: 'Marcus Thompson',
-    instructorId: 'inst_5',
-    category: 'Fencing',
-    level: 'beginner',
-    duration: 90,
-    capacity: 8,
-    price: 60,
-    creditCost: 2,
-    image: '/images/fencing.jpg',
-    tags: ['sport', 'strategic', 'unique'],
-    location: 'Sports Hall',
-    status: 'active',
-    rating: 4.7,
-    totalBookings: 45,
-    nextSession: {
-      date: '2025-08-11',
-      time: '10:00',
-      enrolled: 6
-    },
-    createdAt: '2025-07-01T08:00:00Z',
-    updatedAt: '2025-08-07T14:20:00Z'
-  },
-  {
-    id: '6',
-    name: 'Jewelry Making: Wire Wrapping',
-    description: 'Create beautiful pendants and rings using wire wrapping techniques',
-    instructor: 'Lisa Chang',
-    instructorId: 'inst_6',
-    category: 'Jewelry Making',
-    level: 'beginner',
-    duration: 150,
-    capacity: 8,
-    price: 70,
-    creditCost: 3,
-    image: '/images/jewelry.jpg',
-    tags: ['crafts', 'detailed', 'take-home'],
-    location: 'Craft Workshop',
-    status: 'active',
-    rating: 4.9,
-    totalBookings: 92,
-    nextSession: {
-      date: '2025-08-09',
-      time: '13:00',
-      enrolled: 8
-    },
-    createdAt: '2025-06-10T09:00:00Z',
-    updatedAt: '2025-08-08T10:00:00Z'
-  }
-];
+const STATUS_OPTIONS: ClassStatus[] = ['active', 'inactive', 'draft'];
+
+const generateLocalId = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : Date.now().toString();
 
 export default function ClassManagement() {
-  const [classes, setClasses] = useState<Class[]>(mockClasses);
-  const [filteredClasses, setFilteredClasses] = useState<Class[]>(mockClasses);
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
+  const studioId = profile?.instructor?.id;
+
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedStatus, setSelectedStatus] =
+    useState<'all' | ClassStatus>('all');
   const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [editorInitialData, setEditorInitialData] = useState<ClassFormData | undefined>(undefined);
+  const [lastSavedClassId, setLastSavedClassId] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
-  const [isInstructorAssignmentOpen, setIsInstructorAssignmentOpen] = useState(false);
-  const [isRecurringTemplatesOpen, setIsRecurringTemplatesOpen] = useState(false);
+  const [isInstructorAssignmentOpen, setIsInstructorAssignmentOpen] =
+    useState(false);
+  const [isRecurringTemplatesOpen, setIsRecurringTemplatesOpen] =
+    useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteInFlight, setDeleteInFlight] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const categories = ['all', 'Yoga', 'Pilates', 'Dance', 'Fitness', 'Meditation'];
-  const statuses = ['all', 'active', 'inactive', 'draft'];
+  const abortRef = useRef<AbortController | null>(null);
+  const lastSavedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Filter and sort classes
+  const fetchClasses = useCallback(
+    async (options: { silent?: boolean } = {}) => {
+      const { silent = false } = options;
+
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      setError(null);
+      if (silent) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+
+      try {
+        const params = new URLSearchParams();
+        if (studioId) {
+          params.set('studioId', studioId);
+        }
+
+        const response = await fetch(
+          `/api/classes/meta${params.size ? `?${params.toString()}` : ''}`,
+          {
+            method: 'GET',
+            cache: 'no-store',
+            signal: controller.signal,
+          }
+        );
+
+        if (!response.ok) {
+          const errorPayload = await response.json().catch(() => ({}));
+          const message =
+            typeof errorPayload?.error === 'string'
+              ? errorPayload.error
+              : `Failed to load classes (${response.status})`;
+          throw new Error(message);
+        }
+
+        const payload = await response.json();
+        const rawItems = Array.isArray(payload?.classes) ? payload.classes : [];
+        const mapped = rawItems.map((item: any) =>
+          item && typeof item === 'object' && 'instructor' in item && 'creditCost' in item
+            ? (item as Class)
+            : mapDbClassToUiClass(item)
+        );
+
+        setClasses(mapped);
+        setLastSavedClassId(null);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        console.error('Failed to load classes', err);
+        setClasses([]);
+        setError(
+          err instanceof Error ? err.message : 'Unable to load classes right now.'
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+          setIsRefreshing(false);
+          abortRef.current = null;
+        }
+      }
+    },
+    [studioId]
+  );
+
   useEffect(() => {
-    let filtered = classes.filter(cls => {
-      const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cls.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cls.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || cls.category === selectedCategory;
-      const matchesStatus = selectedStatus === 'all' || cls.status === selectedStatus;
-      
+    fetchClasses();
+    return () => {
+      abortRef.current?.abort();
+      if (lastSavedTimerRef.current) {
+        clearTimeout(lastSavedTimerRef.current);
+      }
+    };
+  }, [fetchClasses]);
+
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    classes.forEach((cls) => {
+      if (cls.category) set.add(cls.category);
+    });
+    const options = Array.from(set).sort((a, b) => a.localeCompare(b));
+    return ['all', ...options];
+  }, [classes]);
+
+  useEffect(() => {
+    let filtered = classes.filter((cls) => {
+      const term = searchTerm.trim().toLowerCase();
+      const matchesSearch =
+        term.length === 0 ||
+        cls.name.toLowerCase().includes(term) ||
+        cls.instructor.toLowerCase().includes(term) ||
+        cls.category.toLowerCase().includes(term);
+
+      const matchesCategory =
+        selectedCategory === 'all' ||
+        cls.category.toLowerCase() === selectedCategory.toLowerCase();
+
+      const matchesStatus =
+        selectedStatus === 'all' || cls.status === selectedStatus;
+
       return matchesSearch && matchesCategory && matchesStatus;
     });
 
-    // Sort classes
-    filtered.sort((a, b) => {
+    filtered = filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
@@ -238,7 +204,9 @@ export default function ClassManagement() {
         case 'bookings':
           return b.totalBookings - a.totalBookings;
         case 'updated':
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          return (
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
         default:
           return 0;
       }
@@ -247,317 +215,538 @@ export default function ClassManagement() {
     setFilteredClasses(filtered);
   }, [classes, searchTerm, selectedCategory, selectedStatus, sortBy]);
 
+  const handleRefresh = () => {
+    fetchClasses({ silent: true });
+  };
+
   const handleCreateClass = () => {
     setSelectedClass(null);
+    setEditorInitialData(undefined);
     setIsEditorOpen(true);
   };
 
   const handleEditClass = (cls: Class) => {
     setSelectedClass(cls);
+    setEditorInitialData(mapClassToFormData(cls));
     setIsEditorOpen(true);
   };
 
+  const handleCloseEditor = () => {
+    setIsEditorOpen(false);
+    setEditorInitialData(undefined);
+    setSelectedClass(null);
+  };
+
   const handleDuplicateClass = (cls: Class) => {
+    const now = new Date().toISOString();
     const newClass: Class = {
       ...cls,
-      id: Date.now().toString(),
+      id: generateLocalId(),
       name: `${cls.name} (Copy)`,
       status: 'draft',
+      categoryId: cls.categoryId,
       totalBookings: 0,
       nextSession: undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: now,
+      updatedAt: now,
     };
-    setClasses(prev => [newClass, ...prev]);
-  };
-
-  const handleDeleteClass = (classId: string) => {
-    setClasses(prev => prev.filter(cls => cls.id !== classId));
-    setDeleteConfirm(null);
-  };
-
-  const handleSaveClass = (classData: Partial<Class>) => {
-    if (selectedClass) {
-      // Update existing class
-      setClasses(prev => prev.map(cls => 
-        cls.id === selectedClass.id 
-          ? { ...cls, ...classData, updatedAt: new Date().toISOString() }
-          : cls
-      ));
-    } else {
-      // Create new class
-      const newClass: Class = {
-        id: Date.now().toString(),
-        name: classData.name || '',
-        description: classData.description || '',
-        instructor: classData.instructor || '',
-        instructorId: classData.instructorId || '',
-        category: classData.category || 'Yoga',
-        level: classData.level || 'beginner',
-        duration: classData.duration || 60,
-        capacity: classData.capacity || 15,
-        price: classData.price || 25,
-        image: classData.image || '',
-        tags: classData.tags || [],
-        location: classData.location || '',
-        status: classData.status || 'draft',
-        rating: 0,
-        totalBookings: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      setClasses(prev => [newClass, ...prev]);
+    setClasses((prev) => [newClass, ...prev]);
+    setLastSavedClassId(newClass.id);
+    if (lastSavedTimerRef.current) {
+      clearTimeout(lastSavedTimerRef.current);
     }
-    setIsEditorOpen(false);
+    lastSavedTimerRef.current = setTimeout(() => {
+      setLastSavedClassId((current) =>
+        current === newClass.id ? null : current
+      );
+    }, 4000);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteConfirm(null);
+    setDeleteError(null);
+    setDeleteInFlight(null);
+  };
+
+  const handleDeleteClass = async (classId: string | null) => {
+    if (!classId) return;
+
+    setDeleteError(null);
+    setDeleteInFlight(classId);
+
+    try {
+      const response = await fetch(`/api/classes/meta/${classId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        const message =
+          typeof errorPayload?.error === 'string'
+            ? errorPayload.error
+            : 'Failed to delete class';
+        throw new Error(message);
+      }
+
+      setClasses((prev) => prev.filter((cls) => cls.id !== classId));
+      closeDeleteDialog();
+      await fetchClasses({ silent: true });
+    } catch (err) {
+      console.error('Failed to delete class', err);
+      setDeleteError(
+        err instanceof Error ? err.message : 'Unable to delete class.'
+      );
+    } finally {
+      setDeleteInFlight((current) => (current === classId ? null : current));
+    }
+  };
+
+  const handleSaveClass = async (classData: ClassFormData): Promise<void> => {
+    const targetUrl = classData.id
+      ? `/api/classes/meta/${classData.id}`
+      : '/api/classes/meta';
+
+    const response = await fetch(targetUrl, {
+      method: classData.id ? 'PUT' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        class: classData,
+        studioId: studioId ?? undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorPayload = await response.json().catch(() => ({}));
+      const action = classData.id ? 'update' : 'create';
+      const message =
+        typeof errorPayload?.error === 'string'
+          ? errorPayload.error
+          : `Failed to ${action} class`;
+      throw new Error(message);
+    }
+
+    const payload = await response.json();
+    const savedRaw =
+      payload?.class ??
+      (Array.isArray(payload?.classes) ? payload.classes[0] : null);
+
+    if (!savedRaw || typeof savedRaw !== 'object') {
+      throw new Error('Missing class data in save response');
+    }
+
+    const savedClass: Class =
+      'instructor' in savedRaw && 'creditCost' in savedRaw
+        ? (savedRaw as Class)
+        : mapDbClassToUiClass(savedRaw);
+
+    setClasses((prev) => {
+      const exists = prev.some((cls) => cls.id === savedClass.id);
+      if (exists) {
+        return prev.map((cls) =>
+          cls.id === savedClass.id ? { ...cls, ...savedClass } : cls
+        );
+      }
+      return [savedClass, ...prev];
+    });
+
+    handleCloseEditor();
+    setLastSavedClassId(savedClass.id);
+
+    if (lastSavedTimerRef.current) {
+      clearTimeout(lastSavedTimerRef.current);
+    }
+    lastSavedTimerRef.current = setTimeout(() => {
+      setLastSavedClassId((current) =>
+        current === savedClass.id ? null : current
+      );
+    }, 4000);
   };
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-700';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-700';
-      case 'advanced': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'beginner':
+        return 'bg-green-100 text-green-700';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'advanced':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-700';
-      case 'inactive': return 'bg-gray-100 text-gray-700';
-      case 'draft': return 'bg-yellow-100 text-yellow-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'active':
+        return 'bg-green-100 text-green-700';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-700';
+      case 'draft':
+        return 'bg-yellow-100 text-yellow-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
+  const handleOpenSchedule = () => {
+    setIsScheduleOpen(true);
+  };
+
+  const handleOpenInstructorAssignment = () => {
+    setIsInstructorAssignmentOpen(true);
+  };
+
+  const handleOpenRecurringTemplates = () => {
+    setIsRecurringTemplatesOpen(true);
+  };
+
+  const loadingState =
+    isLoading && !isRefreshing && !isProfileLoading && classes.length === 0;
+
   return (
-    <div className="space-y-6">
-      <BackButton href="/dashboard" className="mb-4" />
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Class Management</h1>
-          <p className="text-gray-600 mt-1">Manage your studio classes and schedules</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsScheduleOpen(true)}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Schedule View
-          </button>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <BackButton href="/dashboard" label="Back to Dashboard" />
 
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setIsInstructorAssignmentOpen(true)}
-            className="px-4 py-2 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors flex items-center"
+            onClick={handleRefresh}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={isRefreshing}
           >
-            <User className="h-4 w-4 mr-2" />
-            Instructors
-          </button>
-
-          <button
-            onClick={() => setIsRecurringTemplatesOpen(true)}
-            className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors flex items-center"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Templates
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            <span>Refresh</span>
           </button>
 
           <button
             onClick={handleCreateClass}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            New Class
+            <Plus className="h-4 w-4" />
+            <span>New Class</span>
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg border p-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search classes, instructors, or categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+        <div className="p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Class Management</h1>
+            <p className="text-gray-600 mt-1">
+              Manage your studio&apos;s classes, schedules, and instructors.
+            </p>
+
+            {studioId && (
+              <p className="text-xs text-gray-500 mt-2">
+                Filtering results for studio <span className="font-medium">{studioId}</span>
+              </p>
+            )}
           </div>
-          
+
           <div className="flex items-center gap-3">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <button
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
             >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === 'all' ? 'All Categories' : category}
-                </option>
-              ))}
-            </select>
-            
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              View: {viewMode === 'grid' ? 'Grid' : 'List'}
+            </button>
+
+            <button
+              onClick={handleOpenSchedule}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >
-              {statuses.map(status => (
-                <option key={status} value={status}>
-                  {status === 'all' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </select>
-            
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <Calendar className="h-4 w-4" />
+              Schedule
+            </button>
+
+            <button
+              onClick={handleOpenInstructorAssignment}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >
-              <option value="name">Sort by Name</option>
-              <option value="instructor">Sort by Instructor</option>
-              <option value="price">Sort by Price</option>
-              <option value="rating">Sort by Rating</option>
-              <option value="bookings">Sort by Bookings</option>
-              <option value="updated">Sort by Updated</option>
-            </select>
+              <User className="h-4 w-4" />
+              Assign Instructors
+            </button>
+
+            <button
+              onClick={handleOpenRecurringTemplates}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Recurring
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search classes by name, instructor, or category"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {categoryOptions.map((category) => (
+                  <option key={category} value={category}>
+                    {category === 'all'
+                      ? 'All Categories'
+                      : category}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={selectedStatus}
+                onChange={(e) =>
+                  setSelectedStatus(e.target.value as 'all' | ClassStatus)
+                }
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {['all', ...STATUS_OPTIONS].map((status) => (
+                  <option key={status} value={status}>
+                    {status === 'all'
+                      ? 'All Statuses'
+                      : status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="instructor">Sort by Instructor</option>
+                <option value="price">Sort by Price</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="bookings">Sort by Bookings</option>
+                <option value="updated">Sort by Updated</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Classes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredClasses.map((cls) => (
-          <motion.div
-            key={cls.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden group"
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-medium">We couldn&apos;t load your classes.</p>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
           >
-            {/* Class Image */}
-            <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <ImageIcon className="h-12 w-12 text-white opacity-50" />
-              </div>
-              
-              <div className="absolute top-3 right-3 flex items-center gap-2">
-                <span className={`px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(cls.status)}`}>
-                  {cls.status}
-                </span>
-              </div>
-              
-              <div className="absolute top-3 left-3">
-                <span className={`px-2 py-1 text-sm font-medium rounded-full ${getLevelColor(cls.level)}`}>
-                  {cls.level}
-                </span>
-              </div>
-            </div>
+            Retry
+          </button>
+        </div>
+      )}
 
-            {/* Class Content */}
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-gray-900 text-lg">{cls.name}</h3>
-                <div className="relative">
-                  <button className="p-1 hover:bg-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreVertical className="h-4 w-4 text-gray-500" />
+      {loadingState ? (
+        <div className="py-16 flex flex-col items-center justify-center text-center text-gray-500">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-3" />
+          <p>Loading your classes…</p>
+        </div>
+      ) : (
+        <div
+          className={viewMode === 'grid'
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+            : 'space-y-4'}
+        >
+          {filteredClasses.map((cls) => (
+            <motion.div
+              key={cls.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden group ${
+                viewMode === 'list' ? 'flex' : ''
+              }`}
+            >
+              <div className={viewMode === 'list' ? 'w-1/3 relative bg-gradient-to-br from-blue-500 to-purple-600' : 'relative h-48 bg-gradient-to-br from-blue-500 to-purple-600'}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageIcon className="h-12 w-12 text-white opacity-50" />
+                </div>
+
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  <span
+                    className={`px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(
+                      cls.status
+                    )}`}
+                  >
+                    {cls.status}
+                  </span>
+                </div>
+
+                <div className="absolute top-3 left-3">
+                  <span
+                    className={`px-2 py-1 text-sm font-medium rounded-full ${getLevelColor(
+                      cls.level
+                    )}`}
+                  >
+                    {cls.level}
+                  </span>
+                </div>
+              </div>
+
+              <div className={viewMode === 'list' ? 'flex-1 p-4' : 'p-4'}>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    {cls.name}
+                  </h3>
+                  <div className="relative">
+                    <button className="p-1 hover:bg-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <MoreVertical className="h-4 w-4 text-gray-500" />
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                  {cls.description}
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <User className="h-4 w-4 mr-2" />
+                    {cls.instructor}
+                  </div>
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Clock className="h-4 w-4 mr-2" />
+                    {cls.duration} minutes
+                  </div>
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Users className="h-4 w-4 mr-2" />
+                    {cls.capacity} max capacity
+                  </div>
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {cls.location}
+                  </div>
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    ${cls.price} per class
+                  </div>
+
+                  <div className="flex items-center text-sm font-medium text-blue-600">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    {cls.creditCost} credits required
+                  </div>
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Star className="h-4 w-4 mr-2" />
+                    {cls.rating.toFixed(1)} ({cls.totalBookings} bookings)
+                  </div>
+                </div>
+
+                {cls.nextSession && (
+                  <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">
+                          Next Session
+                        </p>
+                        <p className="text-sm text-blue-700">
+                          {new Date(cls.nextSession.date).toLocaleDateString()} at{' '}
+                          {cls.nextSession.time}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-blue-900">
+                          {cls.nextSession.enrolled}/{cls.nextSession.capacity ?? cls.capacity}
+                        </p>
+                        <p className="text-xs text-blue-700">enrolled</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {cls.tags.slice(0, 4).map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full flex items-center gap-1"
+                    >
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </span>
+                  ))}
+                  {cls.tags.length > 4 && (
+                    <span className="text-xs text-gray-500">
+                      +{cls.tags.length - 4} more
+                    </span>
+                  )}
+                </div>
+
+                {lastSavedClassId === cls.id && (
+                  <div className="flex items-center text-sm text-green-600 mb-3">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Changes saved successfully
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleEditClass(cls)}
+                    className="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center"
+                  >
+                    <Edit3 className="h-4 w-4 mr-1" />
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDuplicateClass(cls)}
+                    className="px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setDeleteError(null);
+                      setDeleteConfirm(cls.id);
+                    }}
+                    className="px-3 py-2 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
-              
-              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{cls.description}</p>
-              
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <User className="h-4 w-4 mr-2" />
-                  {cls.instructor}
-                </div>
-                
-                <div className="flex items-center text-sm text-gray-600">
-                  <Clock className="h-4 w-4 mr-2" />
-                  {cls.duration} minutes
-                </div>
-                
-                <div className="flex items-center text-sm text-gray-600">
-                  <Users className="h-4 w-4 mr-2" />
-                  {cls.capacity} max capacity
-                </div>
-                
-                <div className="flex items-center text-sm text-gray-600">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  ${cls.price} per class
-                </div>
-                
-                <div className="flex items-center text-sm font-medium text-blue-600">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  {cls.creditCost} credits required
-                </div>
-                
-                <div className="flex items-center text-sm text-gray-600">
-                  <Star className="h-4 w-4 mr-2" />
-                  {cls.rating} ({cls.totalBookings} bookings)
-                </div>
-              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
-              {/* Next Session */}
-              {cls.nextSession && (
-                <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">Next Session</p>
-                      <p className="text-sm text-blue-700">
-                        {new Date(cls.nextSession.date).toLocaleDateString()} at {cls.nextSession.time}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-blue-900">
-                        {cls.nextSession.enrolled}/{cls.capacity}
-                      </p>
-                      <p className="text-xs text-blue-700">enrolled</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleEditClass(cls)}
-                  className="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center"
-                >
-                  <Edit3 className="h-4 w-4 mr-1" />
-                  Edit
-                </button>
-                
-                <button
-                  onClick={() => handleDuplicateClass(cls)}
-                  className="px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                </button>
-                
-                <button
-                  onClick={() => setDeleteConfirm(cls.id)}
-                  className="px-3 py-2 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filteredClasses.length === 0 && (
+      {!loadingState && filteredClasses.length === 0 && (
         <div className="text-center py-12">
           <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No classes found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No classes found
+          </h3>
           <p className="text-gray-600 mb-4">
-            {searchTerm ? 'Try adjusting your search filters' : 'Get started by creating your first class'}
+            {searchTerm
+              ? 'Try adjusting your search filters'
+              : 'Get started by creating your first class'}
           </p>
           <button
             onClick={handleCreateClass}
@@ -568,18 +757,17 @@ export default function ClassManagement() {
         </div>
       )}
 
-      {/* Class Editor Modal */}
       <AnimatePresence>
         {isEditorOpen && (
           <ClassEditor
-            class={selectedClass}
+            class={editorInitialData}
             onSave={handleSaveClass}
-            onClose={() => setIsEditorOpen(false)}
+            onClose={handleCloseEditor}
+            studioId={studioId ?? null}
           />
         )}
       </AnimatePresence>
 
-      {/* Schedule Modal */}
       <AnimatePresence>
         {isScheduleOpen && (
           <ClassSchedule
@@ -601,7 +789,6 @@ export default function ClassManagement() {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation */}
       <AnimatePresence>
         {deleteConfirm && (
           <motion.div
@@ -618,25 +805,42 @@ export default function ClassManagement() {
             >
               <div className="flex items-center mb-4">
                 <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
-                <h3 className="text-xl font-semibold text-gray-900">Delete Class</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Delete Class
+                </h3>
               </div>
-              
+
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this class? This action cannot be undone.
+                Are you sure you want to delete this class? This action cannot be
+                undone.
               </p>
-              
+
+              {deleteError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4">
+                  {deleteError}
+                </div>
+              )}
+
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setDeleteConfirm(null)}
+                  onClick={closeDeleteDialog}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteClass(deleteConfirm)}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={deleteInFlight === deleteConfirm}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Delete
+                  {deleteInFlight === deleteConfirm ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete'
+                  )}
                 </button>
               </div>
             </motion.div>

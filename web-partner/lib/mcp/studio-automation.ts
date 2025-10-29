@@ -4,13 +4,33 @@
  * for comprehensive studio business automation
  */
 
-import type {
-  Material,
-  StudioExpense,
-  WorkshopTemplate,
-  Student,
-  ScheduledWorkshop
-} from '@/types/calendar-integration';
+import type { StudioExpense, WorkshopTemplate } from '@/types/calendar-integration';
+
+interface Material {
+  id: string;
+  name: string;
+  current_stock: number;
+  reorder_level: number;
+  auto_reorder: boolean;
+  supplier_name?: string;
+  usage_rate_per_month: number;
+}
+
+interface Student {
+  id: string;
+  name: string;
+  join_date: string;
+  last_workshop_date?: string;
+  total_workshops: number;
+  favorite_categories: string[];
+}
+
+interface ScheduledWorkshop {
+  id: string;
+  workshop: WorkshopTemplate;
+  start_time: Date;
+  spots_available: number;
+}
 
 interface MCPPlaywrightClient {
   // Supplier website automation
@@ -89,6 +109,17 @@ interface SocialPost {
   call_to_action?: string;
 }
 
+interface AdsAuditResult {
+  recommendations: string[];
+  summary?: string;
+}
+
+interface SEOMetrics {
+  ranking_keywords: number;
+  organic_traffic: number;
+  [key: string]: number | string;
+}
+
 interface RevenueData {
   time_period: string;
   total_revenue: number;
@@ -157,13 +188,16 @@ export class StudioAutomationManager {
   }
 
   private initializePlaywrightClient(): MCPPlaywrightClient {
+    const getSupplierAutomationSteps = this.getSupplierAutomationSteps.bind(this);
+
     // Mock implementation - replace with actual MCP client
     return {
       async automateSupplierOrder(supplier: string, materials: MaterialOrder[]): Promise<OrderResult> {
         console.log(`Automating order to ${supplier} for ${materials.length} materials`);
 
         // Simulate supplier-specific automation
-        const automationSteps = this.getSupplierAutomationSteps(supplier);
+        const automationSteps = getSupplierAutomationSteps(supplier);
+        console.debug('Executing automation steps:', automationSteps);
 
         return {
           success: true,
@@ -357,11 +391,12 @@ export class StudioAutomationManager {
         await this.sheetsClient.createPurchaseOrders(orders);
       } catch (error) {
         console.error(`Failed to order from ${supplier}:`, error);
+        const message = error instanceof Error ? error.message : 'Unknown error';
         orderResults.push({
           success: false,
           total_cost: 0,
           estimated_delivery: new Date(),
-          error_message: error.message
+          error_message: message
         });
       }
     }

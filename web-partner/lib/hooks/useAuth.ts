@@ -18,7 +18,6 @@ import { supabase } from '../supabase'
 // Frozen empty objects for stable references (V8 optimization)
 const EMPTY_USER = Object.freeze({}) as User
 const EMPTY_SESSION = Object.freeze({}) as Session
-const EMPTY_ARRAY = Object.freeze([]) as any[]
 
 // Auth state interface with stable shape
 interface AuthState {

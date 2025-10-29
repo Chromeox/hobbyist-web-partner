@@ -496,18 +496,7 @@ export default function AnalyticsDashboard() {
                         padding: 25,
                         font: { size: 11 },
                         boxWidth: 15,
-                        boxHeight: 15,
-                        generateLabels: function(chart) {
-                          const data = chart.data;
-                          return data.datasets.map((dataset, i) => ({
-                            text: dataset.label,
-                            fillStyle: dataset.backgroundColor,
-                            strokeStyle: dataset.borderColor,
-                            lineWidth: 2,
-                            hidden: !chart.isDatasetVisible(i),
-                            index: i
-                          }));
-                        }
+                        boxHeight: 15
                       }
                     }
                   },

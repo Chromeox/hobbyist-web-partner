@@ -70,6 +70,11 @@
 		E2E73E5F1234567890ABCDEF /* HobbyApp/Utils/UIApplication+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E5E1234567890ABCDEF /* HobbyApp/Utils/UIApplication+Extensions.swift */; };
 		E2E73E611234567890ABCDEF /* HobbyApp/BrandConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E601234567890ABCDEF /* HobbyApp/BrandConstants.swift */; };
 		E2E73E4D1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E4C1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift */; };
+		997D66B7703D4D5E4523C356 /* HobbyApp/Services/StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE7A942619974C480949FF9 /* HobbyApp/Services/StoreKitManager.swift */; };
+		1FCBF7BA457B7961F87BF1B4 /* HobbyApp/ViewModels/StoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A889540CB93CE8B391BBE7C /* HobbyApp/ViewModels/StoreViewModel.swift */; };
+		C02B962F201DA62151131E84 /* HobbyApp/Views/Store/StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE5A0C3230E36B0651822F7 /* HobbyApp/Views/Store/StoreView.swift */; };
+		1CD2792E8148959024C8D3FC /* HobbyApp/Views/Store/OutOfCreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D206619E4683CC30870ADFCB /* HobbyApp/Views/Store/OutOfCreditsView.swift */; };
+		39AB2320F3ED9AD3456770BB /* HobbyApp/Views/Profile/RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5045A2622380B21FCBB6EA29 /* HobbyApp/Views/Profile/RewardsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -131,6 +136,11 @@
 		E2E73E5C1234567890ABCDEF /* HobbyApp/Views/CreditPurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/CreditPurchaseView.swift; sourceTree = "<group>"; };
 		E2E73E5E1234567890ABCDEF /* HobbyApp/Utils/UIApplication+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Utils/UIApplication+Extensions.swift; sourceTree = "<group>"; };
 		E2E73E601234567890ABCDEF /* HobbyApp/BrandConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/BrandConstants.swift; sourceTree = "<group>"; };
+		BDE7A942619974C480949FF9 /* HobbyApp/Services/StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Services/StoreKitManager.swift; sourceTree = "<group>"; };
+		5A889540CB93CE8B391BBE7C /* HobbyApp/ViewModels/StoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/ViewModels/StoreViewModel.swift; sourceTree = "<group>"; };
+		CEE5A0C3230E36B0651822F7 /* HobbyApp/Views/Store/StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Store/StoreView.swift; sourceTree = "<group>"; };
+		D206619E4683CC30870ADFCB /* HobbyApp/Views/Store/OutOfCreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Store/OutOfCreditsView.swift; sourceTree = "<group>"; };
+		5045A2622380B21FCBB6EA29 /* HobbyApp/Views/Profile/RewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyApp/Views/Profile/RewardsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,13 +222,16 @@
 			E2E73E381234567890ABCDEF /* HobbyApp/Views/Main/ClassDetailView.swift */,
 			E2E73E3A1234567890ABCDEF /* HobbyApp/Views/Auth/LoginView.swift */,
 			81F42765D26C4AD59A288B6B /* HobbyApp/Views/Auth/EnhancedOnboardingFlow.swift */,
-			E2E73E4C1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift */,
-			E2E73E481234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift */,
-			E2E73E441234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift */,
-			E2E73E461234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift */,
-			E2E73E5C1234567890ABCDEF /* HobbyApp/Views/CreditPurchaseView.swift */,
-			E2E73E601234567890ABCDEF /* HobbyApp/BrandConstants.swift */,
-		);
+				E2E73E4C1234567890ABCDEF /* HobbyApp/Views/DiscoverView.swift */,
+				E2E73E481234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift */,
+				E2E73E441234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift */,
+				E2E73E461234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift */,
+				5045A2622380B21FCBB6EA29 /* HobbyApp/Views/Profile/RewardsView.swift */,
+				E2E73E5C1234567890ABCDEF /* HobbyApp/Views/CreditPurchaseView.swift */,
+				CEE5A0C3230E36B0651822F7 /* HobbyApp/Views/Store/StoreView.swift */,
+				D206619E4683CC30870ADFCB /* HobbyApp/Views/Store/OutOfCreditsView.swift */,
+				E2E73E601234567890ABCDEF /* HobbyApp/BrandConstants.swift */,
+			);
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
@@ -235,6 +248,7 @@
 				E20C13232E78E1C600F31D4C /* MarketplaceViewModel.swift */,
 				E20C13242E78E1C600F31D4C /* ProfileViewModel.swift */,
 				E20C13252E78E1C600F31D4C /* SearchViewModel.swift */,
+				5A889540CB93CE8B391BBE7C /* HobbyApp/ViewModels/StoreViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -278,6 +292,7 @@
 				E20C131B2E78E1AD00F31D4C /* HapticFeedbackService.swift */,
 				E2E73DFC2E7651DA00994856 /* AuthenticationManager.swift */,
 				E2E73DFE2E7651EC00994856 /* NavigationManager.swift */,
+				BDE7A942619974C480949FF9 /* HobbyApp/Services/StoreKitManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -314,6 +329,11 @@
 				TargetAttributes = {
 					7A1234511234567890ABCDEF = {
 						CreatedOnToolsVersion = 15.0;
+						SystemCapabilities = {
+							com.apple.ApplePay = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -369,6 +389,7 @@
 				E2E5EFAF2E790C1900F90F24 /* Review.swift in Sources */,
 				E2E5EFB02E790C1900F90F24 /* Payment.swift in Sources */,
 				E2BBE57D2E81B18F00CFDD45 /* SimpleSupabaseService.swift in Sources */,
+				997D66B7703D4D5E4523C356 /* HobbyApp/Services/StoreKitManager.swift in Sources */,
 				E24D50A22E931E3C0063CA97 /* BookingFlowView.swift in Sources */,
 				E2E5EFB12E790C1900F90F24 /* UserProfile.swift in Sources */,
 				E2E5EFB22E790C1900F90F24 /* Instructor.swift in Sources */,
@@ -392,6 +413,7 @@
 				E20C132C2E78E1C600F31D4C /* BookingViewModel.swift in Sources */,
 				E20C132D2E78E1C600F31D4C /* ClassDetailViewModel.swift in Sources */,
 				E20C132E2E78E1C600F31D4C /* SearchViewModel.swift in Sources */,
+				1FCBF7BA457B7961F87BF1B4 /* HobbyApp/ViewModels/StoreViewModel.swift in Sources */,
 				E2D9937B2E89ED51007D3F6D /* ClassModel.swift in Sources */,
 				E2D993732E8752BB007D3F6D /* CreditService.swift in Sources */,
 				E20C132F2E78E1C600F31D4C /* ClassListViewModel.swift in Sources */,
@@ -403,6 +425,9 @@
 			E2E73E491234567890ABCDEF /* HobbyApp/Views/Search/SearchView.swift in Sources */,
 			E2E73E451234567890ABCDEF /* HobbyApp/Views/Booking/BookingsView.swift in Sources */,
 			E2E73E471234567890ABCDEF /* HobbyApp/Views/Profile/ProfileView.swift in Sources */,
+			39AB2320F3ED9AD3456770BB /* HobbyApp/Views/Profile/RewardsView.swift in Sources */,
+			C02B962F201DA62151131E84 /* HobbyApp/Views/Store/StoreView.swift in Sources */,
+			1CD2792E8148959024C8D3FC /* HobbyApp/Views/Store/OutOfCreditsView.swift in Sources */,
 			E2E73E5D1234567890ABCDEF /* HobbyApp/Views/CreditPurchaseView.swift in Sources */,
 			E2E73E5F1234567890ABCDEF /* HobbyApp/Utils/UIApplication+Extensions.swift in Sources */,
 			E2E73E611234567890ABCDEF /* HobbyApp/BrandConstants.swift in Sources */,

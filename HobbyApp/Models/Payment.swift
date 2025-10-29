@@ -1,54 +1,88 @@
 import Foundation
 
-struct CreditPack: Identifiable, Codable, Hashable {
+struct CreditPack: Identifiable, Decodable, Hashable {
     let id: UUID
     let name: String
     let description: String?
-    let creditAmount: Int
-    let priceCents: Int
-    let bonusCredits: Int
-    let isActive: Bool
-    let displayOrder: Int
-    let popularBadge: Bool?
+    let credits: Int
+    let price: Double
+    let pricePerCredit: Double?
     let savingsPercentage: Int?
+    let isPopular: Bool
+    let stripeProductId: String?
+    let stripePriceId: String?
+    let appleProductId: String?
     let createdAt: Date
     let updatedAt: Date?
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
         case description
-        case creditAmount = "credit_amount"
-        case priceCents = "price_cents"
-        case bonusCredits = "bonus_credits"
-        case isActive = "is_active"
-        case displayOrder = "display_order"
-        case popularBadge = "popular_badge"
+        case credits
+        case price
+        case pricePerCredit = "price_per_credit"
         case savingsPercentage = "savings_percentage"
+        case isPopular = "is_popular"
+        case stripeProductId = "stripe_product_id"
+        case stripePriceId = "stripe_price_id"
+        case appleProductId = "apple_product_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
-    
-    var totalCredits: Int {
-        creditAmount + bonusCredits
+
+    var totalCredits: Int { credits }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        credits = try container.decode(Int.self, forKey: .credits)
+
+        if let doublePrice = try? container.decode(Double.self, forKey: .price) {
+            price = doublePrice
+        } else if let stringPrice = try? container.decode(String.self, forKey: .price),
+                  let parsed = Double(stringPrice) {
+            price = parsed
+        } else {
+            price = 0
+        }
+
+        if let perCredit = try? container.decode(Double.self, forKey: .pricePerCredit) {
+            pricePerCredit = perCredit
+        } else if let perCreditString = try? container.decode(String.self, forKey: .pricePerCredit),
+                  let parsed = Double(perCreditString) {
+            pricePerCredit = parsed
+        } else {
+            pricePerCredit = nil
+        }
+
+        savingsPercentage = try container.decodeIfPresent(Int.self, forKey: .savingsPercentage)
+        isPopular = try container.decodeIfPresent(Bool.self, forKey: .isPopular) ?? false
+        stripeProductId = try container.decodeIfPresent(String.self, forKey: .stripeProductId)
+        stripePriceId = try container.decodeIfPresent(String.self, forKey: .stripePriceId)
+        appleProductId = try container.decodeIfPresent(String.self, forKey: .appleProductId)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
     }
-    
+
     var formattedPrice: String {
-        let dollars = Double(priceCents) / 100.0
-        return String(format: "$%.2f", dollars)
+        String(format: "$%.2f", price)
     }
-    
-    var pricePerCredit: Double {
-        Double(priceCents) / Double(totalCredits) / 100.0
+
+    var formattedPricePerCredit: String? {
+        guard let pricePerCredit else { return nil }
+        return String(format: "$%.2f / credit", pricePerCredit)
     }
-    
-    var formattedPricePerCredit: String {
-        String(format: "$%.2f", pricePerCredit)
-    }
-    
+
     var savingsText: String? {
-        guard bonusCredits > 0 else { return nil }
-        return "+\(bonusCredits) Bonus Credits"
+        guard let savingsPercentage, savingsPercentage > 0 else { return nil }
+        return "Save \(savingsPercentage)%"
+    }
+
+    var supportsApplePay: Bool {
+        appleProductId != nil
     }
 }
 
@@ -94,7 +128,7 @@ struct CreditTransaction: Identifiable, Codable, Hashable {
     }
 }
 
-struct CreditPackPurchase: Identifiable, Codable, Hashable {
+struct CreditPackPurchase: Identifiable, Decodable, Hashable {
     let id: UUID
     let userId: UUID
     let creditPackId: UUID

@@ -6,7 +6,6 @@ import {
   Calendar,
   Plus,
   Settings,
-  Sync,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -33,7 +32,13 @@ interface CalendarIntegrationHubProps {
   studioId: string;
 }
 
-const PROVIDER_INFO = {
+const PROVIDER_INFO: Record<CalendarProvider, {
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  features: string[];
+}> = {
   google: {
     name: 'Google Calendar',
     description: 'Sync with Google Calendar and Google Workspace',
@@ -47,6 +52,13 @@ const PROVIDER_INFO = {
     icon: '📧',
     color: 'bg-indigo-100 text-indigo-800',
     features: ['Office 365 sync', 'Teams integration', 'Business calendars'],
+  },
+  apple: {
+    name: 'Apple Calendar',
+    description: 'Sync with iCloud Calendar across Apple devices',
+    icon: '🍎',
+    color: 'bg-red-100 text-red-800',
+    features: ['iCloud sync', 'Multi-device support'],
   },
   mindbody: {
     name: 'Mindbody',
@@ -218,7 +230,7 @@ export function CalendarIntegrationHub({ studioId }: CalendarIntegrationHubProps
             {importing === 'all' ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <Sync className="h-4 w-4 mr-2" />
+              <RefreshCw className="h-4 w-4 mr-2" />
             )}
             Sync All
           </Button>

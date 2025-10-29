@@ -126,6 +126,14 @@ HobbyistSwiftUI/
 └── docs/                  # Documentation
 ```
 
+## 🧾 Operations Resources
+- Payment runbooks are stored in `docs/guides/` for quick reference:
+  - `manual_payout_sop.md` — Stripe manual payout fallback SOP.
+  - `payments_manual_payout_rehearsal.md` — rehearsal checklist for the ops team.
+  - `payments_manual_payout_incident_template.md` — incident communication and audit template.
+  - `payments_monitoring_requirements.md` — monitoring expectations for payouts.
+- The manual payout helper lives at `scripts/manual_payout.py`; run `python3 scripts/manual_payout.py --help` for usage details.
+
 ## 🎮 Gamification System
 
 The app includes a comprehensive achievement system to boost engagement:

@@ -65,7 +65,7 @@ interface Staff {
   };
   lastActive: string;
   // Enhanced features for Phase 3
-  payroll: {
+  payroll?: {
     monthlyEarnings: number;
     totalEarnings: number;
     hoursWorked: number;
@@ -73,7 +73,7 @@ interface Staff {
     bonusEligible: boolean;
     nextPayDate: string;
   };
-  performance: {
+  performance?: {
     attendanceRate: number; // percentage
     studentRetention: number; // percentage
     classCapacityAvg: number; // percentage
@@ -81,7 +81,7 @@ interface Staff {
     monthlyGoal: number;
     currentProgress: number;
   };
-  schedule: {
+  schedule?: {
     upcomingClasses: number;
     weeklyHours: number;
     preferredSlots: string[];

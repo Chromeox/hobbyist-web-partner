@@ -21,7 +21,9 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  MessageSquare
+  MessageSquare,
+  MapPin,
+  Trash2
 } from 'lucide-react';
 import type {
   Instructor,

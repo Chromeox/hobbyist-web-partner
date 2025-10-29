@@ -65,7 +65,7 @@ const mockPreferences: StudentPreferences = {
   notifications: {
     newClasses: true,
     priceDrops: false,
-    followedInstructor: true,
+    followedInstructors: true,
     recommendations: true,
     reminders: true
   },

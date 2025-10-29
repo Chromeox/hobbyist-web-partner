@@ -241,14 +241,86 @@ final class SimpleSupabaseService: ObservableObject {
 
     func fetchClasses() async -> [SimpleClass] {
         do {
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            let nowString = isoFormatter.string(from: Date())
+
             let response = try await supabaseClient
-                .from("classes")
-                .select("*, instructor:instructor_profiles(*), category:categories(name)")
-                .eq("status", value: "published")
+                .from("class_schedules")
+                .select("""
+                    id,
+                    start_time,
+                    end_time,
+                    spots_total,
+                    spots_available,
+                    classes(
+                        *,
+                        instructors(
+                            id,
+                            name,
+                            email
+                        ),
+                        studios(
+                            id,
+                            name,
+                            address,
+                            city,
+                            province,
+                            postal_code
+                        )
+                    )
+                """)
+                .gte("start_time", value: nowString)
+                .eq("classes.is_active", value: true)
+                .order("start_time", ascending: true)
+                .limit(50)
                 .execute()
 
-            let classes = try response.value as! [[String: Any]]
-            return classes.compactMap { SimpleClass(from: $0) }
+            guard let schedules = try response.value as? [[String: Any]] else {
+                return []
+            }
+
+            return schedules.compactMap { schedule in
+                guard var classData = schedule["classes"] as? [String: Any] else { return nil }
+
+                classData["schedule_id"] = schedule["id"]
+                classData["start_time"] = schedule["start_time"]
+                classData["end_time"] = schedule["end_time"]
+                classData["spots_total"] = schedule["spots_total"]
+                classData["spots_available"] = schedule["spots_available"]
+                classData["max_participants"] = schedule["spots_total"]
+
+                if let total = schedule["spots_total"] as? Int,
+                   let available = schedule["spots_available"] as? Int {
+                    classData["current_participants"] = max(0, total - available)
+                }
+
+                if let instructors = classData["instructors"] as? [[String: Any]],
+                   let primaryInstructor = instructors.first {
+                    classData["instructor_name"] = primaryInstructor["name"]
+                    classData["instructor_profile"] = primaryInstructor
+                }
+
+                if let studio = classData["studios"] as? [String: Any] {
+                    let address: [String: Any] = [
+                        "street": studio["address"] ?? "",
+                        "city": studio["city"] ?? "",
+                        "state": studio["province"] ?? "",
+                        "zip": studio["postal_code"] ?? "",
+                        "country": "Canada"
+                    ]
+                    classData["location"] = [
+                        "type": "in_person",
+                        "name": studio["name"] ?? "",
+                        "address": address
+                    ]
+                }
+
+                classData.removeValue(forKey: "instructors")
+                classData.removeValue(forKey: "studios")
+
+                return SimpleClass(from: classData)
+            }
         } catch {
             print("❌ Fetch classes error: \(error)")
             errorMessage = error.localizedDescription
@@ -262,11 +334,41 @@ final class SimpleSupabaseService: ObservableObject {
         do {
             let response = try await supabaseClient
                 .from("bookings")
-                .select("*, classes(*)")
+                .select("""
+                    id,
+                    status,
+                    credits_used,
+                    created_at,
+                    class_schedule:class_schedules(
+                        id,
+                        start_time,
+                        end_time,
+                        classes(
+                            *,
+                            instructors(
+                                id,
+                                name,
+                                email
+                            ),
+                            studios(
+                                id,
+                                name,
+                                address,
+                                city,
+                                province,
+                                postal_code
+                            )
+                        )
+                    )
+                """)
                 .eq("user_id", value: userId)
+                .order("created_at", ascending: false)
                 .execute()
 
-            let bookings = try response.value as! [[String: Any]]
+            guard let bookings = try response.value as? [[String: Any]] else {
+                return []
+            }
+
             return bookings.compactMap { SimpleBooking(from: $0) }
         } catch {
             print("❌ Fetch bookings error: \(error)")
@@ -275,20 +377,58 @@ final class SimpleSupabaseService: ObservableObject {
         }
     }
 
-    func createBooking(classId: String, date: Date) async -> Bool {
+    func createBooking(classId: String, date: Date, scheduleId: String? = nil, creditsUsed: Int = 1, paymentMethod: String? = "credits") async -> Bool {
         guard let userId = currentUser?.id else { return false }
 
         isLoading = true
+        errorMessage = nil
 
         do {
+            var targetScheduleId = scheduleId
+
+            if targetScheduleId == nil {
+                let isoFormatter = ISO8601DateFormatter()
+                isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+                let startWindow = isoFormatter.string(from: date.addingTimeInterval(-3600))
+                let endWindow = isoFormatter.string(from: date.addingTimeInterval(3600))
+
+                let response = try await supabaseClient
+                    .from("class_schedules")
+                    .select("id")
+                    .eq("class_id", value: classId)
+                    .gte("start_time", value: startWindow)
+                    .lte("start_time", value: endWindow)
+                    .order("start_time", ascending: true)
+                    .limit(1)
+                    .execute()
+
+                if let rows = try response.value as? [[String: Any]],
+                   let foundId = rows.first?["id"] as? String {
+                    targetScheduleId = foundId
+                }
+            }
+
+            guard let scheduleIdentifier = targetScheduleId else {
+                errorMessage = "Unable to find a matching class schedule."
+                isLoading = false
+                return false
+            }
+
+            var payload: [String: Any] = [
+                "user_id": userId,
+                "class_schedule_id": scheduleIdentifier,
+                "credits_used": creditsUsed,
+                "status": "confirmed"
+            ]
+
+            if let paymentMethod {
+                payload["payment_method"] = paymentMethod
+            }
+
             let _ = try await supabaseClient
                 .from("bookings")
-                .insert([
-                    "user_id": userId,
-                    "class_id": classId,
-                    "booking_date": ISO8601DateFormatter().string(from: date),
-                    "status": "confirmed"
-                ])
+                .insert(payload)
                 .execute()
 
             print("✅ Booking created successfully")
@@ -548,6 +688,7 @@ struct SimpleUser {
 
 struct SimpleClass: Identifiable {
     let id: String
+    let scheduleId: String?
     let title: String
     let description: String
     let instructor: String
@@ -555,6 +696,8 @@ struct SimpleClass: Identifiable {
     let duration: Int // minutes
     let category: String
     let difficulty: String
+    let spotsTotal: Int?
+    let spotsAvailable: Int?
     let maxParticipants: Int?
     let currentParticipants: Int?
     let tags: [String]
@@ -587,6 +730,9 @@ struct SimpleClass: Identifiable {
     }
 
     var spotsRemaining: Int? {
+        if let spotsAvailable {
+            return spotsAvailable
+        }
         guard let maxParticipants else { return nil }
         let current = currentParticipants ?? 0
         return max(0, maxParticipants - current)
@@ -658,6 +804,14 @@ struct SimpleClass: Identifiable {
             return nil
         }
 
+        let extractedScheduleId = data["schedule_id"] as? String ?? data["class_schedule_id"] as? String
+        let extractedSpotsTotal = SimpleClass.int(from: data["spots_total"])
+        let extractedSpotsAvailable = SimpleClass.int(from: data["spots_available"])
+
+        self.scheduleId = extractedScheduleId
+        self.spotsTotal = extractedSpotsTotal
+        self.spotsAvailable = extractedSpotsAvailable
+
         // Title / description
         guard let title = data["title"] as? String ?? data["name"] as? String else {
             return nil
@@ -718,8 +872,16 @@ struct SimpleClass: Identifiable {
         self.difficulty = difficultyRaw
 
         // Participants
-        self.maxParticipants = SimpleClass.int(from: data["max_participants"])
-        self.currentParticipants = SimpleClass.int(from: data["current_participants"])
+        let maxParticipantsValue = SimpleClass.int(from: data["max_participants"]) ?? extractedSpotsTotal
+        self.maxParticipants = maxParticipantsValue
+
+        if let explicitCurrent = SimpleClass.int(from: data["current_participants"]) {
+            self.currentParticipants = explicitCurrent
+        } else if let maxParticipantsValue, let extractedSpotsAvailable {
+            self.currentParticipants = max(0, maxParticipantsValue - extractedSpotsAvailable)
+        } else {
+            self.currentParticipants = nil
+        }
 
         // Tags and requirements
         if let tags = data["tags"] as? [String] {
@@ -768,8 +930,10 @@ struct SimpleClass: Identifiable {
         // Location
         let locationDict = data["location"] as? [String: Any]
         let addressDict = locationDict?["address"] as? [String: Any]
-        self.locationType = locationDict?["type"] as? String
-        self.isOnline = (locationType == "online")
+        let explicitOnlineFlag = data["is_online"] as? Bool ?? false
+        let resolvedLocationType = locationDict?["type"] as? String ?? (explicitOnlineFlag ? "online" : nil)
+        self.locationType = resolvedLocationType
+        self.isOnline = explicitOnlineFlag || (resolvedLocationType == "online")
         self.onlineLink = locationDict?["online_link"] as? String
 
         let locationNameCandidates: [String?] = [
@@ -791,16 +955,32 @@ struct SimpleClass: Identifiable {
         // Schedule
         let scheduleDict = data["schedule"] as? [String: Any]
         self.scheduleType = scheduleDict?["type"] as? String
-        let startDateValue = SimpleClass.parseDate(
-            date: scheduleDict?["start_date"] as? String,
-            time: scheduleDict?["start_time"] as? String
-        )
-        let endDateRaw = SimpleClass.parseDate(
-            date: (scheduleDict?["end_date"] as? String) ?? (scheduleDict?["start_date"] as? String),
-            time: (scheduleDict?["end_time"] as? String) ?? (scheduleDict?["start_time"] as? String)
-        )
+
+        var startDateValue = SimpleClass.parseISODate(from: data["start_time"])
+        var endDateValue = SimpleClass.parseISODate(from: data["end_time"])
+
+        if startDateValue == nil {
+            startDateValue = SimpleClass.parseDate(
+                date: scheduleDict?["start_date"] as? String,
+                time: scheduleDict?["start_time"] as? String
+            )
+        }
+
+        if endDateValue == nil {
+            endDateValue = SimpleClass.parseDate(
+                date: (scheduleDict?["end_date"] as? String) ?? (scheduleDict?["start_date"] as? String),
+                time: (scheduleDict?["end_time"] as? String) ?? (scheduleDict?["start_time"] as? String)
+            )
+        }
+
         self.startDate = startDateValue
-        self.endDate = endDateRaw ?? startDateValue.map { $0.addingTimeInterval(Double(durationValue) * 60) }
+        if let endDateValue {
+            self.endDate = endDateValue
+        } else if let startDateValue {
+            self.endDate = startDateValue.addingTimeInterval(Double(durationValue) * 60)
+        } else {
+            self.endDate = nil
+        }
 
         // Ratings / reviews
         if let rating = data["average_rating"] as? Double {
@@ -885,6 +1065,23 @@ struct SimpleClass: Identifiable {
         }
     }
 
+    private static let isoFractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static func parseISODate(from value: Any?) -> Date? {
+        guard let stringValue = value as? String else { return nil }
+        return isoFractionalFormatter.date(from: stringValue) ?? isoFormatter.date(from: stringValue)
+    }
+
     private static let dateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .iso8601)
@@ -916,6 +1113,7 @@ struct SimpleClass: Identifiable {
 struct SimpleBooking {
     let id: String
     let classId: String
+    let classScheduleId: String
     let className: String
     let instructor: String
     let bookingDate: Date
@@ -942,97 +1140,106 @@ struct SimpleBooking {
             return nil
         }
 
-        guard let classId = data["class_id"] as? String ?? (data["classes"] as? [String: Any])?["id"] as? String else {
+        guard let scheduleDict = data["class_schedule"] as? [String: Any] else {
             return nil
         }
 
-        // Booking date
-        let bookingDateString = data["booking_date"] as? String
-            ?? data["scheduled_at"] as? String
-            ?? data["created_at"] as? String
+        let scheduleIdentifier: String
+        if let stringId = scheduleDict["id"] as? String {
+            scheduleIdentifier = stringId
+        } else if let uuid = scheduleDict["id"] as? UUID {
+            scheduleIdentifier = uuid.uuidString
+        } else {
+            return nil
+        }
 
-        guard let bookingDateString else {
+        guard let classData = scheduleDict["classes"] as? [String: Any] else {
+            return nil
+        }
+
+        let classIdentifier: String
+        if let classIdString = classData["id"] as? String {
+            classIdentifier = classIdString
+        } else if let classIdUUID = classData["id"] as? UUID {
+            classIdentifier = classIdUUID.uuidString
+        } else {
             return nil
         }
 
         self.id = bookingId
-        self.classId = classId
+        self.classId = classIdentifier
+        self.classScheduleId = scheduleIdentifier
         self.status = data["status"] as? String ?? "pending"
 
-        // Handle nested class data
-        if let classData = data["classes"] as? [String: Any] {
-            self.className = classData["title"] as? String ?? "Unknown Class"
-            if let instructor = classData["instructor"] as? String {
-                self.instructor = instructor
-            } else if let instructorProfile = classData["instructor"] as? [String: Any],
-                      let name = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
-                self.instructor = name
-            } else if let instructorProfile = classData["instructor_profile"] as? [String: Any],
-                      let name = instructorProfile["display_name"] as? String ?? instructorProfile["name"] as? String {
-                self.instructor = name
-            } else {
-                self.instructor = "Unknown Instructor"
-            }
+        self.className = classData["name"] as? String
+            ?? classData["title"] as? String
+            ?? "Unknown Class"
 
-            // Price may be stored as cents or string
-            let rawPrice = classData["price"]
-                ?? classData["price_cents"]
-                ?? (classData["pricing"] as? [String: Any])?["amount"]
-            if let price = rawPrice as? Double {
-                self.price = price >= 1000 ? price / 100.0 : price
-            } else if let price = rawPrice as? Int {
-                self.price = price >= 100 ? Double(price) / 100.0 : Double(price)
-            } else if let priceNSNumber = rawPrice as? NSNumber {
-                let value = priceNSNumber.doubleValue
-                self.price = value >= 100 ? value / 100.0 : value
-            } else if let priceString = rawPrice as? String,
-                      let priceValue = Double(priceString) {
-                self.price = priceValue >= 100 ? priceValue / 100.0 : priceValue
-            } else {
-                self.price = 0.0
-            }
-
-            // Venue / location information
-            var venueValue: String?
-
-            if let locationDict = classData["location"] as? [String: Any] {
-                if let type = locationDict["type"] as? String, type == "online" {
-                    venueValue = "Online"
-                } else if let address = locationDict["address"] as? [String: Any] {
-                    let street = address["street"] as? String
-                    let city = address["city"] as? String
-                    if let street, !street.isEmpty, let city, !city.isEmpty {
-                        venueValue = "\(street), \(city)"
-                    } else if let street, !street.isEmpty {
-                        venueValue = street
-                    } else if let city, !city.isEmpty {
-                        venueValue = city
-                    }
-                }
-            }
-
-            if venueValue == nil, let venueData = classData["venue"] as? [String: Any] {
-                venueValue = venueData["name"] as? String ?? venueData["city"] as? String
-            }
-
-            if venueValue == nil, let locationString = classData["location"] as? String {
-                venueValue = locationString
-            }
-
-            self.venue = venueValue
+        if let instructors = classData["instructors"] as? [[String: Any]],
+           let primaryInstructor = instructors.first,
+           let name = primaryInstructor["name"] as? String {
+            self.instructor = name
+        } else if let instructorName = classData["instructor_name"] as? String {
+            self.instructor = instructorName
         } else {
-            self.className = "Unknown Class"
             self.instructor = "Unknown Instructor"
-            self.price = 0.0
-            self.venue = nil
         }
 
-        // Parse date
+        let rawPrice = classData["price"]
+            ?? classData["price_cents"]
+            ?? (classData["pricing"] as? [String: Any])?["amount"]
+        if let price = rawPrice as? Double {
+            self.price = price >= 1000 ? price / 100.0 : price
+        } else if let price = rawPrice as? Int {
+            self.price = price >= 100 ? Double(price) / 100.0 : Double(price)
+        } else if let priceNSNumber = rawPrice as? NSNumber {
+            let value = priceNSNumber.doubleValue
+            self.price = value >= 100 ? value / 100.0 : value
+        } else if let priceString = rawPrice as? String,
+                  let priceValue = Double(priceString) {
+            self.price = priceValue >= 100 ? priceValue / 100.0 : priceValue
+        } else {
+            self.price = 0.0
+        }
+
+        var venueValue: String?
+        if let studio = classData["studios"] as? [String: Any] {
+            if let address = studio["address"] as? String,
+               let city = studio["city"] as? String,
+               !address.isEmpty, !city.isEmpty {
+                venueValue = "\(address), \(city)"
+            } else if let address = studio["address"] as? String, !address.isEmpty {
+                venueValue = address
+            } else if let city = studio["city"] as? String, !city.isEmpty {
+                venueValue = city
+            } else if let name = studio["name"] as? String {
+                venueValue = name
+            }
+        } else if let locationDict = classData["location"] as? [String: Any],
+                  let address = locationDict["address"] as? [String: Any] {
+            let street = address["street"] as? String
+            let city = address["city"] as? String
+            if let street, !street.isEmpty, let city, !city.isEmpty {
+                venueValue = "\(street), \(city)"
+            } else if let street, !street.isEmpty {
+                venueValue = street
+            } else if let city, !city.isEmpty {
+                venueValue = city
+            }
+        }
+
+        self.venue = venueValue
+
+        let bookingDateString = scheduleDict["start_time"] as? String
+            ?? data["created_at"] as? String
+            ?? data["updated_at"] as? String
+
         let fractionalFormatter = ISO8601DateFormatter()
         fractionalFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let standardFormatter = ISO8601DateFormatter()
 
-        if let parsed = fractionalFormatter.date(from: bookingDateString) ?? standardFormatter.date(from: bookingDateString) {
+        if let bookingDateString,
+           let parsed = fractionalFormatter.date(from: bookingDateString) ?? standardFormatter.date(from: bookingDateString) {
             self.bookingDate = parsed
         } else {
             self.bookingDate = Date()

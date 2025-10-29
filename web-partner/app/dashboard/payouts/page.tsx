@@ -7,7 +7,7 @@ import RevenueSharing from './RevenueSharing';
 import CommissionCalculator from './CommissionCalculator';
 import PayoutSchedule from './PayoutSchedule';
 import FinancialReports from './FinancialReports';
-import { useAuth } from '@/lib/context/AuthContext';
+import { useAuthContext } from '@/lib/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
   DollarSign, 
@@ -22,7 +22,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function PayoutsPage() {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
 

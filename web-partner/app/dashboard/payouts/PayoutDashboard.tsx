@@ -258,6 +258,14 @@ const PayoutDashboard: React.FC = () => {
     }
   };
 
+  const totalEarnings = summary?.totalEarnings ?? 0;
+  const growthRate = summary?.growthRate ?? 0;
+  const pendingPayouts = summary?.pendingPayouts ?? 0;
+  const nextPayoutDateDisplay = summary?.nextPayoutDate ? format(summary.nextPayoutDate, 'MMM dd, yyyy') : null;
+  const totalStudents = summary?.totalStudents ?? 0;
+  const averageClassValue = summary?.averageClassValue ?? 0;
+  const nextPayoutAmount = summary?.nextPayoutAmount ?? 0;
+
   return (
     <div className="space-y-6">
       {/* Header Section: Displays page title, description, and global filters/actions */}
@@ -298,17 +306,17 @@ const PayoutDashboard: React.FC = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summary?.totalEarnings.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${totalEarnings.toLocaleString()}</div>
             <div className="flex items-center text-xs text-muted-foreground mt-1">
-              {summary?.growthRate > 0 ? (
+              {growthRate > 0 ? (
                 <>
                   <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                  <span className="text-green-500">{summary.growthRate}%</span>
+                  <span className="text-green-500">{growthRate}%</span>
                 </>
               ) : (
                 <>
                   <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                  <span className="text-red-500">{Math.abs(summary?.growthRate || 0)}%</span>
+                  <span className="text-red-500">{Math.abs(growthRate)}%</span>
                 </>
               )}
               <span className="ml-1">from last month</span>
@@ -323,9 +331,9 @@ const PayoutDashboard: React.FC = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summary?.pendingPayouts.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${pendingPayouts.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Next payout: {summary?.nextPayoutDate && format(summary.nextPayoutDate, 'MMM dd, yyyy')}
+              Next payout: {nextPayoutDateDisplay ?? 'TBD'}
             </p>
           </CardContent>
         </Card>
@@ -337,7 +345,7 @@ const PayoutDashboard: React.FC = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary?.totalStudents.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{totalStudents.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Across all venues
             </p>
@@ -351,7 +359,7 @@ const PayoutDashboard: React.FC = () => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summary?.averageClassValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">${averageClassValue.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Per class session
             </p>
@@ -521,13 +529,13 @@ const PayoutDashboard: React.FC = () => {
       </Card>
 
       {/* Next Payout Card: Highlights the next scheduled payout */}
-      {summary?.nextPayoutAmount > 0 && (
+      {nextPayoutAmount > 0 && (
         <Card className="border-primary">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Next Payout</span>
               <Badge variant="default">
-                {format(summary.nextPayoutDate, 'MMM dd, yyyy')}
+                {nextPayoutDateDisplay ?? 'TBD'}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -535,7 +543,7 @@ const PayoutDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-3xl font-bold text-primary">
-                  ${summary.nextPayoutAmount.toLocaleString()}
+                  ${nextPayoutAmount.toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   Will be processed automatically via Stripe

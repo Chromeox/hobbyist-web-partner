@@ -36,7 +36,8 @@ export default function OnboardingWizard() {
   const mockUserData = {
     accountType: 'studio' as 'studio' | 'instructor',
     businessName: 'Creative Arts Studio',
-    userName: 'Sarah Johnson'
+    userName: 'Sarah Johnson',
+    email: 'sarah@creativeartsstudio.com'
   };
 
   const CurrentStepComponent = ONBOARDING_STEPS[currentStep].component;
@@ -98,7 +99,15 @@ export default function OnboardingWizard() {
       const response = await fetch('/api/partners/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(onboardingData)
+        body: JSON.stringify({
+          owner: {
+            name: mockUserData.userName,
+            email: mockUserData.email,
+            accountType: mockUserData.accountType,
+            businessName: mockUserData.businessName
+          },
+          ...onboardingData
+        })
       });
 
       if (response.ok) {

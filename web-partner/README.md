@@ -38,6 +38,10 @@ web-partner/
 └── README.md
 ```
 
+## 📚 Additional Documentation
+- Portal form/data flow audit: `docs/form-flow-audit.md` clarifies backend dependencies for each dashboard section.
+- Ops references for manual payouts live in the monorepo root (`docs/guides/*`, `scripts/manual_payout.py`).
+
 ## 🚀 Key Features
 
 ### 1. Multi-Step Onboarding Wizard
@@ -204,6 +208,11 @@ The partner portal is designed to achieve:
 - **30% increase in studio efficiency** through automated management features
 - **95% user satisfaction score** based on usability testing
 - **Zero-downtime deployment** with progressive enhancement
+
+## ✅ QA & Runbooks
+
+- Automated regression script lives at `scripts/partner-regression-check.js` and writes timestamped reports to `test-results/`.
+- See `docs/regression-checks.md` for execution steps and links to the payout runbooks stored in `../docs/guides/`.
 
 ## 🔐 Security & Privacy
 

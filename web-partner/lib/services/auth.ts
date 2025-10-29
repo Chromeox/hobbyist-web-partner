@@ -54,7 +54,9 @@ class AuthCache {
     // Maintain LRU order
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (typeof firstKey === 'string') {
+        this.cache.delete(firstKey)
+      }
     }
     
     this.cache.set(key, {

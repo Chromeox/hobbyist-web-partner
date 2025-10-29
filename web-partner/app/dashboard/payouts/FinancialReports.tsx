@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { useToast } from '@/components/ui/use-toast';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { format, startOfYear, endOfYear, startOfQuarter, endOfQuarter, subYears } from 'date-fns';
+import { format, startOfYear, endOfYear, startOfQuarter, endOfQuarter, subYears, addMonths } from 'date-fns';
 import {
   FileText,
   Download,

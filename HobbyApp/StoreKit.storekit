@@ -1,0 +1,84 @@
+{
+  "identifier": "com.hobbyist.bookingapp.storekit",
+  "displayName": "Hobbyist StoreKit Configuration",
+  "products": [
+    {
+      "id": "com.hobbyist.bookingapp.credits.pack1",
+      "type": "Consumable",
+      "displayName": "10 Credits Pack",
+      "description": "Get 10 credits for $25",
+      "productCategory": "Credits",
+      "price": 25.00,
+      "priceCurrency": "USD"
+    },
+    {
+      "id": "com.hobbyist.bookingapp.credits.pack2",
+      "type": "Consumable", 
+      "displayName": "25 Credits Pack",
+      "description": "Most popular! Get 25 credits for $50",
+      "productCategory": "Credits",
+      "price": 50.00,
+      "priceCurrency": "USD"
+    },
+    {
+      "id": "com.hobbyist.bookingapp.credits.pack3",
+      "type": "Consumable",
+      "displayName": "50 Credits Pack",
+      "description": "Best value! Get 50 credits for $90",
+      "productCategory": "Credits",
+      "price": 90.00,
+      "priceCurrency": "USD"
+    },
+    {
+      "id": "com.hobbyist.bookingapp.subscription.monthly",
+      "type": "AutoRenewable",
+      "displayName": "Monthly Unlimited",
+      "description": "Unlimited classes for $99/month",
+      "productCategory": "Subscription",
+      "price": 99.00,
+      "priceCurrency": "USD",
+      "subscriptionGroupID": "hobbyist_unlimited",
+      "subscriptionPeriod": {
+        "value": 1,
+        "unit": "MONTH"
+      }
+    },
+    {
+      "id": "com.hobbyist.bookingapp.subscription.yearly",
+      "type": "AutoRenewable",
+      "displayName": "Yearly Unlimited",
+      "description": "Unlimited classes for $999/year",
+      "productCategory": "Subscription", 
+      "price": 999.00,
+      "priceCurrency": "USD",
+      "subscriptionGroupID": "hobbyist_unlimited",
+      "subscriptionPeriod": {
+        "value": 1,
+        "unit": "YEAR"
+      }
+    }
+  ],
+  "subscriptionGroups": [
+    {
+      "id": "hobbyist_unlimited",
+      "displayName": "Hobbyist Unlimited",
+      "localizations": {}
+    }
+  ],
+  "settings": {
+    "askToBuy": false,
+    "familySharing": false,
+    "localizedLicenseAgreements": {},
+    "applicationUsername": true,
+    "renewalRate": 1.0,
+    "storefront": "USA",
+    "storeKitErrors": [],
+    "failTransactionsEnabled": false,
+    "interruptedPurchasesEnabled": false,
+    "subscriptionOffersEnabled": false
+  },
+  "version": {
+    "major": 1,
+    "minor": 2
+  }
+}

@@ -220,25 +220,31 @@ export default function MessagesCenter() {
   };
 
   // Get display name for conversation
-  const getConversationDisplayName = (conv: ConversationWithDetails) => {
-    if (conv.type === 'group') return conv.name;
-    return conv.instructor?.business_name || conv.name;
+  const getConversationDisplayName = (conv: SimpleConversation) => {
+    return conv.name;
   };
 
   // Get avatar initials
-  const getAvatarInitials = (conv: ConversationWithDetails) => {
+  const getAvatarInitials = (conv: SimpleConversation) => {
     if (conv.type === 'group') {
       return <Users className="h-6 w-6" />;
     }
     const name = getConversationDisplayName(conv);
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(' ')
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase();
   };
 
   // Get sender display name
-  const getSenderDisplayName = (message: MessageWithSender) => {
-    if (!message.sender) return 'Unknown';
-    const profile = message.sender.user_profiles;
-    return `${profile.first_name} ${profile.last_name}`;
+  const getSenderDisplayName = (message: SimpleMessage) => {
+    if (message.sender_id) {
+      return message.sender_id === selectedConversation?.instructor_id
+        ? 'Instructor'
+        : message.sender_id;
+    }
+    return 'Unknown';
   };
 
   if (loading) {
@@ -316,9 +322,9 @@ export default function MessagesCenter() {
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
                       {getAvatarInitials(conversation)}
                     </div>
-                    {conversation.unreadCount > 0 && (
+                    {(conversation.unreadCount ?? 0) > 0 && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                        {(conversation.unreadCount ?? 0) > 9 ? '9+' : conversation.unreadCount}
                       </div>
                     )}
                   </div>
@@ -398,7 +404,9 @@ export default function MessagesCenter() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
               {messages.map((message, index) => {
-                const isOwnMessage = message.sender?.id === selectedConversation.studio_id;
+                const currentStudioId = selectedConversation?.studio_id ?? null;
+                const isOwnMessage = currentStudioId ? message.sender_id === currentStudioId : false;
+                const senderName = getSenderDisplayName(message);
                 return (
                   <motion.div
                     key={message.id}
@@ -412,12 +420,15 @@ export default function MessagesCenter() {
                     }`}>
                       {!isOwnMessage && (
                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                          {getSenderDisplayName(message).split(' ').map(n => n[0]).join('')}
+                          {senderName
+                            .split(' ')
+                            .map((part) => part[0])
+                            .join('')}
                         </div>
                       )}
                       <div>
                         {!isOwnMessage && (
-                          <p className="text-xs text-gray-500 mb-1">{getSenderDisplayName(message)}</p>
+                          <p className="text-xs text-gray-500 mb-1">{senderName}</p>
                         )}
                         <div className={`px-4 py-2.5 rounded-2xl ${
                           isOwnMessage

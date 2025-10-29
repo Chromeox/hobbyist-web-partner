@@ -44,6 +44,12 @@
 		<string>ProductionSandbox</string>
 	</array>
 
+	<!-- Apple Pay -->
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.com.hobbyist.bookingapp</string>
+	</array>
+
 	<!-- Sign In with Apple -->
 	<key>com.apple.developer.applesignin</key>
 	<array>

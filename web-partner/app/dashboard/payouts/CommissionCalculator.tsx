@@ -47,6 +47,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 
 interface CalculationInput {
   classPrice: number;
@@ -382,7 +383,13 @@ Profit Margin: ${result.profitMargin.toFixed(1)}%
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={(entry) => `${entry.name}: ${((entry.value / result.grossRevenue) * 100).toFixed(1)}%`}
+                        label={({ name, value }: PieLabelRenderProps) => {
+                          const numericValue = typeof value === 'number' ? value : 0;
+                          const percentage = result.grossRevenue > 0
+                            ? (numericValue / result.grossRevenue) * 100
+                            : 0;
+                          return `${name}: ${percentage.toFixed(1)}%`;
+                        }}
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"

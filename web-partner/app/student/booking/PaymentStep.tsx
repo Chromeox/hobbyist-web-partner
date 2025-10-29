@@ -15,10 +15,6 @@ import {
   CheckCircleIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
-import {
-  ApplePayIcon,
-  GooglePayIcon
-} from '@heroicons/react/24/solid'
 
 interface PaymentStepProps {
   classData: {
@@ -107,9 +103,11 @@ export default function PaymentStep({
 
   useEffect(() => {
     // Check available payment methods
-    const hasApplePay = window.ApplePaySession?.canMakePayments()
-    const hasGooglePay = window.PaymentRequest && 
-      window.PaymentRequest.prototype.canMakePayment
+    const applePaySession = typeof window !== 'undefined' ? (window as any).ApplePaySession : undefined
+    const hasApplePay = typeof applePaySession?.canMakePayments === 'function' && applePaySession.canMakePayments()
+    const hasGooglePay = typeof window !== 'undefined'
+      && typeof window.PaymentRequest !== 'undefined'
+      && typeof (window.PaymentRequest as any)?.prototype?.canMakePayment === 'function'
     
     // Set default payment method
     if (!isGuest && mockSavedPaymentMethods.length > 0) {

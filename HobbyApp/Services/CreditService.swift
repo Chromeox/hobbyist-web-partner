@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import Supabase
+import PassKit
 
 struct PaymentSheetSetupResponse: Decodable {
     let success: Bool
@@ -69,14 +70,12 @@ private struct FinalizePurchaseRequest: Encodable {
 }
 
 private struct UserCreditsRecord: Decodable {
-    let credit_balance: Int
-    let current_month_credits: Int?
-    let rollover_credits: Int?
-    let credits_used_this_month: Int?
-    let next_rollover_at: Date?
-    let has_active_subscription: Bool?
-    let subscription_plan_name: String?
-    let rollover_percentage: Int?
+    let totalCredits: Int
+    let usedCredits: Int
+    let rolloverCredits: Int?
+    let membershipStartedAt: Date?
+    let loyaltyTier: String?
+    let insurancePlanId: UUID?
 }
 
 enum CreditServiceError: LocalizedError {
@@ -140,6 +139,10 @@ final class CreditService: ObservableObject {
         return max(0, dropInCost - creditCost)
     }
 
+    var isApplePayAvailable: Bool {
+        PKPaymentAuthorizationController.canMakePayments()
+    }
+
     // MARK: - Public Methods
 
     func refreshCredits() {
@@ -164,14 +167,17 @@ final class CreditService: ObservableObject {
                 .execute()
 
             let record = try decoder.decode(UserCreditsRecord.self, from: response.data)
-            totalCredits = record.credit_balance
-            currentMonthCredits = record.current_month_credits ?? record.credit_balance
-            rolloverCredits = record.rollover_credits ?? 0
-            creditsUsedThisMonth = record.credits_used_this_month ?? 0
-            nextRolloverDate = record.next_rollover_at
-            hasActiveSubscription = record.has_active_subscription ?? false
-            subscriptionPlanName = record.subscription_plan_name ?? ""
-            rolloverPercentage = record.rollover_percentage ?? 0
+            let availableCredits = max(0, record.totalCredits - record.usedCredits)
+            let rollover = record.rolloverCredits ?? 0
+
+            totalCredits = availableCredits + rollover
+            currentMonthCredits = availableCredits
+            rolloverCredits = rollover
+            creditsUsedThisMonth = record.usedCredits
+            nextRolloverDate = nil
+            hasActiveSubscription = record.membershipStartedAt != nil
+            subscriptionPlanName = record.loyaltyTier?.capitalized ?? ""
+            rolloverPercentage = 0
 
             // TODO: Replace with real history + expirations when endpoints are available
             creditHistory = []
@@ -207,7 +213,7 @@ final class CreditService: ObservableObject {
                 .from("credit_packs")
                 .select()
                 .eq("is_active", value: true)
-                .order("display_order", ascending: true)
+                .order("price", ascending: true)
                 .execute()
 
             let packs = try decoder.decode([CreditPack].self, from: response.data)
@@ -271,10 +277,10 @@ final class CreditService: ObservableObject {
         } else {
             let remaining = amount - rolloverCredits
             rolloverCredits = 0
-            currentMonthCredits -= remaining
+            currentMonthCredits = max(0, currentMonthCredits - remaining)
         }
 
-        totalCredits -= amount
+        totalCredits = max(0, currentMonthCredits + rolloverCredits)
         creditsUsedThisMonth += amount
 
         let transaction = CreditTransactionDisplay(

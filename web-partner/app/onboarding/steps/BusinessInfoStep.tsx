@@ -16,6 +16,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
     businessType: data.businessType || 'llc',
     taxId: data.taxId || '',
     businessPhone: data.businessPhone || '',
+    contactEmail: data.contactEmail || '',
     address: {
       street: data.address?.street || '',
       city: data.address?.city || '',
@@ -124,6 +125,26 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
 
         {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Contact Email
+            </label>
+            <input
+              type="email"
+              name="contactEmail"
+              value={formData.contactEmail}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.contactEmail ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="hello@yourstudio.com"
+              required
+            />
+            {errors.contactEmail && (
+              <p className="text-red-500 text-sm mt-1">{errors.contactEmail}</p>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <Phone className="inline h-4 w-4 mr-1" />

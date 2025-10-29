@@ -194,17 +194,31 @@ export const isValidPhone = (phone: string): boolean => {
 };
 
 // Search and filter utilities
+const getValueByPath = (item: Record<string, unknown>, path: string) => {
+  return path.split('.').reduce<unknown>((value, key) => {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+    if (typeof value !== 'object') {
+      return undefined;
+    }
+    return (value as Record<string, unknown>)[key];
+  }, item);
+};
+
 export const searchFilter = <T extends Record<string, any>>(
   items: T[],
   searchTerm: string,
-  searchFields: (keyof T)[]
+  searchFields: string[]
 ): T[] => {
   if (!searchTerm.trim()) return items;
 
   const term = searchTerm.toLowerCase();
   return items.filter(item =>
     searchFields.some(field => {
-      const value = item[field];
+      const value = field.includes('.')
+        ? getValueByPath(item, field)
+        : item[field as keyof T];
       return typeof value === 'string' && value.toLowerCase().includes(term);
     })
   );

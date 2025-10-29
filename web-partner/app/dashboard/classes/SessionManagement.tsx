@@ -22,7 +22,8 @@ import {
   MessageSquare,
   Bell,
   Settings,
-  MoreVertical
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import type {
   Student,
@@ -155,6 +156,8 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
   };
 
   // Memoized filtered bookings for performance
+  const waitlistEntries = enhancedSession.waitlistEntries ?? [];
+
   const filteredBookings = useMemo(() => {
     const bookings = enhancedSession.bookings;
     if (!searchTerm && filterStatus === 'all') return bookings;
@@ -228,7 +231,7 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
           <div className="flex gap-1 mt-4">
             {[
               { key: 'bookings', label: 'Bookings', count: enhancedSession.bookings.length },
-              { key: 'waitlist', label: 'Waitlist', count: enhancedSession.waitlistEntries.length },
+              { key: 'waitlist', label: 'Waitlist', count: waitlistEntries.length },
               { key: 'analytics', label: 'Analytics' },
               { key: 'communication', label: 'Communication' }
             ].map(tab => (
@@ -376,10 +379,16 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
 
                         <div className="flex items-center gap-1">
                           {booking.confirmationSent && (
-                            <CheckCircle className="h-4 w-4 text-green-600" title="Confirmation sent" />
+                            <CheckCircle
+                              className="h-4 w-4 text-green-600"
+                              aria-label="Confirmation sent"
+                            />
                           )}
                           {booking.reminderSent && (
-                            <Bell className="h-4 w-4 text-blue-600" title="Reminder sent" />
+                            <Bell
+                              className="h-4 w-4 text-blue-600"
+                              aria-label="Reminder sent"
+                            />
                           )}
                         </div>
 
@@ -406,7 +415,7 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
               </div>
 
               <div className="space-y-3">
-                {enhancedSession.waitlistEntries.map((entry, index) => (
+                {waitlistEntries.map((entry, index) => (
                   <div key={entry.id} className="p-4 border border-gray-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -612,7 +621,7 @@ export default function SessionManagement({ session, onClose, onUpdateSession }:
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Last updated: {formatDate(enhancedSession.lastUpdated)}
+              Last updated: {enhancedSession.lastUpdated ? formatDate(enhancedSession.lastUpdated) : 'Not available'}
             </div>
 
             <div className="flex items-center gap-3">

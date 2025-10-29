@@ -35,7 +35,7 @@ struct CreditPurchaseView: View {
                     List {
                         Section(header: Text("Available Packs")) {
                             ForEach(creditService.availableCreditPacks) { pack in
-                                CreditPackRow(pack: pack) {
+                                CreditPackRow(pack: pack, applePayAvailable: creditService.isApplePayAvailable) {
                                     startPurchase(for: pack)
                                 }
                             }
@@ -91,7 +91,9 @@ struct CreditPurchaseView: View {
                 await MainActor.run {
                     var configuration = PaymentSheet.Configuration()
                     configuration.merchantDisplayName = "Hobbyist"
-                    configuration.applePay = .init(merchantId: Configuration.shared.appleMerchantId, merchantCountryCode: "CA")
+                    if pack.supportsApplePay && creditService.isApplePayAvailable {
+                        configuration.applePay = .init(merchantId: Configuration.shared.appleMerchantId, merchantCountryCode: "CA")
+                    }
                     configuration.customer = .init(id: setup.customerId, ephemeralKeySecret: setup.ephemeralKeySecret)
                     configuration.allowsDelayedPaymentMethods = false
 
@@ -155,6 +157,7 @@ struct CreditPurchaseView: View {
 
 private struct CreditPackRow: View {
     let pack: CreditPack
+    let applePayAvailable: Bool
     let action: () -> Void
 
     var body: some View {
@@ -167,24 +170,32 @@ private struct CreditPackRow: View {
                     .font(.headline)
             }
 
-            HStack {
+            HStack(alignment: .firstTextBaseline) {
                 Label("\(pack.totalCredits) credits", systemImage: "sparkles")
                     .font(.subheadline)
                 Spacer()
-                if let savings = pack.savingsText {
-                    Text(savings)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(8)
+                VStack(alignment: .trailing, spacing: 4) {
+                    if let savings = pack.savingsText {
+                        Text(savings)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green.opacity(0.12))
+                            .cornerRadius(8)
+                    }
+                    if let pricePerCredit = pack.formattedPricePerCredit {
+                        Text(pricePerCredit)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
 
             Button(action: action) {
                 HStack {
                     Spacer()
-                    Label("Checkout", systemImage: "creditcard")
+                    Label((pack.supportsApplePay && applePayAvailable) ? "Checkout with Apple Pay" : "Checkout", systemImage: (pack.supportsApplePay && applePayAvailable) ? "apple.logo" : "creditcard")
                     Spacer()
                 }
             }
