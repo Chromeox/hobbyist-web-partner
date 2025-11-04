@@ -1,7 +1,6 @@
 'use client';
 
 import { supabase } from '../supabase';
-import type { Database } from '../../types/supabase';
 
 const CACHE_TTL = 60_000;
 
@@ -43,9 +42,33 @@ class SimpleCache {
   }
 }
 
-type InstructorProfileRow = Database['public']['Tables']['instructor_profiles']['Row'];
-type ClassesRow = Database['public']['Tables']['classes']['Row'];
-type CreditTransactionRow = Database['public']['Tables']['credit_transactions']['Row'];
+type InstructorProfileRow = {
+  id: string;
+  display_name: string;
+  average_rating: number | null;
+  total_students: number | null;
+  profile_image_url: string | null;
+};
+
+type ClassesRow = {
+  id: string;
+  instructor_id: string | null;
+  name: string | null;
+  description: string | null;
+  price: number | null;
+  duration: number | null;
+  max_participants: number | null;
+  category: string | null;
+  difficulty_level: string | null;
+  equipment_needed: string[] | null;
+  is_active: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+type CreditTransactionRow = {
+  amount: number;
+};
 
 const cache = new SimpleCache();
 
@@ -84,7 +107,9 @@ export class OptimizedDataService {
     const cached = this.getCached<any[]>(cacheKey);
     if (cached) return cached;
 
-    const { data, error } = await supabase
+    const client = supabase as any;
+
+    const { data, error } = await client
       .from('instructor_profiles')
       .select('id, display_name, average_rating, total_students, profile_image_url')
       .order('average_rating', { ascending: false, nullsFirst: false })
@@ -119,7 +144,9 @@ export class OptimizedDataService {
     const cached = this.getCached<any[]>(cacheKey);
     if (cached) return cached;
 
-    let query = supabase
+    const client = supabase as any;
+
+    let query = client
       .from('classes')
       .select('id, instructor_id, name, description, price, duration, max_participants, category, difficulty_level, equipment_needed, is_active, created_at, updated_at')
       .order('created_at', { ascending: false, nullsFirst: false })
@@ -161,6 +188,8 @@ export class OptimizedDataService {
     const cached = this.getCached<any>(cacheKey);
     if (cached) return cached;
 
+    const client = supabase as any;
+
     const [
       bookingsResponse,
       instructorsResponse,
@@ -168,11 +197,11 @@ export class OptimizedDataService {
       profilesResponse,
       transactionsResponse
     ] = await Promise.all([
-      supabase.from('bookings').select('id', { count: 'exact', head: true }),
-      supabase.from('instructor_profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('classes').select('id', { count: 'exact', head: true }),
-      supabase.from('user_profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('credit_transactions').select('amount')
+      client.from('bookings').select('id', { count: 'exact', head: true }),
+      client.from('instructor_profiles').select('id', { count: 'exact', head: true }),
+      client.from('classes').select('id', { count: 'exact', head: true }),
+      client.from('user_profiles').select('id', { count: 'exact', head: true }),
+      client.from('credit_transactions').select('amount')
     ]);
 
     const totalRevenue =

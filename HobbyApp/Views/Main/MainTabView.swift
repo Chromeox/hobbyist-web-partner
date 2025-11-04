@@ -89,15 +89,13 @@ struct MainTabView: View {
     private func destinationView(for destination: NavigationDestination) -> some View {
         switch destination {
         case .classDetail(let classID):
-            Text("Class Detail: \(classID)")
-                .navigationTitle("Class Details")
+            NavigationClassDetailView(classID: classID)
         case .profile:
             ProfileView()
         case .settings:
             SettingsView()
         case .credits:
-            Text("Credits")
-                .navigationTitle("Credits")
+            CreditsView()
         case .store(let category):
             StoreView(initialCategory: category)
                 .navigationTitle("Store")
@@ -107,17 +105,13 @@ struct MainTabView: View {
             RewardsView()
                 .navigationTitle("Rewards")
         case .bookingFlow(let classID):
-            Text("Booking Flow for: \(classID)")
-                .navigationTitle("Book Class")
+            NavigationBookingFlowView(classID: classID)
         case .feedback:
-            Text("Feedback")
-                .navigationTitle("Feedback")
+            FeedbackView()
         case .following:
-            Text("Following")
-                .navigationTitle("Following")
+            FollowingView()
         case .marketplace:
-            Text("Marketplace")
-                .navigationTitle("Marketplace")
+            MarketplaceView()
         }
     }
 }

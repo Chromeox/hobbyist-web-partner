@@ -127,21 +127,7 @@ struct EnhancedOnboardingFlow: View {
                             .background(BrandConstants.Colors.surface.opacity(0.95))
                             .cornerRadius(BrandConstants.CornerRadius.md)
 
-                        Button(action: {}) {
-                            HStack {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(BrandConstants.Colors.primary)
-                                Text("Select Neighborhood")
-                                    .font(BrandConstants.Typography.subheadline)
-                                    .foregroundColor(BrandConstants.Colors.text)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(BrandConstants.Colors.secondaryText)
-                            }
-                            .padding(BrandConstants.Spacing.md)
-                            .background(BrandConstants.Colors.surface.opacity(0.95))
-                            .cornerRadius(BrandConstants.CornerRadius.md)
-                        }
+                        OutlineButton("Select Neighborhood", icon: "mappin.circle.fill", borderColor: BrandConstants.Colors.primary) {}
                     }
                     .padding(BrandConstants.Spacing.xl)
                     .background(
@@ -466,13 +452,8 @@ struct OnboardingNavigationView: View {
         HStack(spacing: BrandConstants.Spacing.md) {
             // Back Button
             if currentStep > 0 {
-                Button(action: onBack) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                    .font(BrandConstants.Typography.subheadline)
-                    .foregroundColor(BrandConstants.Colors.surface)
+                AnimatedButton("Back", style: .minimal) {
+                    onBack()
                 }
             } else {
                 Spacer()
@@ -483,27 +464,15 @@ struct OnboardingNavigationView: View {
 
             // Skip Button (except for first and last steps)
             if currentStep > 0 && currentStep < totalSteps - 1 {
-                Button("Skip", action: onSkip)
-                    .font(BrandConstants.Typography.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                TextButton("Skip", color: .white.opacity(0.7), action: onSkip)
             }
 
             // Next/Complete Button
-            Button(action: onNext) {
-                HStack(spacing: BrandConstants.Spacing.sm) {
-                    Text(currentStep == totalSteps - 1 ? "Complete" : "Next")
-                        .font(BrandConstants.Typography.subheadline)
-                        .fontWeight(.semibold)
-
-                    Image(systemName: currentStep == totalSteps - 1 ? "checkmark.circle.fill" : "arrow.right.circle.fill")
-                }
-                .foregroundColor(BrandConstants.Colors.surface)
-                .padding(.horizontal, BrandConstants.Spacing.lg)
-                .padding(.vertical, BrandConstants.Spacing.md)
-                .background(BrandConstants.Colors.primary)
-                .cornerRadius(BrandConstants.CornerRadius.lg)
-                .shadow(color: BrandConstants.Colors.primary.opacity(0.3), radius: 8, y: 4)
-            }
+            BrandedButton(
+                currentStep == totalSteps - 1 ? "Complete" : "Next",
+                icon: currentStep == totalSteps - 1 ? "checkmark.circle.fill" : "arrow.right.circle.fill",
+                action: onNext
+            )
         }
         .padding(BrandConstants.Spacing.md)
         .background(BrandConstants.Colors.surface.opacity(0.1))

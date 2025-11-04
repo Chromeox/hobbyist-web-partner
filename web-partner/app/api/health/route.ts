@@ -31,7 +31,7 @@ export async function GET() {
   } else {
     try {
       const supabase = createServiceSupabase();
-      const { error } = await supabase.from('studios').select('id', { head: true, count: 'exact' });
+      const { error } = await (supabase as any).from('studios').select('id', { head: true, count: 'exact' });
 
       if (error) {
         overall = 'fail';

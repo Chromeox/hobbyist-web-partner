@@ -2,11 +2,13 @@ import { supabase } from '../supabase'
 
 export class DataService {
   static async getDashboardStats() {
+    const client = supabase as any
+
     const countRequests = await Promise.all([
-      supabase.from('bookings').select('id', { count: 'exact', head: true }),
-      supabase.from('instructor_profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('classes').select('id', { count: 'exact', head: true }),
-      supabase.from('user_profiles').select('id', { count: 'exact', head: true })
+      client.from('bookings').select('id', { count: 'exact', head: true }),
+      client.from('instructor_profiles').select('id', { count: 'exact', head: true }),
+      client.from('classes').select('id', { count: 'exact', head: true }),
+      client.from('user_profiles').select('id', { count: 'exact', head: true })
     ])
 
     const [bookingsCount, instructorsCount, classesCount, usersCount] = countRequests.map(
@@ -21,7 +23,7 @@ export class DataService {
       }
     )
 
-    const { data: transactions, error: transactionError } = await supabase
+    const { data: transactions, error: transactionError } = await client
       .from('credit_transactions')
       .select('amount, transaction_type')
 
@@ -29,10 +31,10 @@ export class DataService {
       console.warn('Failed to load credit transactions for revenue stats:', transactionError.message)
     }
 
-    const totalRevenue =
-      transactions?.reduce((sum, transaction) => {
-        return transaction.amount > 0 ? sum + transaction.amount : sum
-      }, 0) ?? 0
+    const transactionRows = (transactions ?? []) as Array<{ amount: number }>
+    const totalRevenue = transactionRows.reduce((sum, transaction) => {
+      return transaction.amount > 0 ? sum + transaction.amount : sum
+    }, 0)
 
     return {
       totalBookings: bookingsCount,

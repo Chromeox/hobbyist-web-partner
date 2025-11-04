@@ -27,8 +27,8 @@ public struct SelectionButton: View {
             Text(text)
                 .font(BrandConstants.Typography.body)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, BrandConstants.Spacing.md)
+                .padding(.vertical, BrandConstants.Spacing.sm)
                 .frame(maxWidth: .infinity)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
@@ -122,7 +122,7 @@ struct SelectionButtonGrid: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 8) {
+        LazyVGrid(columns: columns, spacing: BrandConstants.Spacing.sm) {
             ForEach(items, id: \.self) { item in
                 SelectionButton(
                     item,
@@ -164,8 +164,8 @@ public struct SelectionChip: View {
             Text(text)
                 .font(BrandConstants.Typography.subheadline)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, BrandConstants.Spacing.md)
+                .padding(.vertical, BrandConstants.Spacing.sm)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
                 .cornerRadius(BrandConstants.CornerRadius.full)

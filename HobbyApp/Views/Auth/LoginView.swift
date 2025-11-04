@@ -161,12 +161,10 @@ struct LoginView: View {
                         if !isSignUp {
                             HStack {
                                 Spacer()
-                                Button("Forgot Password?") {
+                                TextButton("Forgot Password?", color: BrandConstants.Colors.teal) {
                                     resetEmail = email
                                     showPasswordReset = true
                                 }
-                                .font(BrandConstants.Typography.footnote)
-                                .foregroundColor(BrandConstants.Colors.teal)
                             }
                         }
                     }
@@ -215,45 +213,14 @@ struct LoginView: View {
                     // Enhanced Action Buttons Section - Compact
                     VStack(spacing: 10) {
                             // Main Action Button - Using BrandedButton style
-                            Button(action: {
+                            BrandedButton(
+                                isSignUp ? "Create Account" : "Sign In",
+                                icon: "arrow.right.circle.fill",
+                                isLoading: supabaseService.isLoading,
+                                isDisabled: !formIsValid
+                            ) {
                                 performAuthentication()
-                            }) {
-                                HStack(spacing: 12) {
-                                    if supabaseService.isLoading {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: BrandConstants.Colors.surface))
-                                            .scaleEffect(0.8)
-                                    }
-
-                                    Text(isSignUp ? "Create Account" : "Sign In")
-                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
-
-                                    if !supabaseService.isLoading {
-                                        Image(systemName: "arrow.right.circle.fill")
-                                            .font(BrandConstants.Typography.headline)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, minHeight: 50)
-                                .foregroundColor(BrandConstants.Colors.surface)
-                                .background(
-                                    formIsValid && !supabaseService.isLoading ?
-                                        BrandConstants.Gradients.primary :
-                                        LinearGradient(
-                                            colors: [BrandConstants.Colors.secondaryText, BrandConstants.Colors.secondaryText.opacity(0.8)],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                )
-                                .cornerRadius(BrandConstants.CornerRadius.lg)
-                                .shadow(
-                                    color: formIsValid ? BrandConstants.Colors.primary.opacity(0.3) : .clear,
-                                    radius: 8,
-                                    y: 4
-                                )
                             }
-                            .disabled(supabaseService.isLoading || !formIsValid)
-                            .scaleEffect(supabaseService.isLoading ? 0.95 : 1.0)
-                            .animation(BrandConstants.Animation.spring, value: supabaseService.isLoading)
 
                             // Face ID Button - OutlineButton style
                             let _ = print("🔐 Face ID condition check - isSignUp: \(isSignUp), canUseBiometricsIndependently: \(biometricService.canUseBiometricsIndependently())")

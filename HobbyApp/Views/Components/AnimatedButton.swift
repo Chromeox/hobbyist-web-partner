@@ -87,11 +87,11 @@ public struct AnimatedButton: View {
     private var backgroundColor: Color {
         switch style {
         case .primary:
-            return isPressed ? Color.blue.opacity(0.8) : Color.blue
+            return isPressed ? BrandConstants.Colors.primary.opacity(0.8) : BrandConstants.Colors.primary
         case .secondary:
             return isPressed ? Color(.systemGray5) : Color(.systemGray6)
         case .destructive:
-            return isPressed ? Color.red.opacity(0.8) : Color.red
+            return isPressed ? BrandConstants.Colors.error.opacity(0.8) : BrandConstants.Colors.error
         case .tertiary:
             return Color.clear
         case .minimal:
@@ -106,7 +106,7 @@ public struct AnimatedButton: View {
         case .secondary:
             return .primary
         case .tertiary, .minimal:
-            return .blue
+            return BrandConstants.Colors.primary
         }
     }
 
@@ -115,7 +115,7 @@ public struct AnimatedButton: View {
         case .primary, .destructive, .secondary:
             return Color.clear
         case .tertiary:
-            return .blue
+            return BrandConstants.Colors.primary
         case .minimal:
             return Color.clear
         }
@@ -166,11 +166,11 @@ public struct AnimatedButton: View {
     private var cornerRadius: CGFloat {
         switch size {
         case .small:
-            return 8
+            return BrandConstants.CornerRadius.sm
         case .regular:
-            return 10
+            return BrandConstants.CornerRadius.md
         case .large:
-            return 12
+            return BrandConstants.CornerRadius.lg
         }
     }
 
@@ -272,11 +272,11 @@ public struct AnimatedIconButton: View {
     private var backgroundColor: Color {
         switch style {
         case .primary:
-            return isPressed ? Color.blue.opacity(0.8) : Color.blue
+            return isPressed ? BrandConstants.Colors.primary.opacity(0.8) : BrandConstants.Colors.primary
         case .secondary:
             return isPressed ? Color(.systemGray5) : Color(.systemGray6)
         case .destructive:
-            return isPressed ? Color.red.opacity(0.8) : Color.red
+            return isPressed ? BrandConstants.Colors.error.opacity(0.8) : BrandConstants.Colors.error
         case .tertiary:
             return Color.clear
         case .minimal:
@@ -291,14 +291,14 @@ public struct AnimatedIconButton: View {
         case .secondary:
             return .primary
         case .tertiary, .minimal:
-            return .blue
+            return BrandConstants.Colors.primary
         }
     }
 
     private var borderColor: Color {
         switch style {
         case .tertiary:
-            return .blue
+            return BrandConstants.Colors.primary
         default:
             return Color.clear
         }
@@ -338,11 +338,11 @@ public struct AnimatedIconButton: View {
     private var cornerRadius: CGFloat {
         switch size {
         case .small:
-            return 8
+            return BrandConstants.CornerRadius.sm
         case .regular:
-            return 10
+            return BrandConstants.CornerRadius.md
         case .large:
-            return 12
+            return BrandConstants.CornerRadius.lg
         }
     }
 }

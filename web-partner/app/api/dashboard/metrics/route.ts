@@ -97,7 +97,7 @@ export async function GET(request: Request) {
         .eq('studio_id', studioId)
         .gte('bucket_date', todayRange.current.start)
         .lte('bucket_date', todayRange.current.end),
-      supabase
+      (supabase as any)
         .from('v_studio_day_schedule')
         .select('schedule_id, studio_id')
         .eq('studio_id', studioId)
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
       throw todayMetricsResponse.error ?? todaySchedulesResponse.error
     }
 
-    const todayMetricsRows = todayMetricsResponse.data ?? []
+    const todayMetricsRows = (todayMetricsResponse.data ?? []) as Array<{ revenue: number | null }>
     const todaySchedules = todaySchedulesResponse.data ?? []
 
     const todaysRevenue = todayMetricsRows.reduce((sum, row) => sum + (row.revenue ?? 0), 0)

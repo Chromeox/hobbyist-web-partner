@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
-import type { Database, Json } from '@/types/supabase'
+import type { Json } from '@/types/supabase'
 
 type OnboardingPayload = {
   owner?: {
@@ -90,10 +90,25 @@ export async function POST(request: Request) {
       yearEstablished: businessInfo.yearEstablished ?? null
     }
 
-    type StudiosInsert = Database['public']['Tables']['studios']['Insert']
-    type StudiosUpdate = Database['public']['Tables']['studios']['Update']
+    type StudiosInsert = {
+      name: string
+      email: string
+      phone?: string | null
+      address?: string | null
+      city?: string | null
+      province?: string | null
+      postal_code?: string | null
+      profile?: Json
+      social_links?: Json
+      amenities?: string[]
+      commission_rate?: number | null
+    }
 
-    const baseStudioData = {
+    type StudiosUpdate = StudiosInsert & {
+      updated_at?: string
+    }
+
+    const baseStudioData: StudiosInsert = {
       name: studioName,
       email: contactEmail,
       phone: businessInfo.businessPhone ?? null,
@@ -107,7 +122,7 @@ export async function POST(request: Request) {
     } satisfies StudiosInsert
 
     // Upsert studio by email (unique)
-    const { data: existingStudio, error: fetchStudioError } = await supabase
+    const { data: existingStudio, error: fetchStudioError } = await (supabase as any)
       .from('studios')
       .select('id')
       .eq('email', contactEmail)
@@ -129,7 +144,7 @@ export async function POST(request: Request) {
         updated_at: new Date().toISOString()
       }
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('studios')
         .update(studioUpdate)
         .eq('id', studioId)
@@ -147,7 +162,7 @@ export async function POST(request: Request) {
         commission_rate: 25.0
       }
 
-      const { data: insertStudio, error: insertError } = await supabase
+      const { data: insertStudio, error: insertError } = await (supabase as any)
         .from('studios')
         .insert(studioInsert)
         .select('id')
@@ -174,7 +189,7 @@ export async function POST(request: Request) {
     // Upsert instructor/owner record
     if (owner?.name || owner?.email) {
       const { data: existingInstructor, error: existingInstructorError } =
-        await supabase
+        await (supabase as any)
           .from('instructors')
           .select('id')
           .eq('studio_id', studioId)
@@ -184,7 +199,7 @@ export async function POST(request: Request) {
       if (existingInstructorError) {
         console.error('Error fetching instructor:', existingInstructorError)
       } else if (!existingInstructor || existingInstructor.length === 0) {
-        const { error: insertInstructorError } = await supabase
+        const { error: insertInstructorError } = await (supabase as any)
           .from('instructors')
           .insert({
             studio_id: studioId,
@@ -201,8 +216,16 @@ export async function POST(request: Request) {
     }
 
     // Store raw onboarding submission for audit trail
-    type OnboardingSubmissionInsert =
-      Database['public']['Tables']['studio_onboarding_submissions']['Insert']
+    type OnboardingSubmissionInsert = {
+      user_id?: string | null
+      email: string
+      business_name: string
+      status?: string
+      studio_id?: string | null
+      submitted_data: Json
+      verification_documents?: Json | null
+      payment_setup?: Json | null
+    }
 
     const submissionPayload: OnboardingSubmissionInsert = {
       user_id: owner?.userId ?? null,
