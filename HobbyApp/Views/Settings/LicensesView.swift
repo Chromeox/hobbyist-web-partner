@@ -44,9 +44,11 @@ struct LicensesView: View {
                             .font(.headline)
                             .fontWeight(.medium)
                         Spacer()
-                        Link("View", destination: URL(string: license.url)!)
-                            .font(.caption)
-                            .foregroundColor(.blue)
+                        if let licenseURL = URL(string: license.url) {
+                            Link("View", destination: licenseURL)
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        }
                     }
                     
                     Text(license.description)

@@ -285,8 +285,10 @@ extension SettingsView {
     
     private var supportView: some View {
         Group {
-            Link(destination: URL(string: "https://hobbyist.app/help")!) {
-                Label("Help Center", systemImage: "questionmark.circle")
+            if let helpURL = URL(string: "https://hobbyist.app/help") {
+                Link(destination: helpURL) {
+                    Label("Help Center", systemImage: "questionmark.circle")
+                }
             }
             
             Button {

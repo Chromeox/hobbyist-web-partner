@@ -94,8 +94,7 @@ struct MainTabView: View {
         case .profile:
             ProfileView()
         case .settings:
-            Text("Settings")
-                .navigationTitle("Settings")
+            SettingsView()
         case .credits:
             Text("Credits")
                 .navigationTitle("Credits")

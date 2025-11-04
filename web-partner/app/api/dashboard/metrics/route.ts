@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server'
 
 import { createServiceSupabase } from '@/lib/supabase'
 import { resolveDashboardPeriod, type DashboardPeriod } from '@/lib/utils/dateRange'
-import type { Database } from '@/types/supabase'
 
-type MetricsDailyRow = Database['public']['Views']['v_studio_metrics_daily']['Row']
-type MetricsKpiRow = Pick<MetricsDailyRow, 'revenue' | 'booking_count' | 'unique_schedules' | 'unique_instructors'>
+type MetricsKpiRow = {
+  revenue: number | null
+  booking_count: number | null
+  unique_schedules: number | null
+  unique_instructors: number | null
+}
 
 const parsePeriod = (value: string | null): DashboardPeriod => {
   if (!value) return 'week'
@@ -56,25 +59,25 @@ export async function GET(request: Request) {
     }
 
     const resolved = resolveDashboardPeriod(period, { startDate: customStart, endDate: customEnd })
+    const metricsColumns = 'revenue, booking_count, unique_schedules, unique_instructors'
 
-    const currentQuery = supabase
-      .from('v_studio_metrics_daily')
-      .select('revenue, booking_count, unique_schedules, unique_instructors')
-      .eq('studio_id', studioId)
-      .gte('bucket_date', resolved.current.start)
-      .lte('bucket_date', resolved.current.end)
+    const [currentResult, previousResult] = (await Promise.all([
+      (supabase as any)
+        .from('v_studio_metrics_daily')
+        .select(metricsColumns)
+        .eq('studio_id', studioId)
+        .gte('bucket_date', resolved.current.start)
+        .lte('bucket_date', resolved.current.end),
+      (supabase as any)
+        .from('v_studio_metrics_daily')
+        .select(metricsColumns)
+        .eq('studio_id', studioId)
+        .gte('bucket_date', resolved.previous.start)
+        .lte('bucket_date', resolved.previous.end)
+    ])) as Array<{ data: MetricsKpiRow[] | null; error: any }>
 
-    const previousQuery = supabase
-      .from('v_studio_metrics_daily')
-      .select('revenue, booking_count, unique_schedules, unique_instructors')
-      .eq('studio_id', studioId)
-      .gte('bucket_date', resolved.previous.start)
-      .lte('bucket_date', resolved.previous.end)
-
-    const [
-      { data: currentRows, error: currentError },
-      { data: previousRows, error: previousError }
-    ] = await Promise.all([currentQuery, previousQuery])
+    const { data: currentRows, error: currentError } = currentResult
+    const { data: previousRows, error: previousError } = previousResult
 
     if (currentError || previousError) {
       throw currentError ?? previousError
@@ -88,7 +91,7 @@ export async function GET(request: Request) {
     const todayRange = resolveDashboardPeriod('today')
 
     const [todayMetricsResponse, todaySchedulesResponse] = await Promise.all([
-      supabase
+      (supabase as any)
         .from('v_studio_metrics_daily')
         .select('revenue')
         .eq('studio_id', studioId)

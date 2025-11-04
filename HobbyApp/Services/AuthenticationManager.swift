@@ -166,8 +166,9 @@ class AuthenticationManager: ObservableObject {
             )
             isAuthenticated = true
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
         
         isLoading = false
@@ -197,8 +198,9 @@ class AuthenticationManager: ObservableObject {
             )
             isAuthenticated = true
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
         
         isLoading = false
@@ -217,8 +219,9 @@ class AuthenticationManager: ObservableObject {
             isAuthenticated = false
             clearForm()
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
         
         isLoading = false
@@ -232,8 +235,9 @@ class AuthenticationManager: ObservableObject {
         do {
             try await supabase.auth.resetPasswordForEmail(email)
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
     }
     
@@ -273,8 +277,9 @@ class AuthenticationManager: ObservableObject {
             )
             isAuthenticated = true
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
         
         isLoading = false
@@ -377,8 +382,9 @@ class AuthenticationManager: ObservableObject {
             // Sign out the user (Supabase doesn't provide admin deleteUser for client SDK)
             try await signOut()
         } catch {
-            authError = mapSupabaseError(error)
-            throw authError!
+            let mappedError = mapSupabaseError(error)
+            authError = mappedError
+            throw mappedError
         }
         
         isLoading = false

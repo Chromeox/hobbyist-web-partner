@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server'
 
 import { createServiceSupabase } from '@/lib/supabase'
+import { logMonitoringEvent } from '@/lib/monitoring/logflare'
 import type { Database } from '@/types/supabase'
 
 const MS_IN_DAY = 86_400_000
 
 export async function GET(request: Request) {
+  let studioId: string | null = null
+  let rangeDays = 90
   try {
     const supabase = createServiceSupabase()
     const { searchParams } = new URL(request.url)
-    const studioId = searchParams.get('studioId')
-    const rangeDays = Math.max(parseInt(searchParams.get('rangeDays') || '90', 10), 1)
+    studioId = searchParams.get('studioId')
+    rangeDays = Math.max(parseInt(searchParams.get('rangeDays') || '90', 10), 1)
     const limit = Math.min(parseInt(searchParams.get('limit') || '200', 10), 500)
 
     if (!studioId) {
@@ -79,6 +82,15 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Error fetching intelligence data:', error)
+    await logMonitoringEvent({
+      event: 'intelligence_data_fetch_failed',
+      level: 'error',
+      studioId,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      context: {
+        rangeDays
+      }
+    })
     return NextResponse.json(
       { error: { code: 'intelligence_error', message: 'Failed to load intelligence data' } },
       { status: 500 }

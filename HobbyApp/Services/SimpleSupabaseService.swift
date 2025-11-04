@@ -574,7 +574,10 @@ final class SimpleSupabaseService: ObservableObject {
                 .single()
                 .execute()
 
-            let data = try response.value as! [String: Any]
+            guard let data = response.value as? [String: Any] else {
+                print("❌ Failed to cast avatar response to dictionary")
+                return nil
+            }
             let avatarURL = data["avatar_url"] as? String
             print("✅ Fetched avatar URL: \(avatarURL ?? "nil")")
             return avatarURL
@@ -669,7 +672,10 @@ final class SimpleSupabaseService: ObservableObject {
                 .single()
                 .execute()
 
-            let data = try response.value as! [String: Any]
+            guard let data = response.value as? [String: Any] else {
+                print("❌ Failed to cast user profile response to dictionary")
+                return nil
+            }
             return SimpleUserProfile(from: data, fallbackEmail: currentUser?.email ?? "")
         } catch {
             print("❌ Failed to fetch user profile: \(error)")

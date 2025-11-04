@@ -96,7 +96,7 @@ extension ActivityFeedItem {
                 targetId: UUID(),
                 targetName: "Morning Yoga Flow",
                 metadata: nil,
-                createdAt: calendar.date(byAdding: .hour, value: -1, to: now)!
+                createdAt: calendar.date(byAdding: .hour, value: -1, to: now) ?? now
             ),
             ActivityFeedItem(
                 id: UUID(),
@@ -108,7 +108,7 @@ extension ActivityFeedItem {
                 targetId: UUID(),
                 targetName: "Emma Watson",
                 metadata: ["rating": "5"],
-                createdAt: calendar.date(byAdding: .hour, value: -3, to: now)!
+                createdAt: calendar.date(byAdding: .hour, value: -3, to: now) ?? now
             ),
             ActivityFeedItem(
                 id: UUID(),
@@ -120,7 +120,7 @@ extension ActivityFeedItem {
                 targetId: UUID(),
                 targetName: "Downtown Fitness Studio",
                 metadata: nil,
-                createdAt: calendar.date(byAdding: .day, value: -1, to: now)!
+                createdAt: calendar.date(byAdding: .day, value: -1, to: now) ?? now
             ),
             ActivityFeedItem(
                 id: UUID(),
@@ -132,7 +132,7 @@ extension ActivityFeedItem {
                 targetId: UUID(),
                 targetName: "10 Classes Milestone",
                 metadata: ["badge": "bronze"],
-                createdAt: calendar.date(byAdding: .day, value: -1, to: now)!
+                createdAt: calendar.date(byAdding: .day, value: -1, to: now) ?? now
             ),
             ActivityFeedItem(
                 id: UUID(),
@@ -144,7 +144,7 @@ extension ActivityFeedItem {
                 targetId: nil,
                 targetName: nil,
                 metadata: nil,
-                createdAt: calendar.date(byAdding: .day, value: -2, to: now)!
+                createdAt: calendar.date(byAdding: .day, value: -2, to: now) ?? now
             )
         ]
     }

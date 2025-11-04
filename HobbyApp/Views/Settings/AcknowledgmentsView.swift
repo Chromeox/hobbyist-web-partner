@@ -95,22 +95,28 @@ struct AcknowledgmentsView: View {
                         .multilineTextAlignment(.center)
                     
                     HStack(spacing: 20) {
-                        Link(destination: URL(string: "https://instagram.com/hobbyistapp")!) {
-                            Image(systemName: "camera.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
+                        if let instagramURL = URL(string: "https://instagram.com/hobbyistapp") {
+                            Link(destination: instagramURL) {
+                                Image(systemName: "camera.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                            }
                         }
                         
-                        Link(destination: URL(string: "https://twitter.com/hobbyistapp")!) {
-                            Image(systemName: "message.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
+                        if let twitterURL = URL(string: "https://twitter.com/hobbyistapp") {
+                            Link(destination: twitterURL) {
+                                Image(systemName: "message.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                            }
                         }
                         
-                        Link(destination: URL(string: "mailto:hello@hobbyist.app")!) {
-                            Image(systemName: "envelope.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
+                        if let emailURL = URL(string: "mailto:hello@hobbyist.app") {
+                            Link(destination: emailURL) {
+                                Image(systemName: "envelope.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                            }
                         }
                     }
                     .padding(.top, 8)
