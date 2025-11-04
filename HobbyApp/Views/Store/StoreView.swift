@@ -33,8 +33,8 @@ struct StoreView: View {
 
                 if let error = viewModel.errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(BrandConstants.Typography.footnote)
+                        .foregroundColor(BrandConstants.Colors.error)
                         .multilineTextAlignment(.center)
                         .transition(.opacity)
                 }
@@ -117,9 +117,9 @@ struct StoreView: View {
         VStack(spacing: 12) {
             ProgressView()
             Text(text)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
         }
         .padding(.vertical, 40)
     }
@@ -145,7 +145,7 @@ private struct StoreProductCard: View {
         VStack(alignment: .leading, spacing: 12) {
             if isHighlighted {
                 Text("Most Popular")
-                    .font(.caption2)
+                    .font(BrandConstants.Typography.caption)
                     .fontWeight(.bold)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
@@ -158,32 +158,32 @@ private struct StoreProductCard: View {
 
             HStack {
                 Text(product.displayName)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                    .font(BrandConstants.Typography.headline)
+                    .foregroundColor(BrandConstants.Colors.text)
 
                 Spacer()
 
                 if isOwned {
                     Label("Owned", systemImage: "checkmark.seal.fill")
-                        .font(.caption)
-                        .foregroundColor(.green)
+                        .font(BrandConstants.Typography.caption)
+                        .foregroundColor(BrandConstants.Colors.success)
                         .labelStyle(.titleAndIcon)
                 }
             }
 
             Text(product.description)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .font(BrandConstants.Typography.subheadline)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
 
             Text(product.displayPrice)
-                .font(.title3)
+                .font(BrandConstants.Typography.title3)
                 .fontWeight(.semibold)
 
             Button(action: action) {
                 HStack {
                     if isProcessing {
                         ProgressView()
-                            .tint(.white)
+                            .tint(BrandConstants.Colors.surface)
                     }
                     Text(actionTitle)
                         .fontWeight(.semibold)

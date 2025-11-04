@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { createServiceSupabase } from '@/lib/supabase'
+import type { Database } from '@/types/supabase'
 
 const MS_IN_DAY = 86_400_000
 
@@ -21,9 +22,12 @@ export async function GET(request: Request) {
 
     const rangeStart = new Date(Date.now() - rangeDays * MS_IN_DAY).toISOString()
 
-    const [{ data: events, error: eventsError }, { data: integrations, error: integrationsError }] = await Promise.all([
+    const [
+      { data: events, error: eventsError },
+      { data: integrations, error: integrationsError }
+    ] = await Promise.all([
       supabase
-        .from('v_studio_imported_events_recent' as any)
+        .from('v_studio_imported_events_recent')
         .select(
           'id, studio_id, integration_id, provider, title, description, start_time, end_time, all_day, instructor_name, instructor_email, location, room, category, skill_level, max_participants, current_participants, price, material_fee, migration_status, mapped_class_id, mapped_schedule_id, raw_data'
         )
@@ -42,6 +46,24 @@ export async function GET(request: Request) {
       throw eventsError ?? integrationsError
     }
 
+    type ImportedEventRow = Database['public']['Views']['v_studio_imported_events_recent']['Row']
+    type CalendarIntegrationRow = Database['public']['Tables']['calendar_integrations']['Row']
+
+    const importedEvents: ImportedEventRow[] = events ?? []
+    const calendarIntegrations: Array<
+      Pick<
+        CalendarIntegrationRow,
+        'id' | 'provider' | 'sync_enabled' | 'sync_status' | 'last_sync_at' | 'updated_at'
+      >
+    > = (integrations ?? []).map(integration => ({
+      id: integration.id,
+      provider: integration.provider,
+      sync_enabled: integration.sync_enabled,
+      sync_status: integration.sync_status,
+      last_sync_at: integration.last_sync_at,
+      updated_at: integration.updated_at
+    }))
+
     return NextResponse.json({
       studioId,
       generatedAt: new Date().toISOString(),
@@ -50,9 +72,9 @@ export async function GET(request: Request) {
         end: new Date().toISOString(),
         days: rangeDays
       },
-      importedEvents: (events as unknown as Record<string, unknown>[] | null) ?? [],
+      importedEvents,
       integrations: {
-        calendar: integrations ?? []
+        calendar: calendarIntegrations
       }
     })
   } catch (error) {

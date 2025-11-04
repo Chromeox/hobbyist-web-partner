@@ -69,25 +69,23 @@ class ProfileViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 500_000_000)
 
         // Load mock data for demonstration
-        await MainActor.run {
-            statistics = UserStatistics(
-                totalBookings: 12,
-                totalSpent: 450.00,
-                classesAttended: 10,
-                favoriteCategory: .fitness,
-                memberSince: Date().addingTimeInterval(-86400 * 30),
-                lastActiveDate: Date(),
-                upcomingClasses: 2,
-                completedClasses: 10,
-                cancelledClasses: 2,
-                averageRating: 4.8,
-                totalReviews: 8
-            )
+        statistics = UserStatistics(
+            totalBookings: 12,
+            totalSpent: 450.00,
+            classesAttended: 10,
+            favoriteCategory: .fitness,
+            memberSince: Date().addingTimeInterval(-86400 * 30),
+            lastActiveDate: Date(),
+            upcomingClasses: 2,
+            completedClasses: 10,
+            cancelledClasses: 2,
+            averageRating: 4.8,
+            totalReviews: 8
+        )
 
-            bookingHistory = []
-            favoriteClasses = []
-            achievements = []
-        }
+        bookingHistory = []
+        favoriteClasses = []
+        achievements = []
     }
     
     func startEditing() {
@@ -118,13 +116,11 @@ class ProfileViewModel: ObservableObject {
         // Simulate profile update
         try? await Task.sleep(nanoseconds: 1_000_000_000)
 
-        await MainActor.run {
-            // For demo purposes, just show success
-            isEditing = false
-            successMessage = "Profile updated successfully"
-            selectedImage = nil
-            isUpdatingProfile = false
-        }
+        // For demo purposes, just show success
+        isEditing = false
+        successMessage = "Profile updated successfully"
+        selectedImage = nil
+        isUpdatingProfile = false
     }
     
     func updatePreferences(_ preferences: UserPreferences) async {

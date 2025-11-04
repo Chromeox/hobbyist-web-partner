@@ -13,23 +13,23 @@ struct ClassDetailView: View {
                 ZStack(alignment: .topTrailing) {
                     Rectangle()
                         .fill(LinearGradient(
-                            gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.6)]),
+                            gradient: Gradient(colors: [BrandConstants.Colors.primary.opacity(0.8), BrandConstants.Colors.coral.opacity(0.6)]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
                         .frame(height: 250)
                         .overlay(
                             Image(systemName: hobbyClass.iconName)
-                                .font(.system(size: 60))
-                                .foregroundColor(.white)
+                                .font(BrandConstants.Typography.largeTitle)
+                                .foregroundColor(BrandConstants.Colors.surface)
                         )
 
                     // Favorite Button
                     Button(action: { isFavorited.toggle() }) {
                         Image(systemName: isFavorited ? "heart.fill" : "heart")
-                            .font(.system(size: 20))
-                            .foregroundColor(isFavorited ? .red : .white)
-                            .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 40, height: 40))
+                            .font(BrandConstants.Typography.title3)
+                            .foregroundColor(isFavorited ? BrandConstants.Colors.error : BrandConstants.Colors.surface)
+                            .background(Circle().fill(BrandConstants.Colors.text.opacity(0.3)).frame(width: 40, height: 40))
                     }
                     .padding(16)
                 }
@@ -38,15 +38,15 @@ struct ClassDetailView: View {
                     // Class Title and Studio
                     VStack(alignment: .leading, spacing: 8) {
                         Text(hobbyClass.title)
-                            .font(.largeTitle)
+                            .font(BrandConstants.Typography.largeTitle)
                             .fontWeight(.bold)
 
                         HStack {
                             Image(systemName: "location")
-                                .foregroundColor(.blue)
+                                .foregroundColor(BrandConstants.Colors.primary)
                             Text(hobbyClass.studioName)
-                                .font(.headline)
-                                .foregroundColor(.blue)
+                                .font(BrandConstants.Typography.headline)
+                                .foregroundColor(BrandConstants.Colors.primary)
                         }
                     }
 
@@ -61,29 +61,29 @@ struct ClassDetailView: View {
                     // Description
                     VStack(alignment: .leading, spacing: 8) {
                         Text("About This Class")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         Text(hobbyClass.description)
-                            .font(.body)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.body)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                             .lineLimit(nil)
                     }
 
                     // What to Expect
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What to Expect")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         ForEach(hobbyClass.whatToExpect, id: \.self) { item in
                             HStack(alignment: .top, spacing: 8) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                    .font(.system(size: 16))
+                                    .foregroundColor(BrandConstants.Colors.success)
+                                    .font(BrandConstants.Typography.body)
                                     .padding(.top, 2)
 
                                 Text(item)
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
+                                    .font(BrandConstants.Typography.body)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                         }
                     }
@@ -92,18 +92,18 @@ struct ClassDetailView: View {
                     if !hobbyClass.requirements.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Requirements")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
 
                             ForEach(hobbyClass.requirements, id: \.self) { requirement in
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: "info.circle.fill")
-                                        .foregroundColor(.blue)
-                                        .font(.system(size: 16))
+                                        .foregroundColor(BrandConstants.Colors.primary)
+                                        .font(BrandConstants.Typography.body)
                                         .padding(.top, 2)
 
                                     Text(requirement)
-                                        .font(.body)
-                                        .foregroundColor(.secondary)
+                                        .font(BrandConstants.Typography.body)
+                                        .foregroundColor(BrandConstants.Colors.secondaryText)
                                 }
                             }
                         }
@@ -113,19 +113,19 @@ struct ClassDetailView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("Reviews")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
 
                             Spacer()
 
                             HStack(spacing: 4) {
                                 ForEach(0..<5) { star in
                                     Image(systemName: star < hobbyClass.rating ? "star.fill" : "star")
-                                        .foregroundColor(.yellow)
-                                        .font(.system(size: 14))
+                                        .foregroundColor(BrandConstants.Colors.warning)
+                                        .font(BrandConstants.Typography.subheadline)
                                 }
                                 Text("(\(hobbyClass.reviewCount) reviews)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                         }
 
@@ -141,25 +141,25 @@ struct ClassDetailView: View {
                     // Instructor Bio
                     VStack(alignment: .leading, spacing: 8) {
                         Text("About \(hobbyClass.instructor)")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         HStack(spacing: 12) {
                             Image(systemName: "person.circle.fill")
-                                .font(.system(size: 50))
-                                .foregroundColor(.blue)
+                                .font(BrandConstants.Typography.largeTitle)
+                                .foregroundColor(BrandConstants.Colors.primary)
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(hobbyClass.instructor)
-                                    .font(.headline)
+                                    .font(BrandConstants.Typography.headline)
 
                                 Text(hobbyClass.instructorBio)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                                     .lineLimit(3)
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(BrandConstants.Colors.background)
                         .cornerRadius(12)
                     }
                 }
@@ -178,13 +178,13 @@ struct ClassDetailView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(hobbyClass.creditsRequired) Credits")
-                            .font(.title2)
+                            .font(BrandConstants.Typography.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
 
                         Text("per class")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
 
                     Spacer()
@@ -194,13 +194,13 @@ struct ClassDetailView: View {
                     }
                     .frame(width: 120)
                     .padding()
-                    .background(Color.blue)
+                    .background(BrandConstants.Colors.primary)
                     .foregroundColor(.white)
                     .cornerRadius(12)
                     .fontWeight(.semibold)
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(BrandConstants.Colors.surface)
             }
         }
         .sheet(isPresented: $showBookingSheet) {
@@ -217,23 +217,23 @@ struct InfoCardView: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 24))
+                .font(BrandConstants.Typography.title2)
                 .foregroundColor(.blue)
 
             VStack(spacing: 4) {
                 Text(title)
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
 
                 Text(value)
-                    .font(.callout)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
         .padding(16)
-        .background(Color(.systemGray6))
+        .background(BrandConstants.Colors.background)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
     }
@@ -249,7 +249,7 @@ struct ReviewCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(name)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
 
                 Spacer()
@@ -257,22 +257,22 @@ struct ReviewCardView: View {
                 HStack(spacing: 2) {
                     ForEach(0..<5) { star in
                         Image(systemName: star < rating ? "star.fill" : "star")
-                            .foregroundColor(.yellow)
-                            .font(.system(size: 12))
+                            .foregroundColor(BrandConstants.Colors.warning)
+                            .font(BrandConstants.Typography.caption)
                     }
                 }
 
                 Text(date)
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
             }
 
             Text(comment)
-                .font(.body)
+                .font(BrandConstants.Typography.body)
                 .foregroundColor(.secondary)
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(BrandConstants.Colors.background)
         .cornerRadius(12)
     }
 }
@@ -292,38 +292,38 @@ struct BookingSheetView: View {
                     // Class Summary
                     HStack(spacing: 12) {
                         Rectangle()
-                            .fill(Color.blue.opacity(0.3))
+                            .fill(BrandConstants.Colors.primary.opacity(0.3))
                             .frame(width: 60, height: 60)
                             .cornerRadius(8)
                             .overlay(
                                 Image(systemName: hobbyClass.iconName)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(BrandConstants.Colors.primary)
                             )
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(hobbyClass.title)
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
 
                             Text(hobbyClass.studioName)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .font(BrandConstants.Typography.subheadline)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
 
                             Text("\(hobbyClass.creditsRequired) Credits")
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.blue)
+                                .foregroundColor(BrandConstants.Colors.primary)
                         }
 
                         Spacer()
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(BrandConstants.Colors.background)
                     .cornerRadius(12)
 
                     // Date Selection
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Select Date")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         DatePicker("Class Date", selection: $selectedDate, displayedComponents: .date)
                             .datePickerStyle(GraphicalDatePickerStyle())
@@ -332,7 +332,7 @@ struct BookingSheetView: View {
                     // Time Selection
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Select Time")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
                             ForEach(availableTimes, id: \.self) { time in
@@ -341,8 +341,8 @@ struct BookingSheetView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(selectedTime == time ? Color.blue : Color(.systemGray6))
-                                .foregroundColor(selectedTime == time ? .white : .primary)
+                                .background(selectedTime == time ? BrandConstants.Colors.primary : BrandConstants.Colors.background)
+                                .foregroundColor(selectedTime == time ? BrandConstants.Colors.surface : BrandConstants.Colors.text)
                                 .cornerRadius(8)
                             }
                         }
@@ -352,12 +352,12 @@ struct BookingSheetView: View {
                     VStack(spacing: 12) {
                         HStack {
                             Text("Total")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                             Spacer()
                             Text("\(hobbyClass.creditsRequired) Credits")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.blue)
+                                .foregroundColor(BrandConstants.Colors.primary)
                         }
 
                         Button("Confirm Booking") {
@@ -366,13 +366,13 @@ struct BookingSheetView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
+                        .background(BrandConstants.Colors.primary)
+                        .foregroundColor(BrandConstants.Colors.surface)
                         .cornerRadius(12)
                         .fontWeight(.semibold)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(BrandConstants.Colors.background)
                     .cornerRadius(12)
                 }
                 .padding()

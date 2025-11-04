@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
+import type { Database, Json } from '@/types/supabase'
 
 type OnboardingPayload = {
   owner?: {
@@ -76,8 +77,23 @@ export async function POST(request: Request) {
       owner?.businessName ||
       'Pending Studio'
 
-    // Build studio payload
-    const studioPayload: Record<string, any> = {
+    const sanitisedSocialLinks = Object.fromEntries(
+      Object.entries(studioProfile?.socialMedia ?? {}).filter(
+        ([, value]) => typeof value === 'string' && value.trim().length > 0
+      )
+    )
+
+    const profilePayload: Json = {
+      tagline: studioProfile?.tagline ?? '',
+      description: studioProfile?.description ?? '',
+      specialties: studioProfile?.specialties ?? [],
+      yearEstablished: businessInfo.yearEstablished ?? null
+    }
+
+    type StudiosInsert = Database['public']['Tables']['studios']['Insert']
+    type StudiosUpdate = Database['public']['Tables']['studios']['Update']
+
+    const baseStudioData = {
       name: studioName,
       email: contactEmail,
       phone: businessInfo.businessPhone ?? null,
@@ -85,15 +101,10 @@ export async function POST(request: Request) {
       city: businessInfo.address?.city ?? null,
       province: businessInfo.address?.state ?? null,
       postal_code: businessInfo.address?.zipCode ?? null,
-      profile: {
-        tagline: studioProfile?.tagline ?? '',
-        description: studioProfile?.description ?? '',
-        specialties: studioProfile?.specialties ?? [],
-        yearEstablished: businessInfo.yearEstablished ?? null
-      },
-      social_links: studioProfile?.socialMedia ?? {},
+      profile: profilePayload,
+      social_links: sanitisedSocialLinks as Json,
       amenities: studioProfile?.amenities ?? []
-    }
+    } satisfies StudiosInsert
 
     // Upsert studio by email (unique)
     const { data: existingStudio, error: fetchStudioError } = await supabase
@@ -113,12 +124,14 @@ export async function POST(request: Request) {
     let studioId: string | undefined = existingStudio?.[0]?.id
 
     if (studioId) {
+      const studioUpdate: StudiosUpdate = {
+        ...baseStudioData,
+        updated_at: new Date().toISOString()
+      }
+
       const { error: updateError } = await supabase
         .from('studios')
-        .update({
-          ...studioPayload,
-          updated_at: new Date().toISOString()
-        })
+        .update(studioUpdate)
         .eq('id', studioId)
 
       if (updateError) {
@@ -129,12 +142,14 @@ export async function POST(request: Request) {
         )
       }
     } else {
+      const studioInsert: StudiosInsert = {
+        ...baseStudioData,
+        commission_rate: 25.0
+      }
+
       const { data: insertStudio, error: insertError } = await supabase
         .from('studios')
-        .insert({
-          ...studioPayload,
-          commission_rate: 25.0
-        })
+        .insert(studioInsert)
         .select('id')
         .single()
 
@@ -186,21 +201,28 @@ export async function POST(request: Request) {
     }
 
     // Store raw onboarding submission for audit trail
-    const submissionInsert = await supabase
-      .from('studio_onboarding_submissions')
-      .insert({
-        user_id: owner?.userId ?? null,
-        email: contactEmail,
-        business_name: studioName,
-        status: 'completed',
-        studio_id: studioId,
-        submitted_data: payload,
-        verification_documents: payload.verification ?? {},
-        payment_setup: payload.payment ?? {}
-      })
+    type OnboardingSubmissionInsert =
+      Database['public']['Tables']['studio_onboarding_submissions']['Insert']
 
-    if (submissionInsert.error) {
-      console.error('Error saving onboarding submission:', submissionInsert.error)
+    const submissionPayload: OnboardingSubmissionInsert = {
+      user_id: owner?.userId ?? null,
+      email: contactEmail,
+      business_name: studioName,
+      status: 'completed',
+      studio_id: studioId,
+      submitted_data: payload as unknown as Json,
+      verification_documents: (payload.verification ?? {}) as Json,
+      payment_setup: (payload.payment ?? {}) as Json
+    }
+
+    const { data: submissionRecord, error: submissionError } = await supabase
+      .from('studio_onboarding_submissions')
+      .insert(submissionPayload)
+      .select('id')
+      .single()
+
+    if (submissionError) {
+      console.error('Error saving onboarding submission:', submissionError)
       // proceed but include warning
     }
 
@@ -208,7 +230,7 @@ export async function POST(request: Request) {
       {
         message: 'Studio onboarding data stored successfully',
         studioId,
-        submissionId: submissionInsert.data?.[0]?.id ?? null
+        submissionId: submissionRecord?.id ?? null
       },
       { status: 201 }
     )

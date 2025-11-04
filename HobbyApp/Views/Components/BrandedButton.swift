@@ -34,7 +34,7 @@ struct BrandedButton: View {
                         .scaleEffect(0.9)
                 } else if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .medium))
+                        .font(BrandConstants.Typography.headline)
                 }
 
                 Text(title)
@@ -89,7 +89,7 @@ struct OutlineButton: View {
             HStack(spacing: BrandConstants.Spacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .medium))
+                        .font(BrandConstants.Typography.headline)
                 }
 
                 Text(title)

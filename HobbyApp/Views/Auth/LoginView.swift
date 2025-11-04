@@ -32,17 +32,17 @@ struct LoginView: View {
 
             // Decorative floating circles
             Circle()
-                .fill(Color.white.opacity(0.05))
+                .fill(BrandConstants.Colors.surface.opacity(0.05))
                 .frame(width: 200, height: 200)
                 .offset(x: -100, y: -300)
 
             Circle()
-                .fill(Color.white.opacity(0.08))
+                .fill(BrandConstants.Colors.surface.opacity(0.08))
                 .frame(width: 150, height: 150)
                 .offset(x: 150, y: -400)
 
             Circle()
-                .fill(Color.white.opacity(0.06))
+                .fill(BrandConstants.Colors.surface.opacity(0.06))
                 .frame(width: 180, height: 180)
                 .offset(x: 100, y: 450)
 
@@ -57,7 +57,7 @@ struct LoginView: View {
                             // Outer glow ring
                             Circle()
                                 .fill(LinearGradient(
-                                    colors: [Color.white.opacity(0.2), Color.white.opacity(0.05)],
+                                    colors: [BrandConstants.Colors.surface.opacity(0.2), BrandConstants.Colors.surface.opacity(0.05)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ))
@@ -66,7 +66,7 @@ struct LoginView: View {
                             // Inner gradient circle
                             Circle()
                                 .fill(LinearGradient(
-                                    colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                                    colors: [BrandConstants.Colors.surface.opacity(0.3), BrandConstants.Colors.surface.opacity(0.1)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ))
@@ -74,24 +74,24 @@ struct LoginView: View {
 
                             // Large background icon
                             Image(systemName: "figure.yoga")
-                                .font(.system(size: 60, weight: .ultraLight))
-                                .foregroundColor(.white.opacity(0.3))
+                                .font(BrandConstants.Typography.largeTitle).fontWeight(.ultraLight)
+                                .foregroundColor(BrandConstants.Colors.surface.opacity(0.3))
                                 .offset(x: 5, y: 5)
 
                             // Foreground icon
                             Image(systemName: "figure.yoga")
-                                .font(.system(size: 45, weight: .light))
-                                .foregroundColor(.white)
+                                .font(BrandConstants.Typography.largeTitle).fontWeight(.light)
+                                .foregroundColor(BrandConstants.Colors.surface)
                         }
 
                         VStack(spacing: 8) {
                             Text(isSignUp ? "Get Started" : "Welcome Back!")
-                                .font(.system(size: 26, weight: .bold))
-                                .foregroundColor(.white)
+                                .font(BrandConstants.Typography.title1)
+                                .foregroundColor(BrandConstants.Colors.surface)
 
                             Text(isSignUp ? "Create your account" : "Sign in to continue")
-                                .font(.system(size: 15))
-                                .foregroundColor(.white.opacity(0.9))
+                                .font(BrandConstants.Typography.subheadline)
+                                .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                                 .multilineTextAlignment(.center)
                         }
                     }
@@ -106,7 +106,7 @@ struct LoginView: View {
                                         .frame(width: 24)
                                     TextField("Full Name", text: $fullName)
                                         .textContentType(.name)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(BrandConstants.Colors.text)
                                         .focused($focusedField, equals: .fullName)
                                         .submitLabel(.next)
                                         .onSubmit {
@@ -114,7 +114,7 @@ struct LoginView: View {
                                         }
                                 }
                                 .padding(14)
-                                .background(Color(.systemGray6))
+                                .background(BrandConstants.Colors.background)
                                 .cornerRadius(BrandConstants.CornerRadius.md)
                             }
 
@@ -126,7 +126,7 @@ struct LoginView: View {
                                     .textContentType(.emailAddress)
                                     .keyboardType(.emailAddress)
                                     .autocapitalization(.none)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(BrandConstants.Colors.text)
                                     .focused($focusedField, equals: .email)
                                     .submitLabel(.next)
                                     .onSubmit {
@@ -143,7 +143,7 @@ struct LoginView: View {
                                     .frame(width: 24)
                                 SecureField("Password", text: $password)
                                     .textContentType(.password)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(BrandConstants.Colors.text)
                                     .focused($focusedField, equals: .password)
                                     .submitLabel(.go)
                                     .onSubmit {
@@ -165,7 +165,7 @@ struct LoginView: View {
                                     resetEmail = email
                                     showPasswordReset = true
                                 }
-                                .font(.system(size: 13))
+                                .font(BrandConstants.Typography.footnote)
                                 .foregroundColor(BrandConstants.Colors.teal)
                             }
                         }
@@ -175,15 +175,15 @@ struct LoginView: View {
                         ZStack {
                             // Glassmorphic background with blur effect
                             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                                .fill(Color.white.opacity(0.18))
+                                .fill(BrandConstants.Colors.surface.opacity(0.18))
                                 .background(.ultraThinMaterial)
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
 
                             // Subtle border
                             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                                .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                                .strokeBorder(BrandConstants.Colors.surface.opacity(0.3), lineWidth: 1)
                         }
-                        .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                        .shadow(color: BrandConstants.Colors.text.opacity(0.15), radius: 20, x: 0, y: 10)
                     )
                     .padding(.horizontal, BrandConstants.Spacing.md)
 
@@ -191,10 +191,10 @@ struct LoginView: View {
                 if !email.isEmpty && !isValidEmail(email) {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
+                            .foregroundColor(BrandConstants.Colors.warning)
                         Text("Please enter a valid email address")
-                            .font(.caption)
-                            .foregroundColor(.orange)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.warning)
                         Spacer()
                     }
                     .padding(.horizontal)
@@ -203,10 +203,10 @@ struct LoginView: View {
                 if isSignUp && !password.isEmpty && password.count < 6 {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
+                            .foregroundColor(BrandConstants.Colors.warning)
                         Text("Password must be at least 6 characters")
-                            .font(.caption)
-                            .foregroundColor(.orange)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.warning)
                         Spacer()
                     }
                     .padding(.horizontal)
@@ -221,25 +221,25 @@ struct LoginView: View {
                                 HStack(spacing: 12) {
                                     if supabaseService.isLoading {
                                         ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .progressViewStyle(CircularProgressViewStyle(tint: BrandConstants.Colors.surface))
                                             .scaleEffect(0.8)
                                     }
 
                                     Text(isSignUp ? "Create Account" : "Sign In")
-                                        .font(.system(size: 17, weight: .semibold))
+                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
 
                                     if !supabaseService.isLoading {
                                         Image(systemName: "arrow.right.circle.fill")
-                                            .font(.system(size: 18))
+                                            .font(BrandConstants.Typography.headline)
                                     }
                                 }
                                 .frame(maxWidth: .infinity, minHeight: 50)
-                                .foregroundColor(.white)
+                                .foregroundColor(BrandConstants.Colors.surface)
                                 .background(
                                     formIsValid && !supabaseService.isLoading ?
                                         BrandConstants.Gradients.primary :
                                         LinearGradient(
-                                            colors: [.gray, .gray.opacity(0.8)],
+                                            colors: [BrandConstants.Colors.secondaryText, BrandConstants.Colors.secondaryText.opacity(0.8)],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
@@ -263,7 +263,7 @@ struct LoginView: View {
                                 }) {
                                     HStack(spacing: 12) {
                                         Image(systemName: biometricService.biometricType == .faceID ? "faceid" : "touchid")
-                                            .font(.system(size: 20))
+                                            .font(BrandConstants.Typography.title3)
 
                                         if biometricService.canUseBiometricsIndependently(), let lastUser = biometricService.getLastUserEmail() {
                                             VStack(alignment: .leading, spacing: 2) {
@@ -272,7 +272,7 @@ struct LoginView: View {
                                                     .fontWeight(.semibold)
                                                 Text("as \(lastUser)")
                                                     .font(BrandConstants.Typography.caption)
-                                                    .foregroundColor(.secondary)
+                                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                                             }
                                         } else {
                                             Text("Sign in with \(biometricService.biometricTypeDescription())")
@@ -300,14 +300,14 @@ struct LoginView: View {
                             }) {
                                 HStack(spacing: 12) {
                                     Image(systemName: "applelogo")
-                                        .font(.system(size: 20, weight: .medium))
+                                        .font(BrandConstants.Typography.title3).fontWeight(.medium)
 
                                     Text(isSignUp ? "Sign up with Apple" : "Sign in with Apple")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity, minHeight: 50)
-                                .foregroundColor(.white)
-                                .background(Color.black)
+                                .foregroundColor(BrandConstants.Colors.surface)
+                                .background(BrandConstants.Colors.text)
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
                             }
                             .disabled(supabaseService.isLoading)
@@ -319,18 +319,18 @@ struct LoginView: View {
                             }) {
                                 HStack(spacing: 12) {
                                     Image(systemName: "globe")
-                                        .font(.system(size: 20, weight: .medium))
+                                        .font(BrandConstants.Typography.title3).fontWeight(.medium)
 
                                     Text(isSignUp ? "Sign up with Google" : "Sign in with Google")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity, minHeight: 50)
-                                .foregroundColor(.black)
-                                .background(Color.white.opacity(0.95))
+                                .foregroundColor(BrandConstants.Colors.text)
+                                .background(BrandConstants.Colors.surface.opacity(0.95))
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                        .stroke(BrandConstants.Colors.secondaryText.opacity(0.3), lineWidth: 1)
                                 )
                             }
                             .disabled(supabaseService.isLoading)
@@ -342,16 +342,16 @@ struct LoginView: View {
                             // Divider with "or"
                             HStack {
                                 Rectangle()
-                                    .fill(Color.white.opacity(0.3))
+                                    .fill(BrandConstants.Colors.surface.opacity(0.3))
                                     .frame(height: 1)
 
                                 Text("or")
                                     .font(BrandConstants.Typography.caption)
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(BrandConstants.Colors.surface.opacity(0.7))
                                     .padding(.horizontal, 8)
 
                                 Rectangle()
-                                    .fill(Color.white.opacity(0.3))
+                                    .fill(BrandConstants.Colors.surface.opacity(0.3))
                                     .frame(height: 1)
                             }
                             .padding(.horizontal)
@@ -368,7 +368,7 @@ struct LoginView: View {
                                 HStack {
                                     Text(isSignUp ? "Already have an account?" : "Don't have an account?")
                                         .font(BrandConstants.Typography.subheadline)
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(BrandConstants.Colors.surface.opacity(0.8))
 
                                     Text(isSignUp ? "Sign In" : "Sign Up")
                                         .font(BrandConstants.Typography.subheadline)

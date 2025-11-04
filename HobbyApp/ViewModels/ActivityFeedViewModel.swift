@@ -2,6 +2,7 @@ import Foundation
 import Combine
 
 
+@MainActor
 class ActivityFeedViewModel: ObservableObject {
     @Published var activities: [ActivityFeedItem] = []
     @Published var isLoading = false
@@ -17,9 +18,7 @@ class ActivityFeedViewModel: ObservableObject {
 
         Task {
             guard let userId = await authManager.getCurrentUserId() else {
-                await MainActor.run {
-                    self.isLoading = false
-                }
+                self.isLoading = false
                 return
             }
 
@@ -29,15 +28,11 @@ class ActivityFeedViewModel: ObservableObject {
                     filter: filter.lowercased() // filter.rawValue.lowercased()
                 )
 
-                await MainActor.run {
-                    self.activities = fetchedActivities
-                    self.isLoading = false
-                }
+                self.activities = fetchedActivities
+                self.isLoading = false
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoading = false
             }
         }
     }
@@ -51,13 +46,9 @@ class ActivityFeedViewModel: ObservableObject {
                 filter: filter.lowercased() // filter.rawValue.lowercased()
             )
 
-            await MainActor.run {
-                self.activities = fetchedActivities
-            }
+            self.activities = fetchedActivities
         } catch {
-            await MainActor.run {
-                self.errorMessage = error.localizedDescription
-            }
+            self.errorMessage = error.localizedDescription
         }
     }
     

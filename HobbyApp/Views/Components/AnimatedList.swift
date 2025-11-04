@@ -331,12 +331,12 @@ struct SampleItem: Identifiable {
     ScrollView {
         VStack(spacing: 30) {
             Text("Phase 3 Animated Components")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
                 .padding()
 
             VStack(alignment: .leading, spacing: 16) {
                 Text("Animated Search Bar")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .foregroundColor(.secondary)
 
                 AnimatedSearchBar(text: .constant("")) {
@@ -347,7 +347,7 @@ struct SampleItem: Identifiable {
 
             VStack(alignment: .leading, spacing: 16) {
                 Text("Staggered List Animation")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .foregroundColor(.secondary)
 
                 AnimatedListView(
@@ -362,14 +362,14 @@ struct SampleItem: Identifiable {
                     AnimatedCard(style: .default) {
                         HStack(spacing: 12) {
                             Image(systemName: item.systemImage)
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(.blue)
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(item.title)
-                                    .font(.headline)
+                                    .font(BrandConstants.Typography.headline)
                                 Text(item.subtitle)
-                                    .font(.caption)
+                                    .font(BrandConstants.Typography.caption)
                                     .foregroundColor(.secondary)
                             }
 
@@ -382,7 +382,7 @@ struct SampleItem: Identifiable {
 
             VStack(alignment: .leading, spacing: 16) {
                 Text("Animated Grid")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .foregroundColor(.secondary)
 
                 AnimatedGridView(
@@ -394,10 +394,10 @@ struct SampleItem: Identifiable {
                     AnimatedCard(style: .minimal) {
                         VStack(spacing: 8) {
                             Image(systemName: item.systemImage)
-                                .font(.title)
+                                .font(BrandConstants.Typography.largeTitle)
                                 .foregroundColor(.blue)
                             Text(item.title)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .fontWeight(.medium)
                         }
                         .frame(height: 60)

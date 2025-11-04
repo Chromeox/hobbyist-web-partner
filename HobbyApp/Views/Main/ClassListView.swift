@@ -88,7 +88,7 @@ struct ClassListView: View {
                                 // Sort Bar
                                 HStack {
                                     Text("\(viewModel.classes.count) classes")
-                                        .font(.subheadline)
+                                        .font(BrandConstants.Typography.subheadline)
                                         .foregroundColor(.secondary)
                                     
                                     Spacer()
@@ -111,9 +111,9 @@ struct ClassListView: View {
                                     } label: {
                                         HStack(spacing: 4) {
                                             Text(selectedSortOption.rawValue)
-                                                .font(.subheadline)
+                                                .font(BrandConstants.Typography.subheadline)
                                             Image(systemName: "chevron.down")
-                                                .font(.caption)
+                                                .font(BrandConstants.Typography.caption)
                                         }
                                         .foregroundColor(.accentColor)
                                     }
@@ -192,10 +192,10 @@ struct FilterPill: View {
             HStack(spacing: 4) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                 }
                 Text(title)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -226,11 +226,11 @@ struct ClassListItemView: View {
                     .overlay(
                         VStack {
                             Image(systemName: classItem.icon)
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(.white)
                             if classItem.isFeatured {
                                 Text("Featured")
-                                    .font(.caption2)
+                                    .font(BrandConstants.Typography.caption)
                                     .fontWeight(.semibold)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -244,7 +244,7 @@ struct ClassListItemView: View {
                     // Title and Favorite
                     HStack {
                         Text(classItem.name)
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                             .foregroundColor(.primary)
                             .lineLimit(1)
                         
@@ -256,17 +256,17 @@ struct ClassListItemView: View {
                         } label: {
                             Image(systemName: isFavorite ? "heart.fill" : "heart")
                                 .foregroundColor(isFavorite ? .red : .secondary)
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                         }
                     }
                     
                     // Instructor
                     HStack(spacing: 4) {
                         Image(systemName: "person.fill")
-                            .font(.caption2)
+                            .font(BrandConstants.Typography.caption)
                             .foregroundColor(.secondary)
                         Text(classItem.instructor)
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
@@ -274,16 +274,16 @@ struct ClassListItemView: View {
                     HStack(spacing: 12) {
                         HStack(spacing: 4) {
                             Image(systemName: "clock")
-                                .font(.caption2)
+                                .font(BrandConstants.Typography.caption)
                             Text(classItem.startTime.formatted(date: .omitted, time: .shortened))
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                         }
                         
                         HStack(spacing: 4) {
                             Image(systemName: "timer")
-                                .font(.caption2)
+                                .font(BrandConstants.Typography.caption)
                             Text(classItem.duration)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                         }
                     }
                     .foregroundColor(.secondary)
@@ -293,9 +293,9 @@ struct ClassListItemView: View {
                         // Location
                         HStack(spacing: 4) {
                             Image(systemName: "location.fill")
-                                .font(.caption2)
+                                .font(BrandConstants.Typography.caption)
                             Text(classItem.location)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .lineLimit(1)
                         }
                         .foregroundColor(.secondary)
@@ -304,7 +304,7 @@ struct ClassListItemView: View {
                         
                         // Price
                         Text(classItem.price)
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.accentColor)
                     }
@@ -317,9 +317,9 @@ struct ClassListItemView: View {
             if classItem.spotsAvailable < 5 {
                 HStack {
                     Image(systemName: "exclamationmark.circle.fill")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                     Text("Only \(classItem.spotsAvailable) spots left!")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .fontWeight(.medium)
                     Spacer()
                 }
@@ -338,15 +338,15 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "magnifyingglass.circle")
-                .font(.system(size: 60))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundColor(.secondary)
             
             Text("No Classes Found")
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .fontWeight(.semibold)
             
             Text("Try adjusting your filters or search criteria")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -361,7 +361,7 @@ struct LoadingView: View {
             ProgressView()
                 .scaleEffect(1.5)
             Text("Loading classes...")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
         }
     }
@@ -390,7 +390,7 @@ struct ClassFiltersView: View {
                             Spacer()
                             Text("$\(Int(viewModel.maxPrice))")
                         }
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                         
                         HStack {

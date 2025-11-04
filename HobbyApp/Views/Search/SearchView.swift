@@ -17,7 +17,7 @@ struct SearchView: View {
                 }
             )
             .padding(.horizontal)
-            .padding(.top, 12)
+            .padding(.top, BrandConstants.Spacing.md)
 
             FilterScrollView(
                 categories: viewModel.categories,
@@ -25,11 +25,11 @@ struct SearchView: View {
             ) {
                 viewModel.applyFilters()
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, BrandConstants.Spacing.md)
 
             DateFilterPicker(selectedFilter: $viewModel.dateFilter)
                 .padding(.horizontal)
-                .padding(.bottom, 12)
+                .padding(.bottom, BrandConstants.Spacing.md)
 
             Group {
                 if viewModel.isLoading {
@@ -175,7 +175,7 @@ private struct SearchBar: View {
     let onClear: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: BrandConstants.Spacing.md) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Color.blue)
 
@@ -198,7 +198,7 @@ private struct SearchBar: View {
                 }
             }
         }
-        .padding(14)
+        .padding(BrandConstants.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: 14)
                 .fill(Color(.secondarySystemBackground))
@@ -213,7 +213,7 @@ private struct FilterScrollView: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
+            HStack(spacing: BrandConstants.Spacing.md) {
                 FilterChip(title: "All", isSelected: selectedCategory == nil) {
                     selectedCategory = nil
                     onSelect()
@@ -243,10 +243,10 @@ private struct FilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .fontWeight(.medium)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, BrandConstants.Spacing.md)
+                .padding(.vertical, BrandConstants.Spacing.sm)
                 .background(
                     Capsule()
                         .fill(isSelected ? Color.blue : Color(.secondarySystemBackground))
@@ -272,15 +272,15 @@ private struct DateFilterPicker: View {
 
 private struct EmptyStateView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             Spacer()
             Image(systemName: "questionmark.folder")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(Color.secondary)
             Text("No classes match your search.")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
             Text("Try adjusting your filters or search for another class name.")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -291,11 +291,11 @@ private struct EmptyStateView: View {
 
 private struct LoadingStateView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             Spacer()
             ProgressView("Searching classes...")
             Text("We're loading the latest data from Supabase.")
-                .font(.footnote)
+                .font(BrandConstants.Typography.footnote)
                 .foregroundStyle(.secondary)
             Spacer()
         }
@@ -308,17 +308,17 @@ private struct ErrorStateView: View {
     let retryAction: () -> Void
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             Spacer()
             Image(systemName: "wifi.slash")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(.red)
 
             Text("Unable to load classes.")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             Text(message)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)

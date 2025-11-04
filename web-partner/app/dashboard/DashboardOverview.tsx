@@ -92,26 +92,34 @@ const SkeletonCard = () => (
     </div>
 );
 
-const EmptyState = ({ title, message, actionText, onAction }: { title: string, message: string, actionText?: string, onAction?: () => void }) => (
-    <div className="text-center py-12">
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
-            <BookOpen className="h-6 w-6 text-gray-400" />
-        </div>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">{title}</h3>
-        <p className="mt-1 text-sm text-gray-500">{message}</p>
-        {actionText && onAction && (
-            <div className="mt-6">
-                <button
-                    type="button"
-                    onClick={onAction}
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                    <Plus className="-ml-1 mr-2 h-5 w-5" />
-                    {actionText}
-                </button>
-            </div>
-        )}
+interface EmptyStateProps {
+  title: string;
+  message: string;
+  actionText?: string;
+  onAction?: () => void;
+  icon?: React.ElementType;
+}
+
+const EmptyState = ({ title, message, actionText, onAction, icon: Icon = BookOpen }: EmptyStateProps) => (
+  <div className="text-center py-12">
+    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
+      <Icon className="h-6 w-6 text-gray-400" />
     </div>
+    <h3 className="mt-2 text-sm font-medium text-gray-900">{title}</h3>
+    <p className="mt-1 text-sm text-gray-500">{message}</p>
+    {actionText && onAction && (
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <Plus className="-ml-1 mr-2 h-5 w-5" />
+          {actionText}
+        </button>
+      </div>
+    )}
+  </div>
 );
 
 export default function DashboardOverview({ studioId }: DashboardOverviewProps) {
@@ -197,9 +205,12 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
       setQuickStats(metrics.quickStats);
 
       const revenuePoints = revenueTrend.series.find(series => series.label === 'Revenue');
+      const revenueDataPoints =
+        revenuePoints?.points.filter(point => typeof point.value === 'number') ?? [];
+
       setRevenueSeries({
-        labels: revenuePoints ? revenuePoints.points.map(point => point.label) : [],
-        values: revenuePoints ? revenuePoints.points.map(point => point.value) : []
+        labels: revenueDataPoints.map(point => point.label),
+        values: revenueDataPoints.map(point => Number(point.value ?? 0))
       });
 
       const classes = popularClasses.classes ?? [];
@@ -230,60 +241,12 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
       setRecentActivities(activities);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      setErrorMessage('We had trouble loading live data. Showing demo insights instead.');
+      setErrorMessage('We had trouble loading live data. Try refreshing or check your integrations.');
 
-      setKpiData([
-        {
-          title: 'Total Revenue',
-          value: '$12,845',
-          change: 12.5,
-          changeType: 'increase',
-          icon: DollarSign,
-          color: 'green'
-        },
-        {
-          title: 'Active Students',
-          value: 342,
-          change: 8.2,
-          changeType: 'increase',
-          icon: Users,
-          color: 'blue'
-        },
-        {
-          title: 'Classes This Week',
-          value: 48,
-          change: -2.3,
-          changeType: 'decrease',
-          icon: Calendar,
-          color: 'purple'
-        },
-        {
-          title: 'Average Rating',
-          value: '4.8',
-          change: 0.3,
-          changeType: 'increase',
-          icon: Star,
-          color: 'yellow'
-        }
-      ]);
-
-      setClassPopularity({
-        labels: ['Power Yoga', 'Beginner Pilates', 'Advanced HIIT', 'Zen Meditation', 'Dance Flow'],
-        values: [85, 72, 64, 45, 38]
-      });
-
-      setRevenueSeries({
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        values: [1200, 1900, 1500, 2100, 2300, 2800, 2400]
-      });
-
-      setScheduleSummary({
-        totalClasses: 0,
-        totalSeats: 0,
-        seatsBooked: 0,
-        occupancyPercent: 0
-      });
-
+      setKpiData([]);
+      setClassPopularity({ labels: [], values: [] });
+      setRevenueSeries({ labels: [], values: [] });
+      setScheduleSummary(null);
       setUpcomingClasses([]);
       setRecentActivities([]);
       setQuickStats({ todaysRevenue: 0, activeClasses: 0 });
@@ -297,10 +260,12 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
   }, [selectedPeriod, effectiveStudioId]);
   
   const revenueChartData = useMemo(() => {
-    const fallbackLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const fallbackValues = [1200, 1900, 1500, 2100, 2300, 2800, 2400];
-    const labels = revenueSeries.labels.length ? revenueSeries.labels : fallbackLabels;
-    const values = revenueSeries.values.length ? revenueSeries.values : fallbackValues;
+    if (!revenueSeries.labels.length || !revenueSeries.values.length) {
+      return null;
+    }
+
+    const labels = revenueSeries.labels;
+    const values = revenueSeries.values.map(value => Number.isFinite(value) ? value : 0);
 
     return {
       labels,
@@ -316,6 +281,12 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
       ]
     };
   }, [revenueSeries]);
+
+  useEffect(() => {
+    if (!revenueChartData) {
+      chartRef.current = null;
+    }
+  }, [revenueChartData]);
 
   const classPopularityData = useMemo(() => {
     if (!classPopularity.labels.length) {
@@ -389,6 +360,10 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
   };
 
   const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!revenueChartData) {
+      return;
+    }
+
     if (chartRef.current) {
         const chart = chartRef.current;
         const elements = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, true);
@@ -462,90 +437,105 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
       {/* KPI Cards - Redesigned for better space utilization */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading ? (
-            <>
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-            </>
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : kpiData.length > 0 ? (
+          kpiData.map((kpi, index) => {
+            const Icon = kpi.icon;
+            const colorClasses = {
+              green: 'from-green-50 to-green-100 border-green-200',
+              blue: 'from-blue-50 to-blue-100 border-blue-200',
+              purple: 'from-purple-50 to-purple-100 border-purple-200',
+              yellow: 'from-yellow-50 to-yellow-100 border-yellow-200'
+            };
+            const iconColors = {
+              green: 'text-green-600 bg-green-100',
+              blue: 'text-blue-600 bg-blue-100',
+              purple: 'text-purple-600 bg-purple-100',
+              yellow: 'text-yellow-600 bg-yellow-100'
+            };
+
+            return (
+              <motion.div
+                key={kpi.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                className={`relative overflow-hidden bg-gradient-to-br ${colorClasses[kpi.color as keyof typeof colorClasses]} 
+                           border rounded-xl p-4 hover:shadow-lg transition-all duration-300 group`}
+              >
+                {/* Background Pattern */}
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
+                  <Icon className="h-24 w-24" />
+                </div>
+
+                {/* Content */}
+                <div className="relative">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className={`inline-flex p-2 rounded-lg ${iconColors[kpi.color as keyof typeof iconColors]} mb-2`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider">{kpi.title}</h3>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
+                    </div>
+
+                    {/* Change indicator */}
+                    <div
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
+                        ${kpi.changeType === 'increase' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                    >
+                      {kpi.changeType === 'increase' ? (
+                        <TrendingUp className="h-3 w-3" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3" />
+                      )}
+                      <span>{Math.abs(kpi.change)}%</span>
+                    </div>
+                  </div>
+
+                  {/* Mini Chart or Progress Bar */}
+                  <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full bg-gradient-to-r ${
+                        kpi.color === 'green'
+                          ? 'from-green-400 to-green-600'
+                          : kpi.color === 'blue'
+                            ? 'from-blue-400 to-blue-600'
+                            : kpi.color === 'purple'
+                              ? 'from-purple-400 to-purple-600'
+                              : 'from-yellow-400 to-yellow-600'
+                      }`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, Math.abs(kpi.change) * 5)}%` }}
+                      transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                    />
+                  </div>
+
+                  {/* Period comparison */}
+                  <p className="text-xs text-gray-500 mt-2">
+                    vs last {selectedPeriod === 'today' ? 'day' : selectedPeriod}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })
         ) : (
-            kpiData.map((kpi, index) => {
-              const Icon = kpi.icon;
-              const colorClasses = {
-                green: 'from-green-50 to-green-100 border-green-200',
-                blue: 'from-blue-50 to-blue-100 border-blue-200',
-                purple: 'from-purple-50 to-purple-100 border-purple-200',
-                yellow: 'from-yellow-50 to-yellow-100 border-yellow-200'
-              };
-              const iconColors = {
-                green: 'text-green-600 bg-green-100',
-                blue: 'text-blue-600 bg-blue-100',
-                purple: 'text-purple-600 bg-purple-100',
-                yellow: 'text-yellow-600 bg-yellow-100'
-              };
-              
-              return (
-                <motion.div
-                  key={kpi.title}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`relative overflow-hidden bg-gradient-to-br ${colorClasses[kpi.color as keyof typeof colorClasses]} 
-                             border rounded-xl p-4 hover:shadow-lg transition-all duration-300 group`}
-                >
-                  {/* Background Pattern */}
-                  <div className="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
-                    <Icon className="h-24 w-24" />
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="relative">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className={`inline-flex p-2 rounded-lg ${iconColors[kpi.color as keyof typeof iconColors]} mb-2`}>
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wider">{kpi.title}</h3>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
-                      </div>
-                      
-                      {/* Change indicator */}
-                      <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
-                        ${kpi.changeType === 'increase' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'}`}>
-                        {kpi.changeType === 'increase' ? (
-                          <TrendingUp className="h-3 w-3" />
-                        ) : (
-                          <TrendingDown className="h-3 w-3" />
-                        )}
-                        <span>{Math.abs(kpi.change)}%</span>
-                      </div>
-                    </div>
-                    
-                    {/* Mini Chart or Progress Bar */}
-                    <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
-                      <motion.div 
-                        className={`h-full bg-gradient-to-r ${
-                          kpi.color === 'green' ? 'from-green-400 to-green-600' :
-                          kpi.color === 'blue' ? 'from-blue-400 to-blue-600' :
-                          kpi.color === 'purple' ? 'from-purple-400 to-purple-600' :
-                          'from-yellow-400 to-yellow-600'
-                        }`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, Math.abs(kpi.change) * 5)}%` }}
-                        transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                      />
-                    </div>
-                    
-                    {/* Period comparison */}
-                    <p className="text-xs text-gray-500 mt-2">
-                      vs last {selectedPeriod === 'today' ? 'day' : selectedPeriod}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })
+          <div className="sm:col-span-2 lg:col-span-4">
+            <div className="bg-white border border-dashed border-gray-200 rounded-xl">
+              <EmptyState
+                title="No performance data yet"
+                message="Connect your integrations or refresh to see studio KPIs here."
+                actionText="Refresh data"
+                onAction={handleRefresh}
+                icon={Target}
+              />
+            </div>
+          </div>
         )}
       </div>
 
@@ -654,33 +644,45 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
             </button>
           </div>
           <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
-            <Line
-              ref={(chart) => {
-                chartRef.current = chart ?? null;
-              }}
-              data={revenueChartData}
-              onClick={handleChartClick}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: (context) => formatCurrency(Number(context.parsed.y || 0))
+            {revenueChartData ? (
+              <Line
+                ref={chart => {
+                  chartRef.current = chart ?? null;
+                }}
+                data={revenueChartData}
+                onClick={handleChartClick}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        label: context => formatCurrency(Number(context.parsed.y || 0))
+                      }
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        callback: value => formatCurrency(Number(value))
+                      }
                     }
                   }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: (value) => formatCurrency(Number(value))
-                    }
-                  }
-                }
-              }}
-            />
+                }}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-6">
+                <EmptyState
+                  title="No revenue data"
+                  message="We could not load revenue trends for the selected period."
+                  actionText="Refresh data"
+                  onAction={handleRefresh}
+                  icon={Activity}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -804,10 +806,17 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
                   </div>
                 ))
             ) : (
-                <EmptyState 
-                    title="No upcoming classes" 
-                    message="You have no classes scheduled for today."
+              <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
+                <EmptyState
+                  title="No classes on the schedule"
+                  message="Add a class or enable calendar sync to see today's lineup."
+                  actionText="Create a class"
+                  onAction={() => {
+                    // TODO: navigate to create class page
+                  }}
+                  icon={Calendar}
                 />
+              </div>
             )}
           </div>
         </div>

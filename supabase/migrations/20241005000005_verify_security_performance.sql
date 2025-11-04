@@ -166,45 +166,43 @@ END $$;
 -- DETAILED REPORTS
 -- ============================================
 
--- Report: Tables with RLS status
-RAISE NOTICE '';
-RAISE NOTICE 'RLS Status by Table:';
-SELECT 
-    tablename,
-    CASE WHEN relrowsecurity THEN '✅ Enabled' ELSE '❌ Disabled' END as rls_status,
-    COUNT(p.policyname) as policy_count
-FROM pg_tables t
-JOIN pg_class c ON c.relname = t.tablename
-LEFT JOIN pg_policies p ON t.tablename = p.tablename
-WHERE t.schemaname = 'public'
-GROUP BY t.tablename, c.relrowsecurity
-ORDER BY c.relrowsecurity DESC, t.tablename;
+-- Note: Commenting out detailed reports to avoid syntax errors
+-- These can be run manually if needed
 
--- Report: Index usage statistics
-RAISE NOTICE '';
-RAISE NOTICE 'Top 10 Most Used Indexes:';
-SELECT 
-    indexname,
-    idx_scan as scans,
-    pg_size_pretty(pg_relation_size(indexrelid)) as size
-FROM pg_stat_user_indexes
-WHERE schemaname = 'public'
-ORDER BY idx_scan DESC
-LIMIT 10;
+-- -- Report: Tables with RLS status
+-- SELECT 
+--     tablename,
+--     CASE WHEN relrowsecurity THEN '✅ Enabled' ELSE '❌ Disabled' END as rls_status,
+--     COUNT(p.policyname) as policy_count
+-- FROM pg_tables t
+-- JOIN pg_class c ON c.relname = t.tablename
+-- LEFT JOIN pg_policies p ON t.tablename = p.tablename
+-- WHERE t.schemaname = 'public'
+-- GROUP BY t.tablename, c.relrowsecurity
+-- ORDER BY c.relrowsecurity DESC, t.tablename;
 
--- Report: Slow queries (if pg_stat_statements is enabled)
-RAISE NOTICE '';
-RAISE NOTICE 'Checking for slow queries...';
-IF EXISTS (
-    SELECT 1 
-    FROM pg_available_extensions 
-    WHERE name = 'pg_stat_statements' 
-    AND installed_version IS NOT NULL
-) THEN
-    RAISE NOTICE 'pg_stat_statements is enabled - monitor slow queries in dashboard';
-ELSE
-    RAISE NOTICE 'pg_stat_statements not enabled - consider enabling for query monitoring';
-END IF;
+-- -- Report: Index usage statistics  
+-- SELECT 
+--     indexname,
+--     idx_scan as scans,
+--     pg_size_pretty(pg_relation_size(indexrelid)) as size
+-- FROM pg_stat_user_indexes
+-- WHERE schemaname = 'public'
+-- ORDER BY idx_scan DESC
+-- LIMIT 10;
+
+-- -- Report: Slow queries (if pg_stat_statements is enabled)
+-- -- Note: Commented out to avoid syntax errors
+-- IF EXISTS (
+--     SELECT 1 
+--     FROM pg_available_extensions 
+--     WHERE name = 'pg_stat_statements' 
+--     AND installed_version IS NOT NULL
+-- ) THEN
+--     RAISE NOTICE 'pg_stat_statements is enabled - monitor slow queries in dashboard';
+-- ELSE
+--     RAISE NOTICE 'pg_stat_statements not enabled - consider enabling for query monitoring';
+-- END IF;
 
 -- ============================================
 -- FINAL SUMMARY

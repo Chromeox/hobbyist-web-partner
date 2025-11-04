@@ -19,90 +19,84 @@ export function SupabaseTest() {
       setLoading(true)
       setError(null)
 
-      // Test basic connection with a simpler query
-      try {
-        // First, try to connect to Supabase
-        const { data: versionData, error: versionError } = await supabase
-          .rpc('version')
-        
-        if (versionError) {
-          // If version check fails, try a simple auth check
-          const { data: { user }, error: authError } = await supabase.auth.getUser()
+      // Test basic connectivity with a simple table query
+      const { error: pingError } = await supabase
+        .from('categories')
+        .select('id')
+        .limit(1)
 
-          // Handle auth errors gracefully - "Auth session missing" is normal when not logged in
-          if (authError && (authError.message.includes('not authenticated') || authError.message.includes('Auth session missing'))) {
-            // This is expected - connection works but user not logged in
+      if (pingError) {
+        const message = pingError.message ?? ''
+
+        if (message.includes('relation "public.categories" does not exist')) {
+          setConnected(true)
+          setStats({
+            message: 'Connected to Supabase successfully',
+            warning: 'Database tables not found. Please run the migrations.',
+            migrationFile: '/supabase/migrations/03_web_partner_portal_schema.sql'
+          })
+          return
+        }
+
+        if (
+          message.includes('not authenticated') ||
+          message.includes('Auth session missing') ||
+          message.includes('JWT')
+        ) {
+          const {
+            data: { user },
+            error: authError
+          } = await supabase.auth.getUser()
+
+          if (
+            authError &&
+            (authError.message.includes('not authenticated') ||
+              authError.message.includes('Auth session missing'))
+          ) {
             setConnected(true)
             setStats({
               message: 'Connected to Supabase successfully',
               note: 'Database tables need to be created. Please run migrations.',
               authStatus: 'Not authenticated (this is normal)'
             })
-          } else if (authError) {
-            // Only throw if it's a real connection error, not an auth error
-            console.warn('Auth check failed (this is normal):', authError.message)
-            setConnected(true)
-            setStats({
-              message: 'Connected to Supabase successfully',
-              note: 'Database tables need to be created. Please run migrations.',
-              authStatus: 'Not authenticated (this is normal)'
-            })
-          } else {
+            return
+          }
+
+          if (!authError) {
             setConnected(true)
             setStats({
               message: 'Connected to Supabase successfully',
               user: user?.email || 'No user logged in'
             })
+            return
           }
-        } else {
-          // Connection successful
+
+          console.warn('Auth check failed (this is normal):', authError?.message)
           setConnected(true)
-          
-          // Try to check if tables exist
-          const { data: tablesData, error: tablesError } = await supabase
-            .from('categories')
-            .select('count')
-            .limit(1)
-          
-          if (tablesError && tablesError.message.includes('relation "public.categories" does not exist')) {
-            setStats({ 
-              message: 'Connected to Supabase successfully',
-              warning: 'Database tables not found. Please run the migrations.',
-              migrationFile: '/supabase/migrations/03_web_partner_portal_schema.sql'
-            })
-          } else if (tablesError) {
-            setStats({ 
-              message: 'Connected to Supabase, but encountered an error',
-              error: tablesError.message
-            })
-          } else {
-            // Tables exist, try to get stats
-            try {
-              const dashboardStats = await DataService.getDashboardStats()
-              setStats({
-                message: 'Database fully configured',
-                ...dashboardStats
-              })
-            } catch (statsError) {
-              setStats({ 
-                message: 'Tables exist but may need data',
-                note: 'Database is ready for use'
-              })
-            }
-          }
-        }
-      } catch (err: any) {
-        // Check if it's a connection issue or missing tables
-        if (err.message?.includes('relation') && err.message?.includes('does not exist')) {
-          setConnected(true)
-          setStats({ 
+          setStats({
             message: 'Connected to Supabase successfully',
-            warning: 'Database tables need to be created',
-            action: 'Please run the migration file: /supabase/migrations/03_web_partner_portal_schema.sql'
+            note: 'Database tables need to be created. Please run migrations.',
+            authStatus: 'Not authenticated (this is normal)'
           })
-        } else {
-          throw err
+          return
         }
+
+        throw pingError
+      }
+
+      setConnected(true)
+
+      try {
+        const dashboardStats = await DataService.getDashboardStats()
+        setStats({
+          message: 'Database fully configured',
+          ...dashboardStats
+        })
+      } catch {
+        setStats({
+          message: 'Tables exist but may need data',
+          note: 'Database is ready for use'
+        })
       }
 
     } catch (err: any) {

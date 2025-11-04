@@ -151,7 +151,7 @@ public struct HeroClassCard: View {
                     )
                     .overlay(
                         Image(systemName: "figure.yoga")
-                            .font(.system(size: 32, weight: .light))
+                            .font(BrandConstants.Typography.heroTitle)
                             .foregroundColor(.white)
                     )
                 }
@@ -166,7 +166,7 @@ public struct HeroClassCard: View {
                 // Class Information
                 VStack(alignment: .leading, spacing: 6) {
                     Text(classItem.title)
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                         .lineLimit(2)
@@ -177,7 +177,7 @@ public struct HeroClassCard: View {
                         )
 
                     Text(classItem.instructor)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.secondary)
                         .heroAnimation(
                             id: "class-instructor-\(classItem.id)",
@@ -188,17 +188,17 @@ public struct HeroClassCard: View {
                     HStack {
                         HStack(spacing: 4) {
                             Image(systemName: "clock")
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.secondary)
                             Text(classItem.duration)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.secondary)
                         }
 
                         Spacer()
 
                         Text(classItem.price)
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
                             .heroAnimation(
@@ -266,7 +266,7 @@ public struct HeroClassDetailView: View {
                     )
                     .overlay(
                         Image(systemName: "figure.yoga")
-                            .font(.system(size: 60, weight: .light))
+                            .font(BrandConstants.Typography.heroTitle)
                             .foregroundColor(.white)
                     )
                 }
@@ -282,7 +282,7 @@ public struct HeroClassDetailView: View {
                     // Class Header
                     VStack(alignment: .leading, spacing: 8) {
                         Text(classItem.title)
-                            .font(.title)
+                            .font(BrandConstants.Typography.title)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
                             .heroAnimation(
@@ -292,7 +292,7 @@ public struct HeroClassDetailView: View {
                             )
 
                         Text(classItem.instructor)
-                            .font(.title3)
+                            .font(BrandConstants.Typography.title3)
                             .foregroundColor(.secondary)
                             .heroAnimation(
                                 id: "class-instructor-\(classItem.id)",
@@ -305,14 +305,14 @@ public struct HeroClassDetailView: View {
                                 Image(systemName: "clock")
                                     .foregroundColor(.blue)
                                 Text(classItem.duration)
-                                    .font(.headline)
+                                    .font(BrandConstants.Typography.headline)
                                     .foregroundColor(.secondary)
                             }
 
                             Spacer()
 
                             Text(classItem.price)
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.blue)
                                 .heroAnimation(
@@ -327,13 +327,13 @@ public struct HeroClassDetailView: View {
                     if showContent {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("About This Class")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                                 .opacity(showContent ? 1 : 0)
                                 .offset(y: showContent ? 0 : 20)
                                 .animation(.easeOut(duration: 0.4).delay(0.2), value: showContent)
 
                             Text(classItem.description)
-                                .font(.body)
+                                .font(BrandConstants.Typography.body)
                                 .foregroundColor(.secondary)
                                 .opacity(showContent ? 1 : 0)
                                 .offset(y: showContent ? 0 : 20)

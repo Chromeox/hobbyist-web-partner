@@ -32,10 +32,10 @@ struct BookingFlowView: View {
                     if watchSync.isConnected {
                         HStack {
                             Image(systemName: "applewatch.radiowaves.left.and.right")
-                                .font(.caption)
-                                .foregroundColor(.green)
+                                .font(BrandConstants.Typography.caption)
+                                .foregroundColor(BrandConstants.Colors.success)
                             Text("Apple Watch Connected")
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.secondary)
                         }
                         .padding(.vertical, 4)
@@ -100,7 +100,7 @@ struct BookingFlowView: View {
                                     Image(systemName: "chevron.left")
                                     Text("Back")
                                 }
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                                 .fontWeight(.medium)
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity)
@@ -131,7 +131,7 @@ struct BookingFlowView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(isStepValid ? Color.accentColor : Color.gray)
-                                .foregroundColor(.white)
+                                .foregroundColor(BrandConstants.Colors.surface)
                                 .cornerRadius(12)
                             }
                             .disabled(!isStepValid || viewModel.isProcessing)
@@ -146,7 +146,7 @@ struct BookingFlowView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(Color.accentColor)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(BrandConstants.Colors.surface)
                                     .cornerRadius(12)
                             }
                         }
@@ -294,7 +294,7 @@ struct BookingProgressBar: View {
             HStack {
                 ForEach(0..<stepTitles.count, id: \.self) { index in
                     Text(stepTitles[index])
-                        .font(.caption2)
+                        .font(BrandConstants.Typography.caption)
                         .fontWeight(index <= currentStep ? .medium : .regular)
                         .foregroundColor(index <= currentStep ? .primary : .secondary)
                     
@@ -323,19 +323,19 @@ struct ParticipantSelectionStep: View {
                         .frame(width: 60, height: 60)
                         .overlay(
                             Image(systemName: classItem.icon)
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(.accentColor)
                         )
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(classItem.name)
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                         Text(classItem.startTime.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .foregroundColor(.secondary)
                         Text("\(classItem.spotsAvailable) spots available")
-                            .font(.caption)
-                            .foregroundColor(.green)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.success)
                     }
                     
                     Spacer()
@@ -347,7 +347,7 @@ struct ParticipantSelectionStep: View {
                 // Participant Count
                 VStack(alignment: .leading, spacing: 12) {
                     Text("How many participants?")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     HStack(spacing: 20) {
                         Button {
@@ -357,13 +357,13 @@ struct ParticipantSelectionStep: View {
                             }
                         } label: {
                             Image(systemName: "minus.circle.fill")
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(viewModel.participantCount > 1 ? .accentColor : .gray)
                         }
                         .disabled(viewModel.participantCount <= 1)
                         
                         Text("\(viewModel.participantCount)")
-                            .font(.title)
+                            .font(BrandConstants.Typography.title)
                             .fontWeight(.semibold)
                             .frame(minWidth: 50)
                         
@@ -374,7 +374,7 @@ struct ParticipantSelectionStep: View {
                             }
                         } label: {
                             Image(systemName: "plus.circle.fill")
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(viewModel.participantCount < min(classItem.spotsAvailable, 10) ? .accentColor : .gray)
                         }
                         .disabled(viewModel.participantCount >= min(classItem.spotsAvailable, 10))
@@ -389,12 +389,12 @@ struct ParticipantSelectionStep: View {
                 if viewModel.participantCount > 1 {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Participant Details")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                         
                         ForEach(0..<viewModel.participantCount, id: \.self) { index in
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Participant \(index + 1)")
-                                    .font(.subheadline)
+                                    .font(BrandConstants.Typography.subheadline)
                                     .fontWeight(.medium)
                                 
                                 TextField(
@@ -417,7 +417,7 @@ struct ParticipantSelectionStep: View {
                         Spacer()
                         Text(classItem.price)
                     }
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     
                     if viewModel.participantCount > 1 {
                         HStack {
@@ -425,7 +425,7 @@ struct ParticipantSelectionStep: View {
                             Spacer()
                             Text("")
                         }
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                     }
                     
@@ -460,10 +460,10 @@ struct BookingDetailsStep: View {
                 // Special Requests
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Special Requests")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     Text("Let the instructor know about any special needs or requests")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                     
                     TextEditor(text: $viewModel.specialRequests)
@@ -476,7 +476,7 @@ struct BookingDetailsStep: View {
                 // Experience Level
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Experience Level")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     ForEach(["Beginner", "Intermediate", "Advanced"], id: \.self) { level in
                         HStack {
@@ -497,7 +497,7 @@ struct BookingDetailsStep: View {
                 if !classItem.equipment.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Equipment Rental")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                         
                         ForEach(classItem.equipment, id: \.name) { item in
                             HStack {
@@ -515,9 +515,9 @@ struct BookingDetailsStep: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(item.name)
-                                        .font(.subheadline)
+                                        .font(BrandConstants.Typography.subheadline)
                                     Text("+\(item.price)")
-                                        .font(.caption)
+                                        .font(BrandConstants.Typography.caption)
                                         .foregroundColor(.secondary)
                                 }
                                 
@@ -534,7 +534,7 @@ struct BookingDetailsStep: View {
                 // Emergency Contact
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Emergency Contact")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     TextField("Contact Name", text: $viewModel.emergencyContactName)
                         .textFieldStyle(RoundedTextFieldStyle())
@@ -564,7 +564,7 @@ struct PaymentSelectionStep: View {
                 // Saved Payment Methods
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Payment Method")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     // Option: Pay with Credits
                     if viewModel.userCredits >= viewModel.totalPrice {
@@ -615,7 +615,7 @@ struct PaymentSelectionStep: View {
                             Image(systemName: "plus.circle.fill")
                                 .foregroundColor(.accentColor)
                             Text("Add Payment Method")
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                                 .fontWeight(.medium)
                             Spacer()
                         }
@@ -629,7 +629,7 @@ struct PaymentSelectionStep: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("Promo Code")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                         Spacer()
                         Button {
                             withAnimation {
@@ -638,7 +638,7 @@ struct PaymentSelectionStep: View {
                             hapticService.playLight()
                         } label: {
                             Text(showingCouponField ? "Cancel" : "Add")
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                                 .foregroundColor(.accentColor)
                         }
                     }
@@ -653,9 +653,9 @@ struct PaymentSelectionStep: View {
                                 viewModel.applyCoupon(couponCode)
                             } label: {
                                 Text("Apply")
-                                    .font(.subheadline)
+                                    .font(BrandConstants.Typography.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(BrandConstants.Colors.surface)
                                     .padding(.horizontal, 20)
                                     .padding(.vertical, 12)
                                     .background(Color.accentColor)
@@ -668,10 +668,10 @@ struct PaymentSelectionStep: View {
                     if let discount = viewModel.appliedDiscount {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
+                                .foregroundColor(BrandConstants.Colors.success)
                             Text("\(discount.code): \(discount.percentage)% off applied")
-                                .font(.caption)
-                                .foregroundColor(.green)
+                                .font(BrandConstants.Typography.caption)
+                                .foregroundColor(BrandConstants.Colors.success)
                         }
                     }
                 }
@@ -683,7 +683,7 @@ struct PaymentSelectionStep: View {
                         Spacer()
                         Text(viewModel.formattedSubtotal)
                     }
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     
                     if viewModel.equipmentTotal > 0 {
                         HStack {
@@ -691,7 +691,7 @@ struct PaymentSelectionStep: View {
                             Spacer()
                             Text(viewModel.formattedEquipmentTotal)
                         }
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                     }
                     
                     if let discount = viewModel.appliedDiscount {
@@ -699,9 +699,9 @@ struct PaymentSelectionStep: View {
                             Text("Discount (\(discount.percentage)%)")
                             Spacer()
                             Text("-\(viewModel.formattedDiscountAmount)")
-                                .foregroundColor(.green)
+                                .foregroundColor(BrandConstants.Colors.success)
                         }
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                     }
                     
                     HStack {
@@ -709,17 +709,17 @@ struct PaymentSelectionStep: View {
                         Spacer()
                         Text(viewModel.formattedProcessingFee)
                     }
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
                     
                     Divider()
                     
                     HStack {
                         Text("Total")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                         Spacer()
                         Text(viewModel.formattedTotalPrice)
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                             .foregroundColor(.accentColor)
                     }
                 }
@@ -747,17 +747,17 @@ struct PaymentMethodRow: View {
         Button(action: action) {
             HStack {
                 Image(systemName: icon)
-                    .font(.title3)
+                    .font(BrandConstants.Typography.title3)
                     .foregroundColor(isSelected ? .accentColor : .secondary)
                     .frame(width: 30)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
                     Text(subtitle)
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                 }
                 
@@ -785,7 +785,7 @@ struct BookingReviewStep: View {
                 // Class Details
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Class Details")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     ReviewRow(label: "Class", value: classItem.name)
                     ReviewRow(label: "Date", value: classItem.startTime.formatted(date: .abbreviated, time: .omitted))
@@ -801,7 +801,7 @@ struct BookingReviewStep: View {
                 // Booking Details
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Booking Details")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     ReviewRow(label: "Participants", value: "\(viewModel.participantCount)")
                     
@@ -820,7 +820,7 @@ struct BookingReviewStep: View {
                 // Payment Summary
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Payment Summary")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     ReviewRow(label: "Payment Method", value: viewModel.paymentMethodDescription)
                     ReviewRow(label: "Total Amount", value: viewModel.formattedTotalPrice)
@@ -834,9 +834,9 @@ struct BookingReviewStep: View {
                     Toggle(isOn: $viewModel.agreedToTerms) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("I agree to the terms and conditions")
-                                .font(.subheadline)
+                                .font(BrandConstants.Typography.subheadline)
                             Text("Including the cancellation policy")
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -861,12 +861,12 @@ struct ReviewRow: View {
     var body: some View {
         HStack(alignment: .top) {
             Text(label)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
                 .frame(width: 120, alignment: .leading)
             
             Text(value)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .fontWeight(.medium)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -891,8 +891,8 @@ struct BookingConfirmationStep: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showConfetti)
                     
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.green)
+                        .font(BrandConstants.Typography.heroTitle)
+                        .foregroundColor(BrandConstants.Colors.success)
                         .scaleEffect(showConfetti ? 1.0 : 0.5)
                         .animation(.spring(response: 0.4, dampingFraction: 0.5), value: showConfetti)
                 }
@@ -900,22 +900,22 @@ struct BookingConfirmationStep: View {
                 
                 VStack(spacing: 8) {
                     Text("Booking Confirmed!")
-                        .font(.title)
+                        .font(BrandConstants.Typography.title)
                         .fontWeight(.bold)
                     
                     Text("Your spot is reserved")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.secondary)
                 }
                 
                 // Confirmation Code
                 VStack(spacing: 8) {
                     Text("Confirmation Code")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                     
                     Text(viewModel.confirmationCode)
-                        .font(.title2)
+                        .font(BrandConstants.Typography.title2)
                         .fontWeight(.bold)
                         .fontDesign(.monospaced)
                 }
@@ -926,7 +926,7 @@ struct BookingConfirmationStep: View {
                 // Next Steps
                 VStack(alignment: .leading, spacing: 16) {
                     Text("What's Next?")
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     
                     NextStepRow(
                         icon: "calendar.badge.plus",
@@ -998,16 +998,16 @@ struct NextStepRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(BrandConstants.Typography.title3)
                 .foregroundColor(.accentColor)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
                 Text(subtitle)
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
             }
             
@@ -1028,8 +1028,8 @@ struct ProcessingOverlay: View {
                 .scaleEffect(1.5)
             
             Text(message)
-                .font(.headline)
-                .foregroundColor(.white)
+                .font(BrandConstants.Typography.headline)
+                .foregroundColor(BrandConstants.Colors.surface)
             
             if progress > 0 {
                 ProgressView(value: progress)
@@ -1052,7 +1052,7 @@ struct PaymentSheetView: View {
         NavigationStack {
             VStack {
                 Text("Add Payment Method")
-                    .font(.title2)
+                    .font(BrandConstants.Typography.title2)
                     .fontWeight(.bold)
                     .padding()
                 

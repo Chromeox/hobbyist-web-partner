@@ -20,6 +20,16 @@ struct BrandConstants {
         static let gradientStart = Color("LandingGradientStart")
         static let gradientEnd = Color("LandingGradientEnd")
 
+        /// Semantic colors for UI elements
+        static let text = Color.primary
+        static let secondaryText = Color.secondary
+        static let surface = Color(UIColor.systemBackground)
+        static let background = Color(UIColor.systemGroupedBackground)
+        static let success = Color.green
+        static let error = Color.red
+        static let warning = Color.orange
+        static let link = primary
+        
         /// Category-specific colors
         struct Category {
             static let ceramics = Color(red: 0.573, green: 0.251, blue: 0.055)
@@ -39,12 +49,15 @@ struct BrandConstants {
     struct Typography {
         static let heroTitle = Font.system(size: 34, weight: .bold, design: .rounded)
         static let largeTitle = Font.system(size: 28, weight: .bold, design: .rounded)
+        static let title1 = Font.system(size: 28, weight: .bold)
+        static let title2 = Font.system(size: 24, weight: .bold)
+        static let title3 = Font.system(size: 20, weight: .semibold)
         static let title = Font.system(size: 22, weight: .semibold, design: .rounded)
         static let headline = Font.system(size: 18, weight: .semibold)
         static let body = Font.system(size: 16, weight: .regular)
         static let subheadline = Font.system(size: 15, weight: .medium)
-        static let caption = Font.system(size: 13, weight: .medium)
-        static let footnote = Font.system(size: 11, weight: .regular)
+        static let caption = Font.system(size: 12, weight: .medium)
+        static let footnote = Font.system(size: 13, weight: .regular)
     }
 
     // MARK: - Spacing

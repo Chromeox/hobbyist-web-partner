@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import CoreLocation
 
+@MainActor
 class MarketplaceViewModel: ObservableObject {
     @Published var classes: [ClassItem] = []
     @Published var featuredClasses: [ClassItem] = []
@@ -53,19 +54,15 @@ class MarketplaceViewModel: ObservableObject {
                     try venuesResult
                 )
                 
-                await MainActor.run {
-                    self.classes = fetchedClasses
-                    self.featuredClasses = Array(fetchedClasses.prefix(5))
-                    self.nearbyInstructors = self.filterNearbyInstructors(fetchedInstructors)
-                    self.popularVenues = self.sortVenuesByPopularity(fetchedVenues)
-                    self.extractCategories(from: fetchedClasses)
-                    self.isLoading = false
-                }
+                self.classes = fetchedClasses
+                self.featuredClasses = Array(fetchedClasses.prefix(5))
+                self.nearbyInstructors = self.filterNearbyInstructors(fetchedInstructors)
+                self.popularVenues = self.sortVenuesByPopularity(fetchedVenues)
+                self.extractCategories(from: fetchedClasses)
+                self.isLoading = false
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoading = false
             }
         }
     }
@@ -80,9 +77,7 @@ class MarketplaceViewModel: ObservableObject {
                     radius: selectedDistance
                 )
                 
-                await MainActor.run {
-                    self.nearbyInstructors = instructors
-                }
+                self.nearbyInstructors = instructors
             } catch {
                 print("Error loading nearby instructors: \(error)")
             }
@@ -127,13 +122,9 @@ class MarketplaceViewModel: ObservableObject {
         Task {
             do {
                 let results = try await classService.searchClasses(query: query)
-                await MainActor.run {
-                    self.classes = results
-                }
+                self.classes = results
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
+                self.errorMessage = error.localizedDescription
             }
         }
     }

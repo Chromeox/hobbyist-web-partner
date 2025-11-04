@@ -273,10 +273,10 @@ public struct HomeNavigationBar: View {
             leading: {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Hello")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                     Text(userName)
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                 }
             },
@@ -320,7 +320,7 @@ public struct SearchNavigationBar: View {
                         onCancelTapped()
                     }
                     .foregroundColor(.blue)
-                    .font(.body)
+                    .font(BrandConstants.Typography.body)
                 }
             }
         )
@@ -379,10 +379,10 @@ public struct PaymentNavigationBar: View {
             trailing: {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.shield")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.green)
                     Text("Secure")
-                        .font(.caption2)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.green)
                 }
             }

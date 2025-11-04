@@ -25,7 +25,7 @@ public struct SelectionButton: View {
             }
         }) {
             Text(text)
-                .font(.body)
+                .font(BrandConstants.Typography.body)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -162,7 +162,7 @@ public struct SelectionChip: View {
             }
         }) {
             Text(text)
-                .font(.callout)
+                .font(BrandConstants.Typography.subheadline)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -233,7 +233,7 @@ public struct SelectionChip: View {
         Divider()
 
         Text("Grid Layout")
-            .font(.headline)
+            .font(BrandConstants.Typography.headline)
 
         SelectionButtonGrid(
             items: ["Morning", "Afternoon", "Evening", "Weekend"],
@@ -244,7 +244,7 @@ public struct SelectionChip: View {
         Divider()
 
         Text("Chip Style")
-            .font(.headline)
+            .font(BrandConstants.Typography.headline)
 
         HStack {
             SelectionChip("Pottery", isSelected: false) {}

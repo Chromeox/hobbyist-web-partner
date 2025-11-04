@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import type { Database, Json } from '@/types/supabase';
 
 // Simplified types that work with any auth system
 export interface SimpleConversation {
@@ -34,6 +35,78 @@ export interface SimpleMessage {
   updated_at: string;
 }
 
+type ConversationRow = Database['public']['Tables']['conversations']['Row'];
+type MessageRow = Database['public']['Tables']['messages']['Row'];
+type SimpleAttachment = NonNullable<SimpleMessage['attachments']>[number];
+
+const normaliseTimestamp = (timestamp: string | null): string => {
+  return timestamp ?? new Date().toISOString();
+};
+
+const mapConversationRow = (row: ConversationRow): SimpleConversation => ({
+  id: row.id,
+  studio_id: row.studio_id ?? undefined,
+  instructor_id: row.instructor_id,
+  type: row.type === 'group' ? 'group' : 'individual',
+  name: row.name,
+  participants: row.participants ?? [],
+  last_message: row.last_message ?? undefined,
+  last_message_at: row.last_message_at ?? undefined,
+  created_at: normaliseTimestamp(row.created_at),
+  updated_at: normaliseTimestamp(row.updated_at ?? row.created_at),
+  unreadCount: 0
+});
+
+const normaliseAttachments = (value: Json | null): SimpleMessage['attachments'] => {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const attachments: SimpleAttachment[] = [];
+
+  for (const item of value) {
+    if (
+      item &&
+      typeof item === 'object' &&
+      'type' in item &&
+      'url' in item &&
+      'name' in item
+    ) {
+      const typedItem = item as {
+        type?: unknown;
+        url?: unknown;
+        name?: unknown;
+      };
+
+      if (
+        (typedItem.type === 'image' || typedItem.type === 'file') &&
+        typeof typedItem.url === 'string' &&
+        typeof typedItem.name === 'string'
+      ) {
+        attachments.push({
+          type: typedItem.type,
+          url: typedItem.url,
+          name: typedItem.name
+        });
+      }
+    }
+  }
+
+  return attachments.length > 0 ? attachments : undefined;
+};
+
+const mapMessageRow = (row: MessageRow): SimpleMessage => ({
+  id: row.id,
+  conversation_id: row.conversation_id,
+  sender_id: row.sender_id ?? undefined,
+  content: row.content,
+  attachments: normaliseAttachments(row.attachments),
+  read_at: row.read_at ?? undefined,
+  read: Boolean(row.read_at),
+  created_at: normaliseTimestamp(row.created_at),
+  updated_at: normaliseTimestamp(row.updated_at ?? row.created_at)
+});
+
 class SimpleMessagingService {
   private channels: Map<string, RealtimeChannel> = new Map();
   private conversationCallbacks: ((conversations: SimpleConversation[]) => void)[] = [];
@@ -65,12 +138,7 @@ class SimpleMessagingService {
       }
 
       // Add unread count (simplified)
-      const conversationsWithUnread = (conversations || []).map(conv => ({
-        ...conv,
-        unreadCount: 0 // Will be calculated in a future enhancement
-      }));
-
-      return conversationsWithUnread;
+      return (conversations ?? []).map(mapConversationRow);
     } catch (error) {
       console.error('Failed to get conversations:', error);
       return [];
@@ -129,7 +197,7 @@ class SimpleMessagingService {
         return [];
       }
 
-      return messages || [];
+      return (messages ?? []).map(mapMessageRow);
     } catch (error) {
       console.error('Failed to get messages:', error);
       return [];
@@ -192,7 +260,7 @@ class SimpleMessagingService {
         return null;
       }
 
-      return message;
+      return mapMessageRow(message);
     } catch (error) {
       console.error('Failed to send message:', error);
       return null;
@@ -236,7 +304,7 @@ class SimpleMessagingService {
         return null;
       }
 
-      return { ...conversation, unreadCount: 0 };
+      return mapConversationRow(conversation);
     } catch (error) {
       console.error('Failed to create conversation:', error);
       return null;

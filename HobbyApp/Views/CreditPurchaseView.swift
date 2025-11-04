@@ -20,10 +20,10 @@ struct CreditPurchaseView: View {
                 } else if let error = creditService.packsError, creditService.availableCreditPacks.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 48))
+                            .font(BrandConstants.Typography.heroTitle)
                             .foregroundColor(.orange)
                         Text(error)
-                            .font(.body)
+                            .font(BrandConstants.Typography.body)
                             .multilineTextAlignment(.center)
                         Button(action: reloadPacks) {
                             Label("Retry", systemImage: "arrow.clockwise")
@@ -164,20 +164,20 @@ private struct CreditPackRow: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 Text(pack.name)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 Spacer()
                 Text(pack.formattedPrice)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
             }
 
             HStack(alignment: .firstTextBaseline) {
                 Label("\(pack.totalCredits) credits", systemImage: "sparkles")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
                     if let savings = pack.savingsText {
                         Text(savings)
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .fontWeight(.semibold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -186,7 +186,7 @@ private struct CreditPackRow: View {
                     }
                     if let pricePerCredit = pack.formattedPricePerCredit {
                         Text(pricePerCredit)
-                            .font(.caption2)
+                            .font(BrandConstants.Typography.caption)
                             .foregroundColor(.secondary)
                     }
                 }

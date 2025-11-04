@@ -232,7 +232,7 @@ struct FeatureRow: View {
                     .frame(width: 50, height: 50)
 
                 Image(systemName: feature.icon)
-                    .font(.system(size: 22))
+                    .font(BrandConstants.Typography.title)
                     .foregroundColor(feature.color)
             }
 

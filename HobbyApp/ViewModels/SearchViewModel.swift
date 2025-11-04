@@ -131,31 +131,25 @@ class SearchViewModel: ObservableObject {
             let results = try await searchService.search(with: parameters)
             
             // Update results
-            await MainActor.run {
-                self.searchResults = results
-                self.hasMoreResults = results.count == 20
-                
-                // Add to recent searches
-                self.addToRecentSearches(searchQuery)
-                
-                // Track search analytics
-                self.trackSearch(query: searchQuery, resultCount: results.count)
-            }
+            self.searchResults = results
+            self.hasMoreResults = results.count == 20
+            
+            // Add to recent searches
+            self.addToRecentSearches(searchQuery)
+            
+            // Track search analytics
+            self.trackSearch(query: searchQuery, resultCount: results.count)
             
         } catch {
-            await MainActor.run {
-                if error is CancellationError {
-                    // Search was cancelled, ignore
-                } else {
-                    self.errorMessage = "Search failed: \(error.localizedDescription)"
-                    self.searchResults = []
-                }
+            if error is CancellationError {
+                // Search was cancelled, ignore
+            } else {
+                self.errorMessage = "Search failed: \(error.localizedDescription)"
+                self.searchResults = []
             }
         }
         
-        await MainActor.run {
-            self.isSearching = false
-        }
+        self.isSearching = false
     }
     
     func loadMoreResults() async {

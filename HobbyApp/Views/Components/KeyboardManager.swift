@@ -248,7 +248,7 @@ public struct HomeSearchBar: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Discover Vancouver")
-                        .font(.title2)
+                        .font(BrandConstants.Typography.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(LinearGradient(
                             colors: [.primary, .blue],
@@ -257,7 +257,7 @@ public struct HomeSearchBar: View {
                         ))
 
                     Text("Find your next creative adventure")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.secondary)
                 }
 
@@ -276,7 +276,7 @@ public struct HomeSearchBar: View {
                         Text(selectedNeighborhood)
                             .lineLimit(1)
                     }
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(Color(.systemGray6))
@@ -323,7 +323,7 @@ public struct HomeSearchBar: View {
                         .frame(height: 100)
                         .overlay(
                             Text("Content \(index + 1)")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                         )
                 }
             }

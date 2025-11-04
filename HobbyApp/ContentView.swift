@@ -136,12 +136,12 @@ struct SplashView: View {
             BrandConstants.Gradients.landing
                 .ignoresSafeArea()
 
-            VStack(spacing: 20) {
+            VStack(spacing: BrandConstants.Spacing.lg) {
                 // App icon placeholder with animation
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
-                            colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                            colors: [BrandConstants.Colors.surface.opacity(0.3), BrandConstants.Colors.surface.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
@@ -149,20 +149,20 @@ struct SplashView: View {
                         .scaleEffect(scale)
 
                     Image(systemName: "figure.yoga")
-                        .font(.system(size: 60, weight: .light))
-                        .foregroundColor(.white)
+                        .font(BrandConstants.Typography.heroTitle)
+                        .foregroundColor(BrandConstants.Colors.surface)
                         .scaleEffect(scale)
                 }
 
                 Text("HobbyApp")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
+                    .font(BrandConstants.Typography.largeTitle)
+                    .foregroundColor(BrandConstants.Colors.surface)
                     .opacity(opacity)
 
                 ProgressView()
-                    .tint(.white)
+                    .tint(BrandConstants.Colors.surface)
                     .scaleEffect(1.2)
-                    .padding(.top, 8)
+                    .padding(.top, BrandConstants.Spacing.sm)
                     .opacity(opacity)
             }
         }
@@ -195,17 +195,17 @@ struct BrandedButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: BrandConstants.Spacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
                 }
                 Text(title)
                     .fontWeight(.semibold)
             }
-            .foregroundColor(.white)
+            .foregroundColor(BrandConstants.Colors.surface)
             .frame(maxWidth: .infinity, minHeight: 54)
             .background(BrandConstants.Gradients.primary)
-            .cornerRadius(20)
+            .cornerRadius(BrandConstants.CornerRadius.lg)
         }
     }
 }
@@ -224,7 +224,7 @@ struct OutlineButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: BrandConstants.Spacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
                 }
@@ -234,7 +234,7 @@ struct OutlineButton: View {
             .foregroundColor(BrandConstants.Colors.primary)
             .frame(maxWidth: .infinity, minHeight: 54)
             .background(Color(.systemBackground))
-            .cornerRadius(20)
+            .cornerRadius(BrandConstants.CornerRadius.lg)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(BrandConstants.Colors.primary, lineWidth: 2)
@@ -270,12 +270,12 @@ struct SpeechBubble: View {
 
     var body: some View {
         Text(text)
-            .font(.subheadline)
+            .font(BrandConstants.Typography.subheadline)
             .fontWeight(.medium)
-            .foregroundColor(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Capsule().fill(Color.black.opacity(0.85)))
+            .foregroundColor(BrandConstants.Colors.surface)
+            .padding(.horizontal, BrandConstants.Spacing.md)
+            .padding(.vertical, BrandConstants.Spacing.sm)
+            .background(Capsule().fill(BrandConstants.Colors.text.opacity(0.85)))
     }
 }
 
@@ -300,20 +300,20 @@ struct WelcomeLandingView: View {
                     Spacer(minLength: 60)
 
                     // Hero Section
-                    VStack(spacing: 32) {
+                    VStack(spacing: BrandConstants.Spacing.xl) {
                         // Hero placeholder (will use image when available)
                         ZStack {
                             Circle()
                                 .fill(LinearGradient(
-                                    colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                                    colors: [BrandConstants.Colors.surface.opacity(0.3), BrandConstants.Colors.surface.opacity(0.1)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ))
                                 .frame(width: 280, height: 280)
 
                             Image(systemName: "figure.yoga")
-                                .font(.system(size: 120, weight: .light))
-                                .foregroundColor(.white)
+                                .font(BrandConstants.Typography.heroTitle)
+                                .foregroundColor(BrandConstants.Colors.surface)
                         }
                         .frame(height: 320)
                         .offset(y: heroOffset)
@@ -327,12 +327,12 @@ struct WelcomeLandingView: View {
                         }
 
                         // Speech Bubbles
-                        HStack(spacing: 40) {
+                        HStack(spacing: BrandConstants.Spacing.xxl) {
                             SpeechBubble("Let's create!", alignment: .leading)
                             Spacer()
                             SpeechBubble("Let's go!", alignment: .trailing)
                         }
-                        .padding(.horizontal, 40)
+                        .padding(.horizontal, BrandConstants.Spacing.xxl)
                         .offset(y: -20)
                     }
                     .opacity(showContent ? 1 : 0)
@@ -341,19 +341,19 @@ struct WelcomeLandingView: View {
                     Spacer(minLength: 40)
 
                     // Content Card
-                    VStack(spacing: 24) {
-                        VStack(spacing: 16) {
+                    VStack(spacing: BrandConstants.Spacing.lg) {
+                        VStack(spacing: BrandConstants.Spacing.md) {
                             Text("Start Creating Now 🚀")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .font(BrandConstants.Typography.largeTitle)
                                 .multilineTextAlignment(.center)
 
                             Text("Discover Vancouver's most creative hobby classes and connect with a community of passionate learners.")
-                                .font(.body)
-                                .foregroundColor(.secondary)
+                                .font(BrandConstants.Typography.body)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
                                 .multilineTextAlignment(.center)
                         }
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: BrandConstants.Spacing.md) {
                             BrandedButton("Get Started", icon: "arrow.right.circle.fill") {
                                 onGetStarted()
                             }
@@ -369,13 +369,13 @@ struct WelcomeLandingView: View {
                             }
                         }
                     }
-                    .padding(32)
+                    .padding(BrandConstants.Spacing.xl)
                     .background(
                         RoundedRectangle(cornerRadius: 30)
                             .fill(Color(.systemBackground).opacity(0.95))
                             .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
                     )
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, BrandConstants.Spacing.md)
                     .opacity(showContent ? 1 : 0)
                     .offset(y: showContent ? 0 : 30)
 
@@ -385,7 +385,7 @@ struct WelcomeLandingView: View {
 
             // Features modal
             if showFeatures {
-                Color.black.opacity(0.4)
+                BrandConstants.Colors.text.opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation {
@@ -398,13 +398,13 @@ struct WelcomeLandingView: View {
 
                     VStack(spacing: 24) {
                         Capsule()
-                            .fill(Color.secondary.opacity(0.3))
-                            .frame(width: 40, height: 5)
+                            .fill(BrandConstants.Colors.secondaryText.opacity(0.3))
+                            .frame(width: BrandConstants.Spacing.xxl, height: BrandConstants.Spacing.xs)
 
                         Text("Why HobbyApp?")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(BrandConstants.Typography.largeTitle)
 
-                        VStack(spacing: 20) {
+                        VStack(spacing: BrandConstants.Spacing.lg) {
                             FeatureRow(
                                 icon: "paintpalette.fill",
                                 title: "12+ Creative Categories",
@@ -436,7 +436,7 @@ struct WelcomeLandingView: View {
                             }
                         }
                     }
-                    .padding(32)
+                    .padding(BrandConstants.Spacing.xl)
                     .background(
                         RoundedRectangle(cornerRadius: 30)
                             .fill(Color(.systemBackground))
@@ -460,25 +460,25 @@ struct FeatureRow: View {
     let description: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: BrandConstants.Spacing.md) {
             ZStack {
                 Circle()
-                    .fill(Color.blue.opacity(0.15))
-                    .frame(width: 50, height: 50)
+                    .fill(BrandConstants.Colors.primary.opacity(0.15))
+                    .frame(width: BrandConstants.Spacing.xxl, height: BrandConstants.Spacing.xxl)
 
                 Image(systemName: icon)
-                    .font(.system(size: 22))
-                    .foregroundColor(.blue)
+                    .font(BrandConstants.Typography.title)
+                    .foregroundColor(BrandConstants.Colors.primary)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
                 Text(title)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                     .fontWeight(.semibold)
 
                 Text(description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
 
             Spacer()

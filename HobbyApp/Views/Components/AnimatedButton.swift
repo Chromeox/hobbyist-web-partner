@@ -144,11 +144,11 @@ public struct AnimatedButton: View {
     private var titleFont: Font {
         switch size {
         case .small:
-            return .callout
+            return BrandConstants.Typography.subheadline
         case .regular:
-            return .body
+            return BrandConstants.Typography.body
         case .large:
-            return .headline
+            return BrandConstants.Typography.headline
         }
     }
 
@@ -327,11 +327,11 @@ public struct AnimatedIconButton: View {
     private var iconFont: Font {
         switch size {
         case .small:
-            return .system(size: 16)
+            return BrandConstants.Typography.footnote
         case .regular:
-            return .system(size: 18)
+            return BrandConstants.Typography.subheadline
         case .large:
-            return .system(size: 20)
+            return BrandConstants.Typography.headline
         }
     }
 
@@ -359,7 +359,7 @@ public enum IconButtonSize {
     ScrollView {
         VStack(spacing: 20) {
             Text("Phase 3 Animated Buttons")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
                 .padding()
 
             VStack(spacing: 12) {
@@ -372,7 +372,7 @@ public enum IconButtonSize {
             .padding(.horizontal)
 
             Text("Icon Buttons")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
 
             HStack(spacing: 16) {
@@ -384,7 +384,7 @@ public enum IconButtonSize {
             .padding(.horizontal)
 
             Text("Different Sizes")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
 
             VStack(spacing: 12) {

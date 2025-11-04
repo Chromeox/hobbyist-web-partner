@@ -328,9 +328,9 @@ public struct NavigationContextIndicator: View {
                 .animation(.easeInOut(duration: 0.2), value: navigationService.transitionInProgress)
 
             Text(navigationService.currentContext.displayName)
-                .font(.caption)
+                .font(BrandConstants.Typography.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
@@ -346,15 +346,15 @@ public struct NavigationContextIndicator: View {
 extension NavigationContext {
     var indicatorColor: Color {
         switch self {
-        case .browsing: return .blue
-        case .searching: return .green
-        case .booking: return .orange
-        case .profile: return .purple
-        case .settings: return .gray
-        case .classDetail: return .blue
-        case .studioDetail: return .teal
-        case .paymentFlow: return .red
-        case .onboarding: return .yellow
+        case .browsing: return BrandConstants.Colors.primary
+        case .searching: return BrandConstants.Colors.success
+        case .booking: return BrandConstants.Colors.warning
+        case .profile: return BrandConstants.Colors.coral
+        case .settings: return BrandConstants.Colors.secondaryText
+        case .classDetail: return BrandConstants.Colors.primary
+        case .studioDetail: return BrandConstants.Colors.teal
+        case .paymentFlow: return BrandConstants.Colors.error
+        case .onboarding: return BrandConstants.Colors.warning
         }
     }
 }

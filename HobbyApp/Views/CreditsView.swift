@@ -72,17 +72,17 @@ struct CreditsView: View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
                     Text("Total Credits")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                     
                     Text("\(creditService.totalCredits)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(BrandConstants.Typography.heroTitle)
                         .foregroundColor(.accentColor)
                     
                     if creditService.totalCredits > 0 {
                         Text("≈ \(creditService.estimatedClasses) classes available")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                 }
                 
@@ -91,26 +91,26 @@ struct CreditsView: View {
                     HStack(spacing: 0) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Current Month")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .font(BrandConstants.Typography.caption)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
                             Text("\(creditService.currentMonthCredits)")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         
                         Image(systemName: "plus")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                         
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("Rollover")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .font(BrandConstants.Typography.caption)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
                             Text("\(creditService.rolloverCredits)")
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.orange)
+                                .foregroundColor(BrandConstants.Colors.warning)
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
@@ -150,36 +150,36 @@ struct CreditsView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .foregroundColor(.orange)
+                    .foregroundColor(BrandConstants.Colors.warning)
                 Text("Credit Rollover")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 Spacer()
             }
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your \(creditService.subscriptionPlanName) plan includes \(creditService.rolloverPercentage)% rollover")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 
                 if creditService.rolloverCredits > 0 {
                     HStack {
                         Text("Current rollover credits:")
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                         Spacer()
                         Text("\(creditService.rolloverCredits) credits")
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(BrandConstants.Colors.warning)
                     }
                 }
                 
                 if let nextRolloverDate = creditService.nextRolloverDate {
                     HStack {
                         Text("Next rollover:")
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                         Spacer()
                         Text(nextRolloverDate, style: .date)
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.medium)
                     }
                 }
@@ -188,11 +188,11 @@ struct CreditsView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.orange.opacity(0.1))
+                .fill(BrandConstants.Colors.warning.opacity(0.1))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                .stroke(BrandConstants.Colors.warning.opacity(0.3), lineWidth: 1)
         )
     }
     
@@ -214,17 +214,17 @@ struct CreditsView: View {
     private var creditHistorySection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Recent Activity")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
             
             if creditService.creditHistory.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock")
-                        .font(.largeTitle)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.largeTitle)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                     
                     Text("No recent activity")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
@@ -241,21 +241,21 @@ struct CreditsView: View {
     private var upcomingExpirations: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Credit Expirations")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
             
             if creditService.upcomingExpirations.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "checkmark.shield")
-                        .font(.largeTitle)
-                        .foregroundColor(.green)
+                        .font(BrandConstants.Typography.largeTitle)
+                        .foregroundColor(BrandConstants.Colors.success)
                     
                     Text("No credits expiring soon")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                     
                     Text("Your credits are protected!")
-                        .font(.caption)
-                        .foregroundColor(.green)
+                        .font(BrandConstants.Typography.caption)
+                        .foregroundColor(BrandConstants.Colors.success)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
@@ -287,16 +287,16 @@ struct CreditsStatCard: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 
                 Text(value)
-                    .font(.title3)
+                    .font(BrandConstants.Typography.title3)
                     .fontWeight(.bold)
                 
                 Text(subtitle)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -312,30 +312,30 @@ struct CreditTransactionRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: transaction.iconName)
-                .font(.title3)
+                .font(BrandConstants.Typography.title3)
                 .foregroundColor(transaction.color)
                 .frame(width: 24)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(transaction.description)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                 
                 Text(transaction.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
             
             Spacer()
             
             VStack(alignment: .trailing, spacing: 2) {
                 Text(transaction.amountText)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(transaction.color)
                 
                 Text("\(transaction.balanceAfter) total")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
         }
         .padding(.vertical, 8)
@@ -348,26 +348,26 @@ struct ExpirationRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "clock.badge.exclamationmark")
-                .font(.title3)
+                .font(BrandConstants.Typography.title3)
                 .foregroundColor(expiration.isUrgent ? .red : .orange)
                 .frame(width: 24)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(expiration.credits) credits expiring")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                 
                 Text(expiration.expirationDate, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
             
             Spacer()
             
             if expiration.isUrgent {
                 Text("Urgent")
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(BrandConstants.Colors.surface)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
                     .background(Color.red)

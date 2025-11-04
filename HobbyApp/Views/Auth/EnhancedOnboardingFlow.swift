@@ -72,27 +72,27 @@ struct EnhancedOnboardingFlow: View {
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
-                            colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                            colors: [BrandConstants.Colors.surface.opacity(0.3), BrandConstants.Colors.surface.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
                         .frame(width: 140, height: 140)
 
                     Image(systemName: "figure.yoga")
-                        .font(.system(size: 60, weight: .light))
-                        .foregroundColor(.white)
+                        .font(BrandConstants.Typography.heroTitle)
+                        .foregroundColor(BrandConstants.Colors.surface)
                 }
 
                 // Hero text with brand typography
                 VStack(spacing: BrandConstants.Spacing.md) {
                     Text("Welcome to HobbyApp!")
                         .font(BrandConstants.Typography.heroTitle)
-                        .foregroundColor(.white)
+                        .foregroundColor(BrandConstants.Colors.surface)
                         .multilineTextAlignment(.center)
 
                     Text("Discover Vancouver's most creative hobby classes and connect with a community of passionate learners.")
                         .font(BrandConstants.Typography.body)
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, BrandConstants.Spacing.md)
                 }
@@ -111,12 +111,12 @@ struct EnhancedOnboardingFlow: View {
                     VStack(spacing: BrandConstants.Spacing.md) {
                         Text("Tell us about yourself")
                             .font(BrandConstants.Typography.largeTitle)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .multilineTextAlignment(.center)
 
                         Text("Help us personalize your Vancouver creative class experience")
                             .font(BrandConstants.Typography.body)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                             .multilineTextAlignment(.center)
                     }
 
@@ -124,7 +124,7 @@ struct EnhancedOnboardingFlow: View {
                     VStack(spacing: BrandConstants.Spacing.md) {
                         TextField("Full Name", text: .constant(""))
                             .padding(BrandConstants.Spacing.md)
-                            .background(Color.white.opacity(0.95))
+                            .background(BrandConstants.Colors.surface.opacity(0.95))
                             .cornerRadius(BrandConstants.CornerRadius.md)
 
                         Button(action: {}) {
@@ -133,21 +133,21 @@ struct EnhancedOnboardingFlow: View {
                                     .foregroundColor(BrandConstants.Colors.primary)
                                 Text("Select Neighborhood")
                                     .font(BrandConstants.Typography.subheadline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(BrandConstants.Colors.text)
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                             .padding(BrandConstants.Spacing.md)
-                            .background(Color.white.opacity(0.95))
+                            .background(BrandConstants.Colors.surface.opacity(0.95))
                             .cornerRadius(BrandConstants.CornerRadius.md)
                         }
                     }
                     .padding(BrandConstants.Spacing.xl)
                     .background(
                         RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                            .fill(Color.white.opacity(0.15))
-                            .shadow(color: .black.opacity(0.1), radius: 16, y: 8)
+                            .fill(BrandConstants.Colors.surface.opacity(0.15))
+                            .shadow(color: BrandConstants.Colors.text.opacity(0.1), radius: 16, y: 8)
                     )
                     .padding(.horizontal, BrandConstants.Spacing.md)
 
@@ -166,12 +166,12 @@ struct EnhancedOnboardingFlow: View {
                     VStack(spacing: BrandConstants.Spacing.md) {
                         Text("Your Class Preferences")
                             .font(BrandConstants.Typography.largeTitle)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .multilineTextAlignment(.center)
 
                         Text("Help us find the perfect classes for you")
                             .font(BrandConstants.Typography.body)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                             .multilineTextAlignment(.center)
                     }
 
@@ -179,7 +179,7 @@ struct EnhancedOnboardingFlow: View {
                     VStack(spacing: BrandConstants.Spacing.md) {
                         Text("Preferred Times")
                             .font(BrandConstants.Typography.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: BrandConstants.Spacing.sm) {
@@ -187,10 +187,10 @@ struct EnhancedOnboardingFlow: View {
                                 Button(action: {}) {
                                     Text(time)
                                         .font(BrandConstants.Typography.subheadline)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(BrandConstants.Colors.text)
                                         .frame(maxWidth: .infinity)
                                         .padding(BrandConstants.Spacing.md)
-                                        .background(Color.white.opacity(0.95))
+                                        .background(BrandConstants.Colors.surface.opacity(0.95))
                                         .cornerRadius(BrandConstants.CornerRadius.md)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
@@ -203,8 +203,8 @@ struct EnhancedOnboardingFlow: View {
                     .padding(BrandConstants.Spacing.xl)
                     .background(
                         RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                            .fill(Color.white.opacity(0.15))
-                            .shadow(color: .black.opacity(0.1), radius: 16, y: 8)
+                            .fill(BrandConstants.Colors.surface.opacity(0.15))
+                            .shadow(color: BrandConstants.Colors.text.opacity(0.1), radius: 16, y: 8)
                     )
                     .padding(.horizontal, BrandConstants.Spacing.md)
 
@@ -223,12 +223,12 @@ struct EnhancedOnboardingFlow: View {
                     VStack(spacing: BrandConstants.Spacing.md) {
                         Text("What interests you?")
                             .font(BrandConstants.Typography.largeTitle)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .multilineTextAlignment(.center)
 
                         Text("Select the creative activities that spark your curiosity")
                             .font(BrandConstants.Typography.body)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                             .multilineTextAlignment(.center)
                     }
 
@@ -248,12 +248,12 @@ struct EnhancedOnboardingFlow: View {
 
                                     Text(interest)
                                         .font(BrandConstants.Typography.caption)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(BrandConstants.Colors.text)
                                         .multilineTextAlignment(.center)
                                 }
                                 .padding(BrandConstants.Spacing.md)
                                 .frame(maxWidth: .infinity)
-                                .background(Color.white.opacity(0.95))
+                                .background(BrandConstants.Colors.surface.opacity(0.95))
                                 .cornerRadius(BrandConstants.CornerRadius.md)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
@@ -278,24 +278,24 @@ struct EnhancedOnboardingFlow: View {
                     // Icon
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.2))
+                            .fill(BrandConstants.Colors.surface.opacity(0.2))
                             .frame(width: 100, height: 100)
 
                         Image(systemName: "bell.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white)
+                            .font(BrandConstants.Typography.heroTitle)
+                            .foregroundColor(BrandConstants.Colors.surface)
                     }
 
                     // Header
                     VStack(spacing: BrandConstants.Spacing.md) {
                         Text("Stay in the Loop")
                             .font(BrandConstants.Typography.largeTitle)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .multilineTextAlignment(.center)
 
                         Text("Get notifications about your classes and discover new opportunities")
                             .font(BrandConstants.Typography.body)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                             .multilineTextAlignment(.center)
                     }
 
@@ -307,14 +307,14 @@ struct EnhancedOnboardingFlow: View {
                                     .font(BrandConstants.Typography.headline)
                                 Text("Get notified before your classes")
                                     .font(BrandConstants.Typography.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                             Spacer()
                             Toggle("", isOn: .constant(true))
                                 .tint(BrandConstants.Colors.primary)
                         }
                         .padding(BrandConstants.Spacing.md)
-                        .background(Color.white.opacity(0.95))
+                        .background(BrandConstants.Colors.surface.opacity(0.95))
                         .cornerRadius(BrandConstants.CornerRadius.md)
 
                         HStack {
@@ -323,21 +323,21 @@ struct EnhancedOnboardingFlow: View {
                                     .font(BrandConstants.Typography.headline)
                                 Text("Discover fresh creative opportunities")
                                     .font(BrandConstants.Typography.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                             Spacer()
                             Toggle("", isOn: .constant(true))
                                 .tint(BrandConstants.Colors.primary)
                         }
                         .padding(BrandConstants.Spacing.md)
-                        .background(Color.white.opacity(0.95))
+                        .background(BrandConstants.Colors.surface.opacity(0.95))
                         .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                     .padding(BrandConstants.Spacing.xl)
                     .background(
                         RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                            .fill(Color.white.opacity(0.15))
-                            .shadow(color: .black.opacity(0.1), radius: 16, y: 8)
+                            .fill(BrandConstants.Colors.surface.opacity(0.15))
+                            .shadow(color: BrandConstants.Colors.text.opacity(0.1), radius: 16, y: 8)
                     )
                     .padding(.horizontal, BrandConstants.Spacing.md)
 
@@ -355,7 +355,7 @@ struct EnhancedOnboardingFlow: View {
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
-                            colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                            colors: [BrandConstants.Colors.surface.opacity(0.3), BrandConstants.Colors.surface.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
@@ -367,7 +367,7 @@ struct EnhancedOnboardingFlow: View {
                             .tint(.white)
                     } else {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 60))
+                            .font(BrandConstants.Typography.heroTitle)
                             .foregroundColor(BrandConstants.Colors.teal)
                     }
                 }
@@ -376,12 +376,12 @@ struct EnhancedOnboardingFlow: View {
                 VStack(spacing: BrandConstants.Spacing.md) {
                     Text(isSavingPreferences ? "Saving your preferences..." : "Welcome to Vancouver's Creative Community!")
                         .font(BrandConstants.Typography.largeTitle)
-                        .foregroundColor(.white)
+                        .foregroundColor(BrandConstants.Colors.surface)
                         .multilineTextAlignment(.center)
 
                     Text(isSavingPreferences ? "Just a moment while we personalize your experience." : "You're all set! Your personalized class recommendations are waiting.")
                         .font(BrandConstants.Typography.body)
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                         .multilineTextAlignment(.center)
                 }
 
@@ -391,18 +391,18 @@ struct EnhancedOnboardingFlow: View {
                         if let interests = userPreferences["interests"] as? [String], !interests.isEmpty {
                             Text("Interests: \(interests.joined(separator: ", "))")
                                 .font(BrandConstants.Typography.caption)
-                                .foregroundColor(.primary)
+                                .foregroundColor(BrandConstants.Colors.text)
                                 .multilineTextAlignment(.center)
                         }
 
                         if let neighborhood = userPreferences["neighborhood"] as? String, !neighborhood.isEmpty {
                             Text("Preferred Area: \(neighborhood)")
                                 .font(BrandConstants.Typography.caption)
-                                .foregroundColor(.primary)
+                                .foregroundColor(BrandConstants.Colors.text)
                         }
                     }
                     .padding(BrandConstants.Spacing.md)
-                    .background(Color.white.opacity(0.95))
+                    .background(BrandConstants.Colors.surface.opacity(0.95))
                     .cornerRadius(BrandConstants.CornerRadius.md)
                     .padding(.horizontal, BrandConstants.Spacing.md)
                 }
@@ -413,7 +413,7 @@ struct EnhancedOnboardingFlow: View {
 
         default:
             Text("Welcome!")
-                .font(.title)
+                .font(BrandConstants.Typography.title)
                 .padding()
         }
     }
@@ -441,7 +441,7 @@ struct OnboardingProgressView: View {
                 Text("\(Int(progress * 100))%")
                     .font(BrandConstants.Typography.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(BrandConstants.Colors.surface)
             }
 
             ProgressView(value: progress, total: 1.0)
@@ -449,7 +449,7 @@ struct OnboardingProgressView: View {
                 .scaleEffect(y: 2)
         }
         .padding(BrandConstants.Spacing.md)
-        .background(Color.white.opacity(0.15))
+        .background(BrandConstants.Colors.surface.opacity(0.15))
     }
 }
 
@@ -472,7 +472,7 @@ struct OnboardingNavigationView: View {
                         Text("Back")
                     }
                     .font(BrandConstants.Typography.subheadline)
-                    .foregroundColor(.white)
+                    .foregroundColor(BrandConstants.Colors.surface)
                 }
             } else {
                 Spacer()
@@ -497,7 +497,7 @@ struct OnboardingNavigationView: View {
 
                     Image(systemName: currentStep == totalSteps - 1 ? "checkmark.circle.fill" : "arrow.right.circle.fill")
                 }
-                .foregroundColor(.white)
+                .foregroundColor(BrandConstants.Colors.surface)
                 .padding(.horizontal, BrandConstants.Spacing.lg)
                 .padding(.vertical, BrandConstants.Spacing.md)
                 .background(BrandConstants.Colors.primary)
@@ -506,7 +506,7 @@ struct OnboardingNavigationView: View {
             }
         }
         .padding(BrandConstants.Spacing.md)
-        .background(Color.white.opacity(0.1))
-        .shadow(color: .black.opacity(0.1), radius: 2, y: -2)
+        .background(BrandConstants.Colors.surface.opacity(0.1))
+        .shadow(color: BrandConstants.Colors.text.opacity(0.1), radius: 2, y: -2)
     }
 }

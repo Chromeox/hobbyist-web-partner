@@ -393,11 +393,11 @@ public struct PerformanceDebugView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Performance Monitor")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             HStack {
                 Text("FPS:")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 Text("\(optimizer.frameRate, specifier: "%.1f")")
                     .fontWeight(.semibold)
                     .foregroundColor(fpsColor)
@@ -405,21 +405,21 @@ public struct PerformanceDebugView: View {
 
             HStack {
                 Text("Level:")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 Text(optimizer.currentPerformanceLevel.rawValue)
                     .fontWeight(.medium)
             }
 
             HStack {
                 Text("Quality:")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 Text(qualityDescription)
                     .fontWeight(.medium)
             }
 
             Text(optimizer.currentPerformanceLevel.description)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(BrandConstants.Typography.caption)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
         }
         .padding()
         .background(Color(.systemGray6))
@@ -460,7 +460,7 @@ public struct PerformanceDebugView: View {
         VStack(spacing: 12) {
             ForEach(0..<5, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.blue.opacity(0.3))
+                    .fill(BrandConstants.Colors.primary.opacity(0.3))
                     .frame(height: 60)
                     .scaleEffect(1.0)
                     .optimizedSpring(

@@ -155,7 +155,7 @@ struct TabIconView: View {
 
                 // Tab icon with morphing animation
                 Image(systemName: iconName)
-                    .font(.system(size: 20, weight: isSelected ? .medium : .regular))
+                    .font(BrandConstants.Typography.title3)
                     .foregroundColor(isSelected ? .blue : .gray)
                     .scaleEffect(isSelected ? 1.1 : 1.0)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
@@ -163,7 +163,7 @@ struct TabIconView: View {
 
             // Tab label
             Text(tab.rawValue)
-                .font(.caption2)
+                .font(BrandConstants.Typography.caption)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .foregroundColor(isSelected ? .blue : .gray)
                 .scaleEffect(isSelected ? 1.0 : 0.9)
@@ -212,11 +212,11 @@ struct MainHomeView: View {
                     // Welcome Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Welcome back")
-                            .font(.title2)
+                            .font(BrandConstants.Typography.title2)
                             .foregroundColor(.secondary)
                         
                         Text(userName)
-                            .font(.largeTitle)
+                            .font(BrandConstants.Typography.largeTitle)
                             .fontWeight(.bold)
                     }
                     .padding(.horizontal)
@@ -243,7 +243,7 @@ struct MainHomeView: View {
                     // Upcoming Classes
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Upcoming Classes")
-                            .font(.title3)
+                            .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
                         
@@ -261,7 +261,7 @@ struct MainHomeView: View {
                     // Recommended for You
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Recommended for You")
-                            .font(.title3)
+                            .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
                         
@@ -295,15 +295,15 @@ struct MainTabStatCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .foregroundColor(color)
             
             Text(value)
-                .font(.title)
+                .font(BrandConstants.Typography.title)
                 .fontWeight(.bold)
             
             Text(label)
-                .font(.caption)
+                .font(BrandConstants.Typography.caption)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -326,20 +326,20 @@ struct SimpleClassCard: View {
                 .frame(width: 200, height: 120)
                 .overlay(
                     Image(systemName: "figure.yoga")
-                        .font(.largeTitle)
+                        .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(.white)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Morning Yoga")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 
                 Text("Tomorrow at 9:00 AM")
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
                 
                 Text("with Sarah Johnson")
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
             }
         }
@@ -356,27 +356,27 @@ struct RecommendationCard: View {
                 .frame(width: 140, height: 140)
                 .overlay(
                     Image(systemName: "paintbrush.fill")
-                        .font(.largeTitle)
+                        .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(.accentColor)
                 )
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("Watercolor Painting")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
                 
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
-                        .font(.caption2)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.yellow)
                     
                     Text("4.8")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                     
                     Text("• $35")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                 }
             }

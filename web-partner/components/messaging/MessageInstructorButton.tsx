@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
-import { messagingService } from '@/lib/services/messaging';
+import { simpleMessagingService } from '@/lib/services/messaging-simple';
 import { useRouter } from 'next/navigation';
 
 interface MessageInstructorButtonProps {
@@ -30,10 +30,14 @@ export default function MessageInstructorButton({
       setCreating(true);
 
       // Create or find existing conversation
-      const conversation = await messagingService.createConversation(
+      const conversation = await simpleMessagingService.createConversation(
         instructorId,
         `Chat with ${instructorName}`
       );
+
+      if (!conversation) {
+        throw new Error('Unable to start conversation');
+      }
 
       // Navigate to messages with the conversation selected
       router.push(`/dashboard/messages?conversation=${conversation.id}`);

@@ -28,15 +28,15 @@ struct RewardsView: View {
     private var referralSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Share your referral code")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             Text("Invite friends and earn rewards together. When a friend signs up and makes their first purchase, you both receive 15 free credits.")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundColor(.secondary)
 
             HStack {
                 Text(referralCode)
-                    .font(.title2)
+                    .font(BrandConstants.Typography.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.accentColor)
                     .textCase(.uppercase)
@@ -58,21 +58,21 @@ struct RewardsView: View {
     private var otherWaysSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Other ways to earn")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             ForEach(additionalRewards) { reward in
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: reward.icon)
-                        .font(.title2)
+                        .font(BrandConstants.Typography.title2)
                         .foregroundColor(.accentColor)
                         .frame(width: 32, height: 32)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(reward.title)
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
                         Text(reward.detail)
-                            .font(.footnote)
+                            .font(BrandConstants.Typography.footnote)
                             .foregroundColor(.secondary)
                     }
                 }

@@ -27,8 +27,8 @@ struct ClassDetailView: View {
 
                         // Large Icon Watermark
                         Image(systemName: classItem.icon)
-                            .font(.system(size: 180, weight: .ultraLight))
-                            .foregroundColor(.white.opacity(0.15))
+                            .font(BrandConstants.Typography.heroTitle)
+                            .foregroundColor(BrandConstants.Colors.surface.opacity(0.15))
                             .offset(x: 50, y: -20)
                     }
                     .frame(height: 320)
@@ -38,17 +38,17 @@ struct ClassDetailView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(classItem.category)
-                                        .font(.caption)
+                                        .font(BrandConstants.Typography.caption)
                                         .fontWeight(.semibold)
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 4)
-                                        .background(Color.white.opacity(0.9))
+                                        .background(BrandConstants.Colors.surface.opacity(0.9))
                                         .cornerRadius(20)
 
                                     Text(classItem.name)
-                                        .font(.title)
+                                        .font(BrandConstants.Typography.title)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(BrandConstants.Colors.surface)
                                         .multilineTextAlignment(.leading)
                                         .lineLimit(2)
 
@@ -56,7 +56,7 @@ struct ClassDetailView: View {
                                         Label(classItem.duration, systemImage: "clock.fill")
                                         Label(classItem.difficulty, systemImage: "chart.bar.fill")
                                     }
-                                    .font(.subheadline)
+                                    .font(BrandConstants.Typography.subheadline)
                                     .foregroundColor(.white.opacity(0.9))
                                 }
                                 Spacer()
@@ -97,22 +97,22 @@ struct ClassDetailView: View {
                             .frame(width: 50, height: 50)
                             .overlay(
                                 Text(classItem.instructorInitials)
-                                    .font(.headline)
+                                    .font(BrandConstants.Typography.headline)
                                     .foregroundColor(.accentColor)
                             )
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(classItem.instructor)
-                                .font(.headline)
+                                .font(BrandConstants.Typography.headline)
                             HStack(spacing: 4) {
                                 Image(systemName: "star.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.yellow)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.warning)
                                 Text(classItem.rating)
-                                    .font(.caption)
+                                    .font(BrandConstants.Typography.caption)
                                 Text("• \(classItem.reviewCount) reviews")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
                             }
                         }
                         
@@ -123,7 +123,7 @@ struct ClassDetailView: View {
                             // View instructor profile
                         } label: {
                             Text("View Profile")
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .fontWeight(.medium)
                                 .foregroundColor(.accentColor)
                         }
@@ -176,7 +176,7 @@ struct ClassDetailView: View {
                             } label: {
                                 VStack(spacing: 8) {
                                     Text(tab)
-                                        .font(.subheadline)
+                                        .font(BrandConstants.Typography.subheadline)
                                         .fontWeight(selectedTab == ["Overview", "Location", "Reviews", "Similar"].firstIndex(of: tab) ? .semibold : .regular)
                                         .foregroundColor(selectedTab == ["Overview", "Location", "Reviews", "Similar"].firstIndex(of: tab) ? .primary : .secondary)
 
@@ -217,8 +217,8 @@ struct ClassDetailView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.white)
+                            .font(BrandConstants.Typography.title3)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .padding(8)
                             .background(Color.black.opacity(0.3))
                             .clipShape(Circle())
@@ -239,11 +239,11 @@ struct ClassDetailView: View {
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(classItem.creditsRequired) Credits")
-                            .font(.title2)
+                            .font(BrandConstants.Typography.title2)
                             .fontWeight(.bold)
                         Text("per session")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                     
                     Spacer()
@@ -253,9 +253,9 @@ struct ClassDetailView: View {
                         showBookingFlow = true
                     } label: {
                         Text("Book Now")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .padding(.horizontal, 40)
                             .padding(.vertical, 18)
                             .background(
@@ -298,8 +298,8 @@ struct ActionButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(.white)
+                .font(BrandConstants.Typography.title3)
+                .foregroundColor(BrandConstants.Colors.surface)
                 .padding(10)
                 .background(Color.black.opacity(0.3))
                 .clipShape(Circle())
@@ -317,18 +317,18 @@ struct DetailCard: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .foregroundColor(.accentColor)
                 .frame(height: 24)
 
             VStack(spacing: 4) {
                 Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                     .multilineTextAlignment(.center)
 
                 Text(value)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -354,27 +354,27 @@ struct OverviewTab: View {
             // Description
             VStack(alignment: .leading, spacing: 8) {
                 Text("About this class")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
 
                 Text(classItem.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             // What to Bring
             VStack(alignment: .leading, spacing: 8) {
                 Text("What to bring")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
 
                 ForEach(classItem.requirements, id: \.self) { requirement in
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.success)
                         Text(requirement)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.subheadline)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                 }
             }
@@ -382,17 +382,17 @@ struct OverviewTab: View {
             // Amenities
             VStack(alignment: .leading, spacing: 8) {
                 Text("Amenities")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(classItem.amenities, id: \.self) { amenity in
                         HStack(spacing: 8) {
                             Image(systemName: amenity.icon)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.accentColor)
                             Text(amenity.name)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .font(BrandConstants.Typography.caption)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -402,11 +402,11 @@ struct OverviewTab: View {
             // Cancellation Policy
             VStack(alignment: .leading, spacing: 8) {
                 Text("Cancellation Policy")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
 
                 Text("Free cancellation up to 24 hours before class starts. 50% refund for cancellations within 24 hours.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
 
             // Bottom padding to account for "Book Now" button overlay
@@ -437,12 +437,12 @@ struct LocationTab: View {
                 MapAnnotation(coordinate: item.coordinate) {
                     VStack {
                         Image(systemName: "mappin.circle.fill")
-                            .font(.title)
+                            .font(BrandConstants.Typography.title)
                             .foregroundColor(.accentColor)
                         Text(item.venueName)
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .padding(4)
-                            .background(Color.white.opacity(0.9))
+                            .background(BrandConstants.Colors.surface.opacity(0.9))
                             .cornerRadius(4)
                     }
                 }
@@ -453,17 +453,17 @@ struct LocationTab: View {
             // Address
             VStack(alignment: .leading, spacing: 8) {
                 Text(classItem.venueName)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 
                 Text(classItem.address)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 
                 Button {
                     // Open in Maps
                 } label: {
                     Label("Get Directions", systemImage: "map")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .fontWeight(.medium)
                 }
             }
@@ -471,28 +471,28 @@ struct LocationTab: View {
             // Parking Info
             VStack(alignment: .leading, spacing: 8) {
                 Text("Parking")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 
                 HStack(spacing: 8) {
                     Image(systemName: "car.fill")
                         .foregroundColor(.accentColor)
                     Text("Free street parking available")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                 }
             }
             
             // Public Transit
             VStack(alignment: .leading, spacing: 8) {
                 Text("Public Transit")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 
                 HStack(spacing: 8) {
                     Image(systemName: "tram.fill")
                         .foregroundColor(.accentColor)
                     Text("5 minute walk from Central Station")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                 }
             }
         }
@@ -513,20 +513,20 @@ struct ReviewsTab: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(classItem.rating)
-                            .font(.largeTitle)
+                            .font(BrandConstants.Typography.largeTitle)
                             .fontWeight(.bold)
                         
                         HStack(spacing: 2) {
                             ForEach(0..<5) { index in
                                 Image(systemName: index < Int(Double(classItem.rating) ?? 0) ? "star.fill" : "star")
-                                    .font(.caption)
-                                    .foregroundColor(.yellow)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.warning)
                             }
                         }
                         
                         Text("Based on \(classItem.reviewCount) reviews")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                     
                     Spacer()
@@ -536,7 +536,7 @@ struct ReviewsTab: View {
                         ForEach((1...5).reversed(), id: \.self) { rating in
                             HStack(spacing: 8) {
                                 Text("\(rating)")
-                                    .font(.caption)
+                                    .font(BrandConstants.Typography.caption)
                                     .frame(width: 10)
                                 
                                 GeometryReader { geometry in
@@ -578,7 +578,7 @@ struct ReviewsTab: View {
                         }
                     } label: {
                         Text("Load More Reviews")
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.accentColor)
                             .frame(maxWidth: .infinity)
@@ -606,28 +606,28 @@ struct ReviewCard: View {
                     .frame(width: 40, height: 40)
                     .overlay(
                         Text(review.userInitials ?? "?")
-                            .font(.subheadline)
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.accentColor)
                     )
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(review.userName ?? "Anonymous")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .fontWeight(.medium)
                     
                     HStack(spacing: 4) {
                         HStack(spacing: 2) {
                             ForEach(0..<5) { index in
                                 Image(systemName: index < review.rating ? "star.fill" : "star")
-                                    .font(.caption2)
-                                    .foregroundColor(.yellow)
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.warning)
                             }
                         }
                         
                         Text("• \(review.date.formatted(.relative(presentation: .named)))")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                 }
                 
@@ -635,8 +635,8 @@ struct ReviewCard: View {
             }
             
             Text(review.comment)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .font(BrandConstants.Typography.subheadline)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
@@ -683,27 +683,27 @@ struct SimilarClassCard: View {
                 .frame(width: 80, height: 80)
                 .overlay(
                     Image(systemName: classItem.icon)
-                        .font(.title2)
-                        .foregroundColor(.white)
+                        .font(BrandConstants.Typography.title2)
+                        .foregroundColor(BrandConstants.Colors.surface)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(classItem.name)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 Text(classItem.instructor)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                 
                 HStack {
                     Label(classItem.duration, systemImage: "clock")
-                        .font(.caption2)
+                        .font(BrandConstants.Typography.caption)
                     Spacer()
                     Text(classItem.price)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
                 }
@@ -712,8 +712,8 @@ struct SimilarClassCard: View {
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(BrandConstants.Typography.caption)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
         }
         .padding()
         .background(Color(.systemGray6))
@@ -747,7 +747,7 @@ struct TemporaryBookingView: View {
                     // Class Info
                     VStack(alignment: .leading, spacing: 12) {
                         Text(classItem.name)
-                            .font(.title2)
+                            .font(BrandConstants.Typography.title2)
                             .fontWeight(.bold)
 
                         HStack {
@@ -755,8 +755,8 @@ struct TemporaryBookingView: View {
                             Spacer()
                             Label(classItem.duration, systemImage: "clock")
                         }
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(BrandConstants.Typography.subheadline)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
                     .padding()
                     .background(Color(.systemGray6))
@@ -765,7 +765,7 @@ struct TemporaryBookingView: View {
                     // Participants
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Participants")
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
 
                         HStack {
                             Button {
@@ -775,12 +775,12 @@ struct TemporaryBookingView: View {
                                 }
                             } label: {
                                 Image(systemName: "minus.circle.fill")
-                                    .font(.title2)
+                                    .font(BrandConstants.Typography.title2)
                                     .foregroundColor(participantCount > 1 ? .accentColor : .gray)
                             }
 
                             Text("\(participantCount)")
-                                .font(.title)
+                                .font(BrandConstants.Typography.title)
                                 .fontWeight(.semibold)
                                 .frame(minWidth: 50)
 
@@ -791,7 +791,7 @@ struct TemporaryBookingView: View {
                                 }
                             } label: {
                                 Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
+                                    .font(BrandConstants.Typography.title2)
                                     .foregroundColor(participantCount < min(classItem.spotsAvailable, 10) ? .accentColor : .gray)
                             }
                         }
@@ -813,8 +813,8 @@ struct TemporaryBookingView: View {
                                 Text("× \(participantCount) participants")
                                 Spacer()
                             }
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(BrandConstants.Typography.caption)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                         }
                         Divider()
                         HStack {
@@ -836,8 +836,8 @@ struct TemporaryBookingView: View {
                         showConfirmation = true
                     } label: {
                         Text("Confirm Booking")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                            .font(BrandConstants.Typography.headline)
+                            .foregroundColor(BrandConstants.Colors.surface)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.accentColor)

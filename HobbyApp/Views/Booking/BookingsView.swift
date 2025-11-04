@@ -110,11 +110,11 @@ private struct BookingCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(booking.className)
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                         .lineLimit(2)
 
                     Text("with \(booking.instructor)")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundStyle(.blue)
 
                     if let venue = booking.venue, !venue.isEmpty {
@@ -122,7 +122,7 @@ private struct BookingCard: View {
                             venue,
                             systemImage: venue.lowercased() == "online" ? "wifi" : "mappin.and.ellipse"
                         )
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundStyle(.secondary)
                     }
                 }

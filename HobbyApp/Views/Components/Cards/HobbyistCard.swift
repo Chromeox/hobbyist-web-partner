@@ -121,7 +121,7 @@ struct ClassCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
                         .overlay(
                             Image(systemName: "figure.strengthtraining.traditional")
-                                .font(.system(size: 32))
+                                .font(BrandConstants.Typography.heroTitle)
                                 .foregroundColor(.white)
                         )
                 }
@@ -129,24 +129,24 @@ struct ClassCard: View {
                 // Class info
                 VStack(alignment: .leading, spacing: HobbyistSpacing.xs) {
                     Text(className)
-                        .font(.hobbyistHeadline())
+                        .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.hobbyistTextPrimary)
                         .lineLimit(2)
 
                     Text(instructor)
-                        .font(.hobbyistCallout())
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.hobbyistTextSecondary)
 
                     HStack {
                         Text(time)
-                            .font(.hobbyistCaption())
+                            .font(BrandConstants.Typography.caption)
                             .foregroundColor(.hobbyistTextTertiary)
 
                         Spacer()
 
                         Text(price)
-                            .font(.hobbyistCallout())
+                            .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.hobbyistPrimary)
                     }
@@ -187,7 +187,7 @@ struct StudioCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
                         .overlay(
                             Image(systemName: "building.2.crop.circle")
-                                .font(.title2)
+                                .font(BrandConstants.Typography.title2)
                                 .foregroundColor(.hobbyistSecondary)
                         )
                 }
@@ -195,12 +195,12 @@ struct StudioCard: View {
                 // Studio info
                 VStack(alignment: .leading, spacing: HobbyistSpacing.xs) {
                     Text(studioName)
-                        .font(.hobbyistHeadline())
+                        .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.hobbyistTextPrimary)
 
                     Text(location)
-                        .font(.hobbyistCallout())
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.hobbyistTextSecondary)
                         .lineLimit(2)
 
@@ -208,17 +208,17 @@ struct StudioCard: View {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
                                 .foregroundColor(.yellow)
-                                .font(.caption)
+                                .font(BrandConstants.Typography.caption)
 
                             Text(String(format: "%.1f", rating))
-                                .font(.hobbyistCaption())
+                                .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.hobbyistTextTertiary)
                         }
 
                         Spacer()
 
                         Text(distance)
-                            .font(.hobbyistCaption())
+                            .font(BrandConstants.Typography.caption)
                             .foregroundColor(.hobbyistTextTertiary)
                     }
                 }
@@ -235,19 +235,19 @@ struct StudioCard: View {
         VStack(spacing: HobbyistSpacing.md) {
             HobbyistCard(style: .default) {
                 Text("Default Card")
-                    .font(.hobbyistBody())
+                    .font(BrandConstants.Typography.body)
                     .padding()
             }
 
             HobbyistCard(style: .elevated) {
                 Text("Elevated Card")
-                    .font(.hobbyistBody())
+                    .font(BrandConstants.Typography.body)
                     .padding()
             }
 
             HobbyistCard(style: .outlined) {
                 Text("Outlined Card")
-                    .font(.hobbyistBody())
+                    .font(BrandConstants.Typography.body)
                     .padding()
             }
 

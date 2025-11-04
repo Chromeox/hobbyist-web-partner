@@ -354,6 +354,36 @@ class AuthenticationManager: ObservableObject {
         }
     }
     
+    func deleteAccount() async throws {
+        guard let supabase = supabase else {
+            throw AuthError.networkError
+        }
+        
+        guard let user = currentUser else {
+            throw AuthError.userNotFound
+        }
+        
+        isLoading = true
+        authError = nil
+        
+        do {
+            // Delete user profile data first
+            _ = try await supabase
+                .from("user_profiles")
+                .delete()
+                .eq("id", value: user.id)
+                .execute()
+            
+            // Sign out the user (Supabase doesn't provide admin deleteUser for client SDK)
+            try await signOut()
+        } catch {
+            authError = mapSupabaseError(error)
+            throw authError!
+        }
+        
+        isLoading = false
+    }
+    
     func clearForm() {
         email = ""
         password = ""

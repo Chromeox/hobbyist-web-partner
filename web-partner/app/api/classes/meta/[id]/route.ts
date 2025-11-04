@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { mapDbClassToUiClass, mapFormDataToUpsertPayload } from '@/lib/utils/class-mappers';
 import type { ClassFormData } from '@/types/class-management';
@@ -113,10 +113,10 @@ const resolveCategoryId = async (form: ClassFormData): Promise<string> => {
 };
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
 
   if (!id) {
     return NextResponse.json({ error: 'Class ID is required' }, { status: 400 });
@@ -171,10 +171,10 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
 
   if (!id) {
     return NextResponse.json({ error: 'Class ID is required' }, { status: 400 });

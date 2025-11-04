@@ -31,7 +31,7 @@ struct DiscoverView: View {
                                     selectedCategory = selectedCategory == category ? nil : category
                                 }) {
                                     Text(category)
-                                        .font(.callout)
+                                        .font(BrandConstants.Typography.subheadline)
                                         .fontWeight(selectedCategory == category ? .semibold : .regular)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
@@ -47,7 +47,7 @@ struct DiscoverView: View {
                     // Featured Classes
                     VStack(alignment: .leading, spacing: 16) {
                         Text(NSLocalizedString("featured_classes", comment: ""))
-                            .font(.title3)
+                            .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal, 16)
                         
@@ -77,30 +77,30 @@ struct ClassListItem: View {
                 .frame(width: 80, height: 80)
                 .overlay(
                     Image(systemName: "music.note")
-                        .font(.title2)
+                        .font(BrandConstants.Typography.title2)
                         .foregroundColor(.accentColor)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Guitar Lessons for Beginners")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                     .lineLimit(1)
                 
                 Text("Learn the basics of guitar playing")
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                 
                 HStack {
                     Label("4.9", systemImage: "star.fill")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.orange)
                     
                     Text("•")
                         .foregroundColor(.secondary)
                     
                     Text("$45/session")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
                 }
             }
@@ -108,7 +108,7 @@ struct ClassListItem: View {
             Spacer()
             
             Image(systemName: "heart")
-                .font(.title3)
+                .font(BrandConstants.Typography.title3)
                 .foregroundColor(.secondary)
         }
         .padding()

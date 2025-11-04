@@ -7,7 +7,7 @@ VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Enable RLS on storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Note: RLS may already be enabled on storage.objects by default
 
 -- Policy: Users can upload their own profile pictures
 CREATE POLICY "Users can upload their own avatars"

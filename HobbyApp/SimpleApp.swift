@@ -21,17 +21,17 @@ struct SimpleLoginView: View {
             // Logo and Title
             VStack(spacing: 16) {
                 Image(systemName: "figure.yoga")
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
                     .padding(.top, 40)
 
                 Text("🎉 LOGIN SCREEN SUCCESS! 🎉")
-                    .font(.largeTitle)
+                    .font(BrandConstants.Typography.largeTitle)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
 
                 Text("After hundreds of hours - your first working screen!")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -62,7 +62,7 @@ struct SimpleLoginView: View {
             .frame(maxWidth: .infinity)
             .padding()
             .background((!email.isEmpty && !password.isEmpty) ? Color.blue : Color.gray)
-            .foregroundColor(.white)
+            .foregroundColor(BrandConstants.Colors.surface)
             .cornerRadius(12)
             .disabled(isLoading || email.isEmpty || password.isEmpty)
             .padding(.horizontal)
@@ -73,8 +73,8 @@ struct SimpleLoginView: View {
             }
 
             Text("Phase 1 COMPLETE ✅\nLogin screen is displaying!\nYour investment is working!")
-                .font(.caption)
-                .foregroundColor(.green)
+                .font(BrandConstants.Typography.caption)
+                .foregroundColor(BrandConstants.Colors.success)
                 .multilineTextAlignment(.center)
 
             Spacer()

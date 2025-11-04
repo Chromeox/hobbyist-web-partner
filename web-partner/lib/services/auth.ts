@@ -408,38 +408,50 @@ export class AuthService {
         }
 
         // Fetch profile and instructor data in parallel
-        const [profileResult, instructorResult] = await Promise.all([
+        const [profileResult, instructorProfileResult] = await Promise.all([
           supabase
             .from('user_profiles')
             .select('*')
-            .eq('user_id', user.id)
-            .single(),
+            .eq('id', user.id)
+            .maybeSingle(),
           supabase
-            .from('instructors')
+            .from('instructor_profiles')
             .select('*')
             .eq('user_id', user.id)
-            .single()
+            .maybeSingle()
         ])
+
+        const profileRow = profileResult.data
+        const instructorProfile = instructorProfileResult.data
+
+        let firstName = ''
+        let lastName = ''
+
+        if (profileRow?.full_name) {
+          const parts = profileRow.full_name.trim().split(/\s+/)
+          firstName = parts[0] ?? ''
+          lastName = parts.length > 1 ? parts.slice(1).join(' ') : ''
+        }
 
         // Create stable shape profile
         const profile: UserProfile = {
           id: user.id,
           email: user.email || '',
           role: user.user_metadata?.role || 'student',
-          profile: profileResult.data ? {
-            firstName: profileResult.data.first_name || '',
-            lastName: profileResult.data.last_name || '',
-            phone: profileResult.data.phone || '',
-            avatarUrl: profileResult.data.avatar_url || '',
-            bio: profileResult.data.bio || ''
+          profile: profileRow ? {
+            firstName,
+            lastName,
+            phone: profileRow.phone || '',
+            avatarUrl: profileRow.avatar_url || '',
+            bio: profileRow.bio || ''
           } : null,
-          instructor: instructorResult.data ? {
-            businessName: instructorResult.data.business_name || '',
-            verified: instructorResult.data.verified || false,
-            rating: instructorResult.data.rating || 0,
-            totalStudents: instructorResult.data.total_students || 0,
-            specialties: instructorResult.data.specialties || [],
-            studioId: instructorResult.data.studio_id || null
+          instructor: instructorProfile ? {
+            businessName: instructorProfile.display_name || '',
+            verified: Boolean(instructorProfile.is_verified),
+            rating: instructorProfile.average_rating || 0,
+            totalStudents: instructorProfile.total_students || 0,
+            specialties: instructorProfile.specialties || [],
+            studioId: null
           } : null,
           createdAt: user.created_at,
           updatedAt: user.updated_at || ''

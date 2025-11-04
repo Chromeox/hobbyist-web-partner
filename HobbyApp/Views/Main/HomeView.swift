@@ -170,13 +170,13 @@ private struct WelcomeSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Hi \(userName.split(separator: " ").first ?? "there") 👋")
-                .font(.largeTitle)
+                .font(BrandConstants.Typography.largeTitle)
                 .fontWeight(.bold)
 
             Text(bookingsCount > 0 ?
                  "You have \(bookingsCount) upcoming \(bookingsCount == 1 ? "class" : "classes") this week." :
                     "Find a new class to keep your creativity flowing.")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal)
@@ -236,7 +236,7 @@ private struct CategoriesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Popular Categories")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
                 .padding(.horizontal)
 
             LazyVGrid(
@@ -245,7 +245,7 @@ private struct CategoriesSection: View {
             ) {
                 ForEach(categories, id: \.self) { category in
                     Text(category)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.primary)
                         .frame(maxWidth: .infinity)
@@ -293,13 +293,13 @@ private struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             Spacer()
 
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
             }
         }
         .padding(.horizontal)
@@ -357,17 +357,17 @@ struct HomeClassCard: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(classItem.title)
-                        .font(style == .featured ? .title3 : .headline)
+                        .font(style == .featured ? BrandConstants.Typography.title3 : BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                         .lineLimit(2)
 
                     Text("with \(classItem.instructor)")
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundStyle(.blue)
 
                     HStack(alignment: .center, spacing: 8) {
                         Text(classItem.category)
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(
@@ -379,12 +379,12 @@ struct HomeClassCard: View {
                         Spacer()
 
                         Text(classItem.priceFormatted)
-                            .font(.headline)
+                            .font(BrandConstants.Typography.headline)
                             .foregroundStyle(.primary)
                     }
 
                     Label("\(classItem.duration) min", systemImage: "stopwatch")
-                        .font(.caption)
+                        .font(BrandConstants.Typography.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -396,17 +396,17 @@ struct HomeClassCard: View {
                         HomeClassCard.dayFormatter.string(from: startDate),
                         systemImage: "calendar"
                     )
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundStyle(.secondary)
 
                     if let endDate = classItem.endDate {
                         let timeRange = "\(HomeClassCard.timeFormatter.string(from: startDate)) – \(HomeClassCard.timeFormatter.string(from: endDate))"
                         Label(timeRange, systemImage: "clock")
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .foregroundStyle(.secondary)
                     } else {
                         Label(HomeClassCard.timeFormatter.string(from: startDate), systemImage: "clock")
-                            .font(.caption)
+                            .font(BrandConstants.Typography.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -415,7 +415,7 @@ struct HomeClassCard: View {
                     classItem.displayLocation,
                     systemImage: classItem.isOnline ? "wifi" : "mappin.and.ellipse"
                 )
-                .font(.caption)
+                .font(BrandConstants.Typography.caption)
                 .foregroundStyle(.secondary)
 
                 if let spots = classItem.spotsRemaining, spots > 0 {
@@ -423,14 +423,14 @@ struct HomeClassCard: View {
                         "\(spots) spot\(spots == 1 ? "" : "s") left",
                         systemImage: "person.3.fill"
                     )
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundStyle(spots <= 3 ? Color.red : Color.secondary)
                 } else if let maxCapacity = classItem.maxParticipants, maxCapacity > 0 {
                     Label(
                         "Fully booked",
                         systemImage: "checkmark.circle"
                     )
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundStyle(Color.secondary)
                 }
             }
@@ -463,7 +463,7 @@ private struct PlaceholderImage: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.blue.opacity(0.08))
             Image(systemName: "photo")
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .foregroundStyle(Color.blue)
         }
     }
@@ -475,7 +475,7 @@ private struct LoadingStateView: View {
             Spacer()
             ProgressView("Loading classes...")
             Text("Fetching the latest schedules from Supabase.")
-                .font(.footnote)
+                .font(BrandConstants.Typography.footnote)
                 .foregroundStyle(.secondary)
             Spacer()
         }
@@ -491,14 +491,14 @@ private struct ErrorStateView: View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "wifi.exclamationmark")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(.red)
 
             Text("We had trouble loading classes.")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             Text(message)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -518,14 +518,14 @@ private struct EmptyHomeState: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(Color.secondary)
 
             Text("No classes match your filter.")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
 
             Text(emptyMessage)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)

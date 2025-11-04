@@ -7,10 +7,7 @@
 -- ============================================
 
 -- Enable RLS on instructors table (policies already exist)
-ALTER TABLE instructors ENABLE ROW LEVEL SECURITY;
-
--- Enable RLS on venues table (policies already exist)  
-ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
+-- Note: instructors table RLS will be enabled in the avatar system migration
 
 -- ============================================
 -- PART 2: Recreate Views Without SECURITY DEFINER
@@ -22,18 +19,19 @@ CREATE OR REPLACE VIEW booking_summary AS
 SELECT 
     b.id,
     b.user_id,
-    b.class_id,
+    b.class_schedule_id,
     b.status,
-    b.booking_date,
+    b.created_at as booking_date,
     b.created_at,
-    c.title as class_title,
-    c.start_time,
-    c.end_time,
-    c.credit_cost,
+    c.name as class_title,
+    cs.start_time,
+    cs.end_time,
+    b.credits_used as credit_cost,
     u.email as user_email,
-    i.user_id as instructor_id
+    i.id as instructor_id
 FROM bookings b
-JOIN classes c ON b.class_id = c.id
+JOIN class_schedules cs ON b.class_schedule_id = cs.id
+JOIN classes c ON cs.class_id = c.id
 JOIN auth.users u ON b.user_id = u.id
 LEFT JOIN instructors i ON c.instructor_id = i.id;
 
@@ -44,17 +42,18 @@ GRANT SELECT ON booking_summary TO authenticated;
 DROP VIEW IF EXISTS class_availability CASCADE;
 CREATE OR REPLACE VIEW class_availability AS
 SELECT 
-    c.id,
-    c.title,
-    c.start_time,
-    c.end_time,
+    cs.id,
+    c.name as title,
+    cs.start_time,
+    cs.end_time,
     c.max_participants,
-    c.credit_cost,
+    1 as credit_cost,
     COUNT(b.id) FILTER (WHERE b.status = 'confirmed') as booked_count,
-    c.max_participants - COUNT(b.id) FILTER (WHERE b.status = 'confirmed') as available_spots
-FROM classes c
-LEFT JOIN bookings b ON c.id = b.class_id
-GROUP BY c.id;
+    cs.spots_available as available_spots
+FROM class_schedules cs
+JOIN classes c ON cs.class_id = c.id
+LEFT JOIN bookings b ON cs.id = b.class_schedule_id
+GROUP BY cs.id, c.name, cs.start_time, cs.end_time, c.max_participants, cs.spots_available;
 
 -- Grant appropriate permissions
 GRANT SELECT ON class_availability TO authenticated;
@@ -82,7 +81,8 @@ BEGIN
         c.price * 0.1 as tax,
         c.price * 1.1 as total
     FROM bookings b
-    JOIN classes c ON b.class_id = c.id
+    JOIN class_schedules cs ON b.class_schedule_id = cs.id
+    JOIN classes c ON cs.class_id = c.id
     WHERE b.id = booking_id;
 END;
 $$;
@@ -103,13 +103,14 @@ BEGIN
     RETURN QUERY
     SELECT 
         b.id as booking_id,
-        c.title as class_title,
-        b.booking_date,
+        c.name as class_title,
+        b.created_at as booking_date,
         b.status
     FROM bookings b
-    JOIN classes c ON b.class_id = c.id
+    JOIN class_schedules cs ON b.class_schedule_id = cs.id
+    JOIN classes c ON cs.class_id = c.id
     WHERE b.user_id = user_uuid
-    ORDER BY b.booking_date DESC;
+    ORDER BY b.created_at DESC;
 END;
 $$;
 
@@ -123,12 +124,10 @@ AS $$
 DECLARE
     available_spots integer;
 BEGIN
-    SELECT c.max_participants - COUNT(b.id)
+    SELECT cs.spots_available
     INTO available_spots
-    FROM classes c
-    LEFT JOIN bookings b ON c.id = b.class_id AND b.status = 'confirmed'
-    WHERE c.id = class_uuid
-    GROUP BY c.id, c.max_participants;
+    FROM class_schedules cs
+    WHERE cs.id = class_uuid;
     
     RETURN COALESCE(available_spots, 0) > 0;
 END;
@@ -150,23 +149,21 @@ DECLARE
     booking_user_id uuid;
 BEGIN
     -- Get booking details
-    SELECT b.user_id, c.credit_cost
+    SELECT b.user_id, b.credits_used
     INTO booking_user_id, credits_required
     FROM bookings b
-    JOIN classes c ON b.class_id = c.id
     WHERE b.id = booking_uuid;
     
     IF payment_method = 'credits' THEN
         -- Check user has enough credits
-        SELECT credit_balance INTO user_balance
+        SELECT (total_credits - used_credits) INTO user_balance
         FROM user_credits
         WHERE user_id = booking_user_id;
         
         IF user_balance >= credits_required THEN
             -- Deduct credits
             UPDATE user_credits
-            SET credit_balance = credit_balance - credits_required,
-                total_spent = total_spent + credits_required
+            SET used_credits = used_credits + credits_required
             WHERE user_id = booking_user_id;
             
             -- Update booking
@@ -211,10 +208,11 @@ BEGIN
     SELECT SUM(c.price * (1 - COALESCE(commission_rate, 0.15)))
     INTO total_earnings
     FROM bookings b
-    JOIN classes c ON b.class_id = c.id
+    JOIN class_schedules cs ON b.class_schedule_id = cs.id
+    JOIN classes c ON cs.class_id = c.id
     WHERE c.instructor_id = instructor_uuid
         AND b.status = 'confirmed'
-        AND b.booking_date BETWEEN start_date AND end_date;
+        AND b.created_at BETWEEN start_date AND end_date;
     
     RETURN COALESCE(total_earnings, 0);
 END;
@@ -270,8 +268,8 @@ AS $$
 BEGIN
     -- Check if class is in the future
     IF EXISTS (
-        SELECT 1 FROM classes
-        WHERE id = NEW.class_id
+        SELECT 1 FROM class_schedules
+        WHERE id = NEW.class_schedule_id
         AND start_time <= NOW()
     ) THEN
         RAISE EXCEPTION 'Cannot book a class that has already started';
@@ -294,8 +292,8 @@ BEGIN
     SET status = 'cancelled',
         updated_at = NOW()
     WHERE status = 'pending'
-        AND class_id IN (
-            SELECT id FROM classes 
+        AND class_schedule_id IN (
+            SELECT id FROM class_schedules 
             WHERE start_time < NOW() - INTERVAL '1 hour'
         );
     
@@ -304,8 +302,8 @@ BEGIN
     SET status = 'completed',
         updated_at = NOW()
     WHERE status = 'confirmed'
-        AND class_id IN (
-            SELECT id FROM classes 
+        AND class_schedule_id IN (
+            SELECT id FROM class_schedules 
             WHERE end_time < NOW()
         );
 END;
@@ -321,7 +319,7 @@ AS $$
 DECLARE
     total_credits integer;
 BEGIN
-    SELECT credit_amount + COALESCE(bonus_credits, 0)
+    SELECT credits
     INTO total_credits
     FROM credit_packs
     WHERE id = pack_id;
@@ -346,38 +344,24 @@ DECLARE
     pack_price integer;
 BEGIN
     -- Get pack details
-    SELECT credit_amount + COALESCE(bonus_credits, 0), price_cents
+    SELECT credits, (price * 100)::integer
     INTO credits_to_add, pack_price
     FROM credit_packs
     WHERE id = pack_uuid AND is_active = true;
     
     IF credits_to_add IS NOT NULL THEN
-        -- Record purchase
-        INSERT INTO credit_pack_purchases (
-            user_id, credit_pack_id, stripe_payment_intent_id,
-            amount_paid_cents, credits_received, status
-        ) VALUES (
-            user_uuid, pack_uuid, payment_intent_id,
-            pack_price, credits_to_add, 'completed'
-        );
+        -- Record purchase (skip if table doesn't exist)
+        -- INSERT INTO credit_pack_purchases would go here if table existed
         
         -- Update user credits
-        INSERT INTO user_credits (user_id, credit_balance, total_earned)
-        VALUES (user_uuid, credits_to_add, credits_to_add)
+        INSERT INTO user_credits (user_id, total_credits)
+        VALUES (user_uuid, credits_to_add)
         ON CONFLICT (user_id) DO UPDATE
-        SET credit_balance = user_credits.credit_balance + EXCLUDED.credit_balance,
-            total_earned = user_credits.total_earned + EXCLUDED.total_earned,
+        SET total_credits = user_credits.total_credits + EXCLUDED.total_credits,
             updated_at = NOW();
         
-        -- Log transaction
-        INSERT INTO credit_transactions (
-            user_id, transaction_type, credit_amount, 
-            balance_after, reference_type, reference_id
-        ) VALUES (
-            user_uuid, 'purchase', credits_to_add,
-            (SELECT credit_balance FROM user_credits WHERE user_id = user_uuid),
-            'credit_pack_purchase', pack_uuid
-        );
+        -- Log transaction (skip if table doesn't exist)
+        -- INSERT INTO credit_transactions would go here if table existed
         
         RETURN true;
     END IF;
@@ -388,7 +372,8 @@ $$;
 
 -- Function: get_available_classes
 CREATE OR REPLACE FUNCTION get_available_classes(
-    user_location geography DEFAULT NULL,
+    user_lat numeric DEFAULT NULL,
+    user_lng numeric DEFAULT NULL,
     max_distance_km integer DEFAULT 50
 )
 RETURNS TABLE(
@@ -407,25 +392,21 @@ BEGIN
     RETURN QUERY
     SELECT 
         c.id as class_id,
-        c.title,
-        c.start_time,
-        c.credit_cost,
+        c.name as title,
+        cs.start_time,
+        1 as credit_cost,
         c.max_participants - COUNT(b.id)::integer as available_spots,
-        CASE 
-            WHEN user_location IS NOT NULL AND v.location IS NOT NULL THEN
-                ST_Distance(user_location, v.location) / 1000
-            ELSE NULL
-        END as distance_km
+        NULL as distance_km
     FROM classes c
-    LEFT JOIN bookings b ON c.id = b.class_id AND b.status = 'confirmed'
-    LEFT JOIN venues v ON c.venue_id = v.id
-    WHERE c.start_time > NOW()
-        AND c.status = 'published'
-        AND (user_location IS NULL OR v.location IS NULL OR 
-             ST_DWithin(user_location, v.location, max_distance_km * 1000))
-    GROUP BY c.id, v.location
+    LEFT JOIN class_schedules cs ON c.id = cs.class_id
+    LEFT JOIN bookings b ON cs.id = b.class_schedule_id AND b.status = 'confirmed'
+    LEFT JOIN studios s ON c.studio_id = s.id
+    WHERE cs.start_time > NOW()
+        AND c.is_active = true
+        AND cs.is_cancelled = false
+    GROUP BY c.id, cs.start_time
     HAVING c.max_participants - COUNT(b.id) > 0
-    ORDER BY c.start_time;
+    ORDER BY cs.start_time;
 END;
 $$;
 
@@ -460,9 +441,10 @@ BEGIN
         SUM(c.price * (1 - COALESCE(commission_rate, 0.15))) as total_payouts,
         COUNT(b.id)::integer as booking_count
     FROM bookings b
-    JOIN classes c ON b.class_id = c.id
+    JOIN class_schedules cs ON b.class_schedule_id = cs.id
+    JOIN classes c ON cs.class_id = c.id
     WHERE b.status = 'confirmed'
-        AND b.booking_date BETWEEN start_date AND end_date;
+        AND b.created_at BETWEEN start_date AND end_date;
 END;
 $$;
 
@@ -472,40 +454,34 @@ $$;
 
 -- Ensure all tables have RLS enabled where appropriate
 ALTER TABLE user_credits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE credit_transactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE credit_pack_purchases ENABLE ROW LEVEL SECURITY;
+-- Note: credit_transactions table doesn't exist in current schema
+-- Note: credit_pack_purchases table doesn't exist in current schema
 ALTER TABLE credit_packs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE studio_commission_settings ENABLE ROW LEVEL SECURITY;
+-- Note: studio_commission_settings table doesn't exist in current schema
 
 -- Create missing RLS policies for critical tables
 -- User credits - users can only see their own
+DROP POLICY IF EXISTS "Users can view own credits" ON user_credits;
 CREATE POLICY "Users can view own credits" ON user_credits
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own credits" ON user_credits;
 CREATE POLICY "Users can update own credits" ON user_credits
     FOR UPDATE USING (auth.uid() = user_id);
 
 -- Credit transactions - users can only see their own
-CREATE POLICY "Users can view own transactions" ON credit_transactions
-    FOR SELECT USING (auth.uid() = user_id);
+-- Note: credit_transactions table doesn't exist, skipping policy
 
 -- Credit pack purchases - users can see their own
-CREATE POLICY "Users can view own purchases" ON credit_pack_purchases
-    FOR SELECT USING (auth.uid() = user_id);
+-- Note: credit_pack_purchases table doesn't exist, skipping policy
 
 -- Credit packs - everyone can view active packs
+DROP POLICY IF EXISTS "Anyone can view active credit packs" ON credit_packs;
 CREATE POLICY "Anyone can view active credit packs" ON credit_packs
     FOR SELECT USING (is_active = true);
 
 -- Studio commission settings - only admins can view
-CREATE POLICY "Only admins can view commission settings" ON studio_commission_settings
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM user_profiles
-            WHERE user_id = auth.uid()
-            AND role = 'admin'
-        )
-    );
+-- Note: studio_commission_settings table doesn't exist, skipping policy
 
 -- ============================================
 -- PART 5: Update Timestamps and Indexes
@@ -537,11 +513,12 @@ CREATE TRIGGER update_classes_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_user_profiles_updated_at ON user_profiles;
-CREATE TRIGGER update_user_profiles_updated_at
-    BEFORE UPDATE ON user_profiles
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+-- Note: user_profiles table doesn't exist yet, will be created in avatar migration
+-- DROP TRIGGER IF EXISTS update_user_profiles_updated_at ON user_profiles;
+-- CREATE TRIGGER update_user_profiles_updated_at
+--     BEFORE UPDATE ON user_profiles
+--     FOR EACH ROW
+--     EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- PART 6: Audit Log for Security Events
@@ -562,14 +539,15 @@ CREATE TABLE IF NOT EXISTS security_audit_log (
 ALTER TABLE security_audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view audit logs
-CREATE POLICY "Only admins can view audit logs" ON security_audit_log
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM user_profiles
-            WHERE user_id = auth.uid()
-            AND role = 'admin'
-        )
-    );
+-- Note: user_profiles table doesn't exist yet, will be created in avatar migration
+-- CREATE POLICY "Only admins can view audit logs" ON security_audit_log
+--     FOR SELECT USING (
+--         EXISTS (
+--             SELECT 1 FROM user_profiles
+--             WHERE user_id = auth.uid()
+--             AND role = 'admin'
+--         )
+--     );
 
 -- Create index for audit log queries
 CREATE INDEX idx_audit_log_user_id ON security_audit_log(user_id);

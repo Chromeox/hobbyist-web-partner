@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 class FollowingViewModel: ObservableObject {
     @Published var following: [FollowingProfile] = []
     @Published var followers: [FollowingProfile] = []
@@ -26,23 +27,17 @@ class FollowingViewModel: ObservableObject {
 
         Task {
             guard let userId = await authManager.getCurrentUserId() else {
-                await MainActor.run {
-                    self.isLoadingFollowing = false
-                }
+                self.isLoadingFollowing = false
                 return
             }
 
             do {
                 let profiles = try await followingService.getFollowing(for: userId.uuidString)
-                await MainActor.run {
-                    self.following = profiles as? [FollowingProfile] ?? []
-                    self.isLoadingFollowing = false
-                }
+                self.following = profiles as? [FollowingProfile] ?? []
+                self.isLoadingFollowing = false
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoadingFollowing = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoadingFollowing = false
             }
         }
     }
@@ -53,23 +48,17 @@ class FollowingViewModel: ObservableObject {
 
         Task {
             guard let userId = await authManager.getCurrentUserId() else {
-                await MainActor.run {
-                    self.isLoadingFollowers = false
-                }
+                self.isLoadingFollowers = false
                 return
             }
 
             do {
                 let profiles = try await followingService.getFollowers(for: userId.uuidString)
-                await MainActor.run {
-                    self.followers = profiles as? [FollowingProfile] ?? []
-                    self.isLoadingFollowers = false
-                }
+                self.followers = profiles as? [FollowingProfile] ?? []
+                self.isLoadingFollowers = false
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoadingFollowers = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoadingFollowers = false
             }
         }
     }
@@ -80,23 +69,17 @@ class FollowingViewModel: ObservableObject {
 
         Task {
             guard let userId = await authManager.getCurrentUserId() else {
-                await MainActor.run {
-                    self.isLoadingSuggestions = false
-                }
+                self.isLoadingSuggestions = false
                 return
             }
 
             do {
                 let profiles = try await followingService.getSuggestions(for: userId.uuidString)
-                await MainActor.run {
-                    self.suggestions = profiles as? [FollowingProfile] ?? []
-                    self.isLoadingSuggestions = false
-                }
+                self.suggestions = profiles as? [FollowingProfile] ?? []
+                self.isLoadingSuggestions = false
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoadingSuggestions = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoadingSuggestions = false
             }
         }
     }
@@ -110,40 +93,36 @@ class FollowingViewModel: ObservableObject {
                     targetUserId: profile.id.uuidString
                 )
                 
-                await MainActor.run {
-                    // Update UI state
-                    if let index = self.suggestions.firstIndex(where: { $0.id == profile.id }) {
-                        self.suggestions[index] = FollowingProfile(
-                            id: profile.id,
-                            name: profile.name,
-                            username: profile.username,
-                            imageUrl: profile.imageUrl,
-                            bio: profile.bio,
-                            followersCount: profile.followersCount + 1,
-                            followingCount: profile.followingCount,
-                            isFollowing: true,
-                            type: profile.type
-                        )
-                    }
-                    
-                    // Add to following list
-                    let updatedProfile = FollowingProfile(
+                // Update UI state
+                if let index = self.suggestions.firstIndex(where: { $0.id == profile.id }) {
+                    self.suggestions[index] = FollowingProfile(
                         id: profile.id,
                         name: profile.name,
                         username: profile.username,
                         imageUrl: profile.imageUrl,
                         bio: profile.bio,
-                        followersCount: profile.followersCount,
+                        followersCount: profile.followersCount + 1,
                         followingCount: profile.followingCount,
                         isFollowing: true,
                         type: profile.type
                     )
-                    self.following.append(updatedProfile)
                 }
+                
+                // Add to following list
+                let updatedProfile = FollowingProfile(
+                    id: profile.id,
+                    name: profile.name,
+                    username: profile.username,
+                    imageUrl: profile.imageUrl,
+                    bio: profile.bio,
+                    followersCount: profile.followersCount,
+                    followingCount: profile.followingCount,
+                    isFollowing: true,
+                    type: profile.type
+                )
+                self.following.append(updatedProfile)
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
+                self.errorMessage = error.localizedDescription
             }
         }
     }
@@ -157,29 +136,25 @@ class FollowingViewModel: ObservableObject {
                     targetUserId: profile.id.uuidString
                 )
                 
-                await MainActor.run {
-                    // Remove from following list
-                    self.following.removeAll { $0.id == profile.id }
-                    
-                    // Update suggestions if present
-                    if let index = self.suggestions.firstIndex(where: { $0.id == profile.id }) {
-                        self.suggestions[index] = FollowingProfile(
-                            id: profile.id,
-                            name: profile.name,
-                            username: profile.username,
-                            imageUrl: profile.imageUrl,
-                            bio: profile.bio,
-                            followersCount: profile.followersCount - 1,
-                            followingCount: profile.followingCount,
-                            isFollowing: false,
-                            type: profile.type
-                        )
-                    }
+                // Remove from following list
+                self.following.removeAll { $0.id == profile.id }
+                
+                // Update suggestions if present
+                if let index = self.suggestions.firstIndex(where: { $0.id == profile.id }) {
+                    self.suggestions[index] = FollowingProfile(
+                        id: profile.id,
+                        name: profile.name,
+                        username: profile.username,
+                        imageUrl: profile.imageUrl,
+                        bio: profile.bio,
+                        followersCount: profile.followersCount - 1,
+                        followingCount: profile.followingCount,
+                        isFollowing: false,
+                        type: profile.type
+                    )
                 }
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
+                self.errorMessage = error.localizedDescription
             }
         }
     }

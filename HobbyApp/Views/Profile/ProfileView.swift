@@ -147,7 +147,7 @@ private struct ProfileHeader: View {
 
                 Button(action: onEditPhoto) {
                     Image(systemName: "camera.fill")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(BrandConstants.Typography.footnote)
                         .foregroundStyle(Color.white)
                         .padding(8)
                         .background(Circle().fill(Color.blue))
@@ -157,15 +157,15 @@ private struct ProfileHeader: View {
 
             VStack(spacing: 6) {
                 Text(profile.fullName)
-                    .font(.title2)
+                    .font(BrandConstants.Typography.title2)
                     .fontWeight(.bold)
 
                 Text(profile.email)
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .foregroundStyle(.secondary)
 
                 Text(profile.memberSinceText)
-                    .font(.caption)
+                    .font(BrandConstants.Typography.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -245,7 +245,7 @@ private struct LogoutButton: View {
             HStack {
                 Spacer()
                 Text("Log Out")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                 Spacer()
             }
             .padding()
@@ -294,7 +294,7 @@ private struct AvatarView: View {
     private struct FallbackAvatar: View {
         var body: some View {
             Image(systemName: "person.fill")
-                .font(.system(size: 40))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(Color.blue)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -308,10 +308,10 @@ private struct StatItemView: View {
     var body: some View {
         VStack(spacing: 6) {
             Text(value)
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .fontWeight(.bold)
             Text(label)
-                .font(.caption)
+                .font(BrandConstants.Typography.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -328,15 +328,15 @@ private struct ProfileMenuItemView: View {
         Button(action: action) {
             HStack(spacing: 16) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(BrandConstants.Typography.title2)
                     .foregroundStyle(Color.blue)
                     .frame(width: 32, height: 32)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
+                        .font(BrandConstants.Typography.headline)
                     Text(subtitle)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
@@ -362,7 +362,7 @@ private struct LoadingStateView: View {
             Spacer()
             ProgressView("Loading profile...")
             Text("Fetching your information from Supabase.")
-                .font(.footnote)
+                .font(BrandConstants.Typography.footnote)
                 .foregroundStyle(.secondary)
             Spacer()
         }
@@ -378,13 +378,13 @@ private struct ErrorStateView: View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(.red)
 
             Text("We couldn't load your profile.")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
             Text(message)
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -403,13 +403,13 @@ private struct EmptyStateView: View {
         VStack(spacing: 16) {
             Spacer()
             Image(systemName: "person.crop.circle.badge.questionmark")
-                .font(.system(size: 48))
+                .font(BrandConstants.Typography.heroTitle)
                 .foregroundStyle(.secondary)
 
             Text("Profile unavailable")
-                .font(.headline)
+                .font(BrandConstants.Typography.headline)
             Text("Sign in to view your profile details.")
-                .font(.subheadline)
+                .font(BrandConstants.Typography.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
         }
@@ -449,7 +449,7 @@ private struct EditProfileView: View {
                 Section("Personal Information") {
                     TextField("Full Name", text: $fullName)
                     Text(initialProfile.email)
-                        .font(.subheadline)
+                        .font(BrandConstants.Typography.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
@@ -483,7 +483,7 @@ private struct EditProfileView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(Color.red)
-                            .font(.footnote)
+                            .font(BrandConstants.Typography.footnote)
                     }
                 }
             }

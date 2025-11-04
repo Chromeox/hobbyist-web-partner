@@ -150,12 +150,12 @@ struct ProductionOnboardingView: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
 
-            VStack(spacing: 24) {
+            VStack(spacing: BrandConstants.Spacing.lg) {
                 // Page Indicator
-                HStack(spacing: 8) {
+                HStack(spacing: BrandConstants.Spacing.sm) {
                     ForEach(0..<totalPages, id: \.self) { index in
                         Circle()
-                            .fill(index == currentPage ? Color.blue : Color.gray.opacity(0.3))
+                            .fill(index == currentPage ? BrandConstants.Colors.primary : BrandConstants.Colors.secondaryText.opacity(0.3))
                             .frame(width: 8, height: 8)
                             .animation(.easeInOut, value: currentPage)
                     }
@@ -167,7 +167,7 @@ struct ProductionOnboardingView: View {
                         Button("Back") {
                             withAnimation { currentPage -= 1 }
                         }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                     }
 
                     Spacer()
@@ -176,26 +176,26 @@ struct ProductionOnboardingView: View {
                         Button("Next") {
                             withAnimation { currentPage += 1 }
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding(.horizontal, BrandConstants.Spacing.lg)
+                        .padding(.vertical, BrandConstants.Spacing.md)
+                        .background(BrandConstants.Colors.primary)
+                        .foregroundColor(BrandConstants.Colors.surface)
+                        .cornerRadius(BrandConstants.CornerRadius.sm)
                     } else {
                         Button("Get Started") {
                             onComplete()
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding(.horizontal, BrandConstants.Spacing.lg)
+                        .padding(.vertical, BrandConstants.Spacing.md)
+                        .background(BrandConstants.Colors.primary)
+                        .foregroundColor(BrandConstants.Colors.surface)
+                        .cornerRadius(BrandConstants.CornerRadius.sm)
                         .fontWeight(.semibold)
                     }
                 }
                 .padding(.horizontal)
             }
-            .padding(.bottom, 50)
+            .padding(.bottom, BrandConstants.Spacing.xxl)
         }
     }
 }
@@ -207,27 +207,27 @@ struct OnboardingPage: View {
     let description: String
 
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: BrandConstants.Spacing.xl) {
             Spacer()
 
             Image(systemName: icon)
-                .font(.system(size: 80))
-                .foregroundColor(.blue)
+                .font(BrandConstants.Typography.heroTitle)
+                .foregroundColor(BrandConstants.Colors.primary)
 
-            VStack(spacing: 16) {
+            VStack(spacing: BrandConstants.Spacing.md) {
                 Text(title)
-                    .font(.largeTitle)
+                    .font(BrandConstants.Typography.largeTitle)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
 
                 Text(subtitle)
-                    .font(.title2)
-                    .foregroundColor(.blue)
+                    .font(BrandConstants.Typography.title2)
+                    .foregroundColor(BrandConstants.Colors.primary)
                     .multilineTextAlignment(.center)
 
                 Text(description)
-                    .font(.body)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.body)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -273,12 +273,12 @@ struct ProductionLoginView: View {
             .ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 28) {
+                VStack(spacing: BrandConstants.Spacing.lg) {
                     headerSection
                         .padding(.top, 40)
 
                     modeSwitcher
-                        .padding(.horizontal, 32)
+                        .padding(.horizontal, BrandConstants.Spacing.xl)
 
                     formSection
 
@@ -335,36 +335,36 @@ struct ProductionLoginView: View {
     }
 
     private var headerSection: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: BrandConstants.Spacing.lg) {
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.18))
+                    .fill(BrandConstants.Colors.surface.opacity(0.18))
                     .frame(width: 180, height: 180)
                     .scaleEffect(animateBadge ? 1.05 : 0.95)
 
                 Circle()
-                    .fill(Color.white.opacity(0.3))
+                    .fill(BrandConstants.Colors.surface.opacity(0.3))
                     .frame(width: 140, height: 140)
                     .scaleEffect(animateBadge ? 0.98 : 1.02)
                     .blur(radius: 2)
 
                 Image(systemName: "figure.yoga")
-                    .font(.system(size: 70, weight: .thin))
-                    .foregroundColor(.white)
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.surface)
             }
             .frame(maxWidth: .infinity)
 
-            VStack(spacing: 6) {
+            VStack(spacing: BrandConstants.Spacing.sm) {
                 Text(mode == .signUp ? "Create Your Account" : "Welcome Back")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(BrandConstants.Typography.largeTitle)
                     .foregroundStyle(Color.white)
 
                 Text(mode == .signUp ? "Join the community and start booking classes instantly." :
                         "Sign in to continue your creative journey.")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color.white.opacity(0.85))
+                    .font(BrandConstants.Typography.body)
+                    .foregroundStyle(BrandConstants.Colors.surface.opacity(0.85))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, BrandConstants.Spacing.xl)
             }
         }
     }
@@ -383,7 +383,7 @@ struct ProductionLoginView: View {
                     }
                 } label: {
                     Text(value.rawValue)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(BrandConstants.Typography.body)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .foregroundColor(mode == value ? .black : .white.opacity(0.7))
@@ -401,12 +401,12 @@ struct ProductionLoginView: View {
             }
         }
         .padding(6)
-        .background(Color.white.opacity(0.2))
+        .background(BrandConstants.Colors.surface.opacity(0.2))
         .clipShape(Capsule())
     }
 
     private var formSection: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             Group {
                 if mode == .signUp {
                     AuthTextField(
@@ -463,21 +463,21 @@ struct ProductionLoginView: View {
                     Button("Forgot Password?") {
                         // Placeholder for future password reset flow
                     }
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.white.opacity(0.9))
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundStyle(BrandConstants.Colors.surface.opacity(0.9))
                 }
             }
         }
-        .padding(24)
+        .padding(BrandConstants.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: 28)
-                .fill(Color.white.opacity(0.15))
+                .fill(BrandConstants.Colors.surface.opacity(0.15))
                 .background(.ultraThinMaterial.opacity(0.9))
                 .clipShape(RoundedRectangle(cornerRadius: 28))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 28)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                .stroke(BrandConstants.Colors.surface.opacity(0.2), lineWidth: 1)
         )
         .padding(.horizontal, 24)
         .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 12)
@@ -488,16 +488,16 @@ struct ProductionLoginView: View {
             HStack {
                 Spacer()
                 Text(mode == .signUp ? "Create Account" : "Sign In")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(BrandConstants.Typography.headline)
                 Image(systemName: "arrow.right.circle.fill")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(BrandConstants.Typography.title3)
                 Spacer()
             }
             .padding(.vertical, 16)
             .foregroundStyle(Color.black)
             .background(
                 LinearGradient(
-                    colors: [Color.white, Color.white.opacity(0.85)],
+                    colors: [Color.white, BrandConstants.Colors.surface.opacity(0.85)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -512,12 +512,12 @@ struct ProductionLoginView: View {
     }
 
     private var supplementalButtons: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             Text("or continue with")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.white.opacity(0.8))
+                .font(BrandConstants.Typography.subheadline)
+                .foregroundStyle(BrandConstants.Colors.surface.opacity(0.8))
 
-            HStack(spacing: 18) {
+            HStack(spacing: BrandConstants.Spacing.md) {
                 socialButton(icon: "apple.logo")
                 socialButton(icon: "globe")
                 socialButton(icon: "sparkles")
@@ -528,10 +528,10 @@ struct ProductionLoginView: View {
     private func socialButton(icon: String) -> some View {
         Button(action: {}) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(BrandConstants.Typography.headline)
                 .foregroundStyle(Color.white)
                 .frame(width: 48, height: 48)
-                .background(Color.white.opacity(0.18))
+                .background(BrandConstants.Colors.surface.opacity(0.18))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -573,9 +573,9 @@ private struct AuthTextField: View {
     var onSubmit: (() -> Void)? = nil
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: BrandConstants.Spacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(BrandConstants.Typography.headline)
                 .foregroundColor(.white.opacity(0.85))
                 .frame(width: 22)
 
@@ -586,7 +586,7 @@ private struct AuthTextField: View {
                     TextField(placeholder, text: $text)
                 }
             }
-            .foregroundColor(.white)
+            .foregroundColor(BrandConstants.Colors.surface)
             .textInputAutocapitalization(capitalization)
             .disableAutocorrection(true)
             .keyboardType(keyboard)
@@ -603,10 +603,10 @@ private struct AuthTextField: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .background(Color.white.opacity(0.12))
+        .background(BrandConstants.Colors.surface.opacity(0.12))
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                .stroke(BrandConstants.Colors.surface.opacity(0.15), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 18))
     }
@@ -655,17 +655,17 @@ struct ProductionHomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: BrandConstants.Spacing.lg) {
                     // Welcome Header
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Welcome back,")
-                                    .font(.title2)
-                                    .foregroundColor(.secondary)
+                                    .font(BrandConstants.Typography.title2)
+                                    .foregroundColor(BrandConstants.Colors.secondaryText)
 
                                 Text(supabaseService.currentUser?.name ?? "Hobbyist")
-                                    .font(.largeTitle)
+                                    .font(BrandConstants.Typography.largeTitle)
                                     .fontWeight(.bold)
                             }
 
@@ -673,15 +673,15 @@ struct ProductionHomeView: View {
 
                             Button(action: {}) {
                                 Image(systemName: "bell")
-                                    .font(.title2)
-                                    .foregroundColor(.blue)
+                                    .font(BrandConstants.Typography.title2)
+                                    .foregroundColor(BrandConstants.Colors.primary)
                             }
                         }
                     }
                     .padding(.horizontal)
 
                     // Quick Stats
-                    HStack(spacing: 16) {
+                    HStack(spacing: BrandConstants.Spacing.md) {
                         StatCard(icon: "calendar", value: "3", label: "Upcoming", color: .blue)
                         StatCard(icon: "star.fill", value: "12", label: "Completed", color: .yellow)
                     }
@@ -691,18 +691,18 @@ struct ProductionHomeView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
                             Text("Featured Classes")
-                                .font(.title3)
+                                .font(BrandConstants.Typography.title3)
                                 .fontWeight(.semibold)
 
                             Spacer()
 
                             Button("See All") {}
-                                .foregroundColor(.blue)
+                                .foregroundColor(BrandConstants.Colors.primary)
                         }
                         .padding(.horizontal)
 
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: BrandConstants.Spacing.md) {
                                 ForEach(0..<3, id: \.self) { _ in
                                     FeaturedClassCard()
                                 }
@@ -714,11 +714,11 @@ struct ProductionHomeView: View {
                     // Quick Actions
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Quick Actions")
-                            .font(.title3)
+                            .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: BrandConstants.Spacing.md) {
                             QuickActionButton(icon: "magnifyingglass", title: "Browse Classes", color: .blue)
                             QuickActionButton(icon: "calendar.badge.plus", title: "My Bookings", color: .purple)
                         }
@@ -739,18 +739,18 @@ struct StatCard: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: BrandConstants.Spacing.sm) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .foregroundColor(color)
 
             Text(value)
-                .font(.title2)
+                .font(BrandConstants.Typography.title2)
                 .fontWeight(.bold)
 
             Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(BrandConstants.Typography.caption)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
         }
         .frame(maxWidth: .infinity)
         .padding()
@@ -772,22 +772,22 @@ struct FeaturedClassCard: View {
                 .cornerRadius(8)
                 .overlay(
                     Image(systemName: "figure.yoga")
-                        .font(.largeTitle)
-                        .foregroundColor(.white)
+                        .font(BrandConstants.Typography.largeTitle)
+                        .foregroundColor(BrandConstants.Colors.surface)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Morning Yoga")
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
 
                 Text("with Sarah Johnson")
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.primary)
 
                 Text("$25")
-                    .font(.subheadline)
+                    .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
         }
         .frame(width: 200)
@@ -803,18 +803,18 @@ struct QuickActionButton: View {
         Button(action: {}) {
             HStack {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(BrandConstants.Typography.title2)
                     .foregroundColor(color)
 
                 Text(title)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                     .foregroundColor(.primary)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
             .padding()
             .background(Color(.systemGray6))
@@ -836,26 +836,26 @@ struct ProductionProfileView: View {
                 // Fallback to original profile view
                 NavigationStack {
                     ScrollView {
-                        VStack(spacing: 24) {
+                        VStack(spacing: BrandConstants.Spacing.lg) {
                             // Profile Header
-                            VStack(spacing: 16) {
+                            VStack(spacing: BrandConstants.Spacing.md) {
                                 Image(systemName: "person.circle.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundColor(.blue)
+                                    .font(BrandConstants.Typography.heroTitle)
+                                    .foregroundColor(BrandConstants.Colors.primary)
 
-                                VStack(spacing: 4) {
+                                VStack(spacing: BrandConstants.Spacing.xs) {
                                     Text(supabaseService.currentUser?.name ?? "User")
-                                        .font(.title2)
+                                        .font(BrandConstants.Typography.title2)
                                         .fontWeight(.bold)
 
                                     Text(supabaseService.currentUser?.email ?? "")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                        .font(BrandConstants.Typography.subheadline)
+                                        .foregroundColor(BrandConstants.Colors.secondaryText)
                                 }
                             }
 
                             // Profile Menu
-                            VStack(spacing: 16) {
+                            VStack(spacing: BrandConstants.Spacing.md) {
                                 ProfileMenuItem(icon: "person.crop.circle", title: "Edit Profile")
                                 ProfileMenuItem(icon: "calendar", title: "My Bookings")
                                 ProfileMenuItem(icon: "heart", title: "Favorites")
@@ -873,7 +873,7 @@ struct ProductionProfileView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.red.opacity(0.1))
-                            .foregroundColor(.red)
+                            .foregroundColor(BrandConstants.Colors.error)
                             .cornerRadius(12)
                             .padding(.horizontal)
                         }
@@ -895,19 +895,19 @@ struct ProfileMenuItem: View {
         Button(action: {}) {
             HStack {
                 Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(.blue)
+                    .font(BrandConstants.Typography.title2)
+                    .foregroundColor(BrandConstants.Colors.primary)
                     .frame(width: 32)
 
                 Text(title)
-                    .font(.headline)
+                    .font(BrandConstants.Typography.headline)
                     .foregroundColor(.primary)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(BrandConstants.Typography.caption)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
             .padding()
             .background(Color(.systemBackground))
