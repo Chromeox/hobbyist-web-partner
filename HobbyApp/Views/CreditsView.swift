@@ -11,7 +11,7 @@ struct CreditsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: BrandConstants.Spacing.lg) {
                     // Credit Balance Section
                     creditBalanceSection
                     
@@ -67,10 +67,10 @@ struct CreditsView: View {
     // MARK: - Credit Balance Section
     
     private var creditBalanceSection: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: BrandConstants.Spacing.lg) {
             // Total Credits Card
-            VStack(spacing: 16) {
-                VStack(spacing: 8) {
+            VStack(spacing: BrandConstants.Spacing.md) {
+                VStack(spacing: BrandConstants.Spacing.sm) {
                     Text("Total Credits")
                         .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(BrandConstants.Colors.secondaryText)
@@ -117,7 +117,7 @@ struct CreditsView: View {
                     .padding(.horizontal)
                 }
             }
-            .padding(24)
+            .padding(BrandConstants.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color(.systemGray6))
@@ -217,7 +217,7 @@ struct CreditsView: View {
                 .font(BrandConstants.Typography.headline)
             
             if creditService.creditHistory.isEmpty {
-                VStack(spacing: 12) {
+                VStack(spacing: BrandConstants.Spacing.md) {
                     Image(systemName: "clock")
                         .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(BrandConstants.Colors.secondaryText)
@@ -244,7 +244,7 @@ struct CreditsView: View {
                 .font(BrandConstants.Typography.headline)
             
             if creditService.upcomingExpirations.isEmpty {
-                VStack(spacing: 12) {
+                VStack(spacing: BrandConstants.Spacing.md) {
                     Image(systemName: "checkmark.shield")
                         .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(BrandConstants.Colors.success)

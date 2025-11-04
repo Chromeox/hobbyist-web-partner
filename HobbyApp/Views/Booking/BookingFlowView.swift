@@ -26,7 +26,7 @@ struct BookingFlowView: View {
                         stepTitles: ["Select", "Details", "Payment", "Review", "Confirm"]
                     )
                     .padding(.horizontal)
-                    .padding(.top, 8)
+                    .padding(.top, BrandConstants.Spacing.sm)
                     
                     // Watch Connection Status
                     if watchSync.isConnected {
@@ -42,7 +42,7 @@ struct BookingFlowView: View {
                         .padding(.horizontal, 12)
                         .background(Color.green.opacity(0.1))
                         .cornerRadius(20)
-                        .padding(.top, 8)
+                        .padding(.top, BrandConstants.Spacing.sm)
                     }
                     
                     // Step Content
