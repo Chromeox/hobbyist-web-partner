@@ -148,7 +148,7 @@ private struct BookingCard: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
         )
@@ -257,7 +257,7 @@ private struct EmptyStateView: View {
 private struct BookingThumbnail: View {
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color.blue.opacity(0.1))
             Image(systemName: "calendar")
                 .font(.title3)

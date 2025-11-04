@@ -390,7 +390,7 @@ struct ProductionLoginView: View {
                         .background(
                             ZStack {
                                 if mode == value {
-                                    RoundedRectangle(cornerRadius: 18)
+                                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                                         .fill(Color.white)
                                         .matchedGeometryEffect(id: "modeSelection", in: toggleNamespace)
                                 }
@@ -470,13 +470,13 @@ struct ProductionLoginView: View {
         }
         .padding(BrandConstants.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.xl)
                 .fill(BrandConstants.Colors.surface.opacity(0.15))
                 .background(.ultraThinMaterial.opacity(0.9))
-                .clipShape(RoundedRectangle(cornerRadius: 28))
+                .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.xl))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.xl)
                 .stroke(BrandConstants.Colors.surface.opacity(0.2), lineWidth: 1)
         )
         .padding(.horizontal, 24)
@@ -532,7 +532,7 @@ struct ProductionLoginView: View {
                 .foregroundStyle(Color.white)
                 .frame(width: 48, height: 48)
                 .background(BrandConstants.Colors.surface.opacity(0.18))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -605,10 +605,10 @@ private struct AuthTextField: View {
         .padding(.horizontal, 16)
         .background(BrandConstants.Colors.surface.opacity(0.12))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(BrandConstants.Colors.surface.opacity(0.15), lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
     }
 }
 
@@ -755,7 +755,7 @@ struct StatCard: View {
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 
@@ -769,7 +769,7 @@ struct FeaturedClassCard: View {
                     endPoint: .bottomTrailing
                 ))
                 .frame(width: 200, height: 120)
-                .cornerRadius(8)
+                .cornerRadius(BrandConstants.CornerRadius.sm)
                 .overlay(
                     Image(systemName: "figure.yoga")
                         .font(BrandConstants.Typography.largeTitle)
@@ -818,7 +818,7 @@ struct QuickActionButton: View {
             }
             .padding()
             .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .cornerRadius(BrandConstants.CornerRadius.md)
         }
     }
 }
@@ -874,7 +874,7 @@ struct ProductionProfileView: View {
                             .padding()
                             .background(Color.red.opacity(0.1))
                             .foregroundColor(BrandConstants.Colors.error)
-                            .cornerRadius(12)
+                            .cornerRadius(BrandConstants.CornerRadius.md)
                             .padding(.horizontal)
                         }
                         .padding(.vertical)
@@ -911,7 +911,7 @@ struct ProfileMenuItem: View {
             }
             .padding()
             .background(Color(.systemBackground))
-            .cornerRadius(12)
+            .cornerRadius(BrandConstants.CornerRadius.md)
             .shadow(color: .black.opacity(0.05), radius: 2)
         }
     }

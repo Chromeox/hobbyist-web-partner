@@ -453,6 +453,6 @@ struct RoundedTextFieldStyle: TextFieldStyle {
         configuration
             .padding()
             .background(Color(.systemGray6))
-            .cornerRadius(8)
+            .cornerRadius(BrandConstants.CornerRadius.sm)
     }
 }

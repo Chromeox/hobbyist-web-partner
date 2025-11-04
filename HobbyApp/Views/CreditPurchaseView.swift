@@ -47,7 +47,7 @@ struct CreditPurchaseView: View {
                             ProgressView()
                                 .padding()
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                                         .fill(Color(.systemBackground))
                                         .shadow(radius: 6)
                                 )
@@ -182,7 +182,7 @@ private struct CreditPackRow: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.green.opacity(0.12))
-                            .cornerRadius(8)
+                            .cornerRadius(BrandConstants.CornerRadius.sm)
                     }
                     if let pricePerCredit = pack.formattedPricePerCredit {
                         Text(pricePerCredit)

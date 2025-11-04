@@ -236,7 +236,7 @@ struct OutlineButton: View {
             .background(Color(.systemBackground))
             .cornerRadius(BrandConstants.CornerRadius.lg)
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
                     .stroke(BrandConstants.Colors.primary, lineWidth: 2)
             )
         }
@@ -371,7 +371,7 @@ struct WelcomeLandingView: View {
                     }
                     .padding(BrandConstants.Spacing.xl)
                     .background(
-                        RoundedRectangle(cornerRadius: 30)
+                        RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.xl)
                             .fill(Color(.systemBackground).opacity(0.95))
                             .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
                     )
@@ -438,7 +438,7 @@ struct WelcomeLandingView: View {
                     }
                     .padding(BrandConstants.Spacing.xl)
                     .background(
-                        RoundedRectangle(cornerRadius: 30)
+                        RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.xl)
                             .fill(Color(.systemBackground))
                     )
                 }

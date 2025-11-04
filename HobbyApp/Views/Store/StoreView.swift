@@ -196,11 +196,11 @@ private struct StoreProductCard: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(backgroundColor)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(borderColor, lineWidth: isHighlighted ? 2 : 1)
         )
     }

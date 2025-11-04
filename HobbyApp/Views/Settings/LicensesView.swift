@@ -58,7 +58,7 @@ struct LicensesView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.gray.opacity(0.1))
-                        .cornerRadius(4)
+                        .cornerRadius(BrandConstants.CornerRadius.sm)
                 }
                 .padding(.vertical, 4)
             }

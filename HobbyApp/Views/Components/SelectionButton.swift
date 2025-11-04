@@ -32,9 +32,9 @@ public struct SelectionButton: View {
                 .frame(maxWidth: .infinity)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
-                .cornerRadius(8)
+                .cornerRadius(BrandConstants.CornerRadius.sm)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                         .stroke(borderColorForState, lineWidth: borderWidthForState)
                 )
                 .scaleEffect(scaleForState)
@@ -168,7 +168,7 @@ public struct SelectionChip: View {
                 .padding(.vertical, 8)
                 .background(backgroundColorForState)
                 .foregroundColor(textColorForState)
-                .cornerRadius(999)
+                .cornerRadius(BrandConstants.CornerRadius.full)
                 .scaleEffect(scaleForState)
                 .opacity(opacityForState)
         }

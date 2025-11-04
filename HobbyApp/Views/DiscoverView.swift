@@ -20,7 +20,7 @@ struct DiscoverView: View {
                     }
                     .padding(16)
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                     .padding(.horizontal, 16)
                     
                     // Categories
@@ -37,7 +37,7 @@ struct DiscoverView: View {
                                         .padding(.vertical, 8)
                                         .background(selectedCategory == category ? Color.accentColor : Color(.systemGray6))
                                         .foregroundColor(selectedCategory == category ? .white : .primary)
-                                        .cornerRadius(999)
+                                        .cornerRadius(BrandConstants.CornerRadius.full)
                                 }
                             }
                         }
@@ -72,7 +72,7 @@ struct ClassListItem: View {
     var body: some View {
         HStack(spacing: 12) {
             // Image placeholder
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                 .fill(Color(.systemGray5))
                 .frame(width: 80, height: 80)
                 .overlay(
@@ -113,7 +113,7 @@ struct ClassListItem: View {
         }
         .padding()
         .background(Color(.systemBackground))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
 }

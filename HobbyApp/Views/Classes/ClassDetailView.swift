@@ -160,7 +160,7 @@ struct ClassDetailView: View {
                         }
                         .padding()
                         .background(BrandConstants.Colors.background)
-                        .cornerRadius(12)
+                        .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                 }
                 .padding(.horizontal)
@@ -196,7 +196,7 @@ struct ClassDetailView: View {
                     .padding()
                     .background(BrandConstants.Colors.primary)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                     .fontWeight(.semibold)
                 }
                 .padding()
@@ -234,7 +234,7 @@ struct InfoCardView: View {
         .frame(maxWidth: .infinity)
         .padding(16)
         .background(BrandConstants.Colors.background)
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
     }
 }
@@ -273,7 +273,7 @@ struct ReviewCardView: View {
         }
         .padding()
         .background(BrandConstants.Colors.background)
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 
@@ -294,7 +294,7 @@ struct BookingSheetView: View {
                         Rectangle()
                             .fill(BrandConstants.Colors.primary.opacity(0.3))
                             .frame(width: 60, height: 60)
-                            .cornerRadius(8)
+                            .cornerRadius(BrandConstants.CornerRadius.sm)
                             .overlay(
                                 Image(systemName: hobbyClass.iconName)
                                     .foregroundColor(BrandConstants.Colors.primary)
@@ -318,7 +318,7 @@ struct BookingSheetView: View {
                     }
                     .padding()
                     .background(BrandConstants.Colors.background)
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
 
                     // Date Selection
                     VStack(alignment: .leading, spacing: 12) {
@@ -343,7 +343,7 @@ struct BookingSheetView: View {
                                 .padding()
                                 .background(selectedTime == time ? BrandConstants.Colors.primary : BrandConstants.Colors.background)
                                 .foregroundColor(selectedTime == time ? BrandConstants.Colors.surface : BrandConstants.Colors.text)
-                                .cornerRadius(8)
+                                .cornerRadius(BrandConstants.CornerRadius.sm)
                             }
                         }
                     }
@@ -368,12 +368,12 @@ struct BookingSheetView: View {
                         .padding()
                         .background(BrandConstants.Colors.primary)
                         .foregroundColor(BrandConstants.Colors.surface)
-                        .cornerRadius(12)
+                        .cornerRadius(BrandConstants.CornerRadius.md)
                         .fontWeight(.semibold)
                     }
                     .padding()
                     .background(BrandConstants.Colors.background)
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                 }
                 .padding()
             }

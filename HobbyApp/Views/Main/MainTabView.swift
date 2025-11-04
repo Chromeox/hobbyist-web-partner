@@ -309,7 +309,7 @@ struct MainTabStatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 
@@ -317,7 +317,7 @@ struct SimpleClassCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Image placeholder
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                 .fill(LinearGradient(
                     colors: [.accentColor.opacity(0.6), .accentColor],
                     startPoint: .topLeading,
@@ -351,7 +351,7 @@ struct RecommendationCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Image placeholder
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                 .fill(Color(.systemGray5))
                 .frame(width: 140, height: 140)
                 .overlay(

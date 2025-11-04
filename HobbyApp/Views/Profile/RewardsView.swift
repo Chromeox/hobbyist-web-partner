@@ -52,7 +52,7 @@ struct RewardsView: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 
     private var otherWaysSection: some View {
@@ -78,7 +78,7 @@ struct RewardsView: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
             }
         }
     }

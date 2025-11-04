@@ -156,7 +156,7 @@ public struct HeroClassCard: View {
                     )
                 }
                 .frame(height: 160)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                 .heroAnimation(
                     id: "class-image-\(classItem.id)",
                     in: namespace,
@@ -211,7 +211,7 @@ public struct HeroClassCard: View {
             }
             .padding(16)
             .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
             .shadow(
                 color: .black.opacity(0.1),
                 radius: 8,

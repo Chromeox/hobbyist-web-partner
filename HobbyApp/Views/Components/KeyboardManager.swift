@@ -159,9 +159,9 @@ public struct EnhancedSearchField: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(isFocused ? Color.blue.opacity(0.5) : Color.clear, lineWidth: 2)
                 .optimizedAnimation(
                     .easeInOut(duration: 0.2),
@@ -280,7 +280,7 @@ public struct HomeSearchBar: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(Color(.systemGray6))
-                    .cornerRadius(20)
+                    .cornerRadius(BrandConstants.CornerRadius.lg)
                 }
             }
 
@@ -318,7 +318,7 @@ public struct HomeSearchBar: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(0..<10, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                         .fill(Color(.systemGray6))
                         .frame(height: 100)
                         .overlay(

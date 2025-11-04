@@ -197,7 +197,7 @@ private struct SearchShortcutButton: View {
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                     .fill(Color(.systemBackground))
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
             )
@@ -251,7 +251,7 @@ private struct CategoriesSection: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                                 .fill(Color(.systemBackground))
                                 .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                         )
@@ -349,7 +349,7 @@ struct HomeClassCard: View {
                     }
                     .frame(width: style == .featured ? 120 : 80, height: style == .featured ? 120 : 80)
                     .clipped()
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                 } else {
                     PlaceholderImage()
                         .frame(width: style == .featured ? 120 : 80, height: style == .featured ? 120 : 80)
@@ -437,7 +437,7 @@ struct HomeClassCard: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 4)
         )
@@ -460,7 +460,7 @@ struct HomeClassCard: View {
 private struct PlaceholderImage: View {
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color.blue.opacity(0.08))
             Image(systemName: "photo")
                 .font(BrandConstants.Typography.title2)
@@ -533,7 +533,7 @@ private struct EmptyHomeState: View {
         .frame(maxWidth: .infinity)
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 4)
         )

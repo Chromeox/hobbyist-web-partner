@@ -49,7 +49,7 @@ struct ClassListView: View {
                                 }
                                 .padding(12)
                                 .background(Color(.systemGray6))
-                                .cornerRadius(10)
+                                .cornerRadius(BrandConstants.CornerRadius.sm)
                                 .padding(.horizontal)
                                 
                                 // Filter Pills
@@ -201,7 +201,7 @@ struct FilterPill: View {
             .padding(.vertical, 6)
             .background(isActive ? Color.accentColor : Color(.systemGray6))
             .foregroundColor(isActive ? .white : .primary)
-            .cornerRadius(16)
+            .cornerRadius(BrandConstants.CornerRadius.md)
         }
     }
 }
@@ -216,7 +216,7 @@ struct ClassListItemView: View {
         VStack(spacing: 0) {
             HStack(alignment: .top, spacing: 12) {
                 // Class Image
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                     .fill(LinearGradient(
                         colors: [classItem.categoryColor.opacity(0.5), classItem.categoryColor],
                         startPoint: .topLeading,
@@ -235,7 +235,7 @@ struct ClassListItemView: View {
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.white.opacity(0.9))
-                                    .cornerRadius(4)
+                                    .cornerRadius(BrandConstants.CornerRadius.sm)
                             }
                         }
                     )
@@ -329,7 +329,7 @@ struct ClassListItemView: View {
             }
         }
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 

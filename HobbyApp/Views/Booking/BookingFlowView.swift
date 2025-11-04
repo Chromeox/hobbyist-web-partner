@@ -41,7 +41,7 @@ struct BookingFlowView: View {
                         .padding(.vertical, 4)
                         .padding(.horizontal, 12)
                         .background(Color.green.opacity(0.1))
-                        .cornerRadius(20)
+                        .cornerRadius(BrandConstants.CornerRadius.lg)
                         .padding(.top, BrandConstants.Spacing.sm)
                     }
                     
@@ -106,7 +106,7 @@ struct BookingFlowView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(Color(.systemGray6))
-                                .cornerRadius(12)
+                                .cornerRadius(BrandConstants.CornerRadius.md)
                             }
                         }
                         
@@ -132,7 +132,7 @@ struct BookingFlowView: View {
                                 .padding()
                                 .background(isStepValid ? Color.accentColor : Color.gray)
                                 .foregroundColor(.white)
-                                .cornerRadius(12)
+                                .cornerRadius(BrandConstants.CornerRadius.md)
                             }
                             .disabled(!isStepValid || viewModel.isProcessing)
                         } else {
@@ -147,7 +147,7 @@ struct BookingFlowView: View {
                                     .padding()
                                     .background(Color.accentColor)
                                     .foregroundColor(.white)
-                                    .cornerRadius(12)
+                                    .cornerRadius(BrandConstants.CornerRadius.md)
                             }
                         }
                     }
@@ -318,7 +318,7 @@ struct ParticipantSelectionStep: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Class Info Card
                 HStack(spacing: 12) {
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                         .fill(Color.accentColor.opacity(0.2))
                         .frame(width: 60, height: 60)
                         .overlay(
@@ -342,7 +342,7 @@ struct ParticipantSelectionStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Participant Count
                 VStack(alignment: .leading, spacing: 12) {
@@ -382,7 +382,7 @@ struct ParticipantSelectionStep: View {
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                 }
                 
                 // Participant Details
@@ -442,7 +442,7 @@ struct ParticipantSelectionStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
             }
             .padding()
         }
@@ -470,7 +470,7 @@ struct BookingDetailsStep: View {
                         .frame(minHeight: 100)
                         .padding(8)
                         .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                        .cornerRadius(BrandConstants.CornerRadius.sm)
                 }
                 
                 // Experience Level
@@ -528,7 +528,7 @@ struct BookingDetailsStep: View {
                     }
                     .padding()
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                 }
                 
                 // Emergency Contact
@@ -621,7 +621,7 @@ struct PaymentSelectionStep: View {
                         }
                         .padding()
                         .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                 }
                 
@@ -659,7 +659,7 @@ struct PaymentSelectionStep: View {
                                     .padding(.horizontal, 20)
                                     .padding(.vertical, 12)
                                     .background(Color.accentColor)
-                                    .cornerRadius(8)
+                                    .cornerRadius(BrandConstants.CornerRadius.sm)
                             }
                             .disabled(couponCode.isEmpty)
                         }
@@ -725,7 +725,7 @@ struct PaymentSelectionStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
             }
             .padding()
         }
@@ -768,7 +768,7 @@ struct PaymentMethodRow: View {
             }
             .padding()
             .background(isSelected ? Color.accentColor.opacity(0.1) : Color(.systemGray6))
-            .cornerRadius(12)
+            .cornerRadius(BrandConstants.CornerRadius.md)
         }
     }
 }
@@ -796,7 +796,7 @@ struct BookingReviewStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Booking Details
                 VStack(alignment: .leading, spacing: 12) {
@@ -815,7 +815,7 @@ struct BookingReviewStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Payment Summary
                 VStack(alignment: .leading, spacing: 12) {
@@ -827,7 +827,7 @@ struct BookingReviewStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Terms and Conditions
                 VStack(alignment: .leading, spacing: 12) {
@@ -846,7 +846,7 @@ struct BookingReviewStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
             }
             .padding()
         }
@@ -921,7 +921,7 @@ struct BookingConfirmationStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Next Steps
                 VStack(alignment: .leading, spacing: 16) {
@@ -954,7 +954,7 @@ struct BookingConfirmationStep: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
                 
                 // Action Buttons
                 VStack(spacing: 12) {
@@ -965,7 +965,7 @@ struct BookingConfirmationStep: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                     
                     Button {
@@ -975,7 +975,7 @@ struct BookingConfirmationStep: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                 }
             }
@@ -1039,7 +1039,7 @@ struct ProcessingOverlay: View {
         }
         .padding(40)
         .background(Color.black.opacity(0.8))
-        .cornerRadius(20)
+        .cornerRadius(BrandConstants.CornerRadius.lg)
     }
 }
 

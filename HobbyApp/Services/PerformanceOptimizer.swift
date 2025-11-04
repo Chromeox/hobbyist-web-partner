@@ -423,7 +423,7 @@ public struct PerformanceDebugView: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 
     private var fpsColor: Color {
@@ -459,7 +459,7 @@ public struct PerformanceDebugView: View {
 
         VStack(spacing: 12) {
             ForEach(0..<5, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                     .fill(BrandConstants.Colors.primary.opacity(0.3))
                     .frame(height: 60)
                     .scaleEffect(1.0)

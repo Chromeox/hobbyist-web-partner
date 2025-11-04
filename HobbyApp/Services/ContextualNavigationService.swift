@@ -335,7 +335,7 @@ public struct NavigationContextIndicator: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .opacity(navigationService.contextHistory.isEmpty ? 0 : 0.7)
         .animation(.easeInOut(duration: 0.3), value: navigationService.contextHistory.isEmpty)
     }
@@ -373,7 +373,7 @@ extension NavigationContext {
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(context.indicatorColor.opacity(0.2))
-                .cornerRadius(8)
+                .cornerRadius(BrandConstants.CornerRadius.sm)
             }
         }
         .padding()

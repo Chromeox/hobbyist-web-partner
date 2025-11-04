@@ -119,7 +119,7 @@ struct CreditsView: View {
             }
             .padding(BrandConstants.Spacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
                     .fill(Color(.systemGray6))
             )
             
@@ -187,11 +187,11 @@ struct CreditsView: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(BrandConstants.Colors.warning.opacity(0.1))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(BrandConstants.Colors.warning.opacity(0.3), lineWidth: 1)
         )
     }
@@ -302,7 +302,7 @@ struct CreditsStatCard: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 
@@ -371,7 +371,7 @@ struct ExpirationRow: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
                     .background(Color.red)
-                    .cornerRadius(4)
+                    .cornerRadius(BrandConstants.CornerRadius.sm)
             }
         }
         .padding(.vertical, 8)

@@ -200,7 +200,7 @@ private struct SearchBar: View {
         }
         .padding(BrandConstants.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .fill(Color(.secondarySystemBackground))
         )
     }

@@ -172,7 +172,7 @@ private struct ProfileHeader: View {
         .frame(maxWidth: .infinity)
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 6)
         )
@@ -191,7 +191,7 @@ private struct StatsSection: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 6)
         )
@@ -251,7 +251,7 @@ private struct LogoutButton: View {
             .padding()
             .background(Color.red.opacity(0.12))
             .foregroundStyle(Color.red)
-            .cornerRadius(16)
+            .cornerRadius(BrandConstants.CornerRadius.md)
         }
         .padding(.horizontal)
     }
@@ -347,7 +347,7 @@ private struct ProfileMenuItemView: View {
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                     .fill(Color(.systemBackground))
                     .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
             )

@@ -43,7 +43,7 @@ struct ClassDetailView: View {
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 4)
                                         .background(BrandConstants.Colors.surface.opacity(0.9))
-                                        .cornerRadius(20)
+                                        .cornerRadius(BrandConstants.CornerRadius.lg)
 
                                     Text(classItem.name)
                                         .font(BrandConstants.Typography.title)
@@ -130,7 +130,7 @@ struct ClassDetailView: View {
                     }
                     .padding(16)
                     .background(Color(.systemGray6))
-                    .cornerRadius(16)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                     
                     // Key Details Grid
@@ -265,7 +265,7 @@ struct ClassDetailView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .cornerRadius(28)
+                            .cornerRadius(BrandConstants.CornerRadius.xl)
                             .shadow(color: .accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                 }
@@ -339,7 +339,7 @@ struct DetailCard: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 16)
         .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 }
@@ -443,12 +443,12 @@ struct LocationTab: View {
                             .font(BrandConstants.Typography.caption)
                             .padding(4)
                             .background(BrandConstants.Colors.surface.opacity(0.9))
-                            .cornerRadius(4)
+                            .cornerRadius(BrandConstants.CornerRadius.sm)
                     }
                 }
             }
             .frame(height: 200)
-            .cornerRadius(12)
+            .cornerRadius(BrandConstants.CornerRadius.md)
             
             // Address
             VStack(alignment: .leading, spacing: 8) {
@@ -552,7 +552,7 @@ struct ReviewsTab: View {
                                                 height: 4
                                             )
                                     }
-                                    .cornerRadius(2)
+                                    .cornerRadius(BrandConstants.CornerRadius.sm)
                                 }
                                 .frame(width: 100, height: 4)
                             }
@@ -561,7 +561,7 @@ struct ReviewsTab: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(BrandConstants.CornerRadius.md)
             }
             
             // Reviews List
@@ -584,7 +584,7 @@ struct ReviewsTab: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(8)
+                            .cornerRadius(BrandConstants.CornerRadius.sm)
                     }
                 }
             }
@@ -641,7 +641,7 @@ struct ReviewCard: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(8)
+        .cornerRadius(BrandConstants.CornerRadius.sm)
     }
 }
 
@@ -674,7 +674,7 @@ struct SimilarClassCard: View {
     var body: some View {
         HStack(spacing: 12) {
             // Image
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.sm)
                 .fill(LinearGradient(
                     colors: [classItem.categoryColor.opacity(0.4), classItem.categoryColor],
                     startPoint: .topLeading,
@@ -717,7 +717,7 @@ struct SimilarClassCard: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 
@@ -760,7 +760,7 @@ struct TemporaryBookingView: View {
                     }
                     .padding()
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
 
                     // Participants
                     VStack(alignment: .leading, spacing: 12) {
@@ -799,7 +799,7 @@ struct TemporaryBookingView: View {
                     }
                     .padding()
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
 
                     // Price Summary
                     VStack(spacing: 8) {
@@ -828,7 +828,7 @@ struct TemporaryBookingView: View {
                     }
                     .padding()
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(BrandConstants.CornerRadius.md)
 
                     // Book Button
                     Button {
@@ -841,7 +841,7 @@ struct TemporaryBookingView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.accentColor)
-                            .cornerRadius(12)
+                            .cornerRadius(BrandConstants.CornerRadius.md)
                     }
                 }
                 .padding()

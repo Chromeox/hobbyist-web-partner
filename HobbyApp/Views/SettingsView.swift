@@ -428,7 +428,7 @@ struct LoadingView: View {
                 .scaleEffect(1.5)
                 .padding()
                 .background(Color.black.opacity(0.7))
-                .cornerRadius(10)
+                .cornerRadius(BrandConstants.CornerRadius.sm)
         }
     }
 }

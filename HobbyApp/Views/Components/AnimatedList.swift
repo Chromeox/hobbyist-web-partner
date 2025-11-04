@@ -296,9 +296,9 @@ public struct AnimatedSearchBar: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(BrandConstants.CornerRadius.md)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(isFocused ? Color.blue.opacity(0.5) : Color.clear, lineWidth: 2)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         )

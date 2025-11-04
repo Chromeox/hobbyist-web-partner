@@ -63,7 +63,7 @@ struct SimpleLoginView: View {
             .padding()
             .background((!email.isEmpty && !password.isEmpty) ? Color.blue : Color.gray)
             .foregroundColor(BrandConstants.Colors.surface)
-            .cornerRadius(12)
+            .cornerRadius(BrandConstants.CornerRadius.md)
             .disabled(isLoading || email.isEmpty || password.isEmpty)
             .padding(.horizontal)
 
