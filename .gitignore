@@ -112,6 +112,8 @@ coverage/
 .nyc_output
 test-results/
 e2e-results/
+performance-report.json
+*.tsbuildinfo
 
 # IDE
 .vscode/*
@@ -134,8 +136,12 @@ cache/
 
 # Backup Files
 *.backup
+*.backup*
 *.bak
+*.bak*
 *.orig
+project.pbxproj.backup*
+project.pbxproj.bak*
 
 # Archives
 *.zip
@@ -183,8 +189,14 @@ fastlane/test_output
 fastlane/.env
 web-partner/.env.local
 web-partner/.env.production
-# Archive
+# Archive & Cleanup
 archive/
+docs/archive/
+testflight-automation/logs/
+**/logs/
+demo/
+demos/
+*Demo.swift
 
 # App Store Connect API
 AuthKey_*.p8
