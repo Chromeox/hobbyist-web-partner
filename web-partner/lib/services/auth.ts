@@ -31,6 +31,7 @@ interface UserProfile {
     rating: number
     totalStudents: number
     specialties: string[]
+    studioId: string | null
   } | null
   createdAt: string
   updatedAt: string
@@ -437,7 +438,8 @@ export class AuthService {
             verified: instructorResult.data.verified || false,
             rating: instructorResult.data.rating || 0,
             totalStudents: instructorResult.data.total_students || 0,
-            specialties: instructorResult.data.specialties || []
+            specialties: instructorResult.data.specialties || [],
+            studioId: instructorResult.data.studio_id || null
           } : null,
           createdAt: user.created_at,
           updatedAt: user.updated_at || ''

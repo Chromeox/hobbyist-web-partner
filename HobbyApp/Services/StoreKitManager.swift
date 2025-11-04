@@ -152,7 +152,52 @@ enum StoreKitManagerError: LocalizedError {
 
 enum BackendService {
     static func validateReceipt(_ receiptJWS: String) async throws {
-        // Placeholder for backend validation. Replace with real network call when ready.
-        await Task.sleep(100_000_000) // Simulate latency
+        guard let url = URL(string: "https://mcjqvdzdhtcvbrejvrtp.supabase.co/functions/v1/validate-receipt") else {
+            throw BackendError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(Configuration.supabaseAnonKey)", forHTTPHeaderField: "Authorization")
+        
+        let payload = ["receipt": receiptJWS]
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw BackendError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw BackendError.validationFailed(statusCode: httpResponse.statusCode)
+        }
+        
+        // Parse response to ensure validation succeeded
+        let result = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        guard let success = result?["success"] as? Bool, success else {
+            throw BackendError.receiptInvalid
+        }
+    }
+}
+
+enum BackendError: LocalizedError {
+    case invalidURL
+    case invalidResponse
+    case validationFailed(statusCode: Int)
+    case receiptInvalid
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "Invalid backend URL configuration"
+        case .invalidResponse:
+            return "Invalid response from backend"
+        case .validationFailed(let statusCode):
+            return "Receipt validation failed with status code \(statusCode)"
+        case .receiptInvalid:
+            return "Receipt validation returned invalid"
+        }
     }
 }

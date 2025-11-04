@@ -17,11 +17,13 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import StudioIntelligenceSummary from '../../components/studio/StudioIntelligenceSummary';
 import SetupReminders from '../../components/dashboard/SetupReminders';
 import { motion } from 'framer-motion';
-import { supabase } from '../../lib/supabase';
+import { dashboardService } from '@/lib/services/dashboard';
+import { formatCurrency } from '@/lib/utils';
+import type { DashboardPeriod } from '@/lib/utils/dateRange';
 import {
   TrendingUp,
   TrendingDown,
@@ -78,6 +80,10 @@ interface KPICard {
   color: string;
 }
 
+interface DashboardOverviewProps {
+  studioId: string | null;
+}
+
 const SkeletonCard = () => (
     <div className="relative overflow-hidden bg-gray-100 border rounded-xl p-4 animate-pulse">
         <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
@@ -108,187 +114,278 @@ const EmptyState = ({ title, message, actionText, onAction }: { title: string, m
     </div>
 );
 
-export default function DashboardOverview() {
-  const [selectedPeriod, setSelectedPeriod] = useState('week');
+export default function DashboardOverview({ studioId }: DashboardOverviewProps) {
+  const effectiveStudioId = studioId || 'demo-studio-id';
+  const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriod>('week');
   const [isLoading, setIsLoading] = useState(true);
-  const [studioClasses, setStudioClasses] = useState<any>(null);
   const [kpiData, setKpiData] = useState<KPICard[]>([]);
-const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null);
+  const [revenueSeries, setRevenueSeries] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
+  const [classPopularity, setClassPopularity] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
+  const [scheduleSummary, setScheduleSummary] = useState<{ totalClasses: number; totalSeats: number; seatsBooked: number; occupancyPercent: number } | null>(null);
+  const [upcomingClasses, setUpcomingClasses] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [quickStats, setQuickStats] = useState<{ todaysRevenue: number; activeClasses: number }>({ todaysRevenue: 0, activeClasses: 0 });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null);
 
-  // KPI data will be fetched and stored in state
-
-  // Revenue Chart Data
-  const revenueChartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Revenue',
-        data: [1200, 1900, 1500, 2100, 2300, 2800, 2400],
-        fill: true,
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderColor: 'rgb(59, 130, 246)',
-        tension: 0.4
-      }
-    ]
+  const formatPeriodValue = (id: string, value: number) => {
+    if (id === 'revenue') {
+      return formatCurrency(value);
+    }
+    return value.toLocaleString();
   };
 
-  // Fetch real dashboard data
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setIsLoading(true);
-      try {
-        // Fetch data from all API endpoints
-        const [classesRes, bookingsRes, instructorsRes] = await Promise.all([
-          fetch('/api/classes?limit=5'),
-          fetch('/api/bookings?limit=10'),
-          fetch('/api/instructors?limit=5')
-        ]);
+  const formatTimeRange = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit'
+    });
 
-        const [classesData, bookingsData, instructorsData] = await Promise.all([
-          classesRes.json(),
-          bookingsRes.json(),
-          instructorsRes.json()
-        ]);
+    return `${formatter.format(startDate)} - ${formatter.format(endDate)}`;
+  };
 
-        // Update KPI data based on real data
-        setKpiData([
-          {
-            title: 'Total Revenue',
-            value: '$0', // Would calculate from bookings data when available
-            change: 0,
-            changeType: 'increase',
-            icon: DollarSign,
-            color: 'green'
-          },
-          {
-            title: 'Total Bookings',
-            value: bookingsData.total || 0,
-            change: 0,
-            changeType: 'increase',
-            icon: Users,
-            color: 'blue'
-          },
-          {
-            title: 'Scheduled Classes',
-            value: classesData.total || 0,
-            change: 0,
-            changeType: 'increase',
-            icon: Calendar,
-            color: 'purple'
-          },
-          {
-            title: 'Instructors',
-            value: instructorsData.total || 0,
-            change: 0,
-            changeType: 'increase',
-            icon: Star,
-            color: 'yellow'
-          }
-        ]);
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
 
-        // Update class popularity chart
-        if (classesData.classes && classesData.classes.length > 0) {
-          setStudioClasses({
-            labels: classesData.classes.map((schedule: any) => schedule.classes?.name || 'Unnamed Class'),
-            data: classesData.classes.map((_: any, index: number) => Math.max(5, 50 - index * 8))
-          });
-        } else {
-          setStudioClasses({
-            labels: ['No Classes Yet'],
-            data: [0]
-          });
+  const fetchDashboardData = async (period: DashboardPeriod = selectedPeriod) => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const [metrics, revenueTrend, popularClasses, scheduleOverview, activityFeed] = await Promise.all([
+        dashboardService.getMetrics({ studioId: effectiveStudioId, period }),
+        dashboardService.getRevenueTrend({ studioId: effectiveStudioId, period }),
+        dashboardService.getPopularClasses({ studioId: effectiveStudioId, period, limit: 5 }),
+        dashboardService.getSchedule({ studioId: effectiveStudioId }),
+        dashboardService.getActivity({ studioId: effectiveStudioId, period, limit: 10 })
+      ]);
+
+      const kpiIconMap: Record<string, React.ElementType> = {
+        revenue: DollarSign,
+        bookings: Users,
+        schedules: Calendar,
+        instructors: Star
+      };
+
+      const kpiColorMap: Record<string, string> = {
+        revenue: 'green',
+        bookings: 'blue',
+        schedules: 'purple',
+        instructors: 'yellow'
+      };
+
+      const nextKpis: KPICard[] = metrics.kpis.map(kpi => {
+        const change = Math.abs(Math.round(kpi.deltaPercent));
+        const changeType = kpi.deltaPercent >= 0 ? 'increase' : 'decrease';
+        const icon = kpiIconMap[kpi.id] ?? TrendingUp;
+        const color = kpiColorMap[kpi.id] ?? 'blue';
+
+        return {
+          title: kpi.title,
+          value: formatPeriodValue(kpi.id, kpi.value),
+          change,
+          changeType,
+          icon,
+          color
+        };
+      });
+
+      setKpiData(nextKpis);
+      setQuickStats(metrics.quickStats);
+
+      const revenuePoints = revenueTrend.series.find(series => series.label === 'Revenue');
+      setRevenueSeries({
+        labels: revenuePoints ? revenuePoints.points.map(point => point.label) : [],
+        values: revenuePoints ? revenuePoints.points.map(point => point.value) : []
+      });
+
+      const classes = popularClasses.classes ?? [];
+      setClassPopularity({
+        labels: classes.map(item => item.className),
+        values: classes.map(item => item.bookingCount)
+      });
+
+      setScheduleSummary(scheduleOverview.summary);
+
+      const formattedSchedules = scheduleOverview.schedules.map(schedule => ({
+        id: schedule.scheduleId,
+        time: formatTimeRange(schedule.startTime, schedule.endTime),
+        name: schedule.className,
+        instructor: schedule.instructorName || 'TBD',
+        enrolled: schedule.enrolled,
+        capacity: schedule.capacity
+      }));
+      setUpcomingClasses(formattedSchedules);
+
+      const activities = activityFeed.events.map(event => ({
+        id: event.id,
+        type: event.type,
+        message: event.message,
+        time: formatTimestamp(event.createdAt),
+        createdAt: event.createdAt
+      }));
+      setRecentActivities(activities);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setErrorMessage('We had trouble loading live data. Showing demo insights instead.');
+
+      setKpiData([
+        {
+          title: 'Total Revenue',
+          value: '$12,845',
+          change: 12.5,
+          changeType: 'increase',
+          icon: DollarSign,
+          color: 'green'
+        },
+        {
+          title: 'Active Students',
+          value: 342,
+          change: 8.2,
+          changeType: 'increase',
+          icon: Users,
+          color: 'blue'
+        },
+        {
+          title: 'Classes This Week',
+          value: 48,
+          change: -2.3,
+          changeType: 'decrease',
+          icon: Calendar,
+          color: 'purple'
+        },
+        {
+          title: 'Average Rating',
+          value: '4.8',
+          change: 0.3,
+          changeType: 'increase',
+          icon: Star,
+          color: 'yellow'
         }
+      ]);
 
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+      setClassPopularity({
+        labels: ['Power Yoga', 'Beginner Pilates', 'Advanced HIIT', 'Zen Meditation', 'Dance Flow'],
+        values: [85, 72, 64, 45, 38]
+      });
 
-        // Fallback data on error
-        setKpiData([
-          {
-            title: 'Total Revenue',
-            value: '$12,845',
-            change: 12.5,
-            changeType: 'increase',
-            icon: DollarSign,
-            color: 'green'
-          },
-          {
-            title: 'Active Students',
-            value: 342,
-            change: 8.2,
-            changeType: 'increase',
-            icon: Users,
-            color: 'blue'
-          },
-          {
-            title: 'Classes This Week',
-            value: 48,
-            change: -2.3,
-            changeType: 'decrease',
-            icon: Calendar,
-            color: 'purple'
-          },
-          {
-            title: 'Average Rating',
-            value: '4.8',
-            change: 0.3,
-            changeType: 'increase',
-            icon: Star,
-            color: 'yellow'
-          }
-        ]);
+      setRevenueSeries({
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        values: [1200, 1900, 1500, 2100, 2300, 2800, 2400]
+      });
 
-        setStudioClasses({
-          labels: ['Power Yoga', 'Beginner Pilates', 'Advanced HIIT', 'Zen Meditation', 'Dance Flow'],
-          data: [85, 72, 64, 45, 38]
-        });
-        setIsLoading(false);
-      }
-    };
+      setScheduleSummary({
+        totalClasses: 0,
+        totalSeats: 0,
+        seatsBooked: 0,
+        occupancyPercent: 0
+      });
 
-    fetchDashboardData();
-  }, [selectedPeriod]);
-  
-  // Prepare chart data from fetched studio classes
-  const classPopularityData = studioClasses ? {
-    labels: studioClasses.labels,
-    datasets: [
-      {
-        label: 'Total Bookings',
-        data: studioClasses.data,
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(139, 92, 246, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(251, 146, 60, 0.8)'
-        ]
-      }
-    ]
-  } : null;
-
-  // Occupancy Rate Data
-  const occupancyRateData = {
-    labels: ['Occupied', 'Available'],
-    datasets: [
-      {
-        data: [73, 27],
-        backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(229, 231, 235, 0.8)'],
-        borderWidth: 0
-      }
-    ]
+      setUpcomingClasses([]);
+      setRecentActivities([]);
+      setQuickStats({ todaysRevenue: 0, activeClasses: 0 });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Upcoming Classes
-  const upcomingClasses: any[] = []; // Empty for demo
+  useEffect(() => {
+    fetchDashboardData();
+  }, [selectedPeriod, effectiveStudioId]);
+  
+  const revenueChartData = useMemo(() => {
+    const fallbackLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const fallbackValues = [1200, 1900, 1500, 2100, 2300, 2800, 2400];
+    const labels = revenueSeries.labels.length ? revenueSeries.labels : fallbackLabels;
+    const values = revenueSeries.values.length ? revenueSeries.values : fallbackValues;
 
-  // Recent Activities
-  const recentActivities: any[] = []; // Empty for demo
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Revenue',
+          data: values,
+          fill: true,
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: 'rgb(59, 130, 246)',
+          tension: 0.4
+        }
+      ]
+    };
+  }, [revenueSeries]);
+
+  const classPopularityData = useMemo(() => {
+    if (!classPopularity.labels.length) {
+      return null;
+    }
+
+    return {
+      labels: classPopularity.labels,
+      datasets: [
+        {
+          label: 'Total Bookings',
+          data: classPopularity.values,
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(251, 146, 60, 0.8)'
+          ]
+        }
+      ]
+    };
+  }, [classPopularity]);
+
+  const occupancyRateData = useMemo(() => {
+    const seatsBooked = scheduleSummary?.seatsBooked ?? 0;
+    const totalSeats = scheduleSummary?.totalSeats ?? 0;
+
+    if (totalSeats === 0) {
+      return {
+        labels: ['Occupied', 'Available'],
+        datasets: [
+          {
+            data: [0, 1],
+            backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(229, 231, 235, 0.8)'],
+            borderWidth: 0
+          }
+        ]
+      };
+    }
+
+    return {
+      labels: ['Occupied', 'Available'],
+      datasets: [
+        {
+          data: [seatsBooked, Math.max(totalSeats - seatsBooked, 0)],
+          backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(229, 231, 235, 0.8)'],
+          borderWidth: 0
+        }
+      ]
+    };
+  }, [scheduleSummary]);
+
+  const occupancySummary = useMemo(() => {
+    const percent = scheduleSummary?.occupancyPercent ?? 0;
+    const seatsBooked = scheduleSummary?.seatsBooked ?? 0;
+    const totalSeats = scheduleSummary?.totalSeats ?? 0;
+
+    return {
+      percent,
+      seatsBooked,
+      totalSeats,
+      label: totalSeats > 0
+        ? `${seatsBooked.toLocaleString()} of ${totalSeats.toLocaleString()} seats`
+        : 'No scheduled classes'
+    };
+  }, [scheduleSummary]);
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    fetchDashboardData();
   };
 
   const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -297,9 +394,9 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
         const elements = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, true);
         if (elements.length > 0) {
             const element = elements[0];
-            const data = revenueChartData.datasets[element.datasetIndex].data[element.index];
+            const value = Number(revenueChartData.datasets[element.datasetIndex].data[element.index]) || 0;
             const label = revenueChartData.labels[element.index];
-            alert(`Revenue for ${label}: $${data}`);
+            alert(`Revenue for ${label}: ${formatCurrency(value)}`);
         }
     }
   };
@@ -316,7 +413,7 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
         <div className="flex items-center gap-3">
           <select
             value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
+            onChange={(e) => setSelectedPeriod(e.target.value as DashboardPeriod)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="today">Today</option>
@@ -338,6 +435,29 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
           </button>
         </div>
       </div>
+
+      {!isLoading && (
+        <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2">
+          <div>
+            Today's Revenue:{' '}
+            <span className="font-semibold text-gray-900">
+              {formatCurrency(quickStats.todaysRevenue)}
+            </span>
+          </div>
+          <div>
+            Active Classes:{' '}
+            <span className="font-semibold text-gray-900">
+              {quickStats.activeClasses.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+          {errorMessage}
+        </div>
+      )}
 
       {/* KPI Cards - Redesigned for better space utilization */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -435,7 +555,7 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
       {/* Studio Intelligence Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <StudioIntelligenceSummary
-          studioId="demo-studio-id"
+          studioId={effectiveStudioId}
           className="lg:col-span-1"
         />
 
@@ -547,7 +667,7 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
                   legend: { display: false },
                   tooltip: {
                     callbacks: {
-                      label: (context) => `$${context.parsed.y}`
+                      label: (context) => formatCurrency(Number(context.parsed.y || 0))
                     }
                   }
                 },
@@ -555,7 +675,7 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      callback: (value) => `$${value}`
+                      callback: (value) => formatCurrency(Number(value))
                     }
                   }
                 }
@@ -586,7 +706,13 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
                   },
                   tooltip: {
                     callbacks: {
-                      label: (context) => `${context.label}: ${context.parsed}%`
+                      label: (context) => {
+                        if (context.label === 'Occupied') {
+                          return `${context.label}: ${occupancySummary.seatsBooked.toLocaleString()} seats`;
+                        }
+                        const available = Math.max(occupancySummary.totalSeats - occupancySummary.seatsBooked, 0);
+                        return `${context.label}: ${available.toLocaleString()} seats`;
+                      }
                     }
                   }
                 }
@@ -594,8 +720,8 @@ const chartRef = useRef<ChartJS<'line', (number | null)[], unknown> | null>(null
             />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center mb-8">
-                <p className="text-2xl font-bold text-gray-900">73%</p>
-                <p className="text-sm text-gray-600">Occupied</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.round(occupancySummary.percent)}%</p>
+                <p className="text-sm text-gray-600">{occupancySummary.label}</p>
               </div>
             </div>
           </div>

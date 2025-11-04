@@ -13,6 +13,12 @@ import DashboardOverview from './DashboardOverview'
 export default function DashboardPage() {
   const { profile, isLoading } = useUserProfile()
 
+  const studioId =
+    profile?.instructor?.studioId ||
+    profile?.instructor?.studio_id ||
+    profile?.instructor?.id ||
+    'demo-studio-id'
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -30,7 +36,7 @@ export default function DashboardPage() {
         studioName={profile?.instructor?.businessName || profile?.profile?.business_name || "Studio"} 
         userName={`${profile?.profile?.firstName || profile?.profile?.first_name || ''} ${profile?.profile?.lastName || profile?.profile?.last_name || ''}`.trim() || profile?.email || 'User'}
       >
-        <DashboardOverview />
+        <DashboardOverview studioId={studioId} />
       </DashboardLayout>
     </ProtectedRoute>
   )

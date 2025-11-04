@@ -15,5 +15,9 @@
     "webflow"
   ],
   "author": "",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.77.0",
+    "stripe": "^19.1.0"
+  }
 }

@@ -242,6 +242,9 @@ public enum NavigationDestination: Hashable {
     case profile
     case settings
     case credits
+    case store(StoreCategory = .creditPacks)
+    case outOfCredits(Int)
+    case rewards
     case bookingFlow(String)
     case feedback
     case following

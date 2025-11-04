@@ -3271,6 +3271,87 @@ export type Database = {
         }
         Relationships: []
       }
+      v_studio_class_popularity: {
+        Row: {
+          booking_count: number | null
+          category: string | null
+          class_id: string | null
+          class_name: string | null
+          instructor_name: string | null
+          revenue_contribution: number | null
+          schedule_id: string | null
+          start_time: string | null
+          studio_id: string | null
+        }
+        Relationships: []
+      }
+      v_studio_day_schedule: {
+        Row: {
+          cancellation_reason: string | null
+          capacity: number | null
+          category: string | null
+          class_name: string | null
+          end_time: string | null
+          enrolled: number | null
+          instructor_name: string | null
+          is_cancelled: boolean | null
+          occupancy_percent: number | null
+          schedule_id: string | null
+          spots_available: number | null
+          start_time: string | null
+          studio_id: string | null
+        }
+        Relationships: []
+      }
+      v_studio_imported_events_recent: {
+        Row: {
+          all_day: boolean | null
+          category: string | null
+          current_participants: number | null
+          description: string | null
+          end_time: string | null
+          id: string | null
+          integration_id: string | null
+          instructor_email: string | null
+          instructor_name: string | null
+          location: string | null
+          mapped_class_id: string | null
+          mapped_schedule_id: string | null
+          material_fee: number | null
+          max_participants: number | null
+          migration_status: string | null
+          price: number | null
+          provider: string | null
+          raw_data: Json | null
+          room: string | null
+          skill_level: string | null
+          start_time: string | null
+          studio_id: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
+      v_studio_metrics_daily: {
+        Row: {
+          booking_count: number | null
+          bucket_date: string | null
+          revenue: number | null
+          studio_id: string | null
+          unique_instructors: number | null
+          unique_schedules: number | null
+        }
+        Relationships: []
+      }
+      v_studio_setup_status: {
+        Row: {
+          calendar_integration: Json | null
+          dismissed_reminders: string[] | null
+          messaging: Json | null
+          payouts: Json | null
+          studio_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_user_credits: {
@@ -3317,6 +3398,24 @@ export type Database = {
       calculate_credits_needed: {
         Args: { p_class_id: string; p_schedule_time: string }
         Returns: number
+      }
+      fn_get_dashboard_activity: {
+        Args: {
+          p_limit: number
+          p_period_end: string
+          p_period_start: string
+          p_studio_id: string
+        }
+        Returns: Array<{
+          actor: string | null
+          amount: number | null
+          created_at: string
+          id: string
+          message: string | null
+          meta: Json | null
+          title: string | null
+          type: string | null
+        }>
       }
       calculate_workshop_material_cost: {
         Args: { template_id: string }
