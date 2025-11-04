@@ -261,6 +261,14 @@ public enum NavigationDestination: Hashable {
             hasher.combine("settings")
         case .credits:
             hasher.combine("credits")
+        case .store(let category):
+            hasher.combine("store")
+            hasher.combine(category)
+        case .outOfCredits(let needed):
+            hasher.combine("outOfCredits")
+            hasher.combine(needed)
+        case .rewards:
+            hasher.combine("rewards")
         case .bookingFlow(let id):
             hasher.combine("bookingFlow")
             hasher.combine(id)

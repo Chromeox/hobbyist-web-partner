@@ -99,6 +99,14 @@ struct MainTabView: View {
         case .credits:
             Text("Credits")
                 .navigationTitle("Credits")
+        case .store(let category):
+            StoreView(initialCategory: category)
+                .navigationTitle("Store")
+        case .outOfCredits(let creditsNeeded):
+            OutOfCreditsView(requiredAdditionalCredits: creditsNeeded)
+        case .rewards:
+            RewardsView()
+                .navigationTitle("Rewards")
         case .bookingFlow(let classID):
             Text("Booking Flow for: \(classID)")
                 .navigationTitle("Book Class")
