@@ -187,23 +187,8 @@ private struct SearchShortcutButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color.blue)
-                Text("Search classes, studios, or instructors")
-                    .foregroundStyle(Color.secondary)
-                Spacer()
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 3)
-            )
+        OutlineButton("Search classes, studios, or instructors", icon: "magnifyingglass", borderColor: BrandConstants.Colors.primary, action: action)
             .padding(.horizontal)
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -503,8 +488,7 @@ private struct ErrorStateView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Retry", action: retryAction)
-                .buttonStyle(.borderedProminent)
+            AnimatedButton("Retry", style: .primary, action: retryAction)
 
             Spacer()
         }

@@ -249,6 +249,13 @@ public enum NavigationDestination: Hashable {
     case feedback
     case following
     case marketplace
+    case instructorProfile(String)
+    case studioProfile(String)
+    case myBookings
+    case favoriteClasses
+    case searchResults(String)
+    case notifications
+    case accountSettings
 
     public func hash(into hasher: inout Hasher) {
         switch self {
@@ -278,6 +285,23 @@ public enum NavigationDestination: Hashable {
             hasher.combine("following")
         case .marketplace:
             hasher.combine("marketplace")
+        case .instructorProfile(let id):
+            hasher.combine("instructorProfile")
+            hasher.combine(id)
+        case .studioProfile(let id):
+            hasher.combine("studioProfile")
+            hasher.combine(id)
+        case .myBookings:
+            hasher.combine("myBookings")
+        case .favoriteClasses:
+            hasher.combine("favoriteClasses")
+        case .searchResults(let query):
+            hasher.combine("searchResults")
+            hasher.combine(query)
+        case .notifications:
+            hasher.combine("notifications")
+        case .accountSettings:
+            hasher.combine("accountSettings")
         }
     }
 }

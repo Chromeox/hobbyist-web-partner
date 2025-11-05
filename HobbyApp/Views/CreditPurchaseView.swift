@@ -25,10 +25,7 @@ struct CreditPurchaseView: View {
                         Text(error)
                             .font(BrandConstants.Typography.body)
                             .multilineTextAlignment(.center)
-                        Button(action: reloadPacks) {
-                            Label("Retry", systemImage: "arrow.clockwise")
-                        }
-                        .buttonStyle(.borderedProminent)
+                        AnimatedButton("Retry", style: .primary, action: reloadPacks)
                     }
                     .padding()
                 } else {

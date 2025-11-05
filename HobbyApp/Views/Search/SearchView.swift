@@ -323,8 +323,7 @@ private struct ErrorStateView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Retry", action: retryAction)
-                .buttonStyle(.borderedProminent)
+            AnimatedButton("Retry", style: .primary, action: retryAction)
 
             Spacer()
         }

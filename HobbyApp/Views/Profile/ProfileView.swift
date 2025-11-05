@@ -150,7 +150,7 @@ private struct ProfileHeader: View {
                         .font(BrandConstants.Typography.footnote)
                         .foregroundStyle(Color.white)
                         .padding(8)
-                        .background(Circle().fill(Color.blue))
+                        .background(Circle().fill(BrandConstants.Colors.primary))
                 }
             }
             .frame(width: 96, height: 96)
@@ -389,8 +389,7 @@ private struct ErrorStateView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Retry", action: retryAction)
-                .buttonStyle(.borderedProminent)
+            AnimatedButton("Retry", style: .primary, action: retryAction)
 
             Spacer()
         }
