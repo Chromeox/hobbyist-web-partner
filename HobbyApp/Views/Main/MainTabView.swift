@@ -28,6 +28,8 @@ struct MainTabView: View {
                     switchDirection: navigationManager.tabSwitchDirection
                 )
             }
+            .accessibilityLabel("Home tab")
+            .accessibilityHint("Navigate to home screen to discover classes and activities")
             .tag(0)
 
             // Search Tab
@@ -45,6 +47,8 @@ struct MainTabView: View {
                     switchDirection: navigationManager.tabSwitchDirection
                 )
             }
+            .accessibilityLabel("Search tab")
+            .accessibilityHint("Search for classes, instructors, and studios")
             .tag(1)
 
             // Bookings Tab
@@ -62,6 +66,8 @@ struct MainTabView: View {
                     switchDirection: navigationManager.tabSwitchDirection
                 )
             }
+            .accessibilityLabel("Bookings tab")
+            .accessibilityHint("View and manage your class bookings")
             .tag(2)
 
             // Profile Tab
@@ -79,6 +85,8 @@ struct MainTabView: View {
                     switchDirection: navigationManager.tabSwitchDirection
                 )
             }
+            .accessibilityLabel("Profile tab")
+            .accessibilityHint("Access your profile, settings, and account information")
             .tag(3)
         }
         .accentColor(.blue)
@@ -144,6 +152,7 @@ struct TabIconView: View {
                         .frame(width: 32, height: 32)
                         .scaleEffect(bounceScale)
                         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: bounceScale)
+                        .accessibilityHidden(true)
                 }
 
                 // Tab icon with morphing animation
@@ -152,6 +161,7 @@ struct TabIconView: View {
                     .foregroundColor(isSelected ? .blue : .gray)
                     .scaleEffect(isSelected ? 1.1 : 1.0)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
+                    .accessibilityHidden(true)
             }
 
             // Tab label
@@ -161,6 +171,7 @@ struct TabIconView: View {
                 .foregroundColor(isSelected ? .blue : .gray)
                 .scaleEffect(isSelected ? 1.0 : 0.9)
                 .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .accessibilityHidden(true)
         }
         .onChange(of: isSelected) { newValue in
             if newValue {
@@ -207,13 +218,18 @@ struct MainHomeView: View {
                         Text("Welcome back")
                             .font(BrandConstants.Typography.title2)
                             .foregroundColor(.secondary)
+                            .accessibilityHidden(true)
                         
                         Text(userName)
                             .font(BrandConstants.Typography.largeTitle)
                             .fontWeight(.bold)
+                            .accessibilityHidden(true)
                     }
                     .padding(.horizontal)
                     .padding(.top)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Welcome back, \(userName)")
+                    .accessibilityAddTraits(.isHeader)
                     
                     // Stats Cards
                     HStack(spacing: 16) {
@@ -239,6 +255,7 @@ struct MainHomeView: View {
                             .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
+                            .accessibilityAddTraits(.isHeader)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 16) {
@@ -257,6 +274,7 @@ struct MainHomeView: View {
                             .font(BrandConstants.Typography.title3)
                             .fontWeight(.semibold)
                             .padding(.horizontal)
+                            .accessibilityAddTraits(.isHeader)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 16) {
@@ -290,19 +308,25 @@ struct MainTabStatCard: View {
             Image(systemName: icon)
                 .font(BrandConstants.Typography.title2)
                 .foregroundColor(color)
+                .accessibilityHidden(true)
             
             Text(value)
                 .font(BrandConstants.Typography.title)
                 .fontWeight(.bold)
+                .accessibilityHidden(true)
             
             Text(label)
                 .font(BrandConstants.Typography.caption)
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(BrandConstants.CornerRadius.md)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(value) \(label)")
+        .accessibilityAddTraits(.isSummaryElement)
     }
 }
 
@@ -321,22 +345,30 @@ struct SimpleClassCard: View {
                     Image(systemName: "figure.yoga")
                         .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(.white)
+                        .accessibilityHidden(true)
                 )
+                .accessibilityLabel("Morning Yoga class image")
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Morning Yoga")
                     .font(BrandConstants.Typography.headline)
+                    .accessibilityAddTraits(.isHeader)
                 
                 Text("Tomorrow at 9:00 AM")
                     .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
+                    .accessibilityLabel("Time: Tomorrow at 9:00 AM")
                 
                 Text("with Sarah Johnson")
                     .font(BrandConstants.Typography.caption)
                     .foregroundColor(.secondary)
+                    .accessibilityLabel("Instructor: Sarah Johnson")
             }
         }
         .frame(width: 200)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Morning Yoga class tomorrow at 9:00 AM with Sarah Johnson")
+        .accessibilityHint("Double tap to view class details")
     }
 }
 
@@ -351,30 +383,41 @@ struct RecommendationCard: View {
                     Image(systemName: "paintbrush.fill")
                         .font(BrandConstants.Typography.largeTitle)
                         .foregroundColor(.accentColor)
+                        .accessibilityHidden(true)
                 )
+                .accessibilityLabel("Watercolor Painting class image")
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("Watercolor Painting")
                     .font(BrandConstants.Typography.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
+                    .accessibilityAddTraits(.isHeader)
                 
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.yellow)
+                        .accessibilityHidden(true)
                     
                     Text("4.8")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     
                     Text("• $35")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Rated 4.8 stars, 35 dollars")
             }
         }
         .frame(width: 140)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Watercolor Painting class, rated 4.8 stars, 35 dollars")
+        .accessibilityHint("Double tap to view class details")
     }
 }
 

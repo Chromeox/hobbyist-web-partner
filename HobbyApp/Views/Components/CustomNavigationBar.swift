@@ -172,6 +172,8 @@ public struct CustomNavigationBar<Leading: View, Trailing: View>: View {
                     .opacity(titleOpacity)
                     .scaleEffect(titleScale)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8), value: titleOpacity)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityLabel(coordinator.contextualTitle.isEmpty ? title : coordinator.contextualTitle)
 
                 // Trailing content
                 HStack {
@@ -275,10 +277,15 @@ public struct HomeNavigationBar: View {
                     Text("Hello")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text(userName)
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
+                        .accessibilityHidden(true)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Hello, \(userName)")
+                .accessibilityAddTraits(.isHeader)
             },
             trailing: {
                 HStack(spacing: 12) {
@@ -321,6 +328,8 @@ public struct SearchNavigationBar: View {
                     }
                     .foregroundColor(.blue)
                     .font(BrandConstants.Typography.body)
+                    .accessibilityLabel("Cancel search")
+                    .accessibilityHint("Clear search text and return to search results")
                 }
             }
         )
@@ -356,6 +365,10 @@ public struct BookingNavigationBar: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: progress)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Booking progress")
+                .accessibilityValue("\(Int(progress * 100)) percent complete")
+                }
             }
         )
     }
@@ -381,10 +394,15 @@ public struct PaymentNavigationBar: View {
                     Image(systemName: "lock.shield")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.green)
+                        .accessibilityHidden(true)
                     Text("Secure")
                         .font(BrandConstants.Typography.caption)
                         .foregroundColor(.green)
+                        .accessibilityHidden(true)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Secure payment")
+                .accessibilityHint("Payment is secured with encryption")
             }
         )
     }
