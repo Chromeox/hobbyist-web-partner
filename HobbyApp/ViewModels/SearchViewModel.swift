@@ -4,6 +4,28 @@ import CoreLocation
 import Speech
 import AVFoundation
 
+// MARK: - Backward Compatibility Enums
+
+enum DateFilter: String, CaseIterable {
+    case all = "All"
+    case today = "Today"
+    case tomorrow = "Tomorrow"
+    case thisWeek = "This Week"
+    case thisWeekend = "This Weekend"
+    case nextWeek = "Next Week"
+    
+    var dateRange: DateRange {
+        switch self {
+        case .all: return .any
+        case .today: return .today
+        case .tomorrow: return .tomorrow
+        case .thisWeek: return .thisWeek
+        case .thisWeekend: return .thisWeek // Will be filtered further
+        case .nextWeek: return .nextWeek
+        }
+    }
+}
+
 @MainActor
 class SearchViewModel: ObservableObject {
     // MARK: - Search State
@@ -14,6 +36,18 @@ class SearchViewModel: ObservableObject {
     @Published var hasSearched: Bool = false
     @Published var errorMessage: String?
     @Published var hasMoreResults: Bool = false
+    
+    // MARK: - Backward Compatibility Properties
+    @Published var searchText: String = ""
+    @Published var filteredClasses: [ClassItem] = []
+    @Published var categories: [ClassCategory] = ClassCategory.allCases
+    @Published var selectedCategory: ClassCategory? = nil
+    @Published var dateFilter: DateFilter = .all
+    @Published var isLoading: Bool = false
+    @Published var allResults: [SearchResult] = []
+    
+    // Supabase service for compatibility
+    var supabaseService: SimpleSupabaseService?
     
     // MARK: - Filters and Scope
     @Published var searchScope: SearchScope = .all
@@ -75,6 +109,7 @@ class SearchViewModel: ObservableObject {
         setupVoiceRecognition()
         loadInitialData()
         requestLocationPermissionIfNeeded()
+        syncSearchProperties()
     }
     
     private func setupBindings() {
@@ -788,6 +823,81 @@ class SearchViewModel: ObservableObject {
             await performSearch()
             await analyticsService.trackPopularSearchUsed(query)
         }
+    }
+    
+    // MARK: - Backward Compatibility Methods
+    
+    func loadClasses() async {
+        isLoading = true
+        guard let supabaseService = supabaseService else {
+            isLoading = false
+            return
+        }
+        
+        let classes = await supabaseService.fetchClasses()
+        let classItems = classes.map { simpleClass in
+            HobbyClass(simpleClass: simpleClass).toClassItem
+        }
+        
+        filteredClasses = classItems
+        isLoading = false
+    }
+    
+    func applyFilters() {
+        // Convert current state to SearchFilters
+        var filters = SearchFilters()
+        
+        if let category = selectedCategory {
+            filters.categories.insert(category)
+        }
+        
+        filters.dateRange = dateFilter.dateRange
+        
+        // Special handling for weekend filter
+        if dateFilter == .thisWeekend {
+            filters.daysOfWeek = [.saturday, .sunday]
+        }
+        
+        // Update currentFilters and trigger search
+        currentFilters = filters
+        
+        // Sync searchText with searchQuery
+        searchQuery = searchText
+        
+        Task {
+            if !searchText.isEmpty || filters.hasActiveFilters {
+                await performSearch()
+            } else {
+                await loadClasses()
+            }
+        }
+    }
+    
+    // Sync between old and new search properties
+    private func syncSearchProperties() {
+        // Bind searchText to searchQuery
+        $searchText
+            .assign(to: &$searchQuery)
+        
+        // Convert search results to class items for backward compatibility
+        $filteredResults
+            .map { results in
+                results.compactMap { result in
+                    if case .class(let hobbyClass) = result {
+                        return hobbyClass.toClassItem
+                    }
+                    return nil
+                }
+            }
+            .assign(to: &$filteredClasses)
+        
+        // Keep allResults in sync
+        $searchResults
+            .assign(to: &$allResults)
+        
+        // Sync loading state
+        $isSearching
+            .assign(to: &$isLoading)
     }
     
     // MARK: - Cleanup

@@ -27,39 +27,39 @@ HobbyApp operates as a customer acquisition platform for Vancouver hobby studios
 ### Proposed Credit Packages
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Package    Credits   Price    Per Credit   Use Case     │
+│  Package      Credits   Price    Per Credit   Classes    │
 ├─────────────────────────────────────────────────────────┤
-│  Starter       10     $49      $4.90       Try it out    │
-│  Explorer      25     $99      $3.96       Regular user  │
-│  Enthusiast    50     $179     $3.58       Power user    │
-│  Annual       120     $359     $2.99       Best value    │
+│  Starter        25      $49      $1.96        1-2        │
+│  Explorer       50      $99      $1.98        2-3        │
+│  Enthusiast    100      $179     $1.79        4-5        │
+│  Power         200      $299     $1.50        8-10       │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ### Credit Requirements by Session Type
-- **Community sessions** (yoga, basic dance): 0.5 credits
-- **Standard intro** (pottery, painting): 1 credit
-- **Premium workshop** (cooking, photography): 1.5 credits
-- **Specialty/private**: 2 credits
+- **Basic sessions** (community yoga, intro classes): 20 credits
+- **Standard sessions** (pottery, painting workshops): 30 credits
+- **Premium sessions** (cooking, specialty workshops): 40 credits
+- **Exclusive sessions** (private instruction, masterclasses): 50+ credits
 
 ## 🔄 Revenue Flow Analysis
 
-### Standard Pottery Intro Session (1 credit)
+### Standard Pottery Workshop (30 credits)
 **User Side:**
-- Pays: 1 credit ($3.58-4.90 value depending on package)
-- Gets: 60-minute pottery intro worth $35 direct price
-- Savings: 28-48% vs direct booking
+- Pays: 30 credits ($45-59 value depending on package)
+- Gets: 90-minute pottery workshop worth $60-80 direct price
+- Savings: 25-40% vs direct booking
 
 **Studio Side:**
-- Receives: $18 for intro session
-- Costs: $10 materials + $5 instructor time = $15
-- Profit: $3 direct + conversion opportunity
-- Break-even: 1 in 6 conversions to $350 course
+- Receives: $31.50-41.30 (70% of credit value)
+- Costs: $15 materials + $10 instructor time = $25
+- Profit: $6.50-16.30 direct + conversion opportunity
+- Break-even: Profitable from day one, conversions are bonus
 
 **Platform Side:**
-- Revenue: $3.58-4.90 per credit used
-- Payout: $18 to studio
-- Margin: When credit value covers payout + operations
+- Revenue per booking: $45-59 (30 credits)
+- Studio payout: $31.50-41.30 (70%)
+- Platform keeps: $13.50-17.70 (30%)
 
 ## 📈 Conversion Economics
 
@@ -120,36 +120,36 @@ For pottery studio example:
 
 ### Conservative Scenario (1,000 active users)
 **Monthly Metrics:**
-- Average credits used: 3 per user
-- Total credits used: 3,000/month
-- Average credit value: $4.00
-- Gross revenue: $12,000
-- Studio payouts: $8,400 (70%)
-- Net revenue: $3,600
+- Average package: 50 credits for $99
+- Average classes per user: 2 per month (60 credits)
+- Total revenue from packages: $99,000
+- Credits used: 60,000 (75% utilization)
+- Studio payouts: $69,300 (70% of used credit value)
+- Unused credits value: $24,750 (25%)
 - Operating costs: $7,500
-- **Net result**: -$3,900 (investment phase)
+- **Net result**: +$22,200 (profitable from start)
 
 ### Growth Scenario (5,000 active users)
 **Monthly Metrics:**
-- Average credits used: 4 per user
-- Total credits used: 20,000/month
-- Average credit value: $4.00
-- Gross revenue: $80,000
-- Studio payouts: $56,000 (70%)
-- Net revenue: $24,000
-- Operating costs: $12,000
-- **Net result**: +$12,000 (profitable)
+- Package mix: 30% Starter, 40% Explorer, 20% Enthusiast, 10% Power
+- Average monthly revenue: $495,000
+- Credits sold: 375,000
+- Credits used: 281,250 (75% utilization)
+- Studio payouts: $346,125 (70% of used credit value)
+- Unused credits value: $148,875 (25%)
+- Operating costs: $25,000
+- **Net result**: +$123,875 (highly profitable)
 
 ### Mature Scenario (15,000 active users)
 **Monthly Metrics:**
-- Average credits used: 5 per user
-- Total credits used: 75,000/month
-- Average credit value: $3.75
-- Gross revenue: $281,250
-- Studio payouts: $196,875 (70%)
-- Net revenue: $84,375
-- Operating costs: $25,000
-- **Net result**: +$59,375 (highly profitable)
+- Optimized package mix favoring higher tiers
+- Total monthly revenue: $1,485,000
+- Credits sold: 1,125,000
+- Credits used: 843,750 (75% utilization)
+- Studio payouts: $1,038,375 (70% of used credit value)
+- Unused credits value: $446,625 (25%)
+- Operating costs: $75,000
+- **Net result**: +$371,625 (exceptional margins)
 
 ## 🎯 Key Success Factors
 
