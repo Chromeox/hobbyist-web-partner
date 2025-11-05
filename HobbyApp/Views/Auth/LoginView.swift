@@ -33,29 +33,17 @@ struct LoginView: View {
             BrandConstants.Gradients.landing
                 .ignoresSafeArea()
 
-            // Decorative floating circles
+            // Subtle background texture for visual interest without distraction
             Circle()
-                .fill(BrandConstants.Colors.surface.opacity(0.05))
-                .frame(width: 200, height: 200)
-                .offset(x: -100, y: -300)
-                .accessibilityHidden(true)
-
-            Circle()
-                .fill(BrandConstants.Colors.surface.opacity(0.08))
-                .frame(width: 150, height: 150)
-                .offset(x: 150, y: -400)
-                .accessibilityHidden(true)
-
-            Circle()
-                .fill(BrandConstants.Colors.surface.opacity(0.06))
-                .frame(width: 180, height: 180)
-                .offset(x: 100, y: 450)
+                .fill(BrandConstants.Colors.surface.opacity(0.02))
+                .frame(width: 300, height: 300)
+                .offset(x: 0, y: -200)
                 .accessibilityHidden(true)
 
             NavigationStack {
                 ScrollView {
-                    VStack(spacing: 20) {
-                    Spacer(minLength: 20)
+                    VStack(spacing: BrandConstants.Spacing.lg) {
+                    Spacer(minLength: BrandConstants.Spacing.md)
 
                     // Enhanced Logo Section - Compact
                     VStack(spacing: 16) {
@@ -104,8 +92,8 @@ struct LoginView: View {
                                 .accessibilityAddTraits(.isHeader)
 
                             Text(isSignUp ? "Create your account" : "Sign in to continue")
-                                .font(BrandConstants.Typography.subheadline)
-                                .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
+                                .font(BrandConstants.Typography.body)
+                                .foregroundColor(BrandConstants.Colors.surface.opacity(0.95))
                                 .multilineTextAlignment(.center)
                                 .accessibilityHint(isSignUp ? "Fill out the form below to create a new account" : "Enter your credentials to sign in")
                         }
@@ -155,7 +143,7 @@ struct LoginView: View {
                                     .accessibilityHint("Enter your email address")
                             }
                             .padding(14)
-                            .background(Color(.systemGray6))
+                            .background(BrandConstants.Colors.background)
                             .cornerRadius(BrandConstants.CornerRadius.md)
 
                             HStack {
@@ -177,7 +165,7 @@ struct LoginView: View {
                                     .accessibilityHint(isSignUp ? "Enter a password with at least 6 characters" : "Enter your password")
                             }
                             .padding(14)
-                            .background(Color(.systemGray6))
+                            .background(BrandConstants.Colors.background)
                             .cornerRadius(BrandConstants.CornerRadius.md)
                         }
 
@@ -195,17 +183,17 @@ struct LoginView: View {
                     .padding(20)
                     .background(
                         ZStack {
-                            // Glassmorphic background with blur effect
+                            // Enhanced glassmorphic background for calming effect
                             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                                .fill(BrandConstants.Colors.surface.opacity(0.18))
+                                .fill(BrandConstants.Colors.surface.opacity(0.15))
                                 .background(.ultraThinMaterial)
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
 
-                            // Subtle border
+                            // Softer border for reduced visual tension
                             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                                .strokeBorder(BrandConstants.Colors.surface.opacity(0.3), lineWidth: 1)
+                                .strokeBorder(BrandConstants.Colors.surface.opacity(0.2), lineWidth: 0.5)
                         }
-                        .shadow(color: BrandConstants.Colors.text.opacity(0.15), radius: 20, x: 0, y: 10)
+                        .shadow(color: BrandConstants.Colors.text.opacity(0.08), radius: 16, x: 0, y: 8)
                     )
                     .padding(.horizontal, BrandConstants.Spacing.md)
 
@@ -242,8 +230,8 @@ struct LoginView: View {
                     .accessibilityAddTraits(.isStaticText)
                 }
 
-                    // Enhanced Action Buttons Section - Optimized Spacing
-                    VStack(spacing: BrandConstants.Spacing.md) {
+                    // Enhanced Action Buttons Section - Optimized for Alpha Testing
+                    VStack(spacing: BrandConstants.Spacing.lg) {
                             // Main Action Button - Using BrandedButton style
                             BrandedButton(
                                 isSignUp ? "Create Account" : "Sign In",
@@ -405,7 +393,7 @@ struct LoginView: View {
 
                                 Text("or")
                                     .font(BrandConstants.Typography.caption)
-                                    .foregroundColor(BrandConstants.Colors.surface.opacity(0.7))
+                                    .foregroundColor(BrandConstants.Colors.surface.opacity(0.8))
                                     .padding(.horizontal, 8)
 
                                 Rectangle()
@@ -416,12 +404,14 @@ struct LoginView: View {
 
                             // Toggle Button - TextButton style
                             Button(action: {
-                                withAnimation(BrandConstants.Animation.spring) {
+                                withAnimation(BrandConstants.Animation.gentleSpring) {
                                     isSignUp.toggle()
                                 }
-                                fullName = ""
-                                focusedField = nil
-                                supabaseService.errorMessage = nil
+                                withAnimation(BrandConstants.Animation.fast) {
+                                    fullName = ""
+                                    focusedField = nil
+                                    supabaseService.errorMessage = nil
+                                }
                             }) {
                                 HStack {
                                     Text(isSignUp ? "Already have an account?" : "Don't have an account?")
@@ -484,6 +474,9 @@ struct LoginView: View {
             }
         }
         .onAppear {
+            withAnimation(BrandConstants.Animation.gentleSpring.delay(0.1)) {
+                // Subtle entrance animation for calming effect
+            }
             attemptAutoLogin()
         }
     }

@@ -11,6 +11,8 @@ class HomeViewModel: ObservableObject {
     @Published var categories: [ClassItem.Category] = []
     @Published var hasNotifications = false
     @Published var showMapView = false
+    @Published var isLoading = false
+    @Published var errorMessage: String?
     
     // Filter properties
     @Published var minPrice: Double = 0
@@ -19,9 +21,16 @@ class HomeViewModel: ObservableObject {
     @Published var selectedTimes: Set<String> = []
     @Published var selectedDifficulty = "All Levels"
     
+    // Real data services
+    private let classService = ClassService.shared
+    private let instructorService = InstructorService.shared
+    private let searchService = SearchService.shared
+    
     init() {
         loadCategories()
-        loadInitialData()
+        Task {
+            await loadInitialData()
+        }
     }
     
     private func loadCategories() {
@@ -40,15 +49,65 @@ class HomeViewModel: ObservableObject {
         ]
     }
     
-    private func loadInitialData() {
-        // Load hobby-focused sample data
+    private func loadInitialData() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            // Load real data using our services
+            async let allClasses = classService.fetchClasses()
+            async let popularClasses = classService.getPopularClasses()
+            async let instructors = instructorService.fetchInstructors()
+            
+            let classes = try await allClasses
+            let popular = try await popularClasses
+            let allInstructors = try await instructors
+            
+            // Convert to ClassItems for the UI
+            let classItems = classes.map { ClassItem.from(hobbyClass: $0) }
+            let popularItems = popular.map { ClassItem.from(hobbyClass: $0) }
+            
+            featuredClasses = Array(popularItems.prefix(6))
+            nearbyClasses = Array(classItems.prefix(5))
+            upcomingClasses = Array(classItems.prefix(3))
+            recommendedClasses = Array(classItems.shuffled().prefix(4))
+            
+            // Convert instructors to InstructorCards
+            popularInstructors = allInstructors.map { instructor in
+                InstructorCard(
+                    id: instructor.id,
+                    name: instructor.name,
+                    initials: createInitials(from: instructor.name),
+                    rating: String(format: "%.1f", instructor.rating),
+                    specialties: instructor.specialties,
+                    bio: instructor.bio
+                )
+            }
+            
+            print("✅ Loaded \(classes.count) classes and \(allInstructors.count) instructors from data services")
+            
+        } catch {
+            print("❌ Failed to load data: \(error)")
+            errorMessage = error.localizedDescription
+            
+            // Fall back to existing sample data if services fail
+            loadFallbackData()
+        }
+        
+        isLoading = false
+    }
+    
+    private func loadFallbackData() {
+        print("🔄 Loading fallback UI data")
+        
+        // Use existing sample data as last resort
         let allClasses = ClassItem.hobbyClassSamples
-
+        
         featuredClasses = allClasses.filter { $0.isFeatured }
         nearbyClasses = Array(allClasses.prefix(5))
         upcomingClasses = Array(allClasses.prefix(3))
         recommendedClasses = allClasses.shuffled().prefix(4).map { $0 }
-
+        
         popularInstructors = [
             InstructorCard(
                 id: "1",
@@ -73,62 +132,80 @@ class HomeViewModel: ObservableObject {
                 rating: "4.7",
                 specialties: ["Painting", "Watercolor"],
                 bio: "Fine arts painter specializing in botanical watercolors"
-            ),
-            InstructorCard(
-                id: "4",
-                name: "Alex Thompson",
-                initials: "AT",
-                rating: "4.9",
-                specialties: ["Rumble Boxing"],
-                bio: "Former competitive boxer, certified Rumble instructor"
-            ),
-            InstructorCard(
-                id: "5",
-                name: "Elena Kovač",
-                initials: "EK",
-                rating: "4.7",
-                specialties: ["Jewelry Making", "Wire Work"],
-                bio: "Traditional European jewelry artisan and silversmith"
-            ),
-            InstructorCard(
-                id: "6",
-                name: "Carlos Mendoza",
-                initials: "CM",
-                rating: "4.8",
-                specialties: ["Dance", "Salsa"],
-                bio: "International salsa champion and dance instructor"
-            ),
-            InstructorCard(
-                id: "7",
-                name: "Maya Thompson",
-                initials: "MT",
-                rating: "4.9",
-                specialties: ["Music", "Guitar"],
-                bio: "Professional musician and certified music educator"
-            ),
-            InstructorCard(
-                id: "8",
-                name: "Rachel Bennett",
-                initials: "RB",
-                rating: "4.6",
-                specialties: ["Writing", "Creative Writing"],
-                bio: "Published author and creative writing workshop leader"
             )
         ]
     }
     
-    func searchClasses(query: String) {
-        // Implement search logic
+    private func createInitials(from name: String) -> String {
+        let components = name.split(separator: " ")
+        if components.count >= 2 {
+            return "\(components[0].prefix(1).uppercased())\(components[1].prefix(1).uppercased())"
+        } else if let first = components.first {
+            return "\(first.prefix(2).uppercased())"
+        }
+        return "??"
     }
     
-    func filterByCategory(_ category: String?) {
-        // Implement category filter
+    func searchClasses(query: String) async {
+        guard !query.isEmpty else {
+            await loadInitialData()
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let searchResults = try await searchService.searchClasses(query: query)
+            let classItems = searchResults.map { ClassItem.from(hobbyClass: $0) }
+            
+            featuredClasses = Array(classItems.prefix(6))
+            nearbyClasses = Array(classItems.prefix(5))
+            upcomingClasses = Array(classItems.prefix(3))
+            recommendedClasses = Array(classItems.shuffled().prefix(4))
+            
+            print("🔍 Found \(searchResults.count) classes for query: \(query)")
+            
+        } catch {
+            print("❌ Search failed: \(error)")
+            errorMessage = "Failed to search classes: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+    
+    func filterByCategory(_ category: String?) async {
+        guard let category = category else {
+            await loadInitialData()
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            // Convert string category to HobbyClass.Category enum
+            let hobbyCategory = HobbyClass.Category(rawValue: category.lowercased()) ?? .general
+            let filteredClasses = try await classService.getClassesByCategory(hobbyCategory)
+            let classItems = filteredClasses.map { ClassItem.from(hobbyClass: $0) }
+            
+            featuredClasses = Array(classItems.prefix(6))
+            nearbyClasses = Array(classItems.prefix(5))
+            upcomingClasses = Array(classItems.prefix(3))
+            recommendedClasses = Array(classItems.shuffled().prefix(4))
+            
+            print("🏷️ Found \(filteredClasses.count) classes in category: \(category)")
+            
+        } catch {
+            print("❌ Category filter failed: \(error)")
+            errorMessage = "Failed to filter by category: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
     }
     
     func refreshContent() async {
-        // Simulate network delay
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-        loadInitialData()
+        await loadInitialData()
     }
     
     func resetFilters() {
