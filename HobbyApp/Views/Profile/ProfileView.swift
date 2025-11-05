@@ -11,7 +11,21 @@ struct ProfileView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading {
-                    LoadingStateView()
+                    VStack(spacing: BrandConstants.Spacing.lg) {
+                        // Profile header skeleton
+                        HStack(spacing: BrandConstants.Spacing.md) {
+                            SkeletonLoader(type: .avatar(size: 80))
+                            VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
+                                SkeletonLoader(type: .textLine(width: 150))
+                                SkeletonLoader(type: .textLine(width: 120))
+                            }
+                            Spacer()
+                        }
+                        .padding(BrandConstants.Spacing.md)
+                        
+                        // Profile content skeleton
+                        SkeletonList(.bookingItem, count: 4)
+                    }
                 } else if let error = viewModel.errorMessage {
                     ErrorStateView(message: error) {
                         Task { await viewModel.load() }

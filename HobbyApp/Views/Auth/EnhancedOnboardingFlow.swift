@@ -10,7 +10,7 @@ struct EnhancedOnboardingFlow: View {
 
     let onComplete: () -> Void
 
-    private let totalSteps = 6
+    private let totalSteps = 7
 
     var body: some View {
         ZStack {
@@ -102,6 +102,10 @@ struct EnhancedOnboardingFlow: View {
             .padding(BrandConstants.Spacing.md)
 
         case 1:
+            // Demographics Step - Age, Gender, Neighborhood
+            DemographicsStep(userPreferences: $userPreferences)
+
+        case 2:
             // Profile Setup Step with brand styling
             ScrollView(showsIndicators: false) {
                 VStack(spacing: BrandConstants.Spacing.xl) {
@@ -142,7 +146,7 @@ struct EnhancedOnboardingFlow: View {
             }
             .padding(BrandConstants.Spacing.md)
 
-        case 2:
+        case 3:
             // Preferences Step with brand styling
             ScrollView(showsIndicators: false) {
                 VStack(spacing: BrandConstants.Spacing.xl) {
@@ -199,7 +203,7 @@ struct EnhancedOnboardingFlow: View {
             }
             .padding(BrandConstants.Spacing.md)
 
-        case 3:
+        case 4:
             // Interests Step with brand styling
             ScrollView(showsIndicators: false) {
                 VStack(spacing: BrandConstants.Spacing.xl) {
@@ -255,7 +259,7 @@ struct EnhancedOnboardingFlow: View {
             }
             .padding(BrandConstants.Spacing.md)
 
-        case 4:
+        case 5:
             // Notifications Step with brand styling
             ScrollView(showsIndicators: false) {
                 VStack(spacing: BrandConstants.Spacing.xl) {
@@ -332,7 +336,7 @@ struct EnhancedOnboardingFlow: View {
             }
             .padding(BrandConstants.Spacing.md)
 
-        case 5:
+        case 6:
             // Completion Step with brand styling
             VStack(spacing: BrandConstants.Spacing.xxl) {
                 Spacer()

@@ -33,7 +33,7 @@ struct SearchView: View {
 
             Group {
                 if viewModel.isLoading {
-                    LoadingStateView()
+                    SkeletonList(.searchResult, count: 6)
                 } else if let error = viewModel.errorMessage {
                     ErrorStateView(message: error) {
                         Task { await viewModel.loadClasses() }

@@ -9,7 +9,7 @@ struct HomeView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading {
-                    LoadingStateView()
+                    BrandedLoadingView(message: "Discovering your next creative adventure...", showLogo: false)
                 } else if let error = viewModel.errorMessage {
                     ErrorStateView(
                         message: error,
