@@ -35,16 +35,19 @@ struct LoginView: View {
                 .fill(BrandConstants.Colors.surface.opacity(0.05))
                 .frame(width: 200, height: 200)
                 .offset(x: -100, y: -300)
+                .accessibilityHidden(true)
 
             Circle()
                 .fill(BrandConstants.Colors.surface.opacity(0.08))
                 .frame(width: 150, height: 150)
                 .offset(x: 150, y: -400)
+                .accessibilityHidden(true)
 
             Circle()
                 .fill(BrandConstants.Colors.surface.opacity(0.06))
                 .frame(width: 180, height: 180)
                 .offset(x: 100, y: 450)
+                .accessibilityHidden(true)
 
             NavigationStack {
                 VStack(spacing: 20) {
@@ -62,6 +65,7 @@ struct LoginView: View {
                                     endPoint: .bottomTrailing
                                 ))
                                 .frame(width: 120, height: 120)
+                                .accessibilityHidden(true)
 
                             // Inner gradient circle
                             Circle()
@@ -71,28 +75,35 @@ struct LoginView: View {
                                     endPoint: .bottomTrailing
                                 ))
                                 .frame(width: 100, height: 100)
+                                .accessibilityHidden(true)
 
                             // Large background icon
                             Image(systemName: "figure.yoga")
                                 .font(BrandConstants.Typography.largeTitle).fontWeight(.ultraLight)
                                 .foregroundColor(BrandConstants.Colors.surface.opacity(0.3))
                                 .offset(x: 5, y: 5)
+                                .accessibilityHidden(true)
 
                             // Foreground icon
                             Image(systemName: "figure.yoga")
                                 .font(BrandConstants.Typography.largeTitle).fontWeight(.light)
                                 .foregroundColor(BrandConstants.Colors.surface)
+                                .accessibilityHidden(true)
                         }
+                        .accessibilityLabel("HobbyApp logo")
+                        .accessibilityHint("App logo for HobbyApp")
 
                         VStack(spacing: 8) {
                             Text(isSignUp ? "Get Started" : "Welcome Back!")
                                 .font(BrandConstants.Typography.title1)
                                 .foregroundColor(BrandConstants.Colors.surface)
+                                .accessibilityAddTraits(.isHeader)
 
                             Text(isSignUp ? "Create your account" : "Sign in to continue")
                                 .font(BrandConstants.Typography.subheadline)
                                 .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
                                 .multilineTextAlignment(.center)
+                                .accessibilityHint(isSignUp ? "Fill out the form below to create a new account" : "Enter your credentials to sign in")
                         }
                     }
 
@@ -104,6 +115,7 @@ struct LoginView: View {
                                     Image(systemName: "person.circle.fill")
                                         .foregroundColor(BrandConstants.Colors.primary)
                                         .frame(width: 24)
+                                        .accessibilityHidden(true)
                                     TextField("Full Name", text: $fullName)
                                         .textContentType(.name)
                                         .foregroundColor(BrandConstants.Colors.text)
@@ -112,6 +124,8 @@ struct LoginView: View {
                                         .onSubmit {
                                             focusedField = .email
                                         }
+                                        .accessibilityLabel("Full name")
+                                        .accessibilityHint("Enter your full name for account creation")
                                 }
                                 .padding(14)
                                 .background(BrandConstants.Colors.background)
@@ -122,6 +136,7 @@ struct LoginView: View {
                                 Image(systemName: "envelope.fill")
                                     .foregroundColor(BrandConstants.Colors.primary)
                                     .frame(width: 24)
+                                    .accessibilityHidden(true)
                                 TextField("Email", text: $email)
                                     .textContentType(.emailAddress)
                                     .keyboardType(.emailAddress)
@@ -132,6 +147,8 @@ struct LoginView: View {
                                     .onSubmit {
                                         focusedField = .password
                                     }
+                                    .accessibilityLabel("Email address")
+                                    .accessibilityHint("Enter your email address")
                             }
                             .padding(14)
                             .background(Color(.systemGray6))
@@ -141,6 +158,7 @@ struct LoginView: View {
                                 Image(systemName: "lock.fill")
                                     .foregroundColor(BrandConstants.Colors.primary)
                                     .frame(width: 24)
+                                    .accessibilityHidden(true)
                                 SecureField("Password", text: $password)
                                     .textContentType(.password)
                                     .foregroundColor(BrandConstants.Colors.text)
@@ -151,6 +169,8 @@ struct LoginView: View {
                                             performAuthentication()
                                         }
                                     }
+                                    .accessibilityLabel("Password")
+                                    .accessibilityHint(isSignUp ? "Enter a password with at least 6 characters" : "Enter your password")
                             }
                             .padding(14)
                             .background(Color(.systemGray6))
@@ -190,24 +210,32 @@ struct LoginView: View {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(BrandConstants.Colors.warning)
+                            .accessibilityHidden(true)
                         Text("Please enter a valid email address")
                             .font(BrandConstants.Typography.caption)
                             .foregroundColor(BrandConstants.Colors.warning)
                         Spacer()
                     }
                     .padding(.horizontal)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Error: Please enter a valid email address")
+                    .accessibilityAddTraits(.isStaticText)
                 }
 
                 if isSignUp && !password.isEmpty && password.count < 6 {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(BrandConstants.Colors.warning)
+                            .accessibilityHidden(true)
                         Text("Password must be at least 6 characters")
                             .font(BrandConstants.Typography.caption)
                             .foregroundColor(BrandConstants.Colors.warning)
                         Spacer()
                     }
                     .padding(.horizontal)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Error: Password must be at least 6 characters")
+                    .accessibilityAddTraits(.isStaticText)
                 }
 
                     // Enhanced Action Buttons Section - Compact
