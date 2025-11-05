@@ -377,12 +377,16 @@ struct SearchResultsContent: View {
                 } else {
                     SearchResultsList(
                         results: viewModel.filteredResults,
-                        isLoading: viewModel.isSearching,
                         hasMoreResults: viewModel.hasMoreResults,
+                        isLoadingMore: viewModel.isSearching,
                         onLoadMore: {
                             Task {
                                 await viewModel.loadMoreResults()
                             }
+                        },
+                        onResultTap: { result in
+                            // Handle result navigation
+                            // This would navigate to the appropriate detail view
                         }
                     )
                 }
