@@ -34,12 +34,14 @@ struct HobbyistButton: View {
                     ProgressView()
                         .scaleEffect(0.8)
                         .tint(style.foregroundColor)
+                        .accessibilityHidden(true)
                 }
 
                 if !isLoading {
                     Text(title)
                         .font(size.font)
                         .fontWeight(.semibold)
+                        .accessibilityHidden(true)
                 }
             }
             .frame(height: size.height)
@@ -57,6 +59,11 @@ struct HobbyistButton: View {
         .opacity(isDisabled ? 0.6 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isLoading)
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
+        .accessibilityLabel(isLoading ? "\(title), loading" : title)
+        .accessibilityHint(isDisabled ? "This button is currently disabled" : style.accessibilityHint)
+        .accessibilityAddTraits(isDisabled ? [.notEnabled] : [])
+        .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
+        .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
     }
 }
 
@@ -103,6 +110,16 @@ extension HobbyistButton {
             case .primary, .secondary: return .medium
             case .tertiary: return .small
             case .destructive, .ghost: return .small
+            }
+        }
+        
+        var accessibilityHint: String {
+            switch self {
+            case .primary: return "Double tap to perform the primary action"
+            case .secondary: return "Double tap to perform a secondary action"
+            case .tertiary: return "Double tap to perform an additional action"
+            case .destructive: return "Double tap to perform a destructive action. This cannot be undone"
+            case .ghost: return "Double tap to activate"
             }
         }
     }

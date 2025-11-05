@@ -48,6 +48,11 @@ public struct SelectionButton: View {
         }, perform: {})
         .animation(.easeInOut(duration: 0.2), value: isSelected)
         .animation(.easeInOut(duration: 0.1), value: isPressed)
+        .accessibilityLabel(text)
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint(isEnabled ? "Double tap to \(isSelected ? "deselect" : "select")" : "This option is currently disabled")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+        .accessibilityAddTraits(!isEnabled ? [.notEnabled] : [])
     }
 
     // MARK: - Visual State Calculations
@@ -171,6 +176,7 @@ public struct SelectionChip: View {
                 .cornerRadius(BrandConstants.CornerRadius.full)
                 .scaleEffect(scaleForState)
                 .opacity(opacityForState)
+                .accessibilityHidden(true)
         }
         .disabled(!isEnabled)
         .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
@@ -180,6 +186,11 @@ public struct SelectionChip: View {
         }, perform: {})
         .animation(.easeInOut(duration: 0.2), value: isSelected)
         .animation(.easeInOut(duration: 0.1), value: isPressed)
+        .accessibilityLabel(text)
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityHint(isEnabled ? "Double tap to \(isSelected ? "deselect" : "select") this filter" : "This filter is currently disabled")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+        .accessibilityAddTraits(!isEnabled ? [.notEnabled] : [])
     }
 
     private var backgroundColorForState: Color {

@@ -32,14 +32,17 @@ struct BrandedButton: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(0.9)
+                        .accessibilityHidden(true)
                 } else if let icon = icon {
                     Image(systemName: icon)
                         .font(BrandConstants.Typography.headline)
+                        .accessibilityHidden(true)
                 }
 
                 Text(title)
                     .font(BrandConstants.Typography.headline)
                     .fontWeight(.semibold)
+                    .accessibilityHidden(true)
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity, minHeight: 54)
@@ -62,6 +65,11 @@ struct BrandedButton: View {
         .disabled(isDisabled || isLoading)
         .scaleEffect(isLoading ? 0.98 : 1.0)
         .animation(BrandConstants.Animation.spring, value: isLoading)
+        .accessibilityLabel(isLoading ? "\(title), loading" : title)
+        .accessibilityHint(isDisabled ? "This button is currently disabled" : "Double tap to activate")
+        .accessibilityAddTraits(isDisabled ? [.notEnabled] : [])
+        .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
+        .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
     }
 }
 
@@ -90,11 +98,13 @@ struct OutlineButton: View {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(BrandConstants.Typography.headline)
+                        .accessibilityHidden(true)
                 }
 
                 Text(title)
                     .font(BrandConstants.Typography.headline)
                     .fontWeight(.semibold)
+                    .accessibilityHidden(true)
             }
             .foregroundColor(borderColor)
             .frame(maxWidth: .infinity, minHeight: 54)
@@ -106,6 +116,9 @@ struct OutlineButton: View {
             )
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(title)
+        .accessibilityHint("Double tap to activate")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -128,7 +141,11 @@ struct TextButton: View {
                 .fontWeight(.semibold)
                 .foregroundColor(color)
                 .underline()
+                .accessibilityHidden(true)
         }
+        .accessibilityLabel(title)
+        .accessibilityHint("Double tap to activate this link")
+        .accessibilityAddTraits([.isButton, .isLink])
     }
 }
 

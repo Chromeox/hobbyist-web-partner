@@ -44,12 +44,14 @@ public struct AnimatedButton: View {
                     ProgressView()
                         .scaleEffect(0.8)
                         .foregroundColor(textColor)
+                        .accessibilityHidden(true)
                 } else {
                     Text(title)
                         .font(titleFont)
                         .fontWeight(fontWeight)
                         .foregroundColor(textColor)
                         .lineLimit(1)
+                        .accessibilityHidden(true)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -76,6 +78,10 @@ public struct AnimatedButton: View {
         .disabled(isLoading)
         .opacity(isLoading ? 0.7 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isLoading)
+        .accessibilityLabel(isLoading ? "\(title), loading" : title)
+        .accessibilityHint(isLoading ? "Please wait while the action completes" : accessibilityHintForStyle)
+        .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
+        .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
     }
 
     // MARK: - Computed Properties
@@ -173,6 +179,21 @@ public struct AnimatedButton: View {
             return BrandConstants.CornerRadius.lg
         }
     }
+    
+    private var accessibilityHintForStyle: String {
+        switch style {
+        case .primary:
+            return "Double tap to perform the primary action"
+        case .secondary:
+            return "Double tap to perform a secondary action"
+        case .tertiary:
+            return "Double tap to perform an additional action"
+        case .destructive:
+            return "Double tap to perform a destructive action. This cannot be undone"
+        case .minimal:
+            return "Double tap to activate"
+        }
+    }
 
     // MARK: - Loading State
 
@@ -261,6 +282,10 @@ public struct AnimatedIconButton: View {
             }
         }, perform: {})
         .disabled(isLoading)
+        .accessibilityLabel(isLoading ? "Loading" : iconAccessibilityLabel)
+        .accessibilityHint(isLoading ? "Please wait while the action completes" : iconAccessibilityHintForStyle)
+        .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
+        .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
     }
 
     // MARK: - Computed Properties
@@ -343,6 +368,41 @@ public struct AnimatedIconButton: View {
             return BrandConstants.CornerRadius.md
         case .large:
             return BrandConstants.CornerRadius.lg
+        }
+    }
+    
+    private var iconAccessibilityLabel: String {
+        switch icon {
+        case "heart": return "Favorite"
+        case "heart.fill": return "Unfavorite"
+        case "bookmark": return "Save"
+        case "bookmark.fill": return "Unsave"
+        case "share": return "Share"
+        case "trash": return "Delete"
+        case "plus": return "Add"
+        case "minus": return "Remove"
+        case "xmark": return "Close"
+        case "chevron.left": return "Back"
+        case "chevron.right": return "Forward"
+        case "ellipsis": return "More options"
+        case "gear": return "Settings"
+        case "info.circle": return "Information"
+        default: return icon.replacingOccurrences(of: ".", with: " ")
+        }
+    }
+    
+    private var iconAccessibilityHintForStyle: String {
+        switch style {
+        case .primary:
+            return "Double tap to perform the primary action"
+        case .secondary:
+            return "Double tap to perform a secondary action"
+        case .tertiary:
+            return "Double tap to perform an additional action"
+        case .destructive:
+            return "Double tap to delete. This cannot be undone"
+        case .minimal:
+            return "Double tap to activate"
         }
     }
 }
