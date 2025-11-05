@@ -1,23 +1,31 @@
 -- Migration: Schema Restructure for Partner Portal
--- Renames tables and adds missing schemas to match TypeScript expectations
+-- Ensures tables exist and adds missing schemas to match TypeScript expectations
 -- Date: 2024-11-05
 
 -- ============================================
--- PART 1: RENAME TABLES TO MATCH EXPECTED SCHEMA
+-- PART 1: VERIFY EXPECTED SCHEMA EXISTS
 -- ============================================
 
--- First, drop dependent views and constraints that reference the tables we're renaming
+-- First, drop dependent views and constraints
 DROP VIEW IF EXISTS v_studio_imported_events_recent CASCADE;
 
--- Rename reservations to bookings
-ALTER TABLE reservations RENAME TO bookings;
-
--- Rename imported_events to classes
-ALTER TABLE imported_events RENAME TO classes;
+-- Skip table renames - bookings and classes already exist with correct names
+-- This migration is compatible with existing schema
 
 -- ============================================
--- PART 2: ADD MISSING CREDIT_TRANSACTIONS TABLE
+-- PART 2: ADD MISSING TABLES
 -- ============================================
+
+-- Create studio_staff table if it doesn't exist
+CREATE TABLE IF NOT EXISTS studio_staff (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    studio_id UUID NOT NULL REFERENCES studios(id) ON DELETE CASCADE,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'manager', 'instructor', 'staff')),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, studio_id)
+);
 
 -- Create credit_transactions table if it doesn't exist
 CREATE TABLE IF NOT EXISTS credit_transactions (
@@ -41,15 +49,17 @@ CREATE TABLE IF NOT EXISTS credit_transactions (
 -- Create the metrics view that dashboard expects
 CREATE OR REPLACE VIEW v_studio_metrics_daily AS
 SELECT 
-    studio_id,
-    DATE(created_at) as bucket_date,
-    SUM(amount_paid) as revenue,
+    c.studio_id,
+    DATE(b.created_at) as bucket_date,
+    SUM(c.price) as revenue,
     COUNT(*) as booking_count,
-    COUNT(DISTINCT class_id) as unique_schedules,
-    COUNT(DISTINCT instructor_id) as unique_instructors
+    COUNT(DISTINCT cs.class_id) as unique_schedules,
+    COUNT(DISTINCT c.instructor_id) as unique_instructors
 FROM bookings b
-WHERE status = 'confirmed'
-GROUP BY studio_id, DATE(created_at);
+JOIN class_schedules cs ON b.class_schedule_id = cs.id
+JOIN classes c ON cs.class_id = c.id
+WHERE b.status = 'confirmed'
+GROUP BY c.studio_id, DATE(b.created_at);
 
 -- ============================================
 -- PART 4: RECREATE DEPENDENT VIEWS
@@ -60,13 +70,13 @@ CREATE OR REPLACE VIEW v_studio_imported_events_recent AS
 SELECT 
     id,
     studio_id,
-    title,
+    name as title,
     description,
-    start_time,
-    end_time,
-    location,
+    NULL as start_time,
+    NULL as end_time,
+    NULL as location,
     category,
-    all_day,
+    false as all_day,
     created_at,
     updated_at
 FROM classes
@@ -89,9 +99,11 @@ DROP POLICY IF EXISTS "Studio staff can view studio bookings" ON bookings;
 CREATE POLICY "Studio staff can view studio bookings" ON bookings
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM studio_staff 
-            WHERE user_id = auth.uid() 
-            AND studio_id = bookings.studio_id
+            SELECT 1 FROM studio_staff ss
+            JOIN class_schedules cs ON cs.id = bookings.class_schedule_id
+            JOIN classes c ON c.id = cs.class_id
+            WHERE ss.user_id = auth.uid() 
+            AND ss.studio_id = c.studio_id
         )
     );
 
@@ -125,13 +137,11 @@ CREATE POLICY "Users can view their own credit transactions" ON credit_transacti
 
 -- Indexes for bookings table
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_studio_id ON bookings(studio_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON bookings(created_at);
 
 -- Indexes for classes table
 CREATE INDEX IF NOT EXISTS idx_classes_studio_id ON classes(studio_id);
-CREATE INDEX IF NOT EXISTS idx_classes_start_time ON classes(start_time);
 CREATE INDEX IF NOT EXISTS idx_classes_category ON classes(category);
 
 -- Indexes for credit_transactions table
