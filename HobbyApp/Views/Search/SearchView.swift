@@ -59,274 +59,52 @@ struct SearchView: View {
             await viewModel.loadClasses()
         }
         .refreshable {
-            await viewModel.loadClasses()
-        }
-    }
-}
-
-@MainActor
-final class SearchViewModel: ObservableObject {
-    @Published var classes: [SimpleClass] = []
-    @Published var filteredClasses: [SimpleClass] = []
-    @Published var categories: [String] = []
-    @Published var selectedCategory: String?
-    @Published var searchText: String = ""
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var dateFilter: DateFilter = .any {
-        didSet { applyFilters() }
-    }
-
-    var supabaseService: SimpleSupabaseService?
-    private var allClasses: [SimpleClass] = []
-
-    enum DateFilter: String, CaseIterable, Identifiable {
-        case any = "Any Time"
-        case today = "Today"
-        case thisWeek = "This Week"
-
-        var id: DateFilter { self }
-        var title: String { rawValue }
-    }
-
-    func loadClasses() async {
-        guard let supabaseService else { return }
-        isLoading = true
-        errorMessage = nil
-
-        let fetchedClasses = await supabaseService.fetchClasses()
-
-        if !fetchedClasses.isEmpty {
-            let sortedClasses = fetchedClasses.sorted { lhs, rhs in
-                let leftDate = lhs.startDate ?? Date.distantFuture
-                let rightDate = rhs.startDate ?? Date.distantFuture
-                return leftDate < rightDate
-            }
-
-            allClasses = sortedClasses
-            classes = sortedClasses
-            categories = Array(Set(sortedClasses.map(\.category))).sorted()
-            applyFilters()
-        } else if let error = supabaseService.errorMessage {
-            errorMessage = error
-        } else {
-            classes = []
-            allClasses = []
-            filteredClasses = []
-        }
-
-        isLoading = false
-    }
-
-    func applyFilters() {
-        guard !allClasses.isEmpty else {
-            filteredClasses = []
-            return
-        }
-
-        var result = allClasses
-
-        if let selectedCategory, !selectedCategory.isEmpty {
-            result = result.filter { $0.category == selectedCategory }
-        }
-
-        if !searchText.isEmpty {
-            let query = searchText.lowercased()
-            result = result.filter { classItem in
-                classItem.title.lowercased().contains(query) ||
-                classItem.description.lowercased().contains(query) ||
-                classItem.instructor.lowercased().contains(query) ||
-                classItem.category.lowercased().contains(query)
-            }
-        }
-
-        result = filter(result, by: dateFilter)
-
-        result.sort { lhs, rhs in
-            let leftDate = lhs.startDate ?? Date.distantFuture
-            let rightDate = rhs.startDate ?? Date.distantFuture
-            return leftDate < rightDate
-        }
-
-        filteredClasses = result
-    }
-
-    private func filter(_ classes: [SimpleClass], by filter: DateFilter) -> [SimpleClass] {
-        switch filter {
-        case .any:
-            return classes
-        case .today:
-            return classes.filter { simpleClass in
-                guard let startDate = simpleClass.startDate else { return false }
-                return Calendar.current.isDateInToday(startDate)
-            }
-        case .thisWeek:
-            return classes.filter { simpleClass in
-                guard let startDate = simpleClass.startDate else { return false }
-                return Calendar.current.isDate(startDate, equalTo: Date(), toGranularity: .weekOfYear)
+            // Refresh search results if there's an active search
+            if viewModel.hasSearched {
+                Task { await viewModel.performSearch() }
             }
         }
     }
-}
-
-private struct SearchBar: View {
-    @Binding var text: String
-    let onSubmit: () -> Void
-    let onClear: () -> Void
-
-    var body: some View {
-        HStack(spacing: BrandConstants.Spacing.md) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.blue)
-
-            TextField("Search classes, studios, or instructors", text: $text)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .onSubmit(onSubmit)
-                .onChange(of: text) { _, newValue in
-                    if newValue.isEmpty {
-                        onClear()
-                    } else {
-                        onSubmit()
-                    }
-                }
-
-            if !text.isEmpty {
-                Button(action: onClear) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.secondary)
-                }
-            }
+    
+    // MARK: - Helper Methods
+    
+    private func handleQuickAction(_ action: QuickAction) {
+        switch action {
+        case .nearby:
+            viewModel.searchNearby()
+        case .free:
+            viewModel.searchFreeClasses()
+        case .weekend:
+            viewModel.searchThisWeekend()
+        case .tonight:
+            // Could implement tonight search
+            break
         }
-        .padding(BrandConstants.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
-                .fill(Color(.secondarySystemBackground))
-        )
     }
-}
-
-private struct FilterScrollView: View {
-    let categories: [String]
-    @Binding var selectedCategory: String?
-    let onSelect: () -> Void
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: BrandConstants.Spacing.md) {
-                FilterChip(title: "All", isSelected: selectedCategory == nil) {
-                    selectedCategory = nil
-                    onSelect()
-                }
-
-                ForEach(categories, id: \.self) { category in
-                    FilterChip(title: category, isSelected: selectedCategory == category) {
-                        if selectedCategory == category {
-                            selectedCategory = nil
-                        } else {
-                            selectedCategory = category
-                        }
-                        onSelect()
-                    }
-                }
-            }
-            .padding(.horizontal)
+    
+    private func handleResultTap(_ result: SearchResult) {
+        // Navigate to appropriate detail view based on result type
+        switch result {
+        case .class(let hobbyClass):
+            // Navigate to class detail
+            break
+        case .instructor(let instructor):
+            // Navigate to instructor profile
+            break
+        case .venue(let venue):
+            // Navigate to venue detail
+            break
         }
     }
 }
 
-private struct FilterChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
+// MARK: - Quick Action Enum
 
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(BrandConstants.Typography.subheadline)
-                .fontWeight(.medium)
-                .padding(.horizontal, BrandConstants.Spacing.md)
-                .padding(.vertical, BrandConstants.Spacing.sm)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Color.blue : Color(.secondarySystemBackground))
-                )
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
-        }
-        .buttonStyle(.plain)
-    }
+enum QuickAction {
+    case nearby
+    case free
+    case weekend
+    case tonight
 }
 
-private struct DateFilterPicker: View {
-    @Binding var selectedFilter: SearchViewModel.DateFilter
-
-    var body: some View {
-        Picker("Date Filter", selection: $selectedFilter) {
-            ForEach(SearchViewModel.DateFilter.allCases) { filter in
-                Text(filter.title).tag(filter)
-            }
-        }
-        .pickerStyle(SegmentedPickerStyle())
-    }
-}
-
-private struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: BrandConstants.Spacing.md) {
-            Spacer()
-            Image(systemName: "questionmark.folder")
-                .font(BrandConstants.Typography.heroTitle)
-                .foregroundStyle(Color.secondary)
-            Text("No classes match your search.")
-                .font(BrandConstants.Typography.headline)
-            Text("Try adjusting your filters or search for another class name.")
-                .font(BrandConstants.Typography.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            Spacer()
-        }
-    }
-}
-
-private struct LoadingStateView: View {
-    var body: some View {
-        VStack(spacing: BrandConstants.Spacing.md) {
-            Spacer()
-            ProgressView("Searching classes...")
-            Text("We're loading the latest data from Supabase.")
-                .font(BrandConstants.Typography.footnote)
-                .foregroundStyle(.secondary)
-            Spacer()
-        }
-        .padding()
-    }
-}
-
-private struct ErrorStateView: View {
-    let message: String
-    let retryAction: () -> Void
-
-    var body: some View {
-        VStack(spacing: BrandConstants.Spacing.md) {
-            Spacer()
-            Image(systemName: "wifi.slash")
-                .font(BrandConstants.Typography.heroTitle)
-                .foregroundStyle(.red)
-
-            Text("Unable to load classes.")
-                .font(BrandConstants.Typography.headline)
-
-            Text(message)
-                .font(BrandConstants.Typography.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            AnimatedButton("Retry", style: .primary, action: retryAction)
-
-            Spacer()
-        }
-        .padding()
-    }
-}
+// Old SearchView components removed - now using comprehensive SearchViewModel and enhanced components
