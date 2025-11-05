@@ -2,8 +2,7 @@ import SwiftUI
 import CoreLocation
 
 struct EnhancedSearchFiltersView: View {
-    @Binding var filters: SearchFilters
-    let currentLocation: CLLocation?
+    let filters: SearchFilters
     let onApply: (SearchFilters) -> Void
     let onReset: () -> Void
     
@@ -31,12 +30,11 @@ struct EnhancedSearchFiltersView: View {
         }
     }
     
-    init(filters: Binding<SearchFilters>, currentLocation: CLLocation?, onApply: @escaping (SearchFilters) -> Void, onReset: @escaping () -> Void) {
-        self._filters = filters
-        self.currentLocation = currentLocation
+    init(filters: SearchFilters, onApply: @escaping (SearchFilters) -> Void, onReset: @escaping () -> Void) {
+        self.filters = filters
         self.onApply = onApply
         self.onReset = onReset
-        self._tempFilters = State(initialValue: filters.wrappedValue)
+        self._tempFilters = State(initialValue: filters)
     }
     
     var body: some View {
@@ -60,7 +58,7 @@ struct EnhancedSearchFiltersView: View {
                         case .time:
                             TimeFilterView(filters: $tempFilters)
                         case .location:
-                            LocationFilterView(filters: $tempFilters, currentLocation: currentLocation)
+                            LocationFilterView(filters: $tempFilters)
                         case .details:
                             DetailsFilterView(filters: $tempFilters)
                         }
