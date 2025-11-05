@@ -37,19 +37,24 @@ class SearchService: ObservableObject {
         
         var allResults: [SearchResult] = []
         
-        // Search based on scope
-        switch parameters.scope {
-        case .all:
-            let classes = try await searchClasses(with: parameters)
-            let instructors = try await searchInstructors(with: parameters)
-            let venues = try await searchVenues(with: parameters)
-            allResults = classes + instructors + venues
-        case .classes:
-            allResults = try await searchClasses(with: parameters)
-        case .instructors:
-            allResults = try await searchInstructors(with: parameters)
-        case .venues:
-            allResults = try await searchVenues(with: parameters)
+        // Perform concurrent searches for better performance
+        await withTaskGroup(of: [SearchResult].self) { group in
+            switch parameters.scope {
+            case .all:
+                group.addTask { await self.searchClasses(with: parameters) }
+                group.addTask { await self.searchInstructors(with: parameters) }
+                group.addTask { await self.searchVenues(with: parameters) }
+                
+                for await results in group {
+                    allResults.append(contentsOf: results)
+                }
+            case .classes:
+                allResults = await searchClasses(with: parameters)
+            case .instructors:
+                allResults = await searchInstructors(with: parameters)
+            case .venues:
+                allResults = await searchVenues(with: parameters)
+            }
         }
         
         // Apply filters
@@ -65,15 +70,15 @@ class SearchService: ObservableObject {
         let endIndex = min(startIndex + parameters.limit, allResults.count)
         let paginatedResults = Array(allResults[startIndex..<endIndex])
         
-        // Cache results
-        searchCache[cacheKey] = paginatedResults
+        // Cache results with expiry
+        cacheSearchResults(key: cacheKey, results: paginatedResults)
         
         return paginatedResults
     }
     
     // MARK: - Individual Search Functions
     
-    private func searchClasses(with parameters: SearchParameters) async throws -> [SearchResult] {
+    private func searchClasses(with parameters: SearchParameters) async -> [SearchResult] {
         // Fetch classes from Supabase
         let classes = await supabaseService.fetchClasses()
         
@@ -94,7 +99,7 @@ class SearchService: ObservableObject {
         return results
     }
     
-    private func searchInstructors(with parameters: SearchParameters) async throws -> [SearchResult] {
+    private func searchInstructors(with parameters: SearchParameters) async -> [SearchResult] {
         // For now, we'll extract instructors from classes
         // In a real app, you'd have a separate instructors table
         let classes = await supabaseService.fetchClasses()
@@ -133,7 +138,7 @@ class SearchService: ObservableObject {
         return instructorMap.values.map { .instructor($0) }
     }
     
-    private func searchVenues(with parameters: SearchParameters) async throws -> [SearchResult] {
+    private func searchVenues(with parameters: SearchParameters) async -> [SearchResult] {
         // For now, we'll extract venues from classes
         let classes = await supabaseService.fetchClasses()
         let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
@@ -457,13 +462,37 @@ class SearchService: ObservableObject {
     
     // MARK: - Cache Management
     
+    private var cacheTimestamps: [String: Date] = [:]
+    
     private func generateCacheKey(for parameters: SearchParameters) -> String {
         let filtersHash = parameters.filters?.hashValue ?? 0
-        return "\(parameters.query)_\(parameters.scope.rawValue)_\(parameters.sortBy.rawValue)_\(filtersHash)"
+        let locationHash = parameters.location?.hashValue ?? 0
+        return "\(parameters.query)_\(parameters.scope.rawValue)_\(parameters.sortBy.rawValue)_\(filtersHash)_\(locationHash)"
+    }
+    
+    private func cacheSearchResults(key: String, results: [SearchResult]) {
+        searchCache[key] = results
+        cacheTimestamps[key] = Date()
+        
+        // Clean expired cache entries
+        cleanExpiredCache()
+    }
+    
+    private func cleanExpiredCache() {
+        let now = Date()
+        let expiredKeys = cacheTimestamps.compactMap { key, timestamp in
+            now.timeIntervalSince(timestamp) > cacheExpiryInterval ? key : nil
+        }
+        
+        for key in expiredKeys {
+            searchCache.removeValue(forKey: key)
+            cacheTimestamps.removeValue(forKey: key)
+        }
     }
     
     func clearCache() {
         searchCache.removeAll()
+        cacheTimestamps.removeAll()
     }
     
     // MARK: - Analytics Stubs
@@ -476,6 +505,138 @@ class SearchService: ObservableObject {
     
     func clearRecentSearches() async throws {
         clearSearchHistory()
+    }
+    
+    // MARK: - Performance Optimized Search Methods
+    
+    func performFullTextSearch(query: String, limit: Int = 50) async -> [SearchResult] {
+        let classes = await supabaseService.fetchClasses()
+        let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
+        
+        let searchTerms = query.lowercased().components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+        
+        var scoredResults: [(result: SearchResult, score: Int)] = []
+        
+        for hobbyClass in hobbyClasses {
+            let score = calculateRelevanceScore(for: hobbyClass, searchTerms: searchTerms)
+            if score > 0 {
+                scoredResults.append((result: .class(hobbyClass), score: score))
+            }
+        }
+        
+        // Sort by relevance score and return top results
+        return scoredResults
+            .sorted { $0.score > $1.score }
+            .prefix(limit)
+            .map { $0.result }
+    }
+    
+    private func calculateRelevanceScore(for hobbyClass: HobbyClass, searchTerms: [String]) -> Int {
+        var score = 0
+        let searchableText = [
+            hobbyClass.title,
+            hobbyClass.description,
+            hobbyClass.instructor.name,
+            hobbyClass.category.rawValue,
+            hobbyClass.venue.name,
+            hobbyClass.tags.joined(separator: " ")
+        ].joined(separator: " ").lowercased()
+        
+        for term in searchTerms {
+            // Exact title match gets highest score
+            if hobbyClass.title.lowercased().contains(term) {
+                score += 10
+            }
+            // Category match gets high score
+            if hobbyClass.category.rawValue.lowercased().contains(term) {
+                score += 8
+            }
+            // Instructor name match
+            if hobbyClass.instructor.name.lowercased().contains(term) {
+                score += 6
+            }
+            // Venue name match
+            if hobbyClass.venue.name.lowercased().contains(term) {
+                score += 4
+            }
+            // Description match
+            if hobbyClass.description.lowercased().contains(term) {
+                score += 2
+            }
+            // Tag match
+            if hobbyClass.tags.joined(separator: " ").lowercased().contains(term) {
+                score += 3
+            }
+        }
+        
+        return score
+    }
+    
+    func searchWithGeofiltering(location: CLLocation, radius: Double, query: String = "") async -> [SearchResult] {
+        let classes = await supabaseService.fetchClasses()
+        let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
+        
+        return hobbyClasses.compactMap { hobbyClass in
+            let classLocation = CLLocation(latitude: hobbyClass.venue.latitude, longitude: hobbyClass.venue.longitude)
+            let distance = location.distance(from: classLocation) / 1000 // Convert to km
+            
+            if distance <= radius {
+                if query.isEmpty || matchesQuery(hobbyClass, query: query) {
+                    return SearchResult.class(hobbyClass)
+                }
+            }
+            return nil
+        }.sorted { lhs, rhs in
+            // Sort by distance
+            let leftLocation = CLLocation(latitude: lhs.title == hobbyClass.title ? hobbyClass.venue.latitude : 0, longitude: lhs.title == hobbyClass.title ? hobbyClass.venue.longitude : 0)
+            let rightLocation = CLLocation(latitude: rhs.title == hobbyClass.title ? hobbyClass.venue.latitude : 0, longitude: rhs.title == hobbyClass.title ? hobbyClass.venue.longitude : 0)
+            return location.distance(from: leftLocation) < location.distance(from: rightLocation)
+        }
+    }
+    
+    // MARK: - Advanced Filtering
+    
+    func searchByMultipleCategories(_ categories: [ClassCategory], filters: SearchFilters? = nil) async -> [SearchResult] {
+        let classes = await supabaseService.fetchClasses()
+        let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
+        
+        let filteredClasses = hobbyClasses.filter { hobbyClass in
+            categories.contains(hobbyClass.category)
+        }
+        
+        var results = filteredClasses.map { SearchResult.class($0) }
+        
+        if let filters = filters {
+            results = applyFilters(to: results, with: filters, userLocation: nil)
+        }
+        
+        return results
+    }
+    
+    func searchByDateRange(startDate: Date, endDate: Date, categories: [ClassCategory] = []) async -> [SearchResult] {
+        let classes = await supabaseService.fetchClasses()
+        let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
+        
+        return hobbyClasses.compactMap { hobbyClass in
+            let classStartsInRange = hobbyClass.startDate >= startDate && hobbyClass.startDate <= endDate
+            let categoriesMatch = categories.isEmpty || categories.contains(hobbyClass.category)
+            
+            if classStartsInRange && categoriesMatch {
+                return SearchResult.class(hobbyClass)
+            }
+            return nil
+        }.sorted { $0.title < $1.title }
+    }
+    
+    func getFacetedSearchResults(query: String) async -> (classes: [SearchResult], instructors: [SearchResult], venues: [SearchResult]) {
+        let parameters = SearchParameters(query: query, scope: .all)
+        
+        let classResults = await searchClasses(with: parameters)
+        let instructorResults = await searchInstructors(with: parameters)
+        let venueResults = await searchVenues(with: parameters)
+        
+        return (classResults, instructorResults, venueResults)
     }
 }
 
