@@ -54,6 +54,17 @@ class BiometricAuthenticationService: ObservableObject {
     func getStoredSessionToken(for email: String) -> String? {
         return keychain.load(forKey: "last_user_session_\(email)")
     }
+    
+    // MARK: - Last Authentication Method Storage
+    
+    func saveLastAuthenticationMethod(_ method: String) {
+        keychain.save(method, forKey: "last_auth_method")
+        print("💾 Saved last auth method: \(method)")
+    }
+    
+    func getLastAuthenticationMethod() -> String? {
+        return keychain.load(forKey: "last_auth_method")
+    }
 
     func deleteStoredSession(for email: String) {
         keychain.delete(forKey: "last_user_session_\(email)")

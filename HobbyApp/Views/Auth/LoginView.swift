@@ -16,6 +16,9 @@ struct LoginView: View {
     @State private var showPasswordReset = false
     @State private var resetEmail = ""
     @State private var showingPasswordResetAlert = false
+    @State private var showPhoneAuth = false
+    @State private var hasAttemptedAutoLogin = false
+    @State private var showQuickLoginOptions = false
     @FocusState private var focusedField: Field?
 
     let onLoginSuccess: (Bool) -> Void // Bool indicates if this is a new user (true) or returning user (false)
@@ -50,7 +53,8 @@ struct LoginView: View {
                 .accessibilityHidden(true)
 
             NavigationStack {
-                VStack(spacing: 20) {
+                ScrollView {
+                    VStack(spacing: 20) {
                     Spacer(minLength: 20)
 
                     // Enhanced Logo Section - Compact
@@ -238,8 +242,8 @@ struct LoginView: View {
                     .accessibilityAddTraits(.isStaticText)
                 }
 
-                    // Enhanced Action Buttons Section - Compact
-                    VStack(spacing: 10) {
+                    // Enhanced Action Buttons Section - Optimized Spacing
+                    VStack(spacing: BrandConstants.Spacing.md) {
                             // Main Action Button - Using BrandedButton style
                             BrandedButton(
                                 isSignUp ? "Create Account" : "Sign In",
@@ -250,7 +254,24 @@ struct LoginView: View {
                                 performAuthentication()
                             }
 
-                            // Face ID Button - OutlineButton style
+                            // Quick Continue Button for returning users
+                            if !isSignUp && showQuickLoginOptions && !email.isEmpty {
+                                BrandedButton(
+                                    "Continue as \(email.components(separatedBy: "@").first?.capitalized ?? "User")",
+                                    icon: "person.circle.fill",
+                                    gradient: BrandConstants.Gradients.primary,
+                                    isLoading: supabaseService.isLoading
+                                ) {
+                                    if biometricService.canUseBiometrics() {
+                                        performBiometricAuthentication()
+                                    } else {
+                                        // Focus on password field for quick entry
+                                        focusedField = .password
+                                    }
+                                }
+                            }
+
+                            // Face ID Button - Prominent for auto-login
                             let _ = print("🔐 Face ID condition check - isSignUp: \(isSignUp), canUseBiometricsIndependently: \(biometricService.canUseBiometricsIndependently())")
                             if !isSignUp && (biometricService.canUseBiometricsIndependently() || (!email.isEmpty && biometricService.canUseBiometrics())) {
                                 Button(action: {
@@ -275,7 +296,7 @@ struct LoginView: View {
                                                 .fontWeight(.semibold)
                                         }
                                     }
-                                    .frame(maxWidth: .infinity, minHeight: 50)
+                                    .frame(maxWidth: .infinity, minHeight: 54)
                                     .foregroundColor(BrandConstants.Colors.primary)
                                     .background(Color.white.opacity(0.95))
                                     .cornerRadius(BrandConstants.CornerRadius.lg)
@@ -300,7 +321,7 @@ struct LoginView: View {
                                     Text(isSignUp ? "Sign up with Apple" : "Sign in with Apple")
                                         .font(BrandConstants.Typography.body).fontWeight(.semibold)
                                 }
-                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .frame(maxWidth: .infinity, minHeight: 54)
                                 .foregroundColor(BrandConstants.Colors.surface)
                                 .background(BrandConstants.Colors.text)
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
@@ -319,13 +340,55 @@ struct LoginView: View {
                                     Text(isSignUp ? "Sign up with Google" : "Sign in with Google")
                                         .font(BrandConstants.Typography.body).fontWeight(.semibold)
                                 }
-                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .frame(maxWidth: .infinity, minHeight: 54)
                                 .foregroundColor(BrandConstants.Colors.text)
                                 .background(BrandConstants.Colors.surface.opacity(0.95))
                                 .cornerRadius(BrandConstants.CornerRadius.lg)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
                                         .stroke(BrandConstants.Colors.secondaryText.opacity(0.3), lineWidth: 1)
+                                )
+                            }
+                            .disabled(supabaseService.isLoading)
+
+                            // Facebook Sign In Button - Blue branded style
+                            Button(action: {
+                                print("📘 Facebook Sign In button tapped!")
+                                performFacebookSignIn()
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "f.square.fill")
+                                        .font(BrandConstants.Typography.title3).fontWeight(.medium)
+
+                                    Text(isSignUp ? "Sign up with Facebook" : "Sign in with Facebook")
+                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 54)
+                                .foregroundColor(BrandConstants.Colors.surface)
+                                .background(Color(red: 0.255, green: 0.412, blue: 0.882)) // Facebook Blue
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+                            }
+                            .disabled(supabaseService.isLoading)
+
+                            // Phone Number Sign In Button - Teal outlined
+                            Button(action: {
+                                print("📱 Phone Number Sign In button tapped!")
+                                performPhoneSignIn()
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "phone.fill")
+                                        .font(BrandConstants.Typography.title3).fontWeight(.medium)
+
+                                    Text(isSignUp ? "Sign up with Phone" : "Sign in with Phone")
+                                        .font(BrandConstants.Typography.body).fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 54)
+                                .foregroundColor(BrandConstants.Colors.teal)
+                                .background(BrandConstants.Colors.surface.opacity(0.95))
+                                .cornerRadius(BrandConstants.CornerRadius.lg)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
+                                        .stroke(BrandConstants.Colors.teal, lineWidth: 2)
                                 )
                             }
                             .disabled(supabaseService.isLoading)
@@ -375,7 +438,9 @@ struct LoginView: View {
                         }
 
                     Spacer(minLength: 24)
+                    }
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .onTapGesture {
                     focusedField = nil
                 }
@@ -405,6 +470,50 @@ struct LoginView: View {
             } message: {
                 Text("If an account with that email exists, we've sent you a password reset link")
             }
+            .fullScreenCover(isPresented: $showPhoneAuth) {
+                PhoneAuthView(
+                    onSuccess: { isNewUser in
+                        showPhoneAuth = false
+                        onLoginSuccess(isNewUser)
+                    },
+                    onCancel: {
+                        showPhoneAuth = false
+                    }
+                )
+                .environmentObject(supabaseService)
+            }
+        }
+        .onAppear {
+            attemptAutoLogin()
+        }
+    }
+
+    // MARK: - Auto-Login Implementation
+    
+    private func attemptAutoLogin() {
+        guard !hasAttemptedAutoLogin else { return }
+        hasAttemptedAutoLogin = true
+        
+        print("🚀 Attempting auto-login...")
+        
+        // Pre-populate email field with last successful login
+        if let lastEmail = biometricService.getLastUserEmail() {
+            email = lastEmail
+            print("📧 Pre-populated email: \(lastEmail)")
+        }
+        
+        // Attempt automatic biometric authentication if available
+        if biometricService.canUseBiometricsIndependently() {
+            print("🔐 Attempting automatic biometric authentication...")
+            Task {
+                // Small delay to allow UI to settle
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                performBiometricAuthentication()
+            }
+        } else {
+            // Show quick login options for returning users
+            showQuickLoginOptions = !email.isEmpty
+            print("⚡ Showing quick login options for: \(email)")
         }
     }
 
@@ -455,6 +564,8 @@ struct LoginView: View {
                             showAlert = true
                         } else if supabaseService.isAuthenticated {
                             print("✅ Independent biometric authentication successful")
+                            biometricService.saveLastAuthenticationMethod("biometric")
+                            HapticFeedbackService.shared.playSuccess()
                             onLoginSuccess(false) // Existing user
                         }
                     } else {
@@ -477,6 +588,8 @@ struct LoginView: View {
                         showAlert = true
                         biometricService.deleteStoredCredentials(for: email)
                     } else if supabaseService.isAuthenticated {
+                        biometricService.saveLastAuthenticationMethod("biometric")
+                        HapticFeedbackService.shared.playSuccess()
                         onLoginSuccess(false) // Existing user
                     }
                 } else {
@@ -514,6 +627,8 @@ struct LoginView: View {
                     // Check if user is immediately authenticated (no email verification required)
                     if supabaseService.isAuthenticated {
                         // Successful signup with immediate authentication - new user
+                        biometricService.saveLastAuthenticationMethod("email")
+                        HapticFeedbackService.shared.playSuccess()
                         onLoginSuccess(true)
                     } else {
                         // Show success alert with email verification instructions
@@ -552,6 +667,8 @@ struct LoginView: View {
                     }
 
                     // Successful login - returning user
+                    biometricService.saveLastAuthenticationMethod("email")
+                    HapticFeedbackService.shared.playSuccess()
                     onLoginSuccess(false)
                 }
             }
@@ -578,6 +695,29 @@ struct LoginView: View {
         }
 
         authorizationController.performRequests()
+    }
+
+    // MARK: - Facebook Sign In Handler
+    private func performFacebookSignIn() {
+        print("📘 Starting Facebook Sign In flow")
+        
+        // Facebook Sign In implementation would go here
+        // For now, show a placeholder message
+        alertTitle = "Facebook Sign In"
+        alertMessage = "Facebook authentication coming soon! This will integrate with Supabase for secure Facebook login."
+        showAlert = true
+        
+        // TODO: Add Facebook SDK integration
+        // 1. Add Facebook SDK to the project
+        // 2. Configure Facebook App ID in Info.plist
+        // 3. Implement Facebook Login Manager
+        // 4. Integrate with Supabase auth
+    }
+    
+    // MARK: - Phone Number Sign In Handler
+    private func performPhoneSignIn() {
+        print("📱 Starting Phone Number Sign In flow")
+        showPhoneAuth = true
     }
 
     // MARK: - Google Sign In Handler
@@ -624,16 +764,24 @@ struct LoginView: View {
     private func handleGoogleSignIn(idToken: String, user: GIDGoogleUser) async {
         print("🔵 Processing Google Sign In with Supabase...")
 
-        // Here you would integrate with your Supabase service
-        // For now, let's just show success
-        DispatchQueue.main.async {
-            self.alertTitle = "Google Sign In Success!"
-            self.alertMessage = "Successfully signed in with Google. Integration with Supabase coming next!"
-            self.showAlert = true
-        }
+        // Integrate with Supabase Google auth
+        await supabaseService.signInWithGoogle(idToken: idToken, user: user)
 
-        // TODO: Add Supabase Google auth integration
-        // await supabaseService.signInWithGoogle(idToken: idToken)
+        DispatchQueue.main.async {
+            if let errorMessage = self.supabaseService.errorMessage {
+                self.alertTitle = "Google Sign In Failed"
+                self.alertMessage = errorMessage
+                self.showAlert = true
+            } else if self.supabaseService.isAuthenticated {
+                // Determine if this is a new user by checking if we have user preferences
+                Task {
+                    let hasPreferences = await self.supabaseService.fetchUserPreferences() != nil
+                    self.biometricService.saveLastAuthenticationMethod("google")
+                    HapticFeedbackService.shared.playSuccess()
+                    self.onLoginSuccess(!hasPreferences) // true if new user (no preferences)
+                }
+            }
+        }
     }
 
     // MARK: - Apple Sign In Handler
@@ -662,6 +810,8 @@ struct LoginView: View {
         } else if supabaseService.isAuthenticated {
             // Determine if this is a new user by checking if we have user preferences
             let hasPreferences = await supabaseService.fetchUserPreferences() != nil
+            biometricService.saveLastAuthenticationMethod("apple")
+            HapticFeedbackService.shared.playSuccess()
             onLoginSuccess(!hasPreferences) // true if new user (no preferences)
         }
     }
