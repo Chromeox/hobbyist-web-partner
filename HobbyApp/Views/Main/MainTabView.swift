@@ -120,6 +120,22 @@ struct MainTabView: View {
             FollowingView()
         case .marketplace:
             MarketplaceView()
+        case .instructorProfile(let instructorID):
+            InstructorProfileView(instructorID: instructorID)
+                .navigationTitle("Instructor")
+        case .studioProfile(let studioID):
+            StudioProfileView(studioID: studioID)
+                .navigationTitle("Studio")
+        case .myBookings:
+            MyBookingsView()
+        case .favoriteClasses:
+            FavoriteClassesView()
+        case .searchResults(let query):
+            SearchResultsView(query: query)
+        case .notifications:
+            NotificationsView()
+        case .accountSettings:
+            AccountSettingsView()
         }
     }
 }
