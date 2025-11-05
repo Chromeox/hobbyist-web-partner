@@ -21,6 +21,14 @@ struct SkeletonLoader: View {
             TextLineSkeleton(width: width)
         case .avatar(let size):
             AvatarSkeleton(size: size)
+        case .storeProduct:
+            StoreProductSkeleton()
+        case .marketplaceCard:
+            MarketplaceCardSkeleton()
+        case .notificationItem:
+            NotificationItemSkeleton()
+        case .settingsRow:
+            SettingsRowSkeleton()
         }
     }
 }
@@ -32,6 +40,10 @@ enum SkeletonType {
     case bookingItem
     case textLine(width: CGFloat)
     case avatar(size: CGFloat)
+    case storeProduct
+    case marketplaceCard
+    case notificationItem
+    case settingsRow
 }
 
 // MARK: - Skeleton Components
@@ -176,6 +188,132 @@ private struct AvatarSkeleton: View {
     
     var body: some View {
         ShimmerCircle(size: size)
+    }
+}
+
+/// Store product skeleton for StoreView
+private struct StoreProductSkeleton: View {
+    var body: some View {
+        VStack(spacing: BrandConstants.Spacing.sm) {
+            // Product icon
+            ShimmerCircle(size: 60)
+            
+            // Product name
+            ShimmerRectangle(height: 18, width: 120)
+            
+            // Product description
+            ShimmerRectangle(height: 14, width: 100)
+            ShimmerRectangle(height: 14, width: 80)
+            
+            // Price
+            ShimmerRectangle(height: 20, width: 80)
+            
+            // Purchase button
+            ShimmerRectangle(height: 44)
+                .cornerRadius(BrandConstants.CornerRadius.md)
+        }
+        .padding(BrandConstants.Spacing.md)
+        .background(Color(.systemBackground))
+        .cornerRadius(BrandConstants.CornerRadius.lg)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+}
+
+/// Marketplace card skeleton for MarketplaceView
+private struct MarketplaceCardSkeleton: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: BrandConstants.Spacing.sm) {
+            // Image placeholder
+            ShimmerRectangle(height: 140)
+                .cornerRadius(BrandConstants.CornerRadius.md)
+            
+            VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
+                // Category badge
+                HStack {
+                    ShimmerRectangle(height: 12, width: 60)
+                    Spacer()
+                }
+                
+                // Title
+                ShimmerRectangle(height: 16, width: 160)
+                
+                // Studio name
+                ShimmerRectangle(height: 14, width: 100)
+                
+                // Price and rating
+                HStack {
+                    ShimmerRectangle(height: 16, width: 50)
+                    Spacer()
+                    HStack(spacing: 2) {
+                        ForEach(0..<5, id: \.self) { _ in
+                            ShimmerRectangle(height: 10, width: 10)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, BrandConstants.Spacing.sm)
+            .padding(.bottom, BrandConstants.Spacing.sm)
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(BrandConstants.CornerRadius.lg)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+}
+
+/// Notification item skeleton for NotificationsView
+private struct NotificationItemSkeleton: View {
+    var body: some View {
+        HStack(spacing: BrandConstants.Spacing.md) {
+            // Icon
+            ShimmerCircle(size: 40)
+            
+            VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
+                // Title
+                ShimmerRectangle(height: 16, width: 180)
+                
+                // Message
+                ShimmerRectangle(height: 14, width: 220)
+                ShimmerRectangle(height: 14, width: 160)
+                
+                // Time
+                ShimmerRectangle(height: 12, width: 80)
+            }
+            
+            Spacer()
+            
+            // Unread indicator
+            ShimmerCircle(size: 8)
+        }
+        .padding(BrandConstants.Spacing.md)
+        .background(Color(.systemBackground))
+        .cornerRadius(BrandConstants.CornerRadius.md)
+    }
+}
+
+/// Settings row skeleton for settings screens
+private struct SettingsRowSkeleton: View {
+    var body: some View {
+        HStack(spacing: BrandConstants.Spacing.md) {
+            // Icon
+            ShimmerRectangle(height: 24, width: 24)
+                .cornerRadius(4)
+            
+            VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
+                // Title
+                ShimmerRectangle(height: 16, width: 140)
+                
+                // Subtitle
+                ShimmerRectangle(height: 14, width: 200)
+            }
+            
+            Spacer()
+            
+            // Chevron or toggle
+            ShimmerRectangle(height: 16, width: 16)
+        }
+        .padding(BrandConstants.Spacing.md)
+        .background(Color(.systemBackground))
+        .cornerRadius(BrandConstants.CornerRadius.md)
     }
 }
 

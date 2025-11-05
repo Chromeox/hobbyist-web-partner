@@ -16,7 +16,35 @@ struct MarketplaceView: View {
                 ScrollView {
                     LazyVStack(spacing: 24) {
                         if viewModel.isLoading && viewModel.classes.isEmpty {
-                            LoadingSection()
+                            VStack(spacing: 24) {
+                                // Featured classes skeleton
+                                VStack(alignment: .leading, spacing: 12) {
+                                    SkeletonLoader(type: .textLine(width: 150))
+                                    SkeletonGrid(.marketplaceCard, columns: 2, count: 4)
+                                }
+                                
+                                // Categories skeleton
+                                VStack(alignment: .leading, spacing: 12) {
+                                    SkeletonLoader(type: .textLine(width: 120))
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: 8) {
+                                            ForEach(0..<5, id: \.self) { _ in
+                                                SkeletonLoader(type: .textLine(width: 80))
+                                                    .frame(height: 32)
+                                                    .cornerRadius(16)
+                                            }
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                }
+                                
+                                // All classes skeleton
+                                VStack(alignment: .leading, spacing: 12) {
+                                    SkeletonLoader(type: .textLine(width: 100))
+                                    SkeletonList(.marketplaceCard, count: 3)
+                                }
+                            }
+                            .padding()
                         } else {
                             // Featured Classes Section
                             if !viewModel.featuredClasses.isEmpty {
@@ -573,15 +601,8 @@ struct VenueCard: View {
 
 struct LoadingSection: View {
     var body: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.2)
-            
-            Text("Loading marketplace...")
-                .font(BrandConstants.Typography.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        BrandedLoadingView(message: "Loading marketplace...", showLogo: false)
+            .frame(maxWidth: .infinity, minHeight: 200)
     }
 }
 

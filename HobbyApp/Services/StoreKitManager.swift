@@ -10,9 +10,10 @@ final class StoreKitManager: ObservableObject {
     @Published private(set) var purchasedProductIDs: Set<String> = []
 
     private let creditPackProductIDs: Set<String> = [
-        "com.hobbyist.bookingapp.credits.pack1",
-        "com.hobbyist.bookingapp.credits.pack2",
-        "com.hobbyist.bookingapp.credits.pack3"
+        "com.hobbyist.bookingapp.credits.starter",     // 25 credits @ $49
+        "com.hobbyist.bookingapp.credits.explorer",    // 50 credits @ $99
+        "com.hobbyist.bookingapp.credits.enthusiast",  // 100 credits @ $179
+        "com.hobbyist.bookingapp.credits.power"        // 200 credits @ $299
     ]
 
     private let subscriptionProductIDs: Set<String> = [

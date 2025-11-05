@@ -117,9 +117,7 @@ struct BookingFlowView: View {
                             } label: {
                                 HStack {
                                     if viewModel.isProcessing {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                            .scaleEffect(0.8)
+                                        CompactLoadingView()
                                     } else {
                                         Text(buttonTitle)
                                             .fontWeight(.semibold)
@@ -1023,13 +1021,7 @@ struct ProcessingOverlay: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                .scaleEffect(1.5)
-            
-            Text(message)
-                .font(BrandConstants.Typography.headline)
-                .foregroundColor(.white)
+            BrandedLoadingView(message: message, showLogo: false)
             
             if progress > 0 {
                 ProgressView(value: progress)

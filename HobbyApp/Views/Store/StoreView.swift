@@ -56,8 +56,7 @@ struct StoreView: View {
                 } label: {
                     HStack {
                         if viewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(.circular)
+                            CompactLoadingView()
                         }
                         Text("Restore Purchases")
                             .fontWeight(.semibold)
@@ -79,7 +78,11 @@ struct StoreView: View {
     @ViewBuilder
     private var creditPackSection: some View {
         if viewModel.creditPacks.isEmpty {
-            placeholderState(text: "Credit packs are loading. Please try again in a moment.")
+            if viewModel.isLoading {
+                SkeletonList(.storeProduct, count: 3)
+            } else {
+                placeholderState(text: "Credit packs are loading. Please try again in a moment.")
+            }
         } else {
             ForEach(viewModel.creditPacks, id: \.id) { product in
                 StoreProductCard(
@@ -96,7 +99,11 @@ struct StoreView: View {
     @ViewBuilder
     private var subscriptionSection: some View {
         if viewModel.subscriptions.isEmpty {
-            placeholderState(text: "Subscriptions are loading. Please try again in a moment.")
+            if viewModel.isLoading {
+                SkeletonList(.storeProduct, count: 2)
+            } else {
+                placeholderState(text: "Subscriptions are loading. Please try again in a moment.")
+            }
         } else {
             ForEach(viewModel.subscriptions, id: \.id) { product in
                 StoreProductCard(
@@ -115,11 +122,7 @@ struct StoreView: View {
 
     private func placeholderState(text: String) -> some View {
         VStack(spacing: 12) {
-            ProgressView()
-            Text(text)
-                .font(BrandConstants.Typography.subheadline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(BrandConstants.Colors.secondaryText)
+            BrandedLoadingView(message: text, showLogo: false)
         }
         .padding(.vertical, 40)
     }
@@ -182,8 +185,7 @@ private struct StoreProductCard: View {
             Button(action: action) {
                 HStack {
                     if isProcessing {
-                        ProgressView()
-                            .tint(BrandConstants.Colors.surface)
+                        CompactLoadingView()
                     }
                     Text(actionTitle)
                         .fontWeight(.semibold)

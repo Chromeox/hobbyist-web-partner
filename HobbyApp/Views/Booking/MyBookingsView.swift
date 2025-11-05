@@ -20,7 +20,8 @@ struct MyBookingsView: View {
                 // Content
                 Group {
                     if viewModel.isLoading && viewModel.allBookings.isEmpty {
-                        loadingView
+                        SkeletonList(.bookingItem, count: 4)
+                            .padding()
                     } else {
                         tabContent
                     }
@@ -119,15 +120,8 @@ struct MyBookingsView: View {
     }
     
     private var loadingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.2)
-            
-            Text("Loading your bookings...")
-                .font(BrandConstants.Typography.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        BrandedLoadingView(message: "Loading your bookings...", showLogo: false)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var tabContent: some View {

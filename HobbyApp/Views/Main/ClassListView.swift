@@ -135,7 +135,7 @@ struct ClassListView: View {
                                 }
                                 
                                 if viewModel.isLoadingMore {
-                                    ProgressView()
+                                    CompactLoadingView(message: "Loading more classes...")
                                         .padding()
                                         .onAppear {
                                             Task {
@@ -155,7 +155,8 @@ struct ClassListView: View {
                 }
                 
                 if viewModel.isLoading && viewModel.classes.isEmpty {
-                    LoadingView()
+                    SkeletonList(.classCard, count: 5)
+                        .padding(.horizontal)
                 }
             }
             .navigationTitle("Classes")
@@ -357,13 +358,7 @@ struct EmptyStateView: View {
 // Loading View
 struct LoadingView: View {
     var body: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.5)
-            Text("Loading classes...")
-                .font(BrandConstants.Typography.subheadline)
-                .foregroundColor(.secondary)
-        }
+        BrandedLoadingView(message: "Loading classes...", showLogo: false)
     }
 }
 
