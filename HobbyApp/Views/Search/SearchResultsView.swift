@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SearchResultsView: View {
     let query: String
-    @StateObject private var viewModel = SearchResultsViewModel()
+    @StateObject private var viewModel = SearchViewModel()
     @State private var selectedFilter: SearchFilter = .all
     @State private var showingFilters = false
     @State private var selectedClass: HobbyClass?
@@ -41,12 +41,15 @@ struct SearchResultsView: View {
             }
         }
         .onAppear {
+            viewModel.searchQuery = query
             Task {
-                await viewModel.search(query: query)
+                await viewModel.performSearch()
             }
         }
         .sheet(isPresented: $showingFilters) {
-            SearchFiltersSheet(viewModel: viewModel)
+            SearchFiltersSheet(filters: $viewModel.currentFilters) { filters in
+                viewModel.applyFilters(filters)
+            }
         }
         .sheet(isPresented: $showingClassDetail) {
             if let hobbyClass = selectedClass {
@@ -76,8 +79,9 @@ struct SearchResultsView: View {
                     HStack(spacing: 8) {
                         ForEach(viewModel.suggestedQueries, id: \.self) { suggestion in
                             Button(suggestion) {
+                                viewModel.searchQuery = suggestion
                                 Task {
-                                    await viewModel.search(query: suggestion)
+                                    await viewModel.performSearch()
                                 }
                             }
                             .font(BrandConstants.Typography.caption)
@@ -151,10 +155,8 @@ struct SearchResultsView: View {
                         .fontWeight(.medium)
                     
                     ForEach(viewModel.searchSuggestions, id: \.self) { suggestion in
-                        Button(suggestion) {
-                            Task {
-                                await viewModel.search(query: suggestion)
-                            }
+                        Button(suggestion.text) {
+                            viewModel.selectSearchSuggestion(suggestion)
                         }
                         .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(BrandConstants.Colors.primary)
@@ -447,13 +449,15 @@ struct SearchResultCard: View {
 }
 
 struct SearchFiltersSheet: View {
-    @ObservedObject var viewModel: SearchResultsViewModel
+    @Binding var filters: SearchFilters
+    let onApply: (SearchFilters) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var tempFilters: SearchFilters
     
-    init(viewModel: SearchResultsViewModel) {
-        self.viewModel = viewModel
-        self._tempFilters = State(initialValue: viewModel.filters)
+    init(filters: Binding<SearchFilters>, onApply: @escaping (SearchFilters) -> Void) {
+        self._filters = filters
+        self.onApply = onApply
+        self._tempFilters = State(initialValue: filters.wrappedValue)
     }
     
     var body: some View {
@@ -535,7 +539,7 @@ struct SearchFiltersSheet: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Apply") {
-                        viewModel.applyFilters(tempFilters)
+                        onApply(tempFilters)
                         dismiss()
                     }
                 }
