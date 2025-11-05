@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       supabase
         .from('v_studio_imported_events_recent')
         .select(
-          'id, studio_id, integration_id, provider, title, description, start_time, end_time, all_day, instructor_name, instructor_email, location, room, category, skill_level, max_participants, current_participants, price, material_fee, migration_status, mapped_class_id, mapped_schedule_id, raw_data'
+          'id, studio_id, title, description, start_time, end_time, all_day, location, category, created_at, updated_at'
         )
         .eq('studio_id', studioId)
         .gte('start_time', rangeStart)

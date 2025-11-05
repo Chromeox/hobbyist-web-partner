@@ -55,6 +55,68 @@ export type Database = {
           },
         ]
       }
+      bookings: {
+        Row: {
+          amount_paid: number | null
+          cancellation_reason: string | null
+          cancellation_time: string | null
+          check_in_time: string | null
+          created_at: string | null
+          credits_used: number | null
+          id: string
+          payment_method: string | null
+          promoted_from_waitlist_at: string | null
+          session_id: string
+          status: string | null
+          student_id: string
+          updated_at: string | null
+          waitlist_joined_at: string | null
+          waitlist_position: number | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          cancellation_reason?: string | null
+          cancellation_time?: string | null
+          check_in_time?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          id?: string
+          payment_method?: string | null
+          promoted_from_waitlist_at?: string | null
+          session_id: string
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+          waitlist_joined_at?: string | null
+          waitlist_position?: number | null
+        }
+        Update: {
+          amount_paid?: number | null
+          cancellation_reason?: string | null
+          cancellation_time?: string | null
+          check_in_time?: string | null
+          created_at?: string | null
+          credits_used?: number | null
+          id?: string
+          payment_method?: string | null
+          promoted_from_waitlist_at?: string | null
+          session_id?: string
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+          waitlist_joined_at?: string | null
+          waitlist_position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_integrations: {
         Row: {
           access_token: string | null
@@ -342,6 +404,104 @@ export type Database = {
           },
         ]
       }
+      classes: {
+        Row: {
+          all_day: boolean | null
+          category: string | null
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          end_time: string
+          error_details: Json | null
+          external_id: string
+          id: string
+          instructor_email: string | null
+          instructor_name: string | null
+          integration_id: string
+          location: string | null
+          mapped_class_id: string | null
+          mapped_schedule_id: string | null
+          material_fee: number | null
+          max_participants: number | null
+          migration_status: string | null
+          price: number | null
+          provider: string
+          raw_data: Json | null
+          room: string | null
+          skill_level: string | null
+          start_time: string
+          studio_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          all_day?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_time: string
+          error_details?: Json | null
+          external_id: string
+          id?: string
+          instructor_email?: string | null
+          instructor_name?: string | null
+          integration_id: string
+          location?: string | null
+          mapped_class_id?: string | null
+          mapped_schedule_id?: string | null
+          material_fee?: number | null
+          max_participants?: number | null
+          migration_status?: string | null
+          price?: number | null
+          provider: string
+          raw_data?: Json | null
+          room?: string | null
+          skill_level?: string | null
+          start_time: string
+          studio_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          all_day?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_time?: string
+          error_details?: Json | null
+          external_id?: string
+          id?: string
+          instructor_email?: string | null
+          instructor_name?: string | null
+          integration_id?: string
+          location?: string | null
+          mapped_class_id?: string | null
+          mapped_schedule_id?: string | null
+          material_fee?: number | null
+          max_participants?: number | null
+          migration_status?: string | null
+          price?: number | null
+          provider?: string
+          raw_data?: Json | null
+          room?: string | null
+          skill_level?: string | null
+          start_time?: string
+          studio_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imported_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commission_overrides: {
         Row: {
           approved_at: string | null
@@ -478,6 +638,56 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string | null
+          credits_amount: number | null
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          stripe_payment_intent_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string | null
+          credits_amount?: number | null
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          stripe_payment_intent_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string | null
+          credits_amount?: number | null
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          stripe_payment_intent_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       encryption_keys: {
         Row: {
           algorithm: string | null
@@ -543,104 +753,6 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: []
-      }
-      imported_events: {
-        Row: {
-          all_day: boolean | null
-          category: string | null
-          created_at: string | null
-          current_participants: number | null
-          description: string | null
-          end_time: string
-          error_details: Json | null
-          external_id: string
-          id: string
-          instructor_email: string | null
-          instructor_name: string | null
-          integration_id: string
-          location: string | null
-          mapped_class_id: string | null
-          mapped_schedule_id: string | null
-          material_fee: number | null
-          max_participants: number | null
-          migration_status: string | null
-          price: number | null
-          provider: string
-          raw_data: Json | null
-          room: string | null
-          skill_level: string | null
-          start_time: string
-          studio_id: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          all_day?: boolean | null
-          category?: string | null
-          created_at?: string | null
-          current_participants?: number | null
-          description?: string | null
-          end_time: string
-          error_details?: Json | null
-          external_id: string
-          id?: string
-          instructor_email?: string | null
-          instructor_name?: string | null
-          integration_id: string
-          location?: string | null
-          mapped_class_id?: string | null
-          mapped_schedule_id?: string | null
-          material_fee?: number | null
-          max_participants?: number | null
-          migration_status?: string | null
-          price?: number | null
-          provider: string
-          raw_data?: Json | null
-          room?: string | null
-          skill_level?: string | null
-          start_time: string
-          studio_id: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          all_day?: boolean | null
-          category?: string | null
-          created_at?: string | null
-          current_participants?: number | null
-          description?: string | null
-          end_time?: string
-          error_details?: Json | null
-          external_id?: string
-          id?: string
-          instructor_email?: string | null
-          instructor_name?: string | null
-          integration_id?: string
-          location?: string | null
-          mapped_class_id?: string | null
-          mapped_schedule_id?: string | null
-          material_fee?: number | null
-          max_participants?: number | null
-          migration_status?: string | null
-          price?: number | null
-          provider?: string
-          raw_data?: Json | null
-          room?: string | null
-          skill_level?: string | null
-          start_time?: string
-          studio_id?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "imported_events_integration_id_fkey"
-            columns: ["integration_id"]
-            isOneToOne: false
-            referencedRelation: "calendar_integrations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       instructor_applications: {
         Row: {
@@ -1306,68 +1418,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      reservations: {
-        Row: {
-          amount_paid: number | null
-          cancellation_reason: string | null
-          cancellation_time: string | null
-          check_in_time: string | null
-          created_at: string | null
-          credits_used: number | null
-          id: string
-          payment_method: string | null
-          promoted_from_waitlist_at: string | null
-          session_id: string
-          status: string | null
-          student_id: string
-          updated_at: string | null
-          waitlist_joined_at: string | null
-          waitlist_position: number | null
-        }
-        Insert: {
-          amount_paid?: number | null
-          cancellation_reason?: string | null
-          cancellation_time?: string | null
-          check_in_time?: string | null
-          created_at?: string | null
-          credits_used?: number | null
-          id?: string
-          payment_method?: string | null
-          promoted_from_waitlist_at?: string | null
-          session_id: string
-          status?: string | null
-          student_id: string
-          updated_at?: string | null
-          waitlist_joined_at?: string | null
-          waitlist_position?: number | null
-        }
-        Update: {
-          amount_paid?: number | null
-          cancellation_reason?: string | null
-          cancellation_time?: string | null
-          check_in_time?: string | null
-          created_at?: string | null
-          credits_used?: number | null
-          id?: string
-          payment_method?: string | null
-          promoted_from_waitlist_at?: string | null
-          session_id?: string
-          status?: string | null
-          student_id?: string
-          updated_at?: string | null
-          waitlist_joined_at?: string | null
-          waitlist_position?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reservations_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -2341,37 +2391,54 @@ export type Database = {
         Row: {
           all_day: boolean | null
           category: string | null
-          current_participants: number | null
+          created_at: string | null
           description: string | null
           end_time: string | null
           id: string | null
-          instructor_email: string | null
-          instructor_name: string | null
-          integration_id: string | null
           location: string | null
-          mapped_class_id: string | null
-          mapped_schedule_id: string | null
-          material_fee: number | null
-          max_participants: number | null
-          migration_status: string | null
-          price: number | null
-          provider: string | null
-          raw_data: Json | null
-          room: string | null
-          skill_level: string | null
           start_time: string | null
           studio_id: string | null
           title: string | null
+          updated_at: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "imported_events_integration_id_fkey"
-            columns: ["integration_id"]
-            isOneToOne: false
-            referencedRelation: "calendar_integrations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Insert: {
+          all_day?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string | null
+          location?: string | null
+          start_time?: string | null
+          studio_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          all_day?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          id?: string | null
+          location?: string | null
+          start_time?: string | null
+          studio_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_studio_metrics_daily: {
+        Row: {
+          booking_count: number | null
+          bucket_date: string | null
+          revenue: number | null
+          studio_id: string | null
+          unique_instructors: number | null
+          unique_schedules: number | null
+        }
+        Relationships: []
       }
     }
     Functions: {
