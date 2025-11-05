@@ -436,32 +436,301 @@ enum LocationFilter: String, CaseIterable {
     var id: String { rawValue }
 }
 
-// MARK: - Helpers
+// MARK: - Supporting Models
 
-extension SearchResult {
-    init(hobbyClass: HobbyClass) {
+struct SearchHistoryItem: Codable, Identifiable {
+    let id: UUID
+    let query: String
+    let timestamp: Date
+    let resultCount: Int
+    
+    init(query: String, resultCount: Int) {
         self.id = UUID()
-        self.type = .hobbyClass
-        self.title = hobbyClass.title
-        self.subtitle = hobbyClass.instructor.name
-        self.imageUrl = hobbyClass.imageUrl
-        self.startDate = hobbyClass.startDate
-        self.endDate = hobbyClass.endDate
-        self.location = hobbyClass.isOnline ? "Online" : (hobbyClass.venue.name.isEmpty ? hobbyClass.venue.city : hobbyClass.venue.name)
-        self.rating = hobbyClass.averageRating
-        self.price = hobbyClass.price
-        self.distance = nil
-        self.relevanceScore = 1.0
+        self.query = query
+        self.timestamp = Date()
+        self.resultCount = resultCount
     }
 }
+
+struct SavedSearch: Codable, Identifiable {
+    let id: UUID
+    let name: String
+    let query: String
+    let filters: SearchFilters
+    let createdAt: Date
+    
+    init(name: String, query: String, filters: SearchFilters) {
+        self.id = UUID()
+        self.name = name
+        self.query = query
+        self.filters = filters
+        self.createdAt = Date()
+    }
+}
+
+struct SearchSuggestion: Identifiable {
+    let id: UUID
+    let text: String
+    let type: SearchSuggestionType
+    let resultCount: Int?
+    
+    init(text: String, type: SearchSuggestionType, resultCount: Int?) {
+        self.id = UUID()
+        self.text = text
+        self.type = type
+        self.resultCount = resultCount
+    }
+}
+
+enum SearchSuggestionType {
+    case category
+    case instructor
+    case venue
+    case location
+    case query
+}
+
+struct QuickFilterPreset: Identifiable {
+    let id: UUID
+    let name: String
+    let iconName: String
+    let filters: SearchFilters
+    let color: Color
+    
+    init(name: String, iconName: String, filters: SearchFilters, color: Color = BrandConstants.Colors.primary) {
+        self.id = UUID()
+        self.name = name
+        self.iconName = iconName
+        self.filters = filters
+        self.color = color
+    }
+    
+    static let presets: [QuickFilterPreset] = [
+        QuickFilterPreset(
+            name: "Free Classes",
+            iconName: "gift.fill",
+            filters: {
+                var filters = SearchFilters()
+                filters.setFreeOnly()
+                return filters
+            }(),
+            color: .green
+        ),
+        QuickFilterPreset(
+            name: "This Weekend",
+            iconName: "calendar.badge.plus",
+            filters: {
+                var filters = SearchFilters()
+                filters.setThisWeekend()
+                return filters
+            }(),
+            color: .orange
+        ),
+        QuickFilterPreset(
+            name: "Nearby",
+            iconName: "location.fill",
+            filters: {
+                var filters = SearchFilters()
+                filters.setNearby()
+                return filters
+            }(),
+            color: .blue
+        ),
+        QuickFilterPreset(
+            name: "Beginner Friendly",
+            iconName: "person.badge.plus",
+            filters: {
+                var filters = SearchFilters()
+                filters.setBeginnerFriendly()
+                return filters
+            }(),
+            color: .purple
+        ),
+        QuickFilterPreset(
+            name: "Highly Rated",
+            iconName: "star.fill",
+            filters: {
+                var filters = SearchFilters()
+                filters.setHighlyRated()
+                return filters
+            }(),
+            color: .yellow
+        )
+    ]
+}
+
+// MARK: - Extensions
 
 extension SearchParameters {
     func matches(_ result: SearchResult) -> Bool {
         guard !query.isEmpty else { return true }
         let lowerQuery = query.lowercased()
         if result.title.lowercased().contains(lowerQuery) { return true }
-        if let subtitle = result.subtitle?.lowercased(), subtitle.contains(lowerQuery) { return true }
-        if let location = result.location?.lowercased(), location.contains(lowerQuery) { return true }
+        if result.subtitle.lowercased().contains(lowerQuery) { return true }
         return false
+    }
+    
+    func applyFilters(to hobbyClass: HobbyClass, userLocation: CLLocation?) -> Bool {
+        guard let filters = self.filters else { return true }
+        
+        // Category filter
+        if !filters.categories.isEmpty && !filters.categories.contains(hobbyClass.category) {
+            return false
+        }
+        
+        // Price filter
+        if hobbyClass.price < filters.minPrice || hobbyClass.price > filters.maxPrice {
+            return false
+        }
+        
+        // Free filter
+        if hobbyClass.price == 0 && !filters.includeFree {
+            return false
+        }
+        
+        // Difficulty filter
+        if !filters.difficultyLevels.isEmpty && !filters.difficultyLevels.contains(hobbyClass.difficulty) {
+            return false
+        }
+        
+        // Rating filter
+        if hobbyClass.averageRating < filters.minRating {
+            return false
+        }
+        
+        // Duration filter
+        if filters.duration != .any {
+            if let durationRange = filters.duration.minuteRange {
+                if !durationRange.contains(hobbyClass.duration) {
+                    return false
+                }
+            }
+        }
+        
+        // Distance filter
+        if let userLocation = userLocation, let distanceLimit = filters.distance.distanceKm {
+            let classLocation = CLLocation(latitude: hobbyClass.venue.latitude, longitude: hobbyClass.venue.longitude)
+            let distance = userLocation.distance(from: classLocation) / 1000 // Convert to km
+            if distance > distanceLimit {
+                return false
+            }
+        }
+        
+        // Date filter
+        if filters.dateRange != .any {
+            let calendar = Calendar.current
+            let now = Date()
+            
+            switch filters.dateRange {
+            case .today:
+                if !calendar.isDate(hobbyClass.startDate, inSameDayAs: now) {
+                    return false
+                }
+            case .tomorrow:
+                let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!
+                if !calendar.isDate(hobbyClass.startDate, inSameDayAs: tomorrow) {
+                    return false
+                }
+            case .thisWeek:
+                let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now)!
+                if !weekInterval.contains(hobbyClass.startDate) {
+                    return false
+                }
+            case .nextWeek:
+                let nextWeek = calendar.date(byAdding: .weekOfYear, value: 1, to: now)!
+                let nextWeekInterval = calendar.dateInterval(of: .weekOfYear, for: nextWeek)!
+                if !nextWeekInterval.contains(hobbyClass.startDate) {
+                    return false
+                }
+            case .thisMonth:
+                let monthInterval = calendar.dateInterval(of: .month, for: now)!
+                if !monthInterval.contains(hobbyClass.startDate) {
+                    return false
+                }
+            case .nextMonth:
+                let nextMonth = calendar.date(byAdding: .month, value: 1, to: now)!
+                let nextMonthInterval = calendar.dateInterval(of: .month, for: nextMonth)!
+                if !nextMonthInterval.contains(hobbyClass.startDate) {
+                    return false
+                }
+            default:
+                break
+            }
+        }
+        
+        // Time of day filter
+        if !filters.timeOfDay.isEmpty {
+            let hour = Calendar.current.component(.hour, from: hobbyClass.startDate)
+            let matchesTimeOfDay = filters.timeOfDay.contains { timeRange in
+                timeRange.timeRange.contains(hour)
+            }
+            if !matchesTimeOfDay {
+                return false
+            }
+        }
+        
+        // Day of week filter
+        if !filters.daysOfWeek.isEmpty {
+            let weekday = Calendar.current.component(.weekday, from: hobbyClass.startDate)
+            let matchesDayOfWeek = filters.daysOfWeek.contains { day in
+                day.weekdayIndex == weekday
+            }
+            if !matchesDayOfWeek {
+                return false
+            }
+        }
+        
+        return true
+    }
+}
+
+extension Array where Element == SearchResult {
+    func sorted(by sortOption: SearchSortOption, userLocation: CLLocation?) -> [SearchResult] {
+        return self.sorted { lhs, rhs in
+            switch sortOption {
+            case .relevance:
+                return lhs.isExactMatch && !rhs.isExactMatch
+            case .priceAsc:
+                return (lhs.price ?? 0) < (rhs.price ?? 0)
+            case .priceDesc:
+                return (lhs.price ?? 0) > (rhs.price ?? 0)
+            case .rating:
+                return (lhs.rating ?? 0) > (rhs.rating ?? 0)
+            case .distance:
+                guard let userLocation = userLocation else { return false }
+                return distanceFromUser(lhs, to: userLocation) < distanceFromUser(rhs, to: userLocation)
+            case .dateAsc:
+                return dateForSorting(lhs) < dateForSorting(rhs)
+            case .dateDesc:
+                return dateForSorting(lhs) > dateForSorting(rhs)
+            case .popularity:
+                // Could implement popularity based on booking count
+                return (lhs.rating ?? 0) > (rhs.rating ?? 0)
+            case .newest:
+                return dateForSorting(lhs) > dateForSorting(rhs)
+            }
+        }
+    }
+    
+    private func distanceFromUser(_ result: SearchResult, to userLocation: CLLocation) -> Double {
+        switch result {
+        case .class(let hobbyClass):
+            let classLocation = CLLocation(latitude: hobbyClass.venue.latitude, longitude: hobbyClass.venue.longitude)
+            return userLocation.distance(from: classLocation)
+        case .venue(let venue):
+            let venueLocation = CLLocation(latitude: venue.latitude, longitude: venue.longitude)
+            return userLocation.distance(from: venueLocation)
+        case .instructor:
+            return Double.infinity // Instructors don't have specific locations
+        }
+    }
+    
+    private func dateForSorting(_ result: SearchResult) -> Date {
+        switch result {
+        case .class(let hobbyClass):
+            return hobbyClass.startDate
+        default:
+            return Date.distantFuture
+        }
     }
 }
