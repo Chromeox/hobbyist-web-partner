@@ -81,6 +81,10 @@ struct BrandedLoadingView: View {
         .onAppear {
             startAnimations()
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(message)
+        .accessibilityAddTraits(.updatesFrequently)
+        .focusOnAppear()
     }
     
     private func startAnimations() {
