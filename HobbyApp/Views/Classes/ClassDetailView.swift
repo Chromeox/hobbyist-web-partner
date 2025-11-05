@@ -3,7 +3,9 @@ import SwiftUI
 struct ClassDetailView: View {
     let hobbyClass: MockHobbyClass
     @State private var showBookingSheet = false
+    @State private var showEnhancedBooking = false
     @State private var isFavorited = false
+    @State private var classItem: ClassItem?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -190,7 +192,11 @@ struct ClassDetailView: View {
                     Spacer()
 
                     Button("Book Now") {
-                        showBookingSheet = true
+                        if let classItem = classItem {
+                            showEnhancedBooking = true
+                        } else {
+                            showBookingSheet = true
+                        }
                     }
                     .frame(width: 120)
                     .padding()
@@ -206,6 +212,56 @@ struct ClassDetailView: View {
         .sheet(isPresented: $showBookingSheet) {
             BookingSheetView(hobbyClass: hobbyClass)
         }
+        .fullScreenCover(isPresented: $showEnhancedBooking) {
+            if let classItem = classItem {
+                BookClassView(classItem: classItem)
+                    .environmentObject(HapticFeedbackService.shared)
+            }
+        }
+        .onAppear {
+            loadClassItem()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func loadClassItem() {
+        // Convert MockHobbyClass to ClassItem for the enhanced booking flow
+        classItem = ClassItem(
+            id: UUID().uuidString,
+            name: hobbyClass.title,
+            description: hobbyClass.description,
+            instructor: hobbyClass.instructor,
+            venueName: hobbyClass.studioName,
+            venueAddress: "123 Main St, Vancouver, BC", // Mock address
+            price: hobbyClass.price,
+            duration: hobbyClass.duration,
+            startTime: parseNextClassDate(hobbyClass.nextClassDate),
+            endTime: parseNextClassDate(hobbyClass.nextClassDate).addingTimeInterval(2 * 3600), // Add 2 hours
+            spotsAvailable: 8, // Mock spots available
+            totalSpots: 12, // Mock total spots
+            category: "Pottery", // Mock category
+            difficultyLevel: "Beginner",
+            equipment: [
+                Equipment(name: "Pottery Wheel", price: "$5.00", isRequired: false),
+                Equipment(name: "Clay Tools Set", price: "$3.00", isRequired: false),
+                Equipment(name: "Apron", price: "$2.00", isRequired: false)
+            ],
+            images: [], // Mock empty images
+            tags: ["Pottery", "Beginner-Friendly", "All Materials Included"],
+            isWaitlistAvailable: true,
+            cancellationDeadline: 24, // 24 hours
+            icon: hobbyClass.iconName
+        )
+    }
+    
+    private func parseNextClassDate(_ dateString: String) -> Date {
+        // Parse the "Tomorrow 10:00 AM" format or return tomorrow at 10 AM
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: tomorrow)
+        components.hour = 10
+        components.minute = 0
+        return Calendar.current.date(from: components) ?? tomorrow
     }
 }
 

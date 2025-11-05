@@ -272,30 +272,118 @@ final class CreditService: ObservableObject {
             return
         }
 
-        if rolloverCredits >= amount {
-            rolloverCredits -= amount
-        } else {
-            let remaining = amount - rolloverCredits
-            rolloverCredits = 0
-            currentMonthCredits = max(0, currentMonthCredits - remaining)
+        // For real implementation, this would call Supabase to deduct credits
+        Task {
+            do {
+                try await deductCreditsFromDatabase(amount: amount, description: activity)
+                
+                // Update local state
+                if rolloverCredits >= amount {
+                    rolloverCredits -= amount
+                } else {
+                    let remaining = amount - rolloverCredits
+                    rolloverCredits = 0
+                    currentMonthCredits = max(0, currentMonthCredits - remaining)
+                }
+
+                totalCredits = max(0, currentMonthCredits + rolloverCredits)
+                creditsUsedThisMonth += amount
+
+                let transaction = CreditTransactionDisplay(
+                    description: activity,
+                    date: Date(),
+                    amount: amount,
+                    balanceAfter: totalCredits,
+                    type: .usage
+                )
+                creditHistory.insert(transaction, at: 0)
+
+                completion(true)
+            } catch {
+                print("⚠️ Failed to deduct credits: \(error)")
+                completion(false)
+            }
         }
-
-        totalCredits = max(0, currentMonthCredits + rolloverCredits)
-        creditsUsedThisMonth += amount
-
+    }
+    
+    /// Add credits to user account
+    func addCredits(amount: Int, for reason: String) async throws {
+        guard let userId = supabaseService.currentUser?.id else {
+            throw CreditServiceError.userNotAuthenticated
+        }
+        
+        // Add credits to database
+        let transactionData: [String: Any] = [
+            "user_id": userId.uuidString,
+            "amount": amount,
+            "transaction_type": "credit_addition",
+            "description": reason,
+            "created_at": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        try await supabaseService.client
+            .from("credit_transactions")
+            .insert(transactionData)
+            .execute()
+        
+        // Update local state
+        currentMonthCredits += amount
+        totalCredits = currentMonthCredits + rolloverCredits
+        
         let transaction = CreditTransactionDisplay(
-            description: activity,
+            description: reason,
             date: Date(),
             amount: amount,
             balanceAfter: totalCredits,
-            type: .usage
+            type: .purchase
         )
         creditHistory.insert(transaction, at: 0)
-
-        completion(true)
+    }
+    
+    /// Check if user has sufficient credits for a booking
+    func hasSufficientCredits(for amount: Double) -> Bool {
+        return totalCredits >= Int(amount)
+    }
+    
+    /// Get the credit value in dollars
+    func creditValue(for credits: Int) -> Double {
+        // Assume 1 credit = $1 for simplicity
+        return Double(credits)
+    }
+    
+    /// Get credits needed for a dollar amount
+    func creditsNeeded(for dollarAmount: Double) -> Int {
+        return Int(ceil(dollarAmount))
     }
 
     // MARK: - Private Methods
+    
+    private func deductCreditsFromDatabase(amount: Int, description: String) async throws {
+        guard let userId = supabaseService.currentUser?.id else {
+            throw CreditServiceError.userNotAuthenticated
+        }
+        
+        // Record credit deduction transaction
+        let transactionData: [String: Any] = [
+            "user_id": userId.uuidString,
+            "amount": -amount, // Negative for deduction
+            "transaction_type": "deduction",
+            "description": description,
+            "created_at": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        try await supabaseService.client
+            .from("credit_transactions")
+            .insert(transactionData)
+            .execute()
+        
+        // Update user credits balance
+        try await supabaseService.client
+            .from("user_credits")
+            .update(["used_credits": creditsUsedThisMonth + amount])
+            .eq("user_id", value: userId)
+            .execute()
+    }
 
     private func loadMockData() {
         hasActiveSubscription = true

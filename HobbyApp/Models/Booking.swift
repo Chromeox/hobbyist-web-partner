@@ -1,5 +1,13 @@
 import Foundation
 
+// Import PaymentMethodType from PaymentService
+enum PaymentMethodType: String, Codable {
+    case card = "card"
+    case applePay = "apple_pay" 
+    case credits = "credits"
+    case bankTransfer = "bank_transfer"
+}
+
 // MARK: - Booking Model
 
 struct Booking: Identifiable, Codable, Equatable {
@@ -20,6 +28,22 @@ struct Booking: Identifiable, Codable, Equatable {
     let instructor: Instructor
     let confirmationCode: String
     let qrCode: String?
+    
+    // Enhanced payment fields
+    let paymentMethod: PaymentMethodType?
+    let paymentIntentId: String?
+    let paidWithCredits: Bool
+    let creditsUsed: Int?
+    let discountApplied: Double?
+    let processingFee: Double?
+    let refundableAmount: Double?
+    
+    // Availability and scheduling
+    let availableSpotsAtBooking: Int?
+    let waitlistPosition: Int?
+    let isWaitlisted: Bool
+    let remindersSent: [Date]?
+    let cancellationDeadline: Date?
     
     var canBeCancelled: Bool {
         status == .confirmed && classStartDate.timeIntervalSinceNow > 24 * 60 * 60
@@ -77,6 +101,22 @@ struct Booking: Identifiable, Codable, Equatable {
         case instructor
         case confirmationCode = "confirmation_code"
         case qrCode = "qr_code"
+        
+        // Enhanced payment fields
+        case paymentMethod = "payment_method"
+        case paymentIntentId = "payment_intent_id"
+        case paidWithCredits = "paid_with_credits"
+        case creditsUsed = "credits_used"
+        case discountApplied = "discount_applied"
+        case processingFee = "processing_fee"
+        case refundableAmount = "refundable_amount"
+        
+        // Availability and scheduling
+        case availableSpotsAtBooking = "available_spots_at_booking"
+        case waitlistPosition = "waitlist_position"
+        case isWaitlisted = "is_waitlisted"
+        case remindersSent = "reminders_sent"
+        case cancellationDeadline = "cancellation_deadline"
     }
 }
 
@@ -91,6 +131,19 @@ struct BookingRequest: Codable {
     let couponId: String?
     let totalAmount: Double
     
+    // Enhanced payment information
+    let paymentMethod: PaymentMethodType
+    let paymentIntentId: String?
+    let creditsUsed: Int?
+    let discountApplied: Double?
+    let processingFee: Double?
+    
+    // Participant details
+    let participantNames: [String]?
+    let emergencyContact: EmergencyContact?
+    let equipmentRental: [String]?
+    let experienceLevel: String?
+    
     enum CodingKeys: String, CodingKey {
         case classId = "class_id"
         case userId = "user_id"
@@ -99,6 +152,31 @@ struct BookingRequest: Codable {
         case paymentId = "payment_id"
         case couponId = "coupon_id"
         case totalAmount = "total_amount"
+        
+        // Enhanced payment information
+        case paymentMethod = "payment_method"
+        case paymentIntentId = "payment_intent_id"
+        case creditsUsed = "credits_used"
+        case discountApplied = "discount_applied"
+        case processingFee = "processing_fee"
+        
+        // Participant details
+        case participantNames = "participant_names"
+        case emergencyContact = "emergency_contact"
+        case equipmentRental = "equipment_rental"
+        case experienceLevel = "experience_level"
+    }
+}
+
+// MARK: - Emergency Contact
+
+struct EmergencyContact: Codable {
+    let name: String
+    let phone: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case phone
     }
 }
 
