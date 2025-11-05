@@ -8,16 +8,22 @@ struct HobbyistCard<Content: View>: View {
     let style: CardStyle
     let padding: CGFloat
     let tapAction: (() -> Void)?
+    let accessibilityLabel: String?
+    let accessibilityHint: String?
 
     init(
         style: CardStyle = .default,
         padding: CGFloat = HobbyistSpacing.md,
         tapAction: (() -> Void)? = nil,
+        accessibilityLabel: String? = nil,
+        accessibilityHint: String? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.style = style
         self.padding = padding
         self.tapAction = tapAction
+        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityHint = accessibilityHint
         self.content = content
     }
 
@@ -26,10 +32,16 @@ struct HobbyistCard<Content: View>: View {
             if let tapAction = tapAction {
                 Button(action: tapAction) {
                     cardContent
+                        .accessibilityElement(children: .combine)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel(accessibilityLabel ?? "Card")
+                .accessibilityHint(accessibilityHint ?? "Double tap to open")
+                .accessibilityAddTraits(.isButton)
             } else {
                 cardContent
+                    .accessibilityLabel(accessibilityLabel)
+                    .accessibilityElement(children: accessibilityLabel != nil ? .ignore : .contain)
             }
         }
     }
@@ -96,7 +108,12 @@ struct ClassCard: View {
     let onTap: () -> Void
 
     var body: some View {
-        HobbyistCard(style: .elevated, tapAction: onTap) {
+        HobbyistCard(
+            style: .elevated,
+            tapAction: onTap,
+            accessibilityLabel: "\(className) class with \(instructor)",
+            accessibilityHint: "Class starts at \(time), costs \(price). Double tap to view details"
+        ) {
             VStack(alignment: .leading, spacing: HobbyistSpacing.sm) {
                 // Image placeholder
                 if let image = image {
@@ -110,6 +127,8 @@ struct ClassCard: View {
                     }
                     .frame(height: 120)
                     .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                    .accessibilityLabel("\(className) class image")
+                    .accessibilityHidden(false)
                 } else {
                     Rectangle()
                         .fill(LinearGradient(
@@ -123,7 +142,9 @@ struct ClassCard: View {
                             Image(systemName: "figure.strengthtraining.traditional")
                                 .font(BrandConstants.Typography.heroTitle)
                                 .foregroundColor(.white)
+                                .accessibilityHidden(true)
                         )
+                        .accessibilityLabel("\(className) class placeholder image")
                 }
 
                 // Class info
@@ -133,15 +154,18 @@ struct ClassCard: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.hobbyistTextPrimary)
                         .lineLimit(2)
+                        .accessibilityAddTraits(.isHeader)
 
                     Text(instructor)
                         .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.hobbyistTextSecondary)
+                        .accessibilityLabel("Instructor: \(instructor)")
 
                     HStack {
                         Text(time)
                             .font(BrandConstants.Typography.caption)
                             .foregroundColor(.hobbyistTextTertiary)
+                            .accessibilityLabel("Time: \(time)")
 
                         Spacer()
 
@@ -149,6 +173,7 @@ struct ClassCard: View {
                             .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.hobbyistPrimary)
+                            .accessibilityLabel("Price: \(price)")
                     }
                 }
             }
@@ -166,7 +191,11 @@ struct StudioCard: View {
     let onTap: () -> Void
 
     var body: some View {
-        HobbyistCard(tapAction: onTap) {
+        HobbyistCard(
+            tapAction: onTap,
+            accessibilityLabel: "\(studioName) studio in \(location)",
+            accessibilityHint: "Rated \(String(format: "%.1f", rating)) stars, \(distance) away. Double tap to view studio details"
+        ) {
             HStack(spacing: HobbyistSpacing.md) {
                 // Studio image
                 if let image = image {
@@ -180,6 +209,7 @@ struct StudioCard: View {
                     }
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                    .accessibilityLabel("\(studioName) studio image")
                 } else {
                     Rectangle()
                         .fill(Color.hobbyistSecondary.opacity(0.3))
@@ -189,7 +219,9 @@ struct StudioCard: View {
                             Image(systemName: "building.2.crop.circle")
                                 .font(BrandConstants.Typography.title2)
                                 .foregroundColor(.hobbyistSecondary)
+                                .accessibilityHidden(true)
                         )
+                        .accessibilityLabel("\(studioName) studio placeholder image")
                 }
 
                 // Studio info
@@ -198,28 +230,34 @@ struct StudioCard: View {
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.hobbyistTextPrimary)
+                        .accessibilityAddTraits(.isHeader)
 
                     Text(location)
                         .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(.hobbyistTextSecondary)
                         .lineLimit(2)
+                        .accessibilityLabel("Location: \(location)")
 
                     HStack {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
                                 .foregroundColor(.yellow)
                                 .font(BrandConstants.Typography.caption)
+                                .accessibilityHidden(true)
 
                             Text(String(format: "%.1f", rating))
                                 .font(BrandConstants.Typography.caption)
                                 .foregroundColor(.hobbyistTextTertiary)
                         }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Rating: \(String(format: "%.1f", rating)) out of 5 stars")
 
                         Spacer()
 
                         Text(distance)
                             .font(BrandConstants.Typography.caption)
                             .foregroundColor(.hobbyistTextTertiary)
+                            .accessibilityLabel("Distance: \(distance)")
                     }
                 }
 

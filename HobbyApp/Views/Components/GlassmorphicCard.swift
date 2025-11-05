@@ -5,15 +5,21 @@ struct GlassmorphicCard<Content: View>: View {
     let content: Content
     let cornerRadius: CGFloat
     let opacity: Double
+    let accessibilityLabel: String?
+    let accessibilityHint: String?
 
     init(
         cornerRadius: CGFloat = BrandConstants.CornerRadius.xl,
         opacity: Double = 0.95,
+        accessibilityLabel: String? = nil,
+        accessibilityHint: String? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.content = content()
         self.cornerRadius = cornerRadius
         self.opacity = opacity
+        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityHint = accessibilityHint
     }
 
     var body: some View {
@@ -28,6 +34,9 @@ struct GlassmorphicCard<Content: View>: View {
                         y: BrandConstants.Shadow.lg.y
                     )
             )
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityHint(accessibilityHint)
+            .accessibilityElement(children: accessibilityLabel != nil ? .ignore : .contain)
     }
 }
 
@@ -61,9 +70,13 @@ struct SpeechBubble: View {
                     .offset(
                         x: alignment == .leading ? -16 : 16,
                         y: 12
-                    ),
+                    )
+                    .accessibilityHidden(true),
                 alignment: alignment == .leading ? .bottomLeading : .bottomTrailing
             )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(text)
+            .accessibilityHint("Speech bubble message")
     }
 }
 
