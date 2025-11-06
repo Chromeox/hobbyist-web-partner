@@ -10,12 +10,13 @@ import { useRouter } from 'next/navigation'
 import BookingFlow from '../BookingFlow'
 
 interface BookingPageProps {
-  params: {
+  params: Promise<{
     classId: string
-  }
+  }>
 }
 
-export default function BookingPage({ params }: BookingPageProps) {
+export default async function BookingPage({ params }: BookingPageProps) {
+  const { classId } = await params
   const router = useRouter()
 
   const handleBookingComplete = () => {
@@ -27,7 +28,7 @@ export default function BookingPage({ params }: BookingPageProps) {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <BookingFlow 
-          classId={params.classId}
+          classId={classId}
           onComplete={handleBookingComplete}
         />
       </div>

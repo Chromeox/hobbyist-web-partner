@@ -76,7 +76,7 @@ export default function InstructorProfileManagementPage() {
     setError(null);
     try {
       const { data, error: supabaseError } = await supabase
-        .from('instructors') // Assuming an 'instructors' table
+        .from('instructor_profiles')
         .select('id, first_name, last_name, email, bio, phone_number, profile_picture_url, qualifications, specialties, portfolio_images')
         .eq('id', user?.id) // Filter by user ID
         .single();
@@ -122,7 +122,7 @@ export default function InstructorProfileManagementPage() {
 
       // Update instructor profile in database
       const { error: updateError } = await supabase
-        .from('instructors')
+        .from('instructor_profiles')
         .update({
           first_name: firstName,
           last_name: lastName,

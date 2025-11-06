@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -13,7 +13,7 @@ import { PublicRoute } from '@/lib/components/ProtectedRoute'
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<VerificationStatus>('loading')
@@ -203,5 +203,20 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </PublicRoute>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
