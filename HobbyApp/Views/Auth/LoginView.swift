@@ -19,6 +19,9 @@ struct LoginView: View {
     @State private var showPhoneAuth = false
     @State private var hasAttemptedAutoLogin = false
     @State private var showQuickLoginOptions = false
+    @State private var agreedToTerms = false
+    @State private var showTermsSheet = false
+    @State private var showPrivacySheet = false
     @FocusState private var focusedField: Field?
 
     let onLoginSuccess: (Bool) -> Void // Bool indicates if this is a new user (true) or returning user (false)
@@ -230,6 +233,55 @@ struct LoginView: View {
                     .accessibilityAddTraits(.isStaticText)
                 }
 
+                // Terms and Privacy Agreement (Sign Up only)
+                if isSignUp {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top, spacing: 12) {
+                            Button(action: {
+                                agreedToTerms.toggle()
+                                HapticFeedbackService.shared.playLight()
+                            }) {
+                                Image(systemName: agreedToTerms ? "checkmark.square.fill" : "square")
+                                    .font(BrandConstants.Typography.title3)
+                                    .foregroundColor(agreedToTerms ? BrandConstants.Colors.primary : BrandConstants.Colors.secondaryText)
+                            }
+                            .accessibilityLabel(agreedToTerms ? "Terms accepted" : "Terms not accepted")
+                            .accessibilityAddTraits(.isButton)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("I agree to the")
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
+                                
+                                HStack(spacing: 4) {
+                                    Button("Terms of Service") {
+                                        showTermsSheet = true
+                                    }
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.teal)
+                                    .underline()
+                                    
+                                    Text("and")
+                                        .font(BrandConstants.Typography.caption)
+                                        .foregroundColor(BrandConstants.Colors.surface.opacity(0.9))
+                                    
+                                    Button("Privacy Policy") {
+                                        showPrivacySheet = true
+                                    }
+                                    .font(BrandConstants.Typography.caption)
+                                    .foregroundColor(BrandConstants.Colors.teal)
+                                    .underline()
+                                }
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Terms agreement: \(agreedToTerms ? "accepted" : "not accepted"). Tap to toggle agreement or view terms.")
+                }
+
                     // Enhanced Action Buttons Section - Optimized for Alpha Testing
                     VStack(spacing: BrandConstants.Spacing.lg) {
                             // Main Action Button - Using BrandedButton style
@@ -409,6 +461,7 @@ struct LoginView: View {
                                 }
                                 withAnimation(BrandConstants.Animation.fast) {
                                     fullName = ""
+                                    agreedToTerms = false
                                     focusedField = nil
                                     supabaseService.errorMessage = nil
                                 }
@@ -472,6 +525,30 @@ struct LoginView: View {
                 )
                 .environmentObject(supabaseService)
             }
+            .sheet(isPresented: $showTermsSheet) {
+                NavigationStack {
+                    TermsOfServiceView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") {
+                                    showTermsSheet = false
+                                }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showPrivacySheet) {
+                NavigationStack {
+                    PrivacyPolicyView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Done") {
+                                    showPrivacySheet = false
+                                }
+                            }
+                        }
+                }
+            }
         }
         .onAppear {
             withAnimation(BrandConstants.Animation.gentleSpring.delay(0.1)) {
@@ -514,7 +591,7 @@ struct LoginView: View {
         let emailValid = isValidEmail(email)
 
         if isSignUp {
-            return emailValid && !password.isEmpty && !fullName.isEmpty && password.count >= 6
+            return emailValid && !password.isEmpty && !fullName.isEmpty && password.count >= 6 && agreedToTerms
         } else {
             return emailValid && !password.isEmpty
         }

@@ -17,8 +17,10 @@ struct PrivacyPolicyView: View {
                         
                         • Name and contact information
                         • Profile photos and preferences
-                        • Payment information (processed securely)
+                        • Payment information (processed securely via Stripe)
                         • Class booking history and reviews
+                        • Location data for Vancouver-area class recommendations
+                        • Device information for biometric authentication (stored locally)
                         """
                     )
                     
@@ -40,8 +42,9 @@ struct PrivacyPolicyView: View {
                         content: """
                         We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:
                         
-                        • With studios for class bookings
-                        • With payment processors for secure transactions
+                        • With Vancouver partner studios for class bookings
+                        • With Stripe for secure payment processing
+                        • With Supabase for secure data storage
                         • When required by law or to protect our rights
                         • With your explicit consent
                         """
@@ -77,13 +80,13 @@ struct PrivacyPolicyView: View {
                         content: """
                         If you have any questions about this Privacy Policy, please contact us at:
                         
-                        Email: privacy@hobbyist.app
+                        Email: privacy@hobbyapp.ca
                         Address: Vancouver, BC, Canada
                         """
                     )
                 }
                 
-                Text("Last updated: November 2024")
+                Text("Last updated: November 6, 2025")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.top)

@@ -11,15 +11,22 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 // Initialize Stripe client with secret key for secure API calls
-const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: STRIPE_API_VERSION,
-});
+const STRIPE_API_VERSION = '2024-06-20' as Stripe.LatestApiVersion;
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: STRIPE_API_VERSION,
+    })
+  : null;
 
 // Platform commission rate as defined in PAYMENT_LOGIC.md
 const PLATFORM_COMMISSION_RATE = 0.15; 
 
 export async function POST(request: Request) {
+  // Check if Stripe is configured
+  if (!stripe) {
+    return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
+  }
+
   try {
     // --- Authentication/Authorization (Crucial for Production) ---
     // In a real application, robust authentication and authorization

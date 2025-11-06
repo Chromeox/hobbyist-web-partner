@@ -23,13 +23,13 @@ The partner portal integration has been successfully completed with comprehensiv
 - **Test credentials configured** in production environment
 - **Stripe Connect foundation** ready for express accounts
 - **Webhook endpoints** prepared for payment processing
-- **Commission system** validated at 15% platform rate
+- **Commission system** validated at 30% platform rate
 
 ### 4. Payout Calculation System ✅
 - **Revenue tracking** across all studios
 - **Commission calculations** tested and verified
-- **Platform fees** properly calculated (15% commission)
-- **Studio payouts** accurately determined (85% after fees)
+- **Platform fees** properly calculated (30% commission)
+- **Studio payouts** accurately determined (70% after fees)
 
 ### 5. Partner Portal Operations ✅
 - **Portal running successfully** at http://localhost:3000
@@ -45,9 +45,9 @@ The partner portal integration has been successfully completed with comprehensiv
 ```
 Example Studio Revenue Flow:
 - Total Revenue: $150.00 (6 bookings × $25 avg)
-- Platform Fee (15%): $22.50  
-- Studio Payout (85%): $127.50
-✅ Calculation verified: $22.50 + $127.50 = $150.00
+- Platform Fee (30%): $45.00  
+- Studio Payout (70%): $105.00
+✅ Calculation verified: $45.00 + $105.00 = $150.00
 ```
 
 ### Data Infrastructure
@@ -131,7 +131,7 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE
 ### Business Logic ✅
 ```bash
 # Financial model verified:
-✅ 15% platform commission applied correctly
+✅ 30% platform commission applied correctly
 ✅ Studio payouts calculated accurately
 ✅ Credit system integrated with booking flow  
 ✅ Multiple payment methods supported

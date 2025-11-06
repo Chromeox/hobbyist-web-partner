@@ -223,7 +223,7 @@ Studios on our platform:
 - Set their own class prices
 - Manage their own schedules
 - Handle their own instruction
-- Receive 85% of booking revenue (we retain 15% platform fee)
+- Receive 70% of booking revenue (we retain 30% platform fee)
 
 ### Beta Testing Terms
 During beta/TestFlight phase:

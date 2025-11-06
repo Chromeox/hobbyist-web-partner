@@ -46,6 +46,8 @@ struct TermsOfServiceView: View {
                         • Cancellation policies vary by studio
                         • Refunds are processed according to studio policies
                         • You are responsible for attending booked classes
+                        • Platform fee of 30% applies to all bookings (70% goes to studios)
+                        • Credit packs offer better value: $25 (5 credits), $50 (12 credits), $90 (25 credits)
                         """
                     )
                     
@@ -87,7 +89,7 @@ struct TermsOfServiceView: View {
                     )
                 }
                 
-                Text("Last updated: November 2024")
+                Text("Last updated: November 6, 2025")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.top)
