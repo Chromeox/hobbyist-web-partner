@@ -58,7 +58,7 @@ export async function GET(request: Request) {
         CalendarIntegrationRow,
         'id' | 'provider' | 'sync_enabled' | 'sync_status' | 'last_sync_at' | 'updated_at'
       >
-    > = (integrations ?? []).map(integration => ({
+    > = (integrations ?? []).map((integration: CalendarIntegrationRow) => ({
       id: integration.id,
       provider: integration.provider,
       sync_enabled: integration.sync_enabled,
