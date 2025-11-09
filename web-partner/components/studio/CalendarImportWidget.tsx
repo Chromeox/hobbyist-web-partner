@@ -116,30 +116,11 @@ export default function CalendarImportWidget({
       id: 'google',
       name: 'Google Calendar',
       icon: '📅',
-      description: 'Sync with your Google Calendar events and schedules',
+      description: 'Connect your Google Calendar for intelligent scheduling insights',
       status: connectedProviders.has('google') ? 'connected' : 'available',
       features: ['Calendar Events', 'Recurring Schedules', 'Room Bookings', 'Attendee Lists'],
       setupTime: '1-2 minutes',
       authUrl: '/api/auth/google?type=calendar'
-    },
-    {
-      id: 'square',
-      name: 'Square Appointments',
-      icon: '⬜',
-      description: 'Advanced booking system integration (coming soon)',
-      status: 'disabled',
-      features: ['Bookings & Appointments', 'Service Catalog', 'Customer Data', 'Payment History'],
-      setupTime: '2-3 minutes',
-      authUrl: '/api/auth/square'
-    },
-    {
-      id: 'calendly',
-      name: 'Calendly',
-      icon: '📆',
-      description: 'Import scheduled events and booking data from Calendly',
-      status: 'disabled',
-      features: ['Scheduled Events', 'Event Types', 'Invitee Data', 'Booking Links'],
-      setupTime: '2-3 minutes'
     }
   ];
 
@@ -198,11 +179,11 @@ export default function CalendarImportWidget({
             </div>
             <div>
               <CardTitle className="flex items-center gap-2">
-                Calendar Integration
+                Google Calendar Integration
                 {highlightSetup && <Zap className="h-4 w-4 text-orange-500" />}
               </CardTitle>
               <CardDescription>
-                Connect your booking systems to generate intelligent insights
+                Connect Google Calendar to unlock smart scheduling insights
               </CardDescription>
             </div>
           </div>
@@ -220,7 +201,7 @@ export default function CalendarImportWidget({
             <TrendingUp className="h-4 w-4" />
             <AlertTitle>Unlock Studio Intelligence</AlertTitle>
             <AlertDescription>
-              Import your calendar data to get AI-powered recommendations that increase revenue by an average of 20%.
+              Connect Google Calendar to get AI-powered scheduling recommendations that can increase efficiency by 20%.
             </AlertDescription>
           </Alert>
         )}

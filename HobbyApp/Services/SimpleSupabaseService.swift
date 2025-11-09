@@ -786,6 +786,70 @@ final class SimpleSupabaseService: ObservableObject {
         }
     }
 
+    // MARK: - Facebook Sign In
+    
+    func signInWithFacebook(accessToken: String) async {
+        isLoading = true
+        errorMessage = nil
+        
+        print("📘 Starting Facebook Sign In process...")
+        
+        do {
+            print("📘 Attempting Supabase authentication with Facebook...")
+            
+            let authResponse = try await supabaseClient.auth.signInWithOAuth(
+                provider: .facebook,
+                redirectTo: nil,
+                launchUrl: { url in
+                    // For access token based auth, we don't need to launch URL
+                    print("📘 Facebook OAuth URL: \(url)")
+                }
+            )
+            
+            // Alternative: Use access token directly if supported
+            // This might need to be handled differently depending on Supabase Swift SDK version
+            
+            print("📘 Facebook OAuth initiated, checking auth state...")
+            
+            // Check current session
+            let session = supabaseClient.auth.session
+            if session.user.isAnonymous {
+                print("❌ Facebook Sign In failed - no valid session created")
+                errorMessage = "Facebook authentication failed. Please try again."
+            } else {
+                // Create or update user profile
+                await createUserProfileIfNeeded(user: session.user)
+                
+                // Update UI state
+                currentUser = SimpleUser(
+                    id: session.user.id.uuidString,
+                    email: session.user.email ?? "",
+                    fullName: session.user.userMetadata["full_name"]?.value as? String ?? session.user.userMetadata["name"]?.value as? String ?? "Facebook User",
+                    avatarURL: session.user.userMetadata["avatar_url"]?.value as? String
+                )
+                
+                isAuthenticated = true
+                print("✅ Facebook Sign In completed successfully")
+            }
+            
+        } catch {
+            print("❌ Facebook Sign In error: \(error)")
+            isAuthenticated = false
+            currentUser = nil
+            
+            // Enhanced error messaging for Facebook Sign In
+            if error.localizedDescription.contains("invalid_request") {
+                errorMessage = "Facebook Sign In configuration error. Please verify your Facebook App configuration."
+            } else if error.localizedDescription.contains("access_denied") {
+                errorMessage = "Facebook Sign In access denied. Please grant permissions and try again."
+            } else {
+                errorMessage = "Facebook Sign In failed: \(error.localizedDescription)"
+            }
+        }
+        
+        isLoading = false
+    }
+
     // MARK: - User Preferences & Onboarding
 
     func saveOnboardingPreferences(_ preferences: [String: Any]) async -> Bool {

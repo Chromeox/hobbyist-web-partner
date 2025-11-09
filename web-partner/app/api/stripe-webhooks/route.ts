@@ -11,20 +11,35 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-// Initialize Stripe client
+// Stripe configuration
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: STRIPE_API_VERSION,
-});
 
-// The webhook secret is used to verify the authenticity of incoming Stripe events.
-// It ensures that the event truly came from Stripe and not a malicious third party.
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+// Initialize Stripe client only when needed
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: STRIPE_API_VERSION,
+  });
+}
+
+// Get webhook secret only when needed
+function getWebhookSecret() {
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error('STRIPE_WEBHOOK_SECRET environment variable is not set');
+  }
+  return process.env.STRIPE_WEBHOOK_SECRET;
+}
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
+    // Initialize Stripe and get webhook secret
+    const stripe = getStripe();
+    const webhookSecret = getWebhookSecret();
+    
     // Read the raw request body as text.
     const buf = await req.text();
     // Get the Stripe signature from the request headers.

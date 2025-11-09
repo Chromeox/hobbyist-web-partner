@@ -2,6 +2,8 @@ import Foundation
 import Combine
 import PassKit
 import Supabase
+import StripePaymentSheet
+import StripeApplePay
 
 // MARK: - Payment Models
 
@@ -196,7 +198,7 @@ final class PaymentService: ObservableObject {
         )
     }
     
-    /// Present native payment sheet (mock implementation for now)
+    /// Present native Stripe payment sheet
     func presentPaymentSheet() async -> PaymentResult {
         guard let config = paymentSheetConfiguration else {
             return PaymentResult(
@@ -210,19 +212,72 @@ final class PaymentService: ObservableObject {
         isProcessingPayment = true
         defer { isProcessingPayment = false }
         
-        // Simulate payment processing
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        // Configure Stripe PaymentSheet
+        var configuration = PaymentSheet.Configuration()
+        configuration.merchantDisplayName = config.merchantDisplayName
+        configuration.allowsDelayedPaymentMethods = config.allowsDelayedPaymentMethods
         
-        // Mock successful payment for development
-        let result = PaymentResult(
-            success: true,
-            paymentIntentId: extractPaymentIntentId(from: config.paymentIntentClientSecret),
-            error: nil,
-            paymentMethod: .card
+        // Add Apple Pay configuration
+        if let appleMerchantId = Configuration.shared.appleMerchantId {
+            configuration.applePay = .init(
+                merchantId: appleMerchantId,
+                merchantCountryCode: "CA"
+            )
+        }
+        
+        // Create PaymentSheet
+        let paymentSheet = PaymentSheet(
+            paymentIntentClientSecret: config.paymentIntentClientSecret,
+            configuration: configuration
         )
         
-        lastPaymentResult = result
-        return result
+        // Present payment sheet and await result
+        return await withCheckedContinuation { continuation in
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first,
+                  let rootViewController = window.rootViewController else {
+                continuation.resume(returning: PaymentResult(
+                    success: false,
+                    paymentIntentId: nil,
+                    error: .stripeConfigurationError,
+                    paymentMethod: nil
+                ))
+                return
+            }
+            
+            paymentSheet.present(from: rootViewController) { [weak self] result in
+                DispatchQueue.main.async {
+                    let paymentResult: PaymentResult
+                    
+                    switch result {
+                    case .completed:
+                        paymentResult = PaymentResult(
+                            success: true,
+                            paymentIntentId: self?.extractPaymentIntentId(from: config.paymentIntentClientSecret),
+                            error: nil,
+                            paymentMethod: .card
+                        )
+                    case .canceled:
+                        paymentResult = PaymentResult(
+                            success: false,
+                            paymentIntentId: nil,
+                            error: .userCancelled,
+                            paymentMethod: nil
+                        )
+                    case .failed(let error):
+                        paymentResult = PaymentResult(
+                            success: false,
+                            paymentIntentId: nil,
+                            error: .paymentFailed(error.localizedDescription),
+                            paymentMethod: nil
+                        )
+                    }
+                    
+                    self?.lastPaymentResult = paymentResult
+                    continuation.resume(returning: paymentResult)
+                }
+            }
+        }
     }
     
     /// Confirm payment completion with backend
@@ -255,9 +310,13 @@ final class PaymentService: ObservableObject {
     // MARK: - Private Methods
     
     private func loadStripeConfiguration() {
-        // In a real implementation, this would load from secure configuration
-        // For now, this is a placeholder
-        publishableKey = "pk_test_placeholder"
+        // Load actual Stripe configuration from Configuration.swift
+        let configuration = Configuration.shared
+        publishableKey = configuration.stripePublishableKey
+        
+        // Configure Stripe SDK
+        StripeAPI.defaultPublishableKey = publishableKey
+        print("✅ Stripe configured with publishable key: \(publishableKey?.prefix(20) ?? "none")...")
     }
     
     private func extractPaymentIntentId(from clientSecret: String) -> String {

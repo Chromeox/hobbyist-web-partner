@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { usePaymentModel } from '@/contexts/PaymentModelContext';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import { format, addDays, addWeeks, addMonths, isWeekend, nextMonday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import {
@@ -87,7 +87,6 @@ interface PaymentMethod {
 
 const PayoutSchedule: React.FC = () => {
   const { paymentModel } = usePaymentModel();
-  const supabase = createClientComponentClient();
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Facebook SDK Integration Script for HobbyApp
+# Run this script to add Facebook SDK to your Xcode project
+
+echo "🔵 Adding Facebook SDK to HobbyApp..."
+
+# Instructions for manual integration
+echo ""
+echo "MANUAL STEPS REQUIRED:"
+echo ""
+echo "1. Open HobbyApp.xcodeproj in Xcode"
+echo "2. Go to File → Add Package Dependencies"
+echo "3. Enter this URL: https://github.com/facebook/facebook-ios-sdk"
+echo "4. Choose 'Up to Next Major Version' with 16.0.0"
+echo "5. Select these products:"
+echo "   - FacebookCore"
+echo "   - FacebookLogin"
+echo "6. Click 'Add Package'"
+echo ""
+echo "7. In your Info.plist, add Facebook App ID:"
+echo "   <key>CFBundleURLTypes</key>"
+echo "   <array>"
+echo "     <dict>"
+echo "       <key>CFBundleURLSchemes</key>"
+echo "       <array>"
+echo "         <string>fb[YOUR_FACEBOOK_APP_ID]</string>"
+echo "       </array>"
+echo "     </dict>"
+echo "   </array>"
+echo ""
+echo "   <key>FacebookAppID</key>"
+echo "   <string>[YOUR_FACEBOOK_APP_ID]</string>"
+echo "   <key>FacebookClientToken</key>"
+echo "   <string>[YOUR_FACEBOOK_CLIENT_TOKEN]</string>"
+echo "   <key>FacebookDisplayName</key>"
+echo "   <string>HobbyApp</string>"
+echo ""
+echo "8. Replace [YOUR_FACEBOOK_APP_ID] and [YOUR_FACEBOOK_CLIENT_TOKEN] with actual values"
+echo ""
+echo "✅ After completing these steps, Facebook SDK will be ready!"
+echo ""
+echo "Next: Update LoginView.swift to use proper Facebook authentication"

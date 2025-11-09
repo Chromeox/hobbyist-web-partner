@@ -69,16 +69,16 @@ struct RewardsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(reward.title)
-                            .font(BrandConstants.Typography.subheadline)
+                            .font(.subheadline)
                             .fontWeight(.semibold)
                         Text(reward.detail)
-                            .font(BrandConstants.Typography.footnote)
+                            .font(.footnote)
                             .foregroundColor(.secondary)
                     }
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(BrandConstants.CornerRadius.md)
+                .cornerRadius(12)
             }
         }
     }

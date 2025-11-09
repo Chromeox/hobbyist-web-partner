@@ -1,4 +1,5 @@
 import SwiftUI
+import FacebookLogin
 import AuthenticationServices
 import GoogleSignIn
 
@@ -771,17 +772,58 @@ struct LoginView: View {
     private func performFacebookSignIn() {
         print("📘 Starting Facebook Sign In flow")
         
-        // Facebook Sign In implementation would go here
-        // For now, show a placeholder message
-        alertTitle = "Facebook Sign In"
-        alertMessage = "Facebook authentication coming soon! This will integrate with Supabase for secure Facebook login."
-        showAlert = true
+        let loginManager = LoginManager()
+        loginManager.logIn(permissions: ["email", "public_profile"], from: nil) { [weak self] result, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ Facebook Sign In error: \(error.localizedDescription)")
+                    self?.alertTitle = "Facebook Sign In Failed"
+                    self?.alertMessage = error.localizedDescription
+                    self?.showAlert = true
+                    return
+                }
+                
+                guard let result = result, !result.isCancelled else {
+                    print("🔵 Facebook Sign In cancelled by user")
+                    return
+                }
+                
+                if let token = result.token?.tokenString {
+                    print("✅ Facebook Sign In successful")
+                    Task {
+                        await self?.handleFacebookSignIn(accessToken: token)
+                    }
+                } else {
+                    print("❌ Failed to get Facebook access token")
+                    self?.alertTitle = "Facebook Sign In Failed"
+                    self?.alertMessage = "Failed to get authentication token"
+                    self?.showAlert = true
+                }
+            }
+        }
+    }
+    
+    private func handleFacebookSignIn(accessToken: String) async {
+        print("📘 Processing Facebook Sign In with Supabase...")
         
-        // TODO: Add Facebook SDK integration
-        // 1. Add Facebook SDK to the project
-        // 2. Configure Facebook App ID in Info.plist
-        // 3. Implement Facebook Login Manager
-        // 4. Integrate with Supabase auth
+        // Integrate with Supabase Facebook auth
+        await supabaseService.signInWithFacebook(accessToken: accessToken)
+        
+        DispatchQueue.main.async {
+            if let errorMessage = self.supabaseService.errorMessage {
+                self.alertTitle = "Facebook Sign In Failed"
+                self.alertMessage = errorMessage
+                self.showAlert = true
+            } else if self.supabaseService.isAuthenticated {
+                // Determine if this is a new user by checking if we have user preferences
+                Task {
+                    let hasPreferences = await self.supabaseService.fetchUserPreferences() != nil
+                    self.biometricService.saveLastAuthenticationMethod("facebook")
+                    HapticFeedbackService.shared.playSuccess()
+                    self.onLoginSuccess(!hasPreferences) // true if new user (no preferences)
+                }
+            }
+        }
     }
     
     // MARK: - Phone Number Sign In Handler

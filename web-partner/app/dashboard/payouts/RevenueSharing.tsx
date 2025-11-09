@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import {
   Calculator,
   Percent,
@@ -73,7 +73,6 @@ interface VenueCommission {
 }
 
 const RevenueSharing: React.FC = () => {
-  const supabase = createClientComponentClient();
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);

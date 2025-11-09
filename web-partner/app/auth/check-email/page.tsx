@@ -5,13 +5,13 @@
 
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, ArrowRight, RefreshCw } from 'lucide-react'
+import { Mail, ArrowRight, RefreshCw, Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PublicRoute } from '@/lib/components/ProtectedRoute'
 
-export default function CheckEmailPage() {
+function CheckEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get('email') || 'your email'
@@ -127,5 +127,20 @@ export default function CheckEmailPage() {
         </div>
       </div>
     </PublicRoute>
+  )
+}
+
+export default function CheckEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    }>
+      <CheckEmailContent />
+    </Suspense>
   )
 }

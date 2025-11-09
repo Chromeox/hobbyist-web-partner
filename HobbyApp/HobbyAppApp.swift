@@ -1,11 +1,15 @@
 import SwiftUI
 import GoogleSignIn
+import FacebookCore
 
 @main
 struct HobbyAppApp: App {
     init() {
         // Configure Google Sign In
         configureGoogleSignIn()
+        
+        // Configure Facebook SDK
+        configureFacebookSDK()
 
         // Configure app appearance
         configureAppearance()
@@ -15,6 +19,15 @@ struct HobbyAppApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL(perform: { url in
+                    // Handle Facebook URL callbacks
+                    ApplicationDelegate.shared.application(
+                        UIApplication.shared,
+                        open: url,
+                        sourceApplication: nil,
+                        annotation: [UIApplication.OpenURLOptionsKey.annotation]
+                    )
+                })
         }
     }
 
@@ -26,6 +39,15 @@ struct HobbyAppApp: App {
         }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
         print("✅ Google Sign In configured with client ID: \(clientId)")
+    }
+    
+    private func configureFacebookSDK() {
+        // Initialize Facebook SDK
+        ApplicationDelegate.shared.application(
+            UIApplication.shared,
+            didFinishLaunchingWithOptions: nil
+        )
+        print("✅ Facebook SDK initialized")
     }
 
     private func configureAppearance() {

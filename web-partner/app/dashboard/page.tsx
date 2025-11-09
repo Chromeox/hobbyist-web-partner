@@ -9,6 +9,7 @@ import { ProtectedRoute } from '@/lib/components/ProtectedRoute'
 import { useUserProfile } from '@/lib/hooks/useAuth'
 import DashboardLayout from './DashboardLayout'
 import DashboardOverview from './DashboardOverview'
+import LoadingState, { LoadingStates } from '@/components/ui/LoadingState'
 
 export default function DashboardPage() {
   const { profile, isLoading } = useUserProfile()
@@ -22,10 +23,11 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
+        <LoadingState 
+          message={LoadingStates.dashboard.message}
+          description={LoadingStates.dashboard.description}
+          size="lg"
+        />
       </div>
     )
   }

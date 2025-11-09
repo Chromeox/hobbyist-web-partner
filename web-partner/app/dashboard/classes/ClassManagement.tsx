@@ -42,6 +42,7 @@ import BackButton from '@/components/common/BackButton';
 import { useUserProfile } from '@/lib/hooks/useAuth';
 import type { Class, ClassFormData } from '@/types/class-management';
 import { mapClassToFormData, mapDbClassToUiClass } from '@/lib/utils/class-mappers';
+import LoadingState, { LoadingStates } from '@/components/ui/LoadingState';
 
 type ClassStatus = Class['status'];
 
@@ -500,7 +501,7 @@ export default function ClassManagement() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 {categoryOptions.map((category) => (
                   <option key={category} value={category}>
@@ -516,7 +517,7 @@ export default function ClassManagement() {
                 onChange={(e) =>
                   setSelectedStatus(e.target.value as 'all' | ClassStatus)
                 }
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 {['all', ...STATUS_OPTIONS].map((status) => (
                   <option key={status} value={status}>
@@ -530,7 +531,7 @@ export default function ClassManagement() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 <option value="name">Sort by Name</option>
                 <option value="instructor">Sort by Instructor</option>
@@ -561,10 +562,11 @@ export default function ClassManagement() {
       )}
 
       {loadingState ? (
-        <div className="py-16 flex flex-col items-center justify-center text-center text-gray-500">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-3" />
-          <p>Loading your classes…</p>
-        </div>
+        <LoadingState 
+          message={LoadingStates.classes.message}
+          description={LoadingStates.classes.description}
+          size="lg"
+        />
       ) : (
         <div
           className={viewMode === 'grid'

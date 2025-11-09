@@ -2,24 +2,40 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: STRIPE_API_VERSION,
-});
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+// Initialize Stripe client only when needed
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: STRIPE_API_VERSION,
+  });
+}
+
+function getEndpointSecret() {
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error('STRIPE_WEBHOOK_SECRET environment variable is not set');
+  }
+  return process.env.STRIPE_WEBHOOK_SECRET;
+}
 
 export async function POST(request: NextRequest) {
-  const body = await request.text();
-  const sig = request.headers.get('stripe-signature')!;
-
-  let event: Stripe.Event;
-
   try {
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
-  } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message);
-    return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
-  }
+    const stripe = getStripe();
+    const endpointSecret = getEndpointSecret();
+    
+    const body = await request.text();
+    const sig = request.headers.get('stripe-signature')!;
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
+    }
 
   // Handle the event
   try {
@@ -64,6 +80,10 @@ export async function POST(request: NextRequest) {
       { error: 'Webhook handler failed' },
       { status: 500 }
     );
+  }
+  } catch (err: any) {
+    console.error('Stripe initialization error:', err.message);
+    return NextResponse.json({ error: 'Stripe configuration error' }, { status: 500 });
   }
 }
 

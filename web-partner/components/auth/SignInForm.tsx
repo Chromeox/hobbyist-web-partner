@@ -115,11 +115,21 @@ export const SignInForm = memo(function SignInForm() {
           Sign In to Partner Portal
         </h2>
 
-        {/* Demo credentials info */}
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm font-medium text-blue-900 mb-1">Demo Account Available:</p>
-          <p className="text-xs text-blue-700">Email: demo@hobbyist.com</p>
-          <p className="text-xs text-blue-700">Password: demo123456</p>
+        {/* Demo & Admin credentials info - Highlighted */}
+        <div className="mb-4 space-y-3">
+          <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+            <p className="text-sm font-semibold text-green-900 mb-2">✅ Demo Studio Account:</p>
+            <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded">demo@hobbyist.com</p>
+            <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded mt-1">demo123456</p>
+            <p className="text-xs text-green-700 mt-2">Studio owner access with full features</p>
+          </div>
+          
+          <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
+            <p className="text-sm font-semibold text-purple-900 mb-2">👑 Admin Account:</p>
+            <p className="text-sm font-mono text-purple-800 bg-purple-100 px-2 py-1 rounded">admin@hobbyist.com</p>
+            <p className="text-sm font-mono text-purple-800 bg-purple-100 px-2 py-1 rounded mt-1">admin123456</p>
+            <p className="text-xs text-purple-700 mt-2">Full admin access including payouts & approvals</p>
+          </div>
         </div>
 
         {state.error && (
@@ -214,12 +224,16 @@ export const SignInForm = memo(function SignInForm() {
             </div>
           </div>
 
+          {/* OAuth temporarily disabled - see OAUTH_SETUP_GUIDE.md for configuration */}
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => handleOAuthSignIn('google')}
-              disabled={state.isLoading}
-              className="w-full py-2 px-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                setState(prev => ({ ...prev, error: 'Google OAuth is being configured. Please use email/password or the demo account for now.' }))
+              }}
+              disabled={true}
+              className="w-full py-2 px-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed opacity-50"
+              title="Google OAuth configuration in progress"
             >
               <svg className="h-5 w-5 mx-auto" viewBox="0 0 24 24">
                 <path
@@ -243,14 +257,23 @@ export const SignInForm = memo(function SignInForm() {
 
             <button
               type="button"
-              onClick={() => handleOAuthSignIn('apple')}
-              disabled={state.isLoading}
-              className="w-full py-2 px-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                setState(prev => ({ ...prev, error: 'Apple OAuth is being configured. Please use email/password or the demo account for now.' }))
+              }}
+              disabled={true}
+              className="w-full py-2 px-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed opacity-50"
+              title="Apple OAuth configuration in progress"
             >
               <svg className="h-5 w-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.569 12.382c-.04-1.29.444-2.342 1.451-3.159-.542-.774-1.355-1.213-2.437-1.317-.981-.094-2.064.585-2.605.585-.541 0-1.396-.57-2.165-.554-1.165.015-2.179.668-2.724 1.677-1.159 2.024-.295 4.981.798 6.616.572.802 1.217 1.683 2.059 1.652.847-.031 1.158-.528 2.179-.528 1.021 0 1.311.528 2.179.513.905-.016 1.456-.795 1.997-1.611.638-.893.883-1.788.898-1.835-.02-.005-1.695-.635-1.73-2.539zm-1.591-4.645c.444-.558.754-1.301.662-2.072-.695.031-1.532.476-2.007 1.034-.428.496-.816 1.301-.719 2.057.76.061 1.545-.381 2.064-1.019z"/>
               </svg>
             </button>
+          </div>
+          
+          <div className="mt-3 text-center">
+            <p className="text-xs text-gray-500">
+              OAuth providers are being configured. See OAUTH_SETUP_GUIDE.md for details.
+            </p>
           </div>
         </div>
 

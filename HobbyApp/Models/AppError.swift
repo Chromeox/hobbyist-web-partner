@@ -31,32 +31,9 @@ struct Achievement: Codable, Identifiable {
     }
 }
 
-// MARK: - Core Data Models for Services
+// MARK: - Service Classes
 
-struct Instructor: Codable, Identifiable {
-    let id: String
-    let name: String
-    let email: String
-    let bio: String
-    let specialties: [String]
-    let rating: Double
-    let totalClasses: Int
-    let isActive: Bool
-    let studioId: String?
-    
-    init(id: String, name: String, email: String, bio: String, specialties: [String], rating: Double, totalClasses: Int, isActive: Bool, studioId: String?) {
-        self.id = id
-        self.name = name
-        self.email = email
-        self.bio = bio
-        self.specialties = specialties
-        self.rating = rating
-        self.totalClasses = totalClasses
-        self.isActive = isActive
-        self.studioId = studioId
-    }
-}
-
+// MARK: - Studio struct for service compatibility
 struct Studio: Codable, Identifiable {
     let id: String
     let name: String
@@ -79,51 +56,6 @@ struct Studio: Codable, Identifiable {
         self.postalCode = postalCode
         self.isActive = isActive
     }
-}
-
-struct Venue: Codable, Identifiable {
-    let id: String
-    let name: String
-    let address: String
-    let city: String
-    let isActive: Bool
-    
-    init(id: String, name: String, address: String, city: String, isActive: Bool) {
-        self.id = id
-        self.name = name
-        self.address = address
-        self.city = city
-        self.isActive = isActive
-    }
-}
-
-struct Booking: Codable, Identifiable {
-    let id: String
-    let userId: String
-    let classId: String
-    let className: String
-    let instructor: String
-    let bookingDate: Date
-    let status: String
-    let price: Double
-    let venue: String
-    
-    var formattedPrice: String {
-        if price == 0 { return "Free" }
-        return price.truncatingRemainder(dividingBy: 1) == 0
-            ? "$\(Int(price))"
-            : String(format: "$%.2f", price)
-    }
-}
-
-struct Review: Codable, Identifiable {
-    let id: String
-    let userId: String
-    let classId: String
-    let userName: String
-    let rating: Int
-    let comment: String
-    let createdAt: Date
 }
 
 // MARK: - Extensions for ClassItem compatibility
@@ -189,7 +121,7 @@ class CrashReportingService {
 class BookingService {
     static let shared = BookingService()
     private let supabase = SupabaseManager.shared
-    private let simpleSupabaseService = SimpleSupabaseService.shared
+    private lazy var simpleSupabaseService = SimpleSupabaseService.shared
     private init() {}
     
     func createBooking(classId: String, userId: String, creditsUsed: Int = 1, paymentMethod: String = "credits") async throws -> Bool {
@@ -575,7 +507,7 @@ class ReviewService {
 class UserService {
     static let shared = UserService()
     private let supabase = SupabaseManager.shared
-    private let simpleSupabaseService = SimpleSupabaseService.shared
+    private lazy var simpleSupabaseService = SimpleSupabaseService.shared
     private init() {}
     
     func updateProfile(userId: String, fullName: String?, bio: String?) async throws -> Bool {
@@ -1088,7 +1020,7 @@ typealias VenueService = StudioService
 class ClassService {
     static let shared = ClassService()
     private let supabase = SupabaseManager.shared
-    private let simpleSupabaseService = SimpleSupabaseService.shared
+    private lazy var simpleSupabaseService = SimpleSupabaseService.shared
 
     private init() {}
 
@@ -1220,7 +1152,7 @@ class ClassService {
             .map { $0 }
     }
     
-    func getClassesByCategory(_ category: HobbyClass.Category) async throws -> [HobbyClass] {
+    func getClassesByCategory(_ category: ClassCategory) async throws -> [HobbyClass] {
         let allClasses = try await fetchClasses()
         return allClasses.filter { $0.category == category }
     }
@@ -1358,20 +1290,10 @@ class ClassService {
         )
         
         // Map category
-        let category = HobbyClass.Category(rawValue: categoryString.lowercased()) ?? .general
+        let category = ClassCategory(rawValue: categoryString) ?? .other
         
         // Map difficulty
-        let difficulty: HobbyClass.Difficulty
-        switch skillLevel.lowercased() {
-        case "beginner":
-            difficulty = .beginner
-        case "intermediate":
-            difficulty = .intermediate
-        case "advanced":
-            difficulty = .advanced
-        default:
-            difficulty = .allLevels
-        }
+        let difficulty = DifficultyLevel(rawValue: skillLevel) ?? .beginner
         
         let duration = Int(endDate.timeIntervalSince(startDate) / 60) // minutes
         let totalPrice = price + materialFee
@@ -1433,8 +1355,8 @@ class ClassService {
             price: simpleClass.price,
             maxParticipants: simpleClass.maxParticipants ?? 20,
             currentParticipants: simpleClass.currentParticipants ?? 0,
-            category: HobbyClass.Category(rawValue: simpleClass.category.lowercased()) ?? .general,
-            difficulty: HobbyClass.Difficulty(rawValue: simpleClass.difficulty.lowercased()) ?? .beginner,
+            category: ClassCategory(rawValue: simpleClass.category) ?? .other,
+            difficulty: DifficultyLevel(rawValue: simpleClass.difficulty) ?? .beginner,
             tags: simpleClass.tags,
             requirements: simpleClass.requirements,
             whatToBring: simpleClass.whatToBring,

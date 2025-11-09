@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { PaymentModelProvider } from '@/lib/contexts/PaymentModelContext'
 import { Toaster } from 'react-hot-toast'
+import GlobalErrorBoundary from '@/components/error/GlobalErrorBoundary'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,36 +36,38 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
       </head>
       <body className={inter.className}>
-        <AuthProvider>
-          <PaymentModelProvider>
-            <div id="root">{children}</div>
-            <div id="modal-root" />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-                success: {
-                  duration: 3000,
-                  iconTheme: {
-                    primary: '#4ade80',
-                    secondary: '#fff',
+        <GlobalErrorBoundary>
+          <AuthProvider>
+            <PaymentModelProvider>
+              <div id="root">{children}</div>
+              <div id="modal-root" />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
                   },
-                },
-                error: {
-                  duration: 5000,
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
+                  success: {
+                    duration: 3000,
+                    iconTheme: {
+                      primary: '#4ade80',
+                      secondary: '#fff',
+                    },
                   },
-                },
-              }}
-            />
-          </PaymentModelProvider>
-        </AuthProvider>
+                  error: {
+                    duration: 5000,
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
+            </PaymentModelProvider>
+          </AuthProvider>
+        </GlobalErrorBoundary>
       </body>
     </html>
   )

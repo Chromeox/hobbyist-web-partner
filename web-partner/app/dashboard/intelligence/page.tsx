@@ -82,7 +82,7 @@ export default function IntelligencePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading intelligence dashboard...</p>
+          <p className="mt-4 text-gray-600">Loading Smart Calendar...</p>
         </div>
       </div>
     )
@@ -99,9 +99,9 @@ export default function IntelligencePage() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Studio Intelligence</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Smart Calendar</h1>
               <p className="text-gray-600 mt-1">
-                Smart recommendations to optimize your studio operations and increase revenue
+                Google Calendar integration with smart recommendations to optimize your studio operations
               </p>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function IntelligencePage() {
 
           {/* Help Section */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-blue-900 mb-2">How Studio Intelligence Works</h2>
+            <h2 className="text-lg font-semibold text-blue-900 mb-2">How Smart Calendar Works</h2>
             <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
               <div>
                 <h3 className="font-medium mb-1">📊 Data Analysis</h3>

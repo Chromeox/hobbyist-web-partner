@@ -1,0 +1,59 @@
+<!-- Add these entries to your Info.plist after getting Facebook App ID -->
+
+<!-- Facebook App Configuration -->
+<key>FacebookAppID</key>
+<string>YOUR_FACEBOOK_APP_ID</string>
+
+<key>FacebookClientToken</key>
+<string>YOUR_FACEBOOK_CLIENT_TOKEN</string>
+
+<key>FacebookDisplayName</key>
+<string>HobbyApp</string>
+
+<!-- Facebook URL Schemes -->
+<key>CFBundleURLTypes</key>
+<array>
+  <!-- Existing URL schemes... -->
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>com.hobbyist.bookingapp.facebook</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>fbYOUR_FACEBOOK_APP_ID</string>
+    </array>
+  </dict>
+</array>
+
+<!-- Application Transport Security for Facebook -->
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <!-- Existing domains... -->
+    <key>facebook.com</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionRequiresForwardSecrecy</key>
+      <false/>
+    </dict>
+    <key>fbcdn.net</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionRequiresForwardSecrecy</key>
+      <false/>
+    </dict>
+    <key>akamaihd.net</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionRequiresForwardSecrecy</key>
+      <false/>
+    </dict>
+  </dict>
+</dict>
+
+<!-- App Tracking Transparency (if needed) -->
+<key>NSUserTrackingUsageDescription</key>
+<string>This app would like to access your device's advertising identifier to provide personalized content and ads.</string>

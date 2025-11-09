@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { useToast } from '@/components/ui/use-toast';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import { format, startOfYear, endOfYear, startOfQuarter, endOfQuarter, subYears, addMonths } from 'date-fns';
 import {
   FileText,
@@ -105,7 +105,6 @@ interface FinancialSummary {
 }
 
 const FinancialReports: React.FC = () => {
-  const supabase = createClientComponentClient();
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);

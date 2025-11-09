@@ -18,13 +18,15 @@
 	</array>
 	-->
 	
-	<!-- HealthKit Capability (for wellness integration) -->
+	<!-- HealthKit Capability (for wellness integration) - TEMPORARILY DISABLED FOR TESTFLIGHT -->
+	<!--
 	<key>com.apple.developer.healthkit</key>
 	<true/>
 	<key>com.apple.developer.healthkit.access</key>
 	<array>
 		<string>health-records</string>
 	</array>
+	-->
 	
 	<!-- Associated Domains -->
 	<key>com.apple.developer.associated-domains</key>
@@ -36,13 +38,15 @@
 	
 	<!-- Push Notifications -->
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 	
-	<!-- In-App Purchase Testing Environment -->
+	<!-- In-App Purchase - NOT NEEDED FOR CLASS CREDITS -->
+	<!--
 	<key>com.apple.developer.in-app-purchase</key>
 	<array>
-		<string>ProductionSandbox</string>
+		<string>Production</string>
 	</array>
+	-->
 
 	<!-- Apple Pay -->
 	<key>com.apple.developer.in-app-payments</key>

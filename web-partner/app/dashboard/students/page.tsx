@@ -8,6 +8,7 @@ import { ProtectedRoute } from '@/lib/components/ProtectedRoute'
 import { useUserProfile } from '@/lib/hooks/useAuth'
 import DashboardLayout from '../DashboardLayout'
 import StudentManagement from './StudentManagement'
+import LoadingState, { LoadingStates } from '@/components/ui/LoadingState'
 
 export default function StudentsPage() {
   const { profile, isLoading } = useUserProfile()
@@ -15,10 +16,11 @@ export default function StudentsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading students...</p>
-        </div>
+        <LoadingState 
+          message={LoadingStates.students.message}
+          description={LoadingStates.students.description}
+          size="lg"
+        />
       </div>
     )
   }

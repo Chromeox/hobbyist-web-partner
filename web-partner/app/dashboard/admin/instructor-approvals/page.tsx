@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import {
   Table,
   TableBody,
@@ -14,19 +14,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Loader2, AlertCircle } from 'lucide-react';
 
-interface InstructorProfile {
+interface InstructorApplication {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  // Add other relevant instructor profile fields here
+  user_id: string | null;
+  experience: string;
+  qualifications: string;
+  categories: string[];
+  status: string | null;
+  admin_notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export default function InstructorApprovalsPage() {
-  const supabase = createClientComponentClient();
-  const [pendingInstructors, setPendingInstructors] = useState<InstructorProfile[]>([]);
+  const [pendingApplications, setPendingApplications] = useState<InstructorApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -39,15 +40,14 @@ export default function InstructorApprovalsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch instructors with 'pending' status
-      // Assuming an 'instructors' table with 'id' and 'status' columns
+      // Fetch instructor applications with 'pending' status
       const { data, error: supabaseError } = await supabase
-        .from('instructors')
-        .select('id, first_name, last_name, email, status, created_at')
+        .from('instructor_applications')
+        .select('id, user_id, experience, qualifications, categories, status, admin_notes, created_at, updated_at')
         .eq('status', 'pending');
 
       if (supabaseError) throw supabaseError;
-      setPendingInstructors(data || []);
+      setPendingApplications(data || []);
     } catch (err: any) {
       console.error('Error fetching pending instructors:', err.message);
       setError('Failed to load pending instructors. Please try again.');
@@ -56,30 +56,23 @@ export default function InstructorApprovalsPage() {
     }
   };
 
-  const handleStatusUpdate = async (instructorId: string, newStatus: 'approved' | 'rejected') => {
-    setProcessingId(instructorId);
+  const handleStatusUpdate = async (applicationId: string, newStatus: 'approved' | 'rejected') => {
+    setProcessingId(applicationId);
     setError(null);
     try {
-      const response = await fetch('/api/instructors/approve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ instructorId, status: newStatus }),
-      });
+      // Update the application status directly via Supabase
+      const { error: updateError } = await supabase
+        .from('instructor_applications')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', applicationId);
 
-      const result = await response.json();
+      if (updateError) throw updateError;
 
-      if (response.ok) {
-        // Remove the instructor from the pending list
-        setPendingInstructors(prev => prev.filter(inst => inst.id !== instructorId));
-        // Optionally, show a success toast/notification
-        console.log(result.message);
-      } else {
-        setError(result.error || 'Failed to update instructor status.');
-      }
+      // Remove the application from the pending list
+      setPendingApplications(prev => prev.filter(app => app.id !== applicationId));
+      console.log(`Application ${newStatus} successfully`);
     } catch (err: any) {
-      console.error('Error updating instructor status:', err.message);
+      console.error('Error updating application status:', err.message);
       setError('An unexpected error occurred while updating status.');
     } finally {
       setProcessingId(null);
@@ -109,41 +102,43 @@ export default function InstructorApprovalsPage() {
       <h1 className="text-3xl font-bold text-gray-900">Instructor Approvals</h1>
       <p className="text-gray-600">Review and manage pending instructor registrations.</p>
 
-      {pendingInstructors.length === 0 ? (
+      {pendingApplications.length === 0 ? (
         <div className="text-center py-12 border rounded-lg bg-gray-50">
           <Check className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold">No Pending Instructors</h3>
-          <p className="text-gray-500">All instructor registrations have been reviewed.</p>
+          <h3 className="text-lg font-semibold">No Pending Applications</h3>
+          <p className="text-gray-500">All instructor applications have been reviewed.</p>
         </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Registered On</TableHead>
+              <TableHead>User ID</TableHead>
+              <TableHead>Experience</TableHead>
+              <TableHead>Categories</TableHead>
+              <TableHead>Applied On</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pendingInstructors.map((instructor) => (
-              <TableRow key={instructor.id}>
-                <TableCell className="font-medium">{instructor.first_name} {instructor.last_name}</TableCell>
-                <TableCell>{instructor.email}</TableCell>
-                <TableCell>{new Date(instructor.created_at).toLocaleDateString()}</TableCell>
+            {pendingApplications.map((application) => (
+              <TableRow key={application.id}>
+                <TableCell className="font-medium">{application.user_id || 'N/A'}</TableCell>
+                <TableCell>{application.experience.length > 50 ? `${application.experience.substring(0, 50)}...` : application.experience}</TableCell>
+                <TableCell>{application.categories.join(', ')}</TableCell>
+                <TableCell>{application.created_at ? new Date(application.created_at).toLocaleDateString() : 'N/A'}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="capitalize">{instructor.status}</Badge>
+                  <Badge variant="outline" className="capitalize">{application.status || 'pending'}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleStatusUpdate(instructor.id, 'approved')}
-                      disabled={processingId === instructor.id}
+                      onClick={() => handleStatusUpdate(application.id, 'approved')}
+                      disabled={processingId === application.id}
                     >
-                      {processingId === instructor.id ? (
+                      {processingId === application.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Check className="h-4 w-4" />
@@ -153,10 +148,10 @@ export default function InstructorApprovalsPage() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleStatusUpdate(instructor.id, 'rejected')}
-                      disabled={processingId === instructor.id}
+                      onClick={() => handleStatusUpdate(application.id, 'rejected')}
+                      disabled={processingId === application.id}
                     >
-                      {processingId === instructor.id ? (
+                      {processingId === application.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <X className="h-4 w-4" />

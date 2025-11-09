@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useUserProfile } from '@/lib/hooks/useAuth';
+import LoadingState, { LoadingStates } from '@/components/ui/LoadingState';
 
 interface CreditPack {
   id: string;
@@ -136,12 +137,12 @@ export default function PricingManagement() {
 
   if (loading || profileLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3 text-gray-600">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="text-sm">Loading pricing configuration...</span>
-        </div>
-      </div>
+      <LoadingState 
+        message={LoadingStates.pricing.message}
+        description={LoadingStates.pricing.description}
+        size="lg"
+        className="h-64"
+      />
     );
   }
 
@@ -237,6 +238,7 @@ function PricingOverview({
   creditPacks: CreditPack[]; 
   settings: PricingSettings | null; 
 }) {
+  const [showCreditsView, setShowCreditsView] = useState(false);
   return (
     <div className="space-y-6">
       {/* Key Metrics Cards */}
@@ -339,41 +341,99 @@ function PricingOverview({
       {/* Current Credit Packs Preview */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Current Credit Packs</h3>
-          <p className="text-gray-600">Active credit packs available for purchase</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">Current Credit Packs</h3>
+              <p className="text-gray-600">Active credit packs available for purchase</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`text-sm font-medium ${!showCreditsView ? 'text-gray-900' : 'text-gray-500'}`}>
+                Pricing ($)
+              </span>
+              <button
+                onClick={() => setShowCreditsView(!showCreditsView)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  showCreditsView ? 'bg-blue-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                    showCreditsView ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className={`text-sm font-medium ${showCreditsView ? 'text-gray-900' : 'text-gray-500'}`}>
+                Credits
+              </span>
+            </div>
+          </div>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {creditPacks.filter(pack => pack.is_active).map((pack) => (
-            <div
-              key={pack.id}
-              className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
-            >
-              <div className="text-center">
-                <h4 className="font-semibold text-gray-900">{pack.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">{pack.description}</p>
-                <div className="mt-3">
-                  <span className="text-2xl font-bold text-gray-900">${pack.price_formatted}</span>
-                </div>
-                <div className="mt-2">
-                  <span className="text-lg font-medium text-blue-600">
-                    {pack.total_credits} Credits
-                  </span>
-                  {pack.bonus_credits > 0 && (
-                    <div className="text-sm text-green-600">
-                      +{pack.bonus_credits} bonus credits
+          {creditPacks.filter(pack => pack.is_active).map((pack) => {
+            // Calculate cost per credit for credits view
+            const costPerCredit = pack.total_credits > 0 ? pack.price_cents / pack.total_credits / 100 : 0;
+            
+            return (
+              <div
+                key={pack.id}
+                className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+              >
+                <div className="text-center">
+                  <h4 className="font-semibold text-gray-900">{pack.name}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{pack.description}</p>
+                  
+                  {showCreditsView ? (
+                    // Credits view - show credit amount as primary
+                    <>
+                      <div className="mt-3">
+                        <span className="text-2xl font-bold text-blue-600">
+                          {pack.total_credits} Credits
+                        </span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-lg font-medium text-gray-900">
+                          ${costPerCredit.toFixed(2)} per credit
+                        </span>
+                      </div>
+                      {pack.bonus_credits > 0 && (
+                        <div className="text-sm text-green-600 mt-1">
+                          Includes {pack.bonus_credits} bonus credits
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500 mt-2">
+                        Total value: ${pack.price_formatted}
+                      </div>
+                    </>
+                  ) : (
+                    // Pricing view - show dollar amount as primary (original layout)
+                    <>
+                      <div className="mt-3">
+                        <span className="text-2xl font-bold text-gray-900">${pack.price_formatted}</span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-lg font-medium text-blue-600">
+                          {pack.total_credits} Credits
+                        </span>
+                        {pack.bonus_credits > 0 && (
+                          <div className="text-sm text-green-600">
+                            +{pack.bonus_credits} bonus credits
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  
+                  {pack.savings_percentage > 0 && (
+                    <div className="mt-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        {pack.savings_percentage}% savings
+                      </span>
                     </div>
                   )}
                 </div>
-                {pack.savings_percentage > 0 && (
-                  <div className="mt-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      {pack.savings_percentage}% savings
-                    </span>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

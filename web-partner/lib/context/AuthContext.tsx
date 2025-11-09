@@ -78,6 +78,31 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       initializingRef.current = true
 
       try {
+        // Check for demo session first
+        if (typeof window !== 'undefined') {
+          const demoSession = localStorage.getItem('demo_session')
+          const demoUser = localStorage.getItem('demo_user')
+          
+          if (demoSession && demoUser) {
+            const session = JSON.parse(demoSession)
+            const user = JSON.parse(demoUser)
+            
+            // Check if demo session is still valid (1 hour)
+            if (session.expires_at && session.expires_at > Math.floor(Date.now() / 1000)) {
+              if (mountedRef.current) {
+                setSession(session)
+                setUser(user)
+                setIsLoading(false)
+              }
+              return
+            } else {
+              // Clear expired demo session
+              localStorage.removeItem('demo_session')
+              localStorage.removeItem('demo_user')
+            }
+          }
+        }
+        
         const { data, error } = await authService.getSession()
         
         if (!mountedRef.current) return
@@ -169,26 +194,47 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     setIsLoading(true)
     setError(null)
     
-    // Demo credentials check
-    if (email === 'demo@hobbyist.com' && password === 'demo123456') {
+    // Demo credentials check (both demo and admin accounts)
+    if ((email === 'demo@hobbyist.com' && password === 'demo123456') || 
+        (email === 'admin@hobbyist.com' && password === 'admin123456')) {
       // Create mock user and session for demo
+      // Create admin or regular demo user based on email
+      const isAdmin = email === 'admin@hobbyist.com'
       const mockUser = {
-        id: 'demo-user-id',
-        email: 'demo@hobbyist.com',
+        id: isAdmin ? 'admin-user-id' : 'demo-user-id',
+        email: email,
+        aud: 'authenticated',
+        role: 'authenticated', 
+        email_confirmed_at: new Date().toISOString(),
+        phone: '',
+        confirmed_at: new Date().toISOString(),
+        last_sign_in_at: new Date().toISOString(),
+        app_metadata: { provider: 'demo' },
         user_metadata: {
-          first_name: 'Demo',
-          last_name: 'Studio',
-          role: 'instructor',
-          business_name: 'Zenith Wellness Studio'
-        }
+          first_name: isAdmin ? 'Admin' : 'Demo',
+          last_name: isAdmin ? 'User' : 'Studio',
+          role: isAdmin ? 'admin' : 'instructor',
+          business_name: isAdmin ? 'Hobbyist Admin' : 'Zenith Wellness Studio'
+        },
+        identities: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       } as any
       
       const mockSession = {
         user: mockUser,
         access_token: 'demo-token',
         refresh_token: 'demo-refresh',
-        expires_at: Date.now() + 3600000
+        expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        expires_in: 3600,
+        token_type: 'bearer'
       } as any
+      
+      // Store demo session in localStorage for persistence
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('demo_session', JSON.stringify(mockSession))
+        localStorage.setItem('demo_user', JSON.stringify(mockUser))
+      }
       
       if (mountedRef.current) {
         setSession(mockSession)
@@ -263,6 +309,12 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const signOut = useCallback(async () => {
     setIsLoading(true)
     setError(null)
+    
+    // Clear demo session if it exists
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('demo_session')
+      localStorage.removeItem('demo_user')
+    }
     
     const { error } = await authService.signOut()
     

@@ -38,6 +38,14 @@
 				<string>com.googleusercontent.apps.540951673808-34ukvolfrb87ks6qmt2o5s86ll3idibp</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.hobbyist.bookingapp.facebook</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1964533104334373</string>
+			</array>
+		</dict>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
@@ -48,6 +56,13 @@
 		<string>fb</string>
 		<string>twitter</string>
 	</array>
+	<!-- Facebook Configuration -->
+	<key>FacebookAppID</key>
+	<string>1964533104334373</string>
+	<key>FacebookClientToken</key>
+	<string>199b095b3308d6ab373f6acb8f7cc3ad</string>
+	<key>FacebookDisplayName</key>
+	<string>HobbyApp</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -71,6 +86,27 @@
 				<false/>
 				<key>NSIncludesSubdomains</key>
 				<true/>
+			</dict>
+			<key>facebook.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+			<key>fbcdn.net</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+			<key>akamaihd.net</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
 			</dict>
 		</dict>
 	</dict>

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePaymentModel } from '@/contexts/PaymentModelContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabase';
 import {
   DollarSign,
   TrendingUp,
@@ -81,7 +81,6 @@ const PayoutDashboard: React.FC = () => {
   // Hooks for authentication, payment model, and Supabase client
   const { user } = useAuth();
   const { paymentModel } = usePaymentModel(); // Assuming this context provides payment-related info
-  const supabase = createClientComponentClient();
   
   // State variables for loading, date range, and fetched data
   const [loading, setLoading] = useState(true);
