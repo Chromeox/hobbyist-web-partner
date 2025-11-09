@@ -1,5 +1,5 @@
-import SubscriptionTiers from './SubscriptionTiers';
+import ComingSoon from './ComingSoon';
 
 export default function SubscriptionsPage() {
-  return <SubscriptionTiers />;
+  return <ComingSoon />;
 }

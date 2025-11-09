@@ -194,12 +194,15 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     setIsLoading(true)
     setError(null)
     
-    // Demo credentials check
-    if (email === 'demo@hobbyist.com' && password === 'demo123456') {
+    // Demo credentials check (both demo and admin accounts)
+    if ((email === 'demo@hobbyist.com' && password === 'demo123456') || 
+        (email === 'admin@hobbyist.com' && password === 'admin123456')) {
       // Create mock user and session for demo
+      // Create admin or regular demo user based on email
+      const isAdmin = email === 'admin@hobbyist.com'
       const mockUser = {
-        id: 'demo-user-id',
-        email: 'demo@hobbyist.com',
+        id: isAdmin ? 'admin-user-id' : 'demo-user-id',
+        email: email,
         aud: 'authenticated',
         role: 'authenticated', 
         email_confirmed_at: new Date().toISOString(),
@@ -208,10 +211,10 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
         last_sign_in_at: new Date().toISOString(),
         app_metadata: { provider: 'demo' },
         user_metadata: {
-          first_name: 'Demo',
-          last_name: 'Studio',
-          role: 'instructor',
-          business_name: 'Zenith Wellness Studio'
+          first_name: isAdmin ? 'Admin' : 'Demo',
+          last_name: isAdmin ? 'User' : 'Studio',
+          role: isAdmin ? 'admin' : 'instructor',
+          business_name: isAdmin ? 'Hobbyist Admin' : 'Zenith Wellness Studio'
         },
         identities: [],
         created_at: new Date().toISOString(),

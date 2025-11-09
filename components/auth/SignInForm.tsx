@@ -115,12 +115,21 @@ export const SignInForm = memo(function SignInForm() {
           Sign In to Partner Portal
         </h2>
 
-        {/* Demo credentials info - Highlighted */}
-        <div className="mb-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-          <p className="text-sm font-semibold text-green-900 mb-2">✅ Demo Account Ready:</p>
-          <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded">demo@hobbyist.com</p>
-          <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded mt-1">demo123456</p>
-          <p className="text-xs text-green-700 mt-2">Use this account while OAuth is being configured</p>
+        {/* Demo & Admin credentials info - Highlighted */}
+        <div className="mb-4 space-y-3">
+          <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+            <p className="text-sm font-semibold text-green-900 mb-2">✅ Demo Studio Account:</p>
+            <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded">demo@hobbyist.com</p>
+            <p className="text-sm font-mono text-green-800 bg-green-100 px-2 py-1 rounded mt-1">demo123456</p>
+            <p className="text-xs text-green-700 mt-2">Studio owner access with full features</p>
+          </div>
+          
+          <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
+            <p className="text-sm font-semibold text-purple-900 mb-2">👑 Admin Account:</p>
+            <p className="text-sm font-mono text-purple-800 bg-purple-100 px-2 py-1 rounded">admin@hobbyist.com</p>
+            <p className="text-sm font-mono text-purple-800 bg-purple-100 px-2 py-1 rounded mt-1">admin123456</p>
+            <p className="text-xs text-purple-700 mt-2">Full admin access including payouts & approvals</p>
+          </div>
         </div>
 
         {state.error && (

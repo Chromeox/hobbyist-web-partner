@@ -126,7 +126,7 @@ export default function DynamicPricing() {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Active Pricing Rules</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Active Pricing Rules</h3>
           <p className="text-sm text-gray-600 mt-1">Automatically adjust prices based on demand and timing</p>
         </div>
         <button
@@ -163,7 +163,7 @@ export default function DynamicPricing() {
                      <Clock className="w-4 h-4 text-blue-400" />}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white">{rule.name}</h4>
+                    <h4 className="font-semibold text-gray-900">{rule.name}</h4>
                     <p className="text-sm text-gray-600 capitalize">{rule.type.replace('-', ' ')}</p>
                   </div>
                 </div>
@@ -198,21 +198,21 @@ export default function DynamicPricing() {
                   {rule.conditions.timeSlots && (
                     <div className="flex items-center gap-2 text-sm">
                       <Clock className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-300">{rule.conditions.timeSlots.join(', ')}</span>
+                      <span className="text-gray-900">{rule.conditions.timeSlots.join(', ')}</span>
                     </div>
                   )}
 
                   {rule.conditions.minAttendance && (
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-300">When {rule.conditions.minAttendance}% booked</span>
+                      <span className="text-gray-900">When {rule.conditions.minAttendance}% booked</span>
                     </div>
                   )}
 
                   {rule.conditions.bookingWindow && (
                     <div className="flex items-center gap-2 text-sm">
                       <AlertTriangle className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-300">Within {rule.conditions.bookingWindow} hours of class</span>
+                      <span className="text-gray-900">Within {rule.conditions.bookingWindow} hours of class</span>
                     </div>
                   )}
                 </div>
@@ -264,16 +264,16 @@ export default function DynamicPricing() {
   const renderAnalytics = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Demand Patterns & Price Optimization</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Demand Patterns & Price Optimization</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
-            <h4 className="font-medium text-white mb-4">Time Slot Performance</h4>
+            <h4 className="font-medium text-gray-900 mb-4">Time Slot Performance</h4>
             <div className="space-y-3">
               {demandData.map((slot) => (
                 <div key={slot.timeSlot} className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-300">{slot.timeSlot}</span>
-                    <span className="text-white font-medium">{slot.avgBookingRate}%</span>
+                    <span className="text-gray-900">{slot.timeSlot}</span>
+                    <span className="text-gray-900 font-medium">{slot.avgBookingRate}%</span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <div 
@@ -295,24 +295,24 @@ export default function DynamicPricing() {
           </div>
 
           <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
-            <h4 className="font-medium text-white mb-4">Revenue Impact This Week</h4>
+            <h4 className="font-medium text-gray-900 mb-4">Revenue Impact This Week</h4>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-gray-300">Base Revenue</span>
-                <span className="text-white font-medium">$12,450</span>
+                <span className="text-gray-700">Base Revenue</span>
+                <span className="text-gray-900 font-medium">$12,450</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-300">Surge Pricing</span>
+                <span className="text-gray-700">Surge Pricing</span>
                 <span className="text-green-400 font-medium">+$1,890</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-300">Discounts Applied</span>
+                <span className="text-gray-700">Discounts Applied</span>
                 <span className="text-red-400 font-medium">-$420</span>
               </div>
               <div className="border-t border-gray-700 pt-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-white font-semibold">Total Revenue</span>
-                  <span className="text-white font-bold text-xl">$13,920</span>
+                  <span className="text-gray-900 font-semibold">Total Revenue</span>
+                  <span className="text-gray-900 font-bold text-xl">$13,920</span>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
                   <TrendingUp className="w-4 h-4 text-green-400" />
@@ -325,7 +325,7 @@ export default function DynamicPricing() {
       </div>
 
       <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
-        <h4 className="font-medium text-white mb-4">Category Price Sensitivity</h4>
+        <h4 className="font-medium text-gray-900 mb-4">Category Price Sensitivity</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {['Pottery', 'Painting', 'DJ Workshops', 'Fencing'].map((category) => (
             <div key={category} className="text-center">
@@ -334,7 +334,7 @@ export default function DynamicPricing() {
                  category === 'Painting' ? '0.5' :
                  category === 'DJ Workshops' ? '0.2' : '0.7'}
               </div>
-              <div className="text-sm text-gray-300 mt-1">{category}</div>
+              <div className="text-sm text-gray-900 mt-1">{category}</div>
               <div className="text-xs text-gray-500 mt-1">
                 {category === 'Pottery' ? 'Low sensitivity' :
                  category === 'Painting' ? 'Medium sensitivity' :
@@ -350,24 +350,24 @@ export default function DynamicPricing() {
   const renderSimulator = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Price Impact Simulator</h3>
-        <p className="text-sm text-gray-400 mb-6">Test how price changes affect bookings and revenue</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Price Impact Simulator</h3>
+        <p className="text-sm text-gray-600 mb-6">Test how price changes affect bookings and revenue</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
-          <h4 className="font-medium text-white mb-4">Simulation Parameters</h4>
+          <h4 className="font-medium text-gray-900 mb-4">Simulation Parameters</h4>
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-300">Base Price</label>
+              <label className="text-sm text-gray-700">Base Price</label>
               <input
                 type="number"
                 defaultValue={30}
-                className="w-full mt-1 px-3 py-2 bg-gray-800 rounded-lg text-white"
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Price Change (%)</label>
+              <label className="text-sm text-gray-700">Price Change (%)</label>
               <input
                 type="range"
                 min="-50"
@@ -382,8 +382,8 @@ export default function DynamicPricing() {
               </div>
             </div>
             <div>
-              <label className="text-sm text-gray-300">Time Slot</label>
-              <select className="w-full mt-1 px-3 py-2 bg-gray-800 rounded-lg text-white">
+              <label className="text-sm text-gray-700">Time Slot</label>
+              <select className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white">
                 <option>Morning (6-9am)</option>
                 <option>Evening (5-9pm)</option>
                 <option>Weekend</option>
@@ -396,11 +396,11 @@ export default function DynamicPricing() {
         </div>
 
         <div className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
-          <h4 className="font-medium text-white mb-4">Projected Impact</h4>
+          <h4 className="font-medium text-gray-900 mb-4">Projected Impact</h4>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-2xl font-bold text-white">75%</div>
+                <div className="text-2xl font-bold text-gray-900">75%</div>
                 <div className="text-sm text-gray-400">Expected Fill Rate</div>
               </div>
               <div>
@@ -409,19 +409,19 @@ export default function DynamicPricing() {
               </div>
             </div>
             <div className="border-t border-gray-700 pt-4">
-              <div className="text-sm text-gray-300 mb-2">Booking Probability by Customer Segment</div>
+              <div className="text-sm text-gray-700 mb-2">Booking Probability by Customer Segment</div>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-400">Price Sensitive</span>
-                  <span className="text-xs text-white">45%</span>
+                  <span className="text-xs text-gray-900">45%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-400">Regular</span>
-                  <span className="text-xs text-white">70%</span>
+                  <span className="text-xs text-gray-900">70%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-gray-400">Premium</span>
-                  <span className="text-xs text-white">85%</span>
+                  <span className="text-xs text-gray-900">85%</span>
                 </div>
               </div>
             </div>
@@ -434,8 +434,8 @@ export default function DynamicPricing() {
   const renderSchedule = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Weekly Price Schedule</h3>
-        <p className="text-sm text-gray-400 mb-6">View how prices change throughout the week</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Price Schedule</h3>
+        <p className="text-sm text-gray-600 mb-6">View how prices change throughout the week</p>
       </div>
 
       <div className="overflow-x-auto">
@@ -451,7 +451,7 @@ export default function DynamicPricing() {
           <tbody>
             {['6:00 AM', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'].map(time => (
               <tr key={time} className="border-b border-gray-700/50">
-                <td className="py-3 px-4 text-sm text-gray-300">{time}</td>
+                <td className="py-3 px-4 text-sm text-gray-900">{time}</td>
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
                   const isWeekend = day === 'Sat' || day === 'Sun';
                   const isEvening = time === '6:00 PM';
@@ -499,8 +499,8 @@ export default function DynamicPricing() {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Dynamic Pricing</h1>
-        <p className="text-gray-400">Optimize revenue with intelligent price adjustments</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dynamic Pricing</h1>
+        <p className="text-gray-600">Optimize revenue with intelligent price adjustments</p>
       </div>
 
       <div className="flex gap-2 mb-6 overflow-x-auto">

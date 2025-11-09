@@ -155,12 +155,14 @@ export function useAuth() {
   const signIn = useCallback(async (email: string, password: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     
-    // Demo credentials check
-    if (email === 'demo@hobbyist.com' && password === 'demo123456') {
-      // Create mock user and session for demo
+    // Demo credentials check (both demo and admin accounts)
+    if ((email === 'demo@hobbyist.com' && password === 'demo123456') || 
+        (email === 'admin@hobbyist.com' && password === 'admin123456')) {
+      // Create admin or regular demo user based on email
+      const isAdmin = email === 'admin@hobbyist.com'
       const mockUser = {
-        id: 'demo-user-id',
-        email: 'demo@hobbyist.com',
+        id: isAdmin ? 'admin-user-id' : 'demo-user-id',
+        email: email,
         aud: 'authenticated',
         role: 'authenticated',
         email_confirmed_at: new Date().toISOString(),
@@ -169,10 +171,10 @@ export function useAuth() {
         last_sign_in_at: new Date().toISOString(),
         app_metadata: { provider: 'demo' },
         user_metadata: {
-          first_name: 'Demo',
-          last_name: 'Studio',
-          role: 'instructor',
-          business_name: 'Zenith Wellness Studio'
+          first_name: isAdmin ? 'Admin' : 'Demo',
+          last_name: isAdmin ? 'User' : 'Studio',
+          role: isAdmin ? 'admin' : 'instructor',
+          business_name: isAdmin ? 'Hobbyist Admin' : 'Zenith Wellness Studio'
         },
         identities: [],
         created_at: new Date().toISOString(),
@@ -382,21 +384,22 @@ export function useUserProfile() {
         return
       }
       
-      // Handle demo user
-      if (user.id === 'demo-user-id') {
+      // Handle demo/admin user
+      if (user.id === 'demo-user-id' || user.id === 'admin-user-id') {
+        const isAdmin = user.id === 'admin-user-id'
         setState({
           profile: {
-            id: 'demo-user-id',
-            email: 'demo@hobbyist.com',
+            id: user.id,
+            email: user.email,
             profile: {
-              firstName: 'Demo',
-              lastName: 'Studio'
+              firstName: isAdmin ? 'Admin' : 'Demo',
+              lastName: isAdmin ? 'User' : 'Studio'
             },
             instructor: {
-              businessName: 'Zenith Wellness Studio',
+              businessName: isAdmin ? 'Hobbyist Admin' : 'Zenith Wellness Studio',
               verified: true
             },
-            role: 'instructor'
+            role: isAdmin ? 'admin' : 'instructor'
           },
           isLoading: false,
           error: null
