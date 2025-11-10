@@ -4,10 +4,11 @@ struct OutOfCreditsView: View {
     @Environment(\.dismiss) private var dismiss
 
     let requiredAdditionalCredits: Int
-    @State private var navigationTarget: StoreCategory?
+    @State private var showStore = false
+    @State private var selectedCategory: StoreCategory = .creditPacks
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack(spacing: BrandConstants.Spacing.lg) {
                 VStack(spacing: BrandConstants.Spacing.md) {
                     Text("You're out of credits")
@@ -23,7 +24,8 @@ struct OutOfCreditsView: View {
 
                 VStack(spacing: BrandConstants.Spacing.md) {
                     Button {
-                        navigationTarget = .subscriptions
+                        selectedCategory = .subscriptions
+                        showStore = true
                     } label: {
                         Text("Subscribe & Save")
                             .fontWeight(.bold)
@@ -33,7 +35,8 @@ struct OutOfCreditsView: View {
                     .buttonStyle(.borderedProminent)
 
                     Button {
-                        navigationTarget = .creditPacks
+                        selectedCategory = .creditPacks
+                        showStore = true
                     } label: {
                         Text("Buy a Credit Pack")
                             .fontWeight(.semibold)
@@ -71,8 +74,8 @@ struct OutOfCreditsView: View {
                     .tint(BrandConstants.Colors.text)
                 }
             }
-            .navigationDestination(item: $navigationTarget) { destination in
-                StoreView(initialCategory: destination)
+            .sheet(isPresented: $showStore) {
+                StoreView(initialCategory: selectedCategory)
             }
         }
     }
