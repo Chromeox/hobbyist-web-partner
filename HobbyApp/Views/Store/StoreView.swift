@@ -1,13 +1,13 @@
 import SwiftUI
 import StoreKit
 
-enum StoreCategory: String, CaseIterable, Identifiable {
+public enum StoreCategory: String, CaseIterable, Identifiable {
     case creditPacks = "Credit Packs"
     case subscriptions = "Subscriptions"
 
-    var id: String { rawValue }
+    public var id: String { rawValue }
 
-    var title: String { rawValue }
+    public var title: String { rawValue }
 }
 
 struct StoreView: View {

@@ -69,6 +69,18 @@ private struct FinalizePurchaseRequest: Encodable {
     }
 }
 
+private struct CreditTransactionInsert: Encodable {
+    let user_id: String
+    let amount: Int
+    let transaction_type: String
+    let description: String
+    let created_at: String
+}
+
+private struct UserCreditsUpdate: Encodable {
+    let used_credits: Int
+}
+
 private struct UserCreditsRecord: Decodable {
     let totalCredits: Int
     let usedCredits: Int
@@ -235,7 +247,7 @@ final class CreditService: ObservableObject {
         let client = supabaseService.client
         let response: PaymentSheetSetupResponse = try await client.functions.invoke(
             "purchase-credits",
-            with: request
+            options: FunctionInvokeOptions(body: request)
         )
 
         guard response.success else {
@@ -254,7 +266,7 @@ final class CreditService: ObservableObject {
         let client = supabaseService.client
         let response: FinalizePurchaseResponse = try await client.functions.invoke(
             "purchase-credits",
-            with: request
+            options: FunctionInvokeOptions(body: request)
         )
 
         guard response.success else {
@@ -311,16 +323,16 @@ final class CreditService: ObservableObject {
         guard let userId = supabaseService.currentUser?.id else {
             throw CreditServiceError.userNotAuthenticated
         }
-        
+
         // Add credits to database
-        let transactionData: [String: Any] = [
-            "user_id": userId.uuidString,
-            "amount": amount,
-            "transaction_type": "credit_addition",
-            "description": reason,
-            "created_at": ISO8601DateFormatter().string(from: Date())
-        ]
-        
+        let transactionData = CreditTransactionInsert(
+            user_id: userId.uuidString,
+            amount: amount,
+            transaction_type: "credit_addition",
+            description: reason,
+            created_at: ISO8601DateFormatter().string(from: Date())
+        )
+
         try await supabaseService.client
             .from("credit_transactions")
             .insert(transactionData)
@@ -362,25 +374,26 @@ final class CreditService: ObservableObject {
         guard let userId = supabaseService.currentUser?.id else {
             throw CreditServiceError.userNotAuthenticated
         }
-        
+
         // Record credit deduction transaction
-        let transactionData: [String: Any] = [
-            "user_id": userId.uuidString,
-            "amount": -amount, // Negative for deduction
-            "transaction_type": "deduction",
-            "description": description,
-            "created_at": ISO8601DateFormatter().string(from: Date())
-        ]
-        
+        let transactionData = CreditTransactionInsert(
+            user_id: userId.uuidString,
+            amount: -amount, // Negative for deduction
+            transaction_type: "deduction",
+            description: description,
+            created_at: ISO8601DateFormatter().string(from: Date())
+        )
+
         try await supabaseService.client
             .from("credit_transactions")
             .insert(transactionData)
             .execute()
         
         // Update user credits balance
+        let updateData = UserCreditsUpdate(used_credits: creditsUsedThisMonth + amount)
         try await supabaseService.client
             .from("user_credits")
-            .update(["used_credits": creditsUsedThisMonth + amount])
+            .update(updateData)
             .eq("user_id", value: userId)
             .execute()
     }

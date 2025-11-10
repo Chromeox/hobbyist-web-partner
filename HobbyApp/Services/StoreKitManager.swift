@@ -160,7 +160,12 @@ enum BackendService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(Configuration.supabaseAnonKey)", forHTTPHeaderField: "Authorization")
+
+        // Use AppConfiguration if available, otherwise fall back to environment variable
+        let supabaseKey = AppConfiguration.shared.current?.supabaseAnonKey
+            ?? ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"]
+            ?? ""
+        request.setValue("Bearer \(supabaseKey)", forHTTPHeaderField: "Authorization")
         
         let payload = ["receipt": receiptJWS]
         request.httpBody = try JSONSerialization.data(withJSONObject: payload)

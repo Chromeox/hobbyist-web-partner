@@ -796,30 +796,29 @@ final class SimpleSupabaseService: ObservableObject {
         
         do {
             print("📘 Attempting Supabase authentication with Facebook...")
-            
+
+            // TODO: Facebook OAuth needs proper implementation for iOS
+            // The Swift SDK's signInWithOAuth API may differ from the JS SDK
             let authResponse = try await supabaseClient.auth.signInWithOAuth(
                 provider: .facebook,
-                redirectTo: nil,
-                launchUrl: { url in
-                    // For access token based auth, we don't need to launch URL
-                    print("📘 Facebook OAuth URL: \(url)")
-                }
+                redirectTo: nil
+                // launchUrl parameter may not be supported in current SDK version
             )
             
             // Alternative: Use access token directly if supported
             // This might need to be handled differently depending on Supabase Swift SDK version
             
             print("📘 Facebook OAuth initiated, checking auth state...")
-            
+
             // Check current session
-            let session = supabaseClient.auth.session
+            let session = try await supabaseClient.auth.session
             if session.user.isAnonymous {
                 print("❌ Facebook Sign In failed - no valid session created")
                 errorMessage = "Facebook authentication failed. Please try again."
             } else {
-                // Create or update user profile
-                await createUserProfileIfNeeded(user: session.user)
-                
+                // TODO: Create or update user profile
+                // await createUserProfileIfNeeded(user: session.user)
+
                 // Update UI state
                 currentUser = SimpleUser(
                     id: session.user.id.uuidString,

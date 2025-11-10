@@ -4,6 +4,103 @@ import CoreLocation
 import Combine
 import SwiftUI
 
+// MARK: - Model Converters
+
+extension Instructor {
+    /// Convert full Instructor model to lightweight InstructorInfo for HobbyClass
+    func toInstructorInfo() -> InstructorInfo {
+        return InstructorInfo(
+            id: self.id.uuidString,
+            name: self.fullName,
+            bio: self.bio,
+            profileImageUrl: self.profileImageUrl,
+            rating: NSDecimalNumber(decimal: self.rating).doubleValue,
+            totalClasses: 0, // Will need to fetch from database
+            totalStudents: 0, // Will need to fetch from database
+            specialties: self.specialties,
+            certifications: self.certificationInfo?.certifications.map { $0.name } ?? [],
+            yearsOfExperience: self.yearsOfExperience ?? 0,
+            socialLinks: self.socialLinks
+        )
+    }
+}
+
+extension Venue {
+    /// Convert full Venue model to lightweight VenueInfo for HobbyClass
+    func toVenueInfo() -> VenueInfo {
+        return VenueInfo(
+            id: self.id.uuidString,
+            name: self.name,
+            address: self.address,
+            city: self.city,
+            state: self.state,
+            zipCode: self.zipCode,
+            latitude: self.latitude,
+            longitude: self.longitude,
+            amenities: self.amenities,
+            parkingInfo: self.parkingInfo,
+            publicTransit: self.publicTransportInfo,
+            imageUrls: self.imageUrls,
+            accessibilityInfo: self.accessibilityInfo
+        )
+    }
+}
+
+// MARK: - Mock Data Helpers
+
+/// Create mock InstructorInfo for testing/fallback data
+func createMockInstructorInfo(
+    id: String = UUID().uuidString,
+    name: String,
+    bio: String? = nil,
+    rating: Double = 4.5,
+    specialties: [String] = []
+) -> InstructorInfo {
+    return InstructorInfo(
+        id: id,
+        name: name,
+        bio: bio,
+        profileImageUrl: nil,
+        rating: rating,
+        totalClasses: 10,
+        totalStudents: 50,
+        specialties: specialties,
+        certifications: [],
+        yearsOfExperience: 5,
+        socialLinks: nil
+    )
+}
+
+/// Create mock VenueInfo for testing/fallback data
+func createMockVenueInfo(
+    id: String = UUID().uuidString,
+    name: String,
+    address: String,
+    city: String = "Vancouver",
+    state: String = "BC",
+    zipCode: String = "V6B 1A1"
+) -> VenueInfo {
+    // Default Vancouver coordinates
+    let latitude = 49.2827 + Double.random(in: -0.05...0.05)
+    let longitude = -123.1207 + Double.random(in: -0.05...0.05)
+
+    return VenueInfo(
+        id: id,
+        name: name,
+        address: address,
+        city: city,
+        state: state,
+        zipCode: zipCode,
+        latitude: latitude,
+        longitude: longitude,
+        amenities: ["WiFi", "Parking"],
+        parkingInfo: "Street parking available",
+        publicTransit: "Near SkyTrain station",
+        imageUrls: nil,
+        accessibilityInfo: "Wheelchair accessible"
+    )
+}
+
 // MARK: - Data Models
 
 struct Achievement: Codable, Identifiable {
@@ -887,26 +984,44 @@ class InstructorService {
     
     private func generateMockClassesForInstructor(_ instructorId: String) -> [HobbyClass] {
         // Generate mock classes for the instructor
+        let startDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
+
         return [
             HobbyClass(
                 id: UUID().uuidString,
                 title: "Morning Yoga Flow",
                 description: "Start your day with energizing yoga poses",
-                instructor: Instructor(id: instructorId, name: "Sarah Johnson", email: "sarah@example.com", bio: "", specialties: [], rating: 4.8, totalClasses: 0, isActive: true, studioId: nil),
-                venue: Venue(id: UUID().uuidString, name: "Serenity Studio", address: "123 Main St", city: "Vancouver", isActive: true),
-                startDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 1, to: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()) ?? Date(),
-                price: 25.0,
-                maxParticipants: 15,
-                currentParticipants: 8,
                 category: .fitness,
                 difficulty: .beginner,
+                price: 25.0,
+                startDate: startDate,
+                endDate: endDate,
+                duration: 60,
+                maxParticipants: 15,
+                enrolledCount: 8,
+                instructor: createMockInstructorInfo(
+                    id: instructorId,
+                    name: "Sarah Johnson",
+                    bio: "Experienced yoga instructor",
+                    rating: 4.8,
+                    specialties: ["Yoga", "Meditation"]
+                ),
+                venue: createMockVenueInfo(
+                    name: "Serenity Studio",
+                    address: "123 Main St",
+                    city: "Vancouver"
+                ),
+                imageUrl: nil,
+                thumbnailUrl: nil,
+                averageRating: 4.8,
+                totalReviews: 24,
                 tags: ["yoga", "morning", "flow"],
                 requirements: ["Yoga mat"],
                 whatToBring: ["Water bottle", "Towel"],
-                averageRating: 4.8,
-                totalReviews: 24,
-                isOnline: false
+                cancellationPolicy: "Free cancellation up to 24 hours before class",
+                isOnline: false,
+                meetingUrl: nil
             )
         ]
     }
