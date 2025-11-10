@@ -21,16 +21,16 @@ final class StoreViewModel: ObservableObject {
     func fetchProducts() async {
         guard !isLoading else { return }
         await performLoadingTask {
-            await storeKitManager.fetchProducts()
+            await self.storeKitManager.fetchProducts()
         }
     }
 
     func purchase(_ product: Product) async {
         await performLoadingTask {
             do {
-                try await storeKitManager.purchase(product)
+                try await self.storeKitManager.purchase(product)
             } catch {
-                errorMessage = error.localizedDescription
+                self.errorMessage = error.localizedDescription
             }
         }
     }
@@ -38,9 +38,9 @@ final class StoreViewModel: ObservableObject {
     func restorePurchases() async {
         await performLoadingTask {
             do {
-                try await storeKitManager.restorePurchases()
+                try await self.storeKitManager.restorePurchases()
             } catch {
-                errorMessage = error.localizedDescription
+                self.errorMessage = error.localizedDescription
             }
         }
     }

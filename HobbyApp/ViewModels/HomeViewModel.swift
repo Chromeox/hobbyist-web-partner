@@ -75,12 +75,12 @@ class HomeViewModel: ObservableObject {
             // Convert instructors to InstructorCards
             popularInstructors = allInstructors.map { instructor in
                 InstructorCard(
-                    id: instructor.id,
+                    id: instructor.id.uuidString,
                     name: instructor.name,
                     initials: createInitials(from: instructor.name),
-                    rating: String(format: "%.1f", instructor.rating),
+                    rating: String(format: "%.1f", NSDecimalNumber(decimal: instructor.rating).doubleValue),
                     specialties: instructor.specialties,
-                    bio: instructor.bio
+                    bio: instructor.bio ?? ""
                 )
             }
             

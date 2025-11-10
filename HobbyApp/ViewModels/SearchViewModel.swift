@@ -190,8 +190,8 @@ class SearchViewModel: ObservableObject {
         // Bind search service published data
         searchService.$recentSearches
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] searches in
-                self?.recentSearches = searches.map { $0.query }
+            .sink { [weak self] (searches: [SearchHistoryItem]) in
+                self?.recentSearches = searches.map { (item: SearchHistoryItem) in item.query }
             }
             .store(in: &cancellables)
         
