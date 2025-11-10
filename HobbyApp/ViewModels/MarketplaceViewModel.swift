@@ -122,7 +122,10 @@ class MarketplaceViewModel: ObservableObject {
         Task {
             do {
                 let results = try await classService.searchClasses(query: query)
-                self.classes = results
+                // Convert HobbyClass to ClassItem
+                self.classes = results.map { hobbyClass in
+                    ClassItem(from: hobbyClass)
+                }
             } catch {
                 self.errorMessage = error.localizedDescription
             }

@@ -547,6 +547,39 @@ extension ClassItem {
         let icon: String
     }
 
+    // Convert from HobbyClass
+    init(from hobbyClass: HobbyClass) {
+        self.id = hobbyClass.id
+        self.name = hobbyClass.title
+        self.category = hobbyClass.category.rawValue
+        self.instructor = hobbyClass.instructor.fullName
+        self.instructorInitials = hobbyClass.instructor.initials
+        self.description = hobbyClass.description
+        self.duration = "\(hobbyClass.duration) min"
+        self.difficulty = hobbyClass.difficulty.rawValue
+        self.price = String(format: "$%.0f", hobbyClass.price)
+        self.creditsRequired = Int(hobbyClass.price) // Simplified conversion
+        self.startTime = hobbyClass.startDate
+        self.endTime = hobbyClass.endDate
+        self.location = hobbyClass.venue.name
+        self.venueName = hobbyClass.venue.name
+        self.address = hobbyClass.venue.address
+        self.coordinate = CLLocationCoordinate2D(
+            latitude: hobbyClass.venue.latitude,
+            longitude: hobbyClass.venue.longitude
+        )
+        self.spotsAvailable = max(0, hobbyClass.maxParticipants - hobbyClass.enrolledCount)
+        self.totalSpots = hobbyClass.maxParticipants
+        self.rating = String(format: "%.1f", hobbyClass.averageRating)
+        self.reviewCount = "\(hobbyClass.totalReviews)"
+        self.icon = hobbyClass.category.iconName
+        self.categoryColor = hobbyClass.category.color
+        self.isFeatured = false // Default
+        self.requirements = hobbyClass.requirements
+        self.amenities = [] // Default empty
+        self.equipment = hobbyClass.whatToBring.map { Equipment(name: $0, price: "") }
+    }
+
     static func from(simpleClass: SimpleClass) -> ClassItem {
         let startDate = simpleClass.startDate ?? Date()
         let endDate = simpleClass.endDate ?? startDate.addingTimeInterval(TimeInterval(simpleClass.duration * 60))

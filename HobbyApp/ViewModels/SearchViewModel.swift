@@ -83,8 +83,8 @@ class SearchViewModel: ObservableObject {
     @Published var showingLocationPermission: Bool = false
     @Published var showingSaveSearch: Bool = false
     @Published var suggestedQueries: [String] = []
-    @Published var allResults: [SearchResult] = [] // For filter counting
-    
+    // Removed duplicate allResults declaration - already defined at line 47
+
     // MARK: - Services
     private let searchService = SearchService.shared
     private let locationService = LocationService.shared

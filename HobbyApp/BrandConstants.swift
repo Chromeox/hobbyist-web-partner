@@ -149,9 +149,5 @@ extension View {
 }
 
 // MARK: - Color Extension for Brand Colors
-
-extension Color {
-    static var brandPrimary: Color { BrandConstants.Colors.primary }
-    static var brandTeal: Color { BrandConstants.Colors.teal }
-    static var brandCoral: Color { BrandConstants.Colors.coral }
-}
+// Note: These extensions were removed to fix duplicate declaration errors
+// Use BrandConstants.Colors.primary, .teal, .coral directly instead

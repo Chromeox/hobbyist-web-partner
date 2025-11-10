@@ -44,7 +44,12 @@ struct Instructor: Identifiable, Codable, Hashable {
     var fullName: String {
         "\(firstName) \(lastName)"
     }
-    
+
+    // Alias for backward compatibility
+    var name: String {
+        fullName
+    }
+
     var formattedRating: String {
         String(format: "%.1f", NSDecimalNumber(decimal: rating).doubleValue)
     }
