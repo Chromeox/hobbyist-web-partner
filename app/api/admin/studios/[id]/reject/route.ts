@@ -8,11 +8,11 @@ import { NextResponse } from 'next/server';
  */
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const studioId = params.id;
+    const { id: studioId } = await params;
 
     // Verify user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
