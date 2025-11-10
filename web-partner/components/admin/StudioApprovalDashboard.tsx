@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Building2, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
   Calendar,
   Users,
   Star,
@@ -15,8 +15,10 @@ import {
   Clock,
   Eye,
   ExternalLink,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 interface StudioApplication {
   id: string
@@ -49,101 +51,129 @@ interface StudioApplication {
 export default function StudioApprovalDashboard() {
   const [activeTab, setActiveTab] = useState<'pending' | 'reviewed'>('pending')
   const [selectedApplication, setSelectedApplication] = useState<StudioApplication | null>(null)
+  const [applications, setApplications] = useState<StudioApplication[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isApproving, setIsApproving] = useState<string | null>(null)
+  const [isRejecting, setIsRejecting] = useState<string | null>(null)
 
-  // Mock data for demonstration
-  const [applications, setApplications] = useState<StudioApplication[]>([
-    {
-      id: '1',
-      studioName: 'Artisan Clay Studio',
-      ownerName: 'Sarah Chen',
-      email: 'sarah@artisanclay.com',
-      phone: '(604) 555-0123',
-      address: '1234 Main Street',
-      city: 'Vancouver',
-      province: 'BC',
-      postalCode: 'V6B 1A1',
-      website: 'https://artisanclay.com',
-      description: 'Professional pottery studio offering wheel throwing, hand building, and glazing classes for all skill levels.',
-      categories: ['Pottery', 'Ceramics', 'Art'],
-      capacity: 12,
-      socialMedia: {
-        instagram: '@artisanclay',
-        facebook: 'ArtisanClayStudio'
-      },
-      businessLicense: 'BL-2024-001234',
-      insuranceNumber: 'INS-987654321',
-      submittedAt: '2024-01-15T10:30:00Z',
-      status: 'pending',
-      expectedStartDate: '2024-02-01',
-      monthlyRevenue: 8500
-    },
-    {
-      id: '2',
-      studioName: 'Rhythm & Flow Dance',
-      ownerName: 'Marcus Johnson',
-      email: 'marcus@rhythmflow.ca',
-      phone: '(778) 555-0456',
-      address: '5678 Oak Avenue',
-      city: 'Burnaby',
-      province: 'BC',
-      postalCode: 'V5H 2M5',
-      description: 'Contemporary dance studio specializing in hip-hop, contemporary, and jazz classes.',
-      categories: ['Dance', 'Fitness', 'Performance'],
-      capacity: 20,
-      socialMedia: {
-        instagram: '@rhythmflowdance',
-        facebook: 'RhythmFlowStudio'
-      },
-      businessLicense: 'BL-2024-001235',
-      insuranceNumber: 'INS-987654322',
-      submittedAt: '2024-01-14T14:45:00Z',
-      status: 'review',
-      expectedStartDate: '2024-02-15',
-      monthlyRevenue: 12000
-    },
-    {
-      id: '3',
-      studioName: 'Mindful Wellness Center',
-      ownerName: 'Emily Rodriguez',
-      email: 'emily@mindfulwellness.com',
-      phone: '(604) 555-0789',
-      address: '9012 Wellness Way',
-      city: 'Richmond',
-      province: 'BC',
-      postalCode: 'V7A 1B2',
-      website: 'https://mindfulwellness.com',
-      description: 'Holistic wellness center offering yoga, meditation, sound healing, and wellness workshops.',
-      categories: ['Yoga', 'Meditation', 'Wellness'],
-      capacity: 15,
-      socialMedia: {
-        instagram: '@mindfulwellnessvancouver'
-      },
-      businessLicense: 'BL-2024-001236',
-      insuranceNumber: 'INS-987654323',
-      submittedAt: '2024-01-13T09:15:00Z',
-      status: 'approved',
-      expectedStartDate: '2024-01-30',
-      monthlyRevenue: 9500
+  // Fetch pending studios from API
+  useEffect(() => {
+    fetchPendingStudios()
+  }, [])
+
+  const fetchPendingStudios = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/admin/studios/pending')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch pending studios')
+      }
+
+      const data = await response.json()
+
+      // Transform API data to match component interface
+      const transformedStudios = data.studios.map((studio: any) => ({
+        id: studio.id,
+        studioName: studio.name,
+        ownerName: studio.submission?.business_name || studio.name,
+        email: studio.email,
+        phone: studio.phone || 'N/A',
+        address: studio.address || 'N/A',
+        city: studio.city,
+        province: studio.province,
+        postalCode: studio.postal_code || 'N/A',
+        website: studio.submission?.website || '',
+        description: studio.profile?.description || 'No description provided',
+        categories: studio.profile?.categories || [],
+        capacity: studio.profile?.capacity || 0,
+        socialMedia: studio.profile?.social_media || {},
+        businessLicense: studio.submission?.business_license_url || 'Pending',
+        insuranceNumber: studio.submission?.insurance_certificate_url || 'Pending',
+        submittedAt: studio.created_at,
+        status: studio.approval_status === 'under_review' ? 'review' : studio.approval_status,
+        reviewNotes: studio.admin_notes || '',
+        expectedStartDate: studio.submission?.submitted_data?.expected_start_date || 'TBD',
+        monthlyRevenue: studio.submission?.submitted_data?.monthly_revenue || 0
+      }))
+
+      setApplications(transformedStudios)
+    } catch (error) {
+      console.error('Error fetching pending studios:', error)
+      toast.error('Failed to load pending studios')
+    } finally {
+      setIsLoading(false)
     }
-  ])
+  }
 
   const pendingApplications = applications.filter(app => app.status === 'pending' || app.status === 'review')
   const reviewedApplications = applications.filter(app => app.status === 'approved' || app.status === 'rejected')
 
-  const handleApprove = (applicationId: string) => {
-    setApplications(prev => prev.map(app => 
-      app.id === applicationId 
-        ? { ...app, status: 'approved', reviewNotes: 'Application approved - meets all requirements' }
-        : app
-    ))
+  const handleApprove = async (applicationId: string) => {
+    try {
+      setIsApproving(applicationId)
+      const response = await fetch(`/api/admin/studios/${applicationId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          admin_notes: 'Application approved - meets all requirements'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to approve studio')
+      }
+
+      toast.success('Studio approved successfully!')
+
+      // Update local state
+      setApplications(prev => prev.map(app =>
+        app.id === applicationId
+          ? { ...app, status: 'approved', reviewNotes: 'Application approved - meets all requirements' }
+          : app
+      ))
+    } catch (error) {
+      console.error('Error approving studio:', error)
+      toast.error('Failed to approve studio')
+    } finally {
+      setIsApproving(null)
+    }
   }
 
-  const handleReject = (applicationId: string, reason: string) => {
-    setApplications(prev => prev.map(app => 
-      app.id === applicationId 
-        ? { ...app, status: 'rejected', reviewNotes: reason }
-        : app
-    ))
+  const handleReject = async (applicationId: string, reason: string) => {
+    try {
+      setIsRejecting(applicationId)
+      const response = await fetch(`/api/admin/studios/${applicationId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rejection_reason: reason || 'Application requires additional documentation',
+          admin_notes: reason
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to reject studio')
+      }
+
+      toast.success('Studio rejected')
+
+      // Update local state
+      setApplications(prev => prev.map(app =>
+        app.id === applicationId
+          ? { ...app, status: 'rejected', reviewNotes: reason }
+          : app
+      ))
+    } catch (error) {
+      console.error('Error rejecting studio:', error)
+      toast.error('Failed to reject studio')
+    } finally {
+      setIsRejecting(null)
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -229,16 +259,26 @@ export default function StudioApprovalDashboard() {
           <div className="flex gap-2">
             <button
               onClick={() => handleReject(application.id, 'Application requires additional documentation')}
-              className="flex items-center px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-sm"
+              disabled={isRejecting === application.id || isApproving === application.id}
+              className="flex items-center px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <X className="w-4 h-4 mr-1" />
+              {isRejecting === application.id ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <X className="w-4 h-4 mr-1" />
+              )}
               Reject
             </button>
             <button
               onClick={() => handleApprove(application.id)}
-              className="flex items-center px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-sm"
+              disabled={isApproving === application.id || isRejecting === application.id}
+              className="flex items-center px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Check className="w-4 h-4 mr-1" />
+              {isApproving === application.id ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4 mr-1" />
+              )}
               Approve
             </button>
           </div>
@@ -250,6 +290,18 @@ export default function StudioApprovalDashboard() {
       </div>
     </motion.div>
   )
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading studio applications...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
