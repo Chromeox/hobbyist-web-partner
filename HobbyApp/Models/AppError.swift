@@ -1103,26 +1103,44 @@ class StudioService {
     
     private func generateMockClassesForStudio(_ studioId: String) -> [HobbyClass] {
         // Generate mock classes for the studio
+        let startDate = Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()
+        let endDate = Calendar.current.date(byAdding: .hour, value: 2, to: startDate) ?? startDate
+
         return [
             HobbyClass(
                 id: UUID().uuidString,
                 title: "Beginner Pottery Wheel",
                 description: "Learn the basics of pottery on the wheel",
-                instructor: Instructor(id: UUID().uuidString, name: "Marcus Chen", email: "marcus@example.com", bio: "", specialties: [], rating: 4.9, totalClasses: 0, isActive: true, studioId: studioId),
-                venue: Venue(id: studioId, name: "Clay & Co. Ceramics", address: "567 East Hastings Street", city: "Vancouver", isActive: true),
-                startDate: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 2, to: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()) ?? Date(),
-                price: 45.0,
-                maxParticipants: 8,
-                currentParticipants: 5,
                 category: .arts,
                 difficulty: .beginner,
+                price: 45.0,
+                startDate: startDate,
+                endDate: endDate,
+                duration: 120,
+                maxParticipants: 8,
+                enrolledCount: 5,
+                instructor: createMockInstructorInfo(
+                    name: "Marcus Chen",
+                    bio: "Experienced ceramics instructor",
+                    rating: 4.9,
+                    specialties: ["Pottery", "Ceramics"]
+                ),
+                venue: createMockVenueInfo(
+                    id: studioId,
+                    name: "Clay & Co. Ceramics",
+                    address: "567 East Hastings Street",
+                    city: "Vancouver"
+                ),
+                imageUrl: nil,
+                thumbnailUrl: nil,
+                averageRating: 4.7,
+                totalReviews: 18,
                 tags: ["pottery", "ceramics", "wheel"],
                 requirements: ["Apron (provided)"],
                 whatToBring: ["Clothes you don't mind getting dirty"],
-                averageRating: 4.7,
-                totalReviews: 18,
-                isOnline: false
+                cancellationPolicy: "Free cancellation up to 24 hours before class",
+                isOnline: false,
+                meetingUrl: nil
             )
         ]
     }
