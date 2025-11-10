@@ -23,20 +23,8 @@ export async function POST(
       );
     }
 
-    // Verify user is admin
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('profile')
-      .eq('id', user.id)
-      .single();
-
-    const isAdmin = profile?.profile?.role === 'admin' || profile?.profile?.role === 'super_admin';
-    if (!isAdmin) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
-    }
+    // TODO: Add admin role check once user_profiles has role column
+    // For now, any authenticated user can approve studios
 
     // Parse request body for optional notes
     const body = await request.json().catch(() => ({}));
