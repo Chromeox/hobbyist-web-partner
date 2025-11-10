@@ -571,13 +571,6 @@ export default function SubscriptionTiers() {
             isActive: false,
             stats: 'Could save 15% of cancellations'
           },
-          {
-            name: 'Win-back Campaign',
-            description: 'Re-engage cancelled members after 30 days',
-            icon: Heart,
-            isActive: true,
-            stats: '12% reactivation rate'
-          }
         ].map(automation => (
           <div key={automation.name} className="bg-white shadow-lg border border-gray-200 p-6 rounded-xl">
             <div className="flex items-start justify-between">

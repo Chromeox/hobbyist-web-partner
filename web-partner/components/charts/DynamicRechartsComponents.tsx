@@ -58,7 +58,7 @@ const ResponsiveContainer = dynamic(() => import('recharts').then(mod => ({ defa
   ssr: false
 });
 
-const Legend = dynamic(() => import('recharts').then(mod => ({ default: mod.Legend })), {
+const Legend = dynamic(() => import('recharts').then(mod => ({ default: mod.Legend })) as any, {
   ssr: false
 });
 
