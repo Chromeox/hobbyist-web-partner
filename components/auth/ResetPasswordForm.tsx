@@ -34,22 +34,8 @@ export function ResetPasswordForm() {
     success: false
   })
 
-  // Check if we have a valid session from the email link
-  const [hasValidToken, setHasValidToken] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
-
-      if (error || !session) {
-        setHasValidToken(false)
-      } else {
-        setHasValidToken(true)
-      }
-    }
-
-    checkSession()
-  }, [])
+  // No need to check session beforehand - Supabase will validate when user submits
+  // The callback route already exchanged the code for a session
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -104,45 +90,6 @@ export function ResetPasswordForm() {
       }))
     }
   }, [state.password, state.confirmPassword, router])
-
-  // Loading state while checking token
-  if (hasValidToken === null) {
-    return (
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Verifying reset link...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Invalid token state
-  if (hasValidToken === false) {
-    return (
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Invalid or Expired Link</h2>
-            <p className="text-gray-600 mb-6">
-              This password reset link is invalid or has expired. Please request a new one.
-            </p>
-            <Link
-              href="/auth/forgot-password"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Request New Link
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // Success state
   if (state.success) {
