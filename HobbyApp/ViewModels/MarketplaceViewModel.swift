@@ -46,7 +46,7 @@ class MarketplaceViewModel: ObservableObject {
                 // Load all data in parallel
                 async let classesResult = classService.fetchUpcomingClasses()
                 async let instructorsResult = instructorService.fetchAllInstructors()
-                async let venuesResult = venueService.fetchAllVenues()
+                async let venuesResult = venueService.fetchStudios()
                 
                 let (fetchedClasses, fetchedInstructors, fetchedVenues) = await (
                     try classesResult,
