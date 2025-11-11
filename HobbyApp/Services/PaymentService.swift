@@ -2,10 +2,16 @@ import Foundation
 import Combine
 import PassKit
 import Supabase
-import StripePaymentSheet
-import StripeApplePay
 
-// MARK: - Payment Models
+// ============================================================================
+// PAYMENT SERVICE - TEMPORARILY DISABLED
+// ============================================================================
+// This service requires Stripe SDK which is causing build issues.
+// For alpha testing, use credits-only system (StoreKit for credit packs).
+// Re-enable this when you're ready to accept direct card payments.
+// ============================================================================
+
+// MARK: - Payment Models (Stubbed)
 
 struct PaymentIntent: Codable {
     let id: String
@@ -15,7 +21,7 @@ struct PaymentIntent: Codable {
     let status: String
     let customerId: String?
     let ephemeralKeySecret: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case clientSecret = "client_secret"
@@ -33,7 +39,7 @@ struct PaymentSheetConfiguration {
     let ephemeralKeySecret: String?
     let merchantDisplayName: String
     let allowsDelayedPaymentMethods: Bool
-    
+
     init(paymentIntent: PaymentIntent, merchantDisplayName: String = "HobbyApp") {
         self.paymentIntentClientSecret = paymentIntent.clientSecret
         self.customerId = paymentIntent.customerId
@@ -50,392 +56,57 @@ struct PaymentResult {
     let paymentMethod: PaymentMethodType?
 }
 
-enum PaymentMethodType: String, Codable {
-    case card = "card"
-    case applePay = "apple_pay" 
-    case credits = "credits"
-    case bankTransfer = "bank_transfer"
+enum PaymentMethodType: String {
+    case card
+    case applePay
+    case unknown
 }
 
 enum PaymentError: LocalizedError {
-    case userCancelled
-    case networkError(String)
-    case paymentFailed(String)
+    case cancelled
+    case failed(String)
+    case networkError
     case invalidAmount
-    case insufficientCredits
-    case stripeConfigurationError
-    case unknownError(String)
-    
+    case configurationError
+
     var errorDescription: String? {
         switch self {
-        case .userCancelled:
+        case .cancelled:
             return "Payment was cancelled"
-        case .networkError(let message):
-            return "Network error: \(message)"
-        case .paymentFailed(let message):
+        case .failed(let message):
             return "Payment failed: \(message)"
+        case .networkError:
+            return "Network error occurred"
         case .invalidAmount:
             return "Invalid payment amount"
-        case .insufficientCredits:
-            return "Insufficient credits for this purchase"
-        case .stripeConfigurationError:
-            return "Payment system configuration error"
-        case .unknownError(let message):
-            return "Unknown error: \(message)"
+        case .configurationError:
+            return "Payment configuration error"
         }
     }
 }
 
-// MARK: - Payment Service
+// MARK: - Payment Service (Stubbed)
 
-@MainActor
 final class PaymentService: ObservableObject {
     static let shared = PaymentService()
-    
+
     @Published var isProcessingPayment = false
     @Published var paymentSheetConfiguration: PaymentSheetConfiguration?
     @Published var lastPaymentResult: PaymentResult?
     @Published var publishableKey: String?
-    
-    private let supabaseService = SimpleSupabaseService.shared
-    private let creditService = CreditService.shared
-    private var cancellables = Set<AnyCancellable>()
-    
+
     private init() {
-        loadStripeConfiguration()
+        print("⚠️ PaymentService initialized but Stripe is disabled - use credits only")
     }
-    
-    // MARK: - Public Methods
-    
-    /// Create payment intent for booking
-    func createBookingPaymentIntent(
-        amount: Double,
-        currency: String = "cad",
-        classId: String,
-        participantCount: Int
-    ) async throws -> PaymentIntent {
-        guard let userId = supabaseService.currentUser?.id else {
-            throw PaymentError.networkError("User not authenticated")
-        }
-        
-        let amountCents = Int(amount * 100) // Convert to cents
-        
-        let request = CreatePaymentIntentRequest(
-            amount: amountCents,
-            currency: currency,
-            classId: classId,
-            participantCount: participantCount,
-            userId: userId.uuidString
+
+    // Stubbed method - returns error
+    func processPayment(amount: Int, currency: String = "usd") async -> PaymentResult {
+        print("⚠️ Direct card payments disabled - use credits instead")
+        return PaymentResult(
+            success: false,
+            paymentIntentId: nil,
+            error: .configurationError,
+            paymentMethod: nil
         )
-        
-        do {
-            let response: CreatePaymentIntentResponse = try await supabaseService.client
-                .functions
-                .invoke("payments", with: request)
-            
-            guard response.success else {
-                throw PaymentError.paymentFailed(response.error ?? "Failed to create payment intent")
-            }
-            
-            return PaymentIntent(
-                id: response.paymentIntentId,
-                clientSecret: response.clientSecret,
-                amount: amountCents,
-                currency: currency,
-                status: "requires_payment_method",
-                customerId: response.customerId,
-                ephemeralKeySecret: response.ephemeralKeySecret
-            )
-            
-        } catch {
-            print("⚠️ Failed to create payment intent: \(error)")
-            throw PaymentError.networkError(error.localizedDescription)
-        }
-    }
-    
-    /// Process credit payment (no Stripe involved)
-    func processCreditPayment(
-        amount: Double,
-        classId: String,
-        participantCount: Int
-    ) async throws -> PaymentResult {
-        guard creditService.totalCredits >= Int(amount) else {
-            throw PaymentError.insufficientCredits
-        }
-        
-        isProcessingPayment = true
-        defer { isProcessingPayment = false }
-        
-        // Use credits via CreditService
-        return await withCheckedContinuation { continuation in
-            creditService.useCredits(amount: Int(amount), for: "Class Booking") { success in
-                if success {
-                    let result = PaymentResult(
-                        success: true,
-                        paymentIntentId: "credit_payment_\(UUID().uuidString)",
-                        error: nil,
-                        paymentMethod: .credits
-                    )
-                    continuation.resume(returning: result)
-                } else {
-                    let result = PaymentResult(
-                        success: false,
-                        paymentIntentId: nil,
-                        error: .insufficientCredits,
-                        paymentMethod: nil
-                    )
-                    continuation.resume(returning: result)
-                }
-            }
-        }
-    }
-    
-    /// Configure Stripe payment sheet
-    func configurePaymentSheet(for paymentIntent: PaymentIntent) {
-        paymentSheetConfiguration = PaymentSheetConfiguration(
-            paymentIntent: paymentIntent,
-            merchantDisplayName: "HobbyApp"
-        )
-    }
-    
-    /// Present native Stripe payment sheet
-    func presentPaymentSheet() async -> PaymentResult {
-        guard let config = paymentSheetConfiguration else {
-            return PaymentResult(
-                success: false,
-                paymentIntentId: nil,
-                error: .stripeConfigurationError,
-                paymentMethod: nil
-            )
-        }
-        
-        isProcessingPayment = true
-        defer { isProcessingPayment = false }
-        
-        // Configure Stripe PaymentSheet
-        var configuration = PaymentSheet.Configuration()
-        configuration.merchantDisplayName = config.merchantDisplayName
-        configuration.allowsDelayedPaymentMethods = config.allowsDelayedPaymentMethods
-        
-        // Add Apple Pay configuration
-        if let appleMerchantId = Configuration.shared.appleMerchantId {
-            configuration.applePay = .init(
-                merchantId: appleMerchantId,
-                merchantCountryCode: "CA"
-            )
-        }
-        
-        // Create PaymentSheet
-        let paymentSheet = PaymentSheet(
-            paymentIntentClientSecret: config.paymentIntentClientSecret,
-            configuration: configuration
-        )
-        
-        // Present payment sheet and await result
-        return await withCheckedContinuation { continuation in
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = windowScene.windows.first,
-                  let rootViewController = window.rootViewController else {
-                continuation.resume(returning: PaymentResult(
-                    success: false,
-                    paymentIntentId: nil,
-                    error: .stripeConfigurationError,
-                    paymentMethod: nil
-                ))
-                return
-            }
-            
-            paymentSheet.present(from: rootViewController) { [weak self] result in
-                DispatchQueue.main.async {
-                    let paymentResult: PaymentResult
-                    
-                    switch result {
-                    case .completed:
-                        paymentResult = PaymentResult(
-                            success: true,
-                            paymentIntentId: self?.extractPaymentIntentId(from: config.paymentIntentClientSecret),
-                            error: nil,
-                            paymentMethod: .card
-                        )
-                    case .canceled:
-                        paymentResult = PaymentResult(
-                            success: false,
-                            paymentIntentId: nil,
-                            error: .userCancelled,
-                            paymentMethod: nil
-                        )
-                    case .failed(let error):
-                        paymentResult = PaymentResult(
-                            success: false,
-                            paymentIntentId: nil,
-                            error: .paymentFailed(error.localizedDescription),
-                            paymentMethod: nil
-                        )
-                    }
-                    
-                    self?.lastPaymentResult = paymentResult
-                    continuation.resume(returning: paymentResult)
-                }
-            }
-        }
-    }
-    
-    /// Confirm payment completion with backend
-    func confirmPayment(paymentIntentId: String) async throws -> Bool {
-        let request = ConfirmPaymentRequest(paymentIntentId: paymentIntentId)
-        
-        do {
-            let response: ConfirmPaymentResponse = try await supabaseService.client
-                .functions
-                .invoke("payments", with: request)
-            
-            return response.success
-            
-        } catch {
-            print("⚠️ Failed to confirm payment: \(error)")
-            throw PaymentError.networkError(error.localizedDescription)
-        }
-    }
-    
-    /// Check if Apple Pay is available
-    var isApplePayAvailable: Bool {
-        PKPaymentAuthorizationController.canMakePayments()
-    }
-    
-    /// Check if user has sufficient credits
-    func hasSufficientCredits(for amount: Double) -> Bool {
-        creditService.totalCredits >= Int(amount)
-    }
-    
-    // MARK: - Private Methods
-    
-    private func loadStripeConfiguration() {
-        // Load actual Stripe configuration from Configuration.swift
-        let configuration = Configuration.shared
-        publishableKey = configuration.stripePublishableKey
-        
-        // Configure Stripe SDK
-        StripeAPI.defaultPublishableKey = publishableKey
-        print("✅ Stripe configured with publishable key: \(publishableKey?.prefix(20) ?? "none")...")
-    }
-    
-    private func extractPaymentIntentId(from clientSecret: String) -> String {
-        // Extract payment intent ID from client secret
-        let components = clientSecret.components(separatedBy: "_secret_")
-        return components.first ?? clientSecret
-    }
-}
-
-// MARK: - Request/Response Models
-
-private struct CreatePaymentIntentRequest: Codable {
-    let action = "create_payment_intent"
-    let amount: Int
-    let currency: String
-    let classId: String
-    let participantCount: Int
-    let userId: String
-    
-    enum CodingKeys: String, CodingKey {
-        case action
-        case amount
-        case currency
-        case classId = "class_id"
-        case participantCount = "participant_count"
-        case userId = "user_id"
-    }
-}
-
-private struct CreatePaymentIntentResponse: Codable {
-    let success: Bool
-    let paymentIntentId: String
-    let clientSecret: String
-    let customerId: String?
-    let ephemeralKeySecret: String?
-    let error: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case success
-        case paymentIntentId = "payment_intent_id"
-        case clientSecret = "client_secret"
-        case customerId = "customer_id"
-        case ephemeralKeySecret = "ephemeral_key_secret"
-        case error
-    }
-}
-
-private struct ConfirmPaymentRequest: Codable {
-    let action = "confirm_payment"
-    let paymentIntentId: String
-    
-    enum CodingKeys: String, CodingKey {
-        case action
-        case paymentIntentId = "payment_intent_id"
-    }
-}
-
-private struct ConfirmPaymentResponse: Codable {
-    let success: Bool
-    let error: String?
-}
-
-// MARK: - Apple Pay Support
-
-extension PaymentService {
-    /// Create Apple Pay request for booking
-    func createApplePayRequest(
-        for amount: Double,
-        currency: String = "CAD",
-        classTitle: String
-    ) -> PKPaymentRequest? {
-        guard isApplePayAvailable else { return nil }
-        
-        let request = PKPaymentRequest()
-        request.merchantIdentifier = "merchant.com.hobbyapp" // Configure in capabilities
-        request.supportedNetworks = [.visa, .masterCard, .amex, .discover]
-        request.supportedCountries = Set(["CA", "US"])
-        request.merchantCapabilities = .capability3DS
-        request.countryCode = "CA"
-        request.currencyCode = currency
-        
-        let classItem = PKPaymentSummaryItem(
-            label: classTitle,
-            amount: NSDecimalNumber(value: amount)
-        )
-        
-        let total = PKPaymentSummaryItem(
-            label: "HobbyApp",
-            amount: NSDecimalNumber(value: amount)
-        )
-        
-        request.paymentSummaryItems = [classItem, total]
-        return request
-    }
-    
-    /// Process Apple Pay payment
-    func processApplePayPayment(
-        payment: PKPayment,
-        for amount: Double,
-        classId: String,
-        participantCount: Int
-    ) async throws -> PaymentResult {
-        isProcessingPayment = true
-        defer { isProcessingPayment = false }
-        
-        // Convert payment token to payment intent
-        // This would integrate with Stripe's Apple Pay handling
-        
-        // Mock implementation for now
-        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
-        
-        let result = PaymentResult(
-            success: true,
-            paymentIntentId: "pi_applepay_\(UUID().uuidString)",
-            error: nil,
-            paymentMethod: .applePay
-        )
-        
-        lastPaymentResult = result
-        return result
     }
 }
