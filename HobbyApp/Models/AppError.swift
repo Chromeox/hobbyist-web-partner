@@ -1966,6 +1966,97 @@ class SearchService {
     func clearRecentSearches() async throws {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
+
+    // Additional methods required by SearchViewModel
+    func addToSearchHistory(_ query: String, resultCount: Int) {
+        var searches = UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
+        // Add query to beginning of array
+        searches.removeAll { $0 == query }
+        searches.insert(query, at: 0)
+        // Keep only last 10
+        UserDefaults.standard.set(Array(searches.prefix(10)), forKey: userDefaultsKey)
+        print("SearchService: Added '\(query)' to history (\(resultCount) results)")
+    }
+
+    var recentSearches: [RecentSearch] {
+        let queries = UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
+        return queries.enumerated().map { index, query in
+            RecentSearch(id: UUID().uuidString, query: query, timestamp: Date())
+        }
+    }
+
+    var popularSearches: [String] {
+        // Return some default popular searches
+        return ["Yoga", "Pottery", "Dance", "Painting", "Cooking"]
+    }
+
+    func removeFromSearchHistory(_ query: String) {
+        var searches = UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
+        searches.removeAll { $0 == query }
+        UserDefaults.standard.set(searches, forKey: userDefaultsKey)
+        print("SearchService: Removed '\(query)' from history")
+    }
+
+    func clearSearchHistory() {
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
+        print("SearchService: Cleared search history")
+    }
+
+    var savedSearches: [SavedSearch] {
+        // Stub implementation
+        return []
+    }
+
+    func saveSearch(name: String, query: String, filters: SearchFilters) {
+        print("SearchService: Saved search '\(name)' with query '\(query)'")
+        // Stub implementation - would persist to UserDefaults or database
+    }
+
+    func removeSavedSearch(_ search: SavedSearch) {
+        print("SearchService: Removed saved search '\(search.name)'")
+        // Stub implementation
+    }
+
+    func getSearchSuggestions(for query: String) async -> [SearchSuggestion] {
+        // Return empty suggestions for stub
+        return []
+    }
+
+    // Helper structs
+    struct RecentSearch {
+        let id: String
+        let query: String
+        let timestamp: Date
+    }
+
+    struct SavedSearch: Identifiable {
+        let id: String
+        let name: String
+        let query: String
+        let filters: SearchFilters
+        let createdAt: Date
+
+        init(id: String = UUID().uuidString, name: String, query: String, filters: SearchFilters, createdAt: Date = Date()) {
+            self.id = id
+            self.name = name
+            self.query = query
+            self.filters = filters
+            self.createdAt = createdAt
+        }
+    }
+
+    struct SearchSuggestion: Identifiable {
+        let id: String
+        let text: String
+        let type: SuggestionType
+
+        enum SuggestionType {
+            case recent
+            case popular
+            case category
+            case instructor
+        }
+    }
 }
 
 class AnalyticsService {
@@ -1982,6 +2073,58 @@ class AnalyticsService {
 
     func trackEvent(name: String, parameters: [String: Any] = [:]) {
         print("Analytics: Event tracked - \(name)")
+    }
+
+    func trackSearchScreenViewed() async {
+        print("Analytics: Search screen viewed")
+    }
+
+    func trackError(error: Error, context: String) async {
+        print("Analytics: Error tracked - \(error.localizedDescription) in \(context)")
+    }
+
+    func trackButtonTap(_ button: String, context: String = "") async {
+        print("Analytics: Button tapped - \(button) \(context)")
+    }
+
+    func trackSearchCleared() async {
+        print("Analytics: Search cleared")
+    }
+
+    func trackSavedSearchUsed(_ name: String) async {
+        print("Analytics: Saved search used - \(name)")
+    }
+
+    func trackQuickFilterUsed(_ filter: String) async {
+        print("Analytics: Quick filter used - \(filter)")
+    }
+
+    func trackRecentSearchUsed(_ query: String) async {
+        print("Analytics: Recent search used - \(query)")
+    }
+
+    func trackLocationPermissionGranted() async {
+        print("Analytics: Location permission granted")
+    }
+
+    func trackLocationPermissionRequested() async {
+        print("Analytics: Location permission requested")
+    }
+
+    func trackCategoryBrowsed(_ category: String) async {
+        print("Analytics: Category browsed - \(category)")
+    }
+
+    func trackVoiceSearch(query: String, resultCount: Int) async {
+        print("Analytics: Voice search - \(query), \(resultCount) results")
+    }
+
+    func trackNearbySearchUsed(distance: Double) async {
+        print("Analytics: Nearby search used - \(distance) km")
+    }
+
+    func trackPopularSearchUsed(_ query: String) async {
+        print("Analytics: Popular search used - \(query)")
     }
 }
 

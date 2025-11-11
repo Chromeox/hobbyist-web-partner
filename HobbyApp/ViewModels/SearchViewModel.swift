@@ -612,9 +612,8 @@ class SearchViewModel: ObservableObject {
         
         // Add neighborhood suggestions
         if let location = currentLocation {
-            if let neighborhood = locationService.getVancouverNeighborhood(for: location) {
-                suggestions.insert("\(neighborhood) classes")
-            }
+            let neighborhood = locationService.getVancouverNeighborhood(for: location)
+            suggestions.insert("\(neighborhood) classes")
         }
         
         suggestedQueries = Array(suggestions.prefix(5))
