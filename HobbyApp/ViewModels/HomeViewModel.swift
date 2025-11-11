@@ -184,8 +184,8 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            // Convert string category to HobbyClass.Category enum
-            let hobbyCategory = HobbyClass.Category(rawValue: category.lowercased()) ?? .general
+            // Convert string category to ClassCategory enum
+            let hobbyCategory = ClassCategory(rawValue: category.lowercased()) ?? .other
             let filteredClasses = try await classService.getClassesByCategory(hobbyCategory)
             let classItems = filteredClasses.map { ClassItem.from(hobbyClass: $0) }
             
