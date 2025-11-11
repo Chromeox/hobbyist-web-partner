@@ -163,13 +163,27 @@ Discovered during build testing (November 10, 2025):
 **Fixed**:
 1. ✅ HomeViewModel.swift:188 - Changed `HobbyClass.Category` to `ClassCategory` (commit 62e9a21)
 
-**Remaining** (for manual build):
-1. MarketplaceViewModel.swift:24 - `cannot find 'LocationService'` (Xcode project refresh needed)
-2. MarketplaceViewModel.swift:34 - Closure parameter type inference issue
-3. SearchViewModel.swift:348 - Type assignment (may auto-resolve)
-4. SearchViewModel.swift:733-734 - trackVoiceSearch call (already correct, compiler state issue)
+**Xcode Project File Cleanup Required** ⚠️:
+```
+Build input files cannot be found:
+- HobbyApp/AppConfiguration.swift (moved to Configuration/)
+- HobbyApp/Auth/WelcomeLandingView.swift (deleted, kept in Views/Auth/)
+- HobbyApp/Auth/LoginView.swift (deleted, kept in Views/Auth/)
+- HobbyApp/Auth/Onboarding/OnboardingProgressView.swift (deleted)
+- HobbyApp/Auth/PhoneAuthView.swift (deleted, kept in Views/Auth/)
+- HobbyApp/Auth/Onboarding/DemographicsStep.swift (deleted)
+- HobbyApp/Auth/EnhancedOnboardingFlow.swift (deleted, kept in Views/Auth/)
+```
 
-**Root Cause**: Build errors are legacy from duplicate code removal. Most should resolve with clean build.
+**Fix**: Open HobbyApp.xcodeproj in Xcode, remove red file references from project navigator
+
+**Remaining Code Errors** (after Xcode cleanup):
+1. MarketplaceViewModel.swift:24 - `cannot find 'LocationService'` (import issue)
+2. MarketplaceViewModel.swift:34 - Closure parameter type inference
+3. SearchViewModel.swift:348 - Type assignment (may auto-resolve)
+4. SearchViewModel.swift:733-734 - trackVoiceSearch call (already correct)
+
+**Root Cause**: Xcode project file (.pbxproj) still references deleted files. Manual cleanup needed.
 
 ### AppError.swift Still Contains Service Code ⚠️
 **Critical Discovery**: AppError.swift (1,947 lines) still contains:
