@@ -103,8 +103,13 @@ final class StoreKitManager: ObservableObject {
 
     private func deliverPurchasedContent(for transaction: Transaction) async throws {
         // StoreKit 2: Use jsonRepresentation for verification
-        // This contains the signed transaction data for backend validation
-        let transactionJWS = transaction.jsonRepresentation
+        // This contains the signed transaction data (JWS format) for backend validation
+        let transactionData = transaction.jsonRepresentation
+
+        // Convert Data to String for backend API
+        guard let transactionJWS = String(data: transactionData, encoding: .utf8) else {
+            throw StoreKitManagerError.missingReceipt
+        }
 
         // Send to backend for verification using App Store Server API
         try await BackendService.validateReceipt(transactionJWS)

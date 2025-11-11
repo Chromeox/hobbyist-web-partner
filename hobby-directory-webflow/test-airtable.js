@@ -8,21 +8,20 @@ const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
 console.log('🔍 Testing Airtable connection...\n');
 
-// Fetch first 5 events
-base('Events')
+// Fetch first 5 classes
+base('Classes')
   .select({
     maxRecords: 5,
     view: 'Grid view' // or your default view name
   })
   .firstPage()
   .then(records => {
-    console.log(`✅ Successfully connected! Found ${records.length} events:\n`);
+    console.log(`✅ Successfully connected! Found ${records.length} classes:\n`);
 
     records.forEach(record => {
-      console.log(`📅 ${record.fields.name || 'Untitled Event'}`);
-      console.log(`   Location: ${record.fields.location || 'N/A'}`);
-      console.log(`   Status: ${record.fields.status || 'N/A'}`);
-      console.log(`   Date: ${record.fields.event_date || 'N/A'}\n`);
+      console.log(`📅 ${record.fields.name || record.fields.title || 'Untitled Class'}`);
+      console.log(`   Fields available:`, Object.keys(record.fields).join(', '));
+      console.log('');
     });
   })
   .catch(error => {
@@ -30,5 +29,5 @@ base('Events')
     console.error('\nPossible issues:');
     console.error('- Base ID might be incorrect');
     console.error('- API key might not have access to this base');
-    console.error('- Table name might not be "Events"');
+    console.error('- Table name might not be "Classes"');
   });

@@ -67,6 +67,7 @@
 		E2DE22262EC2B50800C03CE8 /* OnboardingProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221C2EC2B50800C03CE8 /* OnboardingProgressView.swift */; };
 		E2DE22272EC2B50800C03CE8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221F2EC2B50800C03CE8 /* LoginView.swift */; };
 		E2DE22282EC2B50800C03CE8 /* WelcomeLandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22212EC2B50800C03CE8 /* WelcomeLandingView.swift */; };
+		E2DE222A2EC2C0FB00C03CE8 /* Studio+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22292EC2C0FB00C03CE8 /* Studio+Extensions.swift */; };
 		E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA02E790C1900F90F24 /* Booking.swift */; };
 		E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA72E790C1900F90F24 /* SearchModels.swift */; };
 		E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA22E790C1900F90F24 /* Following.swift */; };
@@ -145,6 +146,7 @@
 		E2DE221F2EC2B50800C03CE8 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E2DE22202EC2B50800C03CE8 /* PhoneAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthView.swift; sourceTree = "<group>"; };
 		E2DE22212EC2B50800C03CE8 /* WelcomeLandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLandingView.swift; sourceTree = "<group>"; };
+		E2DE22292EC2C0FB00C03CE8 /* Studio+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Studio+Extensions.swift"; sourceTree = "<group>"; };
 		E2E5EFA02E790C1900F90F24 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
 		E2E5EFA12E790C1900F90F24 /* ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItem.swift; sourceTree = "<group>"; };
 		E2E5EFA22E790C1900F90F24 /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
@@ -392,6 +394,7 @@
 				E2E5EFA82E790C1900F90F24 /* UserProfile.swift */,
 				E2E5EFA92E790C1900F90F24 /* Venue.swift */,
 				E2E73E002E76521100994856 /* AppError.swift */,
+				E2DE22292EC2C0FB00C03CE8 /* Studio+Extensions.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -537,6 +540,7 @@
 				E20C13282E78E1C600F31D4C /* FollowingViewModel.swift in Sources */,
 				E20C13292E78E1C600F31D4C /* MarketplaceViewModel.swift in Sources */,
 				E20C132A2E78E1C600F31D4C /* ProfileViewModel.swift in Sources */,
+				E2DE222A2EC2C0FB00C03CE8 /* Studio+Extensions.swift in Sources */,
 				E20C132B2E78E1C600F31D4C /* HomeViewModel.swift in Sources */,
 				E20C132C2E78E1C600F31D4C /* BookingViewModel.swift in Sources */,
 				E20C132D2E78E1C600F31D4C /* ClassDetailViewModel.swift in Sources */,
