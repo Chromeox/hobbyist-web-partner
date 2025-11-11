@@ -178,10 +178,11 @@ Build input files cannot be found:
 **Fix**: Open HobbyApp.xcodeproj in Xcode, remove red file references from project navigator
 
 **Remaining Code Errors** (after Xcode cleanup):
-1. MarketplaceViewModel.swift:24 - `cannot find 'LocationService'` (import issue)
-2. MarketplaceViewModel.swift:34 - Closure parameter type inference
-3. SearchViewModel.swift:348 - Type assignment (may auto-resolve)
-4. SearchViewModel.swift:733-734 - trackVoiceSearch call (already correct)
+1. StoreKitManager.swift:171 - `Cannot find 'AppConfiguration'` (should auto-resolve after clean build)
+2. MarketplaceViewModel.swift:24 - `cannot find 'LocationService'` (import issue)
+3. MarketplaceViewModel.swift:34 - Closure parameter type inference
+4. SearchViewModel.swift:348 - Type assignment (may auto-resolve)
+5. SearchViewModel.swift:733-734 - trackVoiceSearch call (already correct)
 
 **Root Cause**: Xcode project file (.pbxproj) still references deleted files. Manual cleanup needed.
 
