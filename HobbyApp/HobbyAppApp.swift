@@ -2,12 +2,14 @@ import SwiftUI
 import GoogleSignIn
 import FacebookCore
 
-@main
+// DISABLED: Using ProductionApp.swift as main entry point instead
+// This file kept for reference only - has Facebook/Google integration
+//@main
 struct HobbyAppApp: App {
     init() {
         // Configure Google Sign In
         configureGoogleSignIn()
-        
+
         // Configure Facebook SDK
         configureFacebookSDK()
 

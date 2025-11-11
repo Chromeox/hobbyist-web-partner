@@ -53,14 +53,10 @@ struct PaymentResult {
     let success: Bool
     let paymentIntentId: String?
     let error: PaymentError?
-    let paymentMethod: PaymentMethodType?
+    let paymentMethod: String? // Using String instead of enum to avoid conflicts
 }
 
-enum PaymentMethodType: String {
-    case card
-    case applePay
-    case unknown
-}
+// PaymentMethodType moved to Models/Booking.swift to avoid duplicate definition
 
 enum PaymentError: LocalizedError {
     case cancelled

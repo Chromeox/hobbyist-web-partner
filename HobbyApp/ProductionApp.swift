@@ -1,12 +1,15 @@
 import SwiftUI
-import Stripe
+// Stripe removed - using credits-only system for alpha
+// import Stripe
 
 // Production-ready app entry point
 // This is now the main entry point for the production app
 @main
 struct ProductionHobbyistApp: App {
     init() {
-        StripeAPI.defaultPublishableKey = Configuration.shared.stripePublishableKey
+        // Stripe configuration disabled - using credits only
+        // StripeAPI.defaultPublishableKey = Configuration.shared.stripePublishableKey
+        print("✅ ProductionApp initialized (credits-only mode)")
     }
     @StateObject private var supabaseService = SimpleSupabaseService.shared
 

@@ -1,7 +1,8 @@
 import Foundation
 import SwiftUI
 
-enum PaymentMethod: Equatable {
+// Renamed from PaymentMethod to avoid ambiguity with Models/Booking.swift PaymentMethodType
+enum BookingPaymentMethod: Equatable {
     case applePay
     case card(String)
     case credits // Added for credit payment
@@ -28,9 +29,9 @@ class BookingViewModel: ObservableObject {
     @Published var selectedEquipment: Set<String> = []
     @Published var emergencyContactName = ""
     @Published var emergencyContactPhone = ""
-    
+
     // Payment State
-    @Published var selectedPaymentMethod: PaymentMethod?
+    @Published var selectedPaymentMethod: BookingPaymentMethod?
     @Published var savedCards: [SavedCard] = []
     @Published var appliedDiscount: Discount?
     @Published var userCredits: Double = 0.0 // Mock user credits for now
