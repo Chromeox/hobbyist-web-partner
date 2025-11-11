@@ -311,7 +311,7 @@ export async function fetchEventBySlug(
  */
 export async function fetchFeaturedEvents(limit = 6): Promise<ApiResponse<EventCardData[]>> {
   try {
-    const records = await base(Tables.EVENTS)
+    const records = await base(Tables.CLASSES)
       .select({
         filterByFormula: `AND(
           {status} = 'active',
@@ -374,7 +374,7 @@ export async function fetchStudios(): Promise<ApiResponse<Studio[]>> {
  */
 export async function fetchCategories(): Promise<ApiResponse<string[]>> {
   try {
-    const records = await base(Tables.EVENTS)
+    const records = await base(Tables.CLASSES)
       .select({
         filterByFormula: `AND(
           {status} = 'active',
