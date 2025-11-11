@@ -5,11 +5,14 @@
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+
+// Lazy load password strength bar to reduce bundle size
+const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'))
 
 interface FormState {
   password: string
@@ -19,6 +22,8 @@ interface FormState {
   isLoading: boolean
   error: string | null
   success: boolean
+  sessionChecked: boolean
+  hasValidSession: boolean
 }
 
 export function ResetPasswordForm() {
@@ -30,11 +35,56 @@ export function ResetPasswordForm() {
     showConfirmPassword: false,
     isLoading: false,
     error: null,
-    success: false
+    success: false,
+    sessionChecked: false,
+    hasValidSession: false
   })
 
-  // No need to check session beforehand - Supabase will validate when user submits
-  // The callback route already exchanged the code for a session
+  // Check for valid session on mount - user must have clicked reset link
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+
+        console.log('[Reset Password] Session check:', {
+          hasSession: !!session,
+          error: error?.message
+        })
+
+        if (error || !session) {
+          console.warn('[Reset Password] No valid session found')
+          setState(prev => ({
+            ...prev,
+            sessionChecked: true,
+            hasValidSession: false,
+            error: 'Your password reset link has expired. Please request a new one.'
+          }))
+          // Redirect to forgot password after 3 seconds
+          setTimeout(() => {
+            router.push('/auth/forgot-password')
+          }, 3000)
+          return
+        }
+
+        // Valid session found
+        setState(prev => ({
+          ...prev,
+          sessionChecked: true,
+          hasValidSession: true
+        }))
+      } catch (err) {
+        console.error('[Reset Password] Session check error:', err)
+        setState(prev => ({
+          ...prev,
+          sessionChecked: true,
+          hasValidSession: false,
+          error: 'An unexpected error occurred. Please try again.'
+        }))
+      }
+    }
+
+    checkSession()
+  }, [router])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,6 +139,50 @@ export function ResetPasswordForm() {
       }))
     }
   }, [state.password, state.confirmPassword, router])
+
+  // Loading state while checking session
+  if (!state.sessionChecked) {
+    return (
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Link...</h2>
+            <p className="text-gray-600">
+              Please wait while we verify your password reset link
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Invalid/expired session state
+  if (!state.hasValidSession) {
+    return (
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Link Expired</h2>
+            <p className="text-gray-600 mb-6">
+              {state.error || 'Your password reset link has expired. Please request a new one.'}
+            </p>
+            <Link
+              href="/auth/forgot-password"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Request New Link
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Success state
   if (state.success) {
@@ -164,6 +258,18 @@ export function ResetPasswordForm() {
                 )}
               </button>
             </div>
+            {state.password && (
+              <div className="mt-2">
+                <Suspense fallback={<div className="h-2 bg-gray-200 rounded animate-pulse" />}>
+                  <PasswordStrengthBar
+                    password={state.password}
+                    minLength={8}
+                    scoreWords={['very weak', 'weak', 'okay', 'good', 'strong']}
+                    shortScoreWord="too short"
+                  />
+                </Suspense>
+              </div>
+            )}
             <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
           </div>
 

@@ -458,13 +458,13 @@ struct SavedSearch: Codable, Identifiable {
     let query: String
     let filters: SearchFilters
     let createdAt: Date
-    
-    init(name: String, query: String, filters: SearchFilters) {
-        self.id = UUID()
+
+    init(id: UUID = UUID(), name: String, query: String, filters: SearchFilters, createdAt: Date = Date()) {
+        self.id = id
         self.name = name
         self.query = query
         self.filters = filters
-        self.createdAt = Date()
+        self.createdAt = createdAt
     }
 }
 

@@ -326,7 +326,7 @@ final class CreditService: ObservableObject {
 
         // Add credits to database
         let transactionData = CreditTransactionInsert(
-            user_id: userId.uuidString,
+            user_id: userId,
             amount: amount,
             transaction_type: "credit_addition",
             description: reason,
