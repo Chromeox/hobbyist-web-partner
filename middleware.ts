@@ -2,6 +2,15 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // Log requests to auth routes for debugging
+  if (request.nextUrl.pathname.startsWith('/auth/')) {
+    console.log('[Middleware] Auth route:', {
+      path: request.nextUrl.pathname,
+      search: request.nextUrl.search,
+      fullUrl: request.nextUrl.href
+    })
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
