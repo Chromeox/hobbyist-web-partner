@@ -2,6 +2,29 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // Log requests to auth routes for debugging
+  if (request.nextUrl.pathname.startsWith('/auth/')) {
+    console.log('[Middleware] Auth route:', {
+      path: request.nextUrl.pathname,
+      search: request.nextUrl.search,
+      fullUrl: request.nextUrl.href
+    })
+  }
+
+  // CRITICAL: Skip middleware processing for auth callback with token_hash
+  // to prevent consuming one-time tokens before the callback route processes them
+  const hasTokenHash = request.nextUrl.searchParams.has('token_hash');
+  const isAuthCallback = request.nextUrl.pathname === '/auth/callback';
+
+  if (isAuthCallback && hasTokenHash) {
+    console.log('[Middleware] Skipping session refresh for password reset callback');
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
