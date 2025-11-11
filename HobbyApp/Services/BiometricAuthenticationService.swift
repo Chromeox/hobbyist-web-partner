@@ -152,7 +152,7 @@ class BiometricAuthenticationService: ObservableObject {
 // MARK: - LABiometryType Extension
 
 extension LABiometryType {
-    var description: String {
+    var displayName: String {
         switch self {
         case .none:
             return "None"
