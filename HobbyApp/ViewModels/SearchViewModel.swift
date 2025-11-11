@@ -406,7 +406,17 @@ class SearchViewModel: ObservableObject {
 
     private func loadSavedSearches() async {
         // Copy from SearchService (both are @MainActor)
-        self.savedSearches = searchService.savedSearches
+        // Map to ensure type compatibility - convert String ID to UUID
+        self.savedSearches = searchService.savedSearches.compactMap { saved in
+            guard let uuid = UUID(uuidString: saved.id) else { return nil }
+            return SavedSearch(
+                id: uuid,
+                name: saved.name,
+                query: saved.query,
+                filters: saved.filters,
+                createdAt: saved.createdAt
+            )
+        }
     }
     
     private func loadNearbyClasses() async {
@@ -719,7 +729,7 @@ class SearchViewModel: ObservableObject {
         
         await stopVoiceSearch()
         await performSearch()
-        
+
         await analyticsService.trackVoiceSearch(
             originalText: text,
             processedQuery: processedQuery,
@@ -753,7 +763,11 @@ class SearchViewModel: ObservableObject {
     }
     
     func removeSavedSearch(_ savedSearch: SavedSearch) {
-        searchService.removeSavedSearch(savedSearch)
+        // Convert SavedSearch (UUID) back to SearchService.SavedSearch (String)
+        // Note: This bridging is temporary until AppError.swift duplicates are removed
+        if let serviceSearch = searchService.savedSearches.first(where: { $0.id == savedSearch.id.uuidString }) {
+            searchService.removeSavedSearch(serviceSearch)
+        }
     }
     
     // MARK: - Quick Actions
