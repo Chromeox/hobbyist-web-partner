@@ -377,7 +377,7 @@ final class CreditService: ObservableObject {
 
         // Record credit deduction transaction
         let transactionData = CreditTransactionInsert(
-            user_id: userId.uuidString,
+            user_id: userId, // userId is already a String
             amount: -amount, // Negative for deduction
             transaction_type: "deduction",
             description: description,

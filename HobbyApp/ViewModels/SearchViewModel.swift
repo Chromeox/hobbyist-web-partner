@@ -181,29 +181,17 @@ class SearchViewModel: ObservableObject {
         // Listen for location permission changes
         locationService.$authorizationStatus
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                self?.locationPermissionStatus = status
+            .sink { [weak self] newStatus in
+                self?.locationPermissionStatus = newStatus
                 Task {
                     await self?.analyticsService.trackLocationPermissionGranted()
                 }
             }
             .store(in: &cancellables)
-        
-        // Bind search service published data
-        searchService.$recentSearches
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] (searches: [SearchHistoryItem]) in
-                self?.recentSearches = searches.map { (item: SearchHistoryItem) in item.query }
-            }
-            .store(in: &cancellables)
-        
-        searchService.$savedSearches
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$savedSearches)
-        
-        searchService.$popularSearches
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$popularSearches)
+
+        // Note: Direct property access instead of Combine bindings
+        // Both SearchService and SearchViewModel are @MainActor, so we'll
+        // update these properties directly when needed rather than binding
     }
     
     private func loadInitialData() {
@@ -399,13 +387,15 @@ class SearchViewModel: ObservableObject {
     }
     
     private func loadRecentSearches() async {
-        // Recent searches are now automatically updated via binding
+        // Copy from SearchService (both are @MainActor)
+        self.recentSearches = searchService.recentSearches.map { $0.query }
     }
-    
+
     private func loadPopularSearches() async {
-        // Popular searches are now automatically updated via binding
+        // Copy from SearchService (both are @MainActor)
+        self.popularSearches = searchService.popularSearches
     }
-    
+
     private func loadSuggestedClasses() async {
         do {
             suggestedClasses = try await searchService.fetchSuggestedClasses()
@@ -413,9 +403,10 @@ class SearchViewModel: ObservableObject {
             print("Failed to load suggested classes: \(error)")
         }
     }
-    
+
     private func loadSavedSearches() async {
-        // Saved searches are automatically updated via binding
+        // Copy from SearchService (both are @MainActor)
+        self.savedSearches = searchService.savedSearches
     }
     
     private func loadNearbyClasses() async {

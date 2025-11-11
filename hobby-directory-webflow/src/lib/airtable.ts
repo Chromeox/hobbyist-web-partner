@@ -20,13 +20,24 @@ if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
 /**
+ * Generate URL-friendly slug from text
+ */
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
  * Tables in Airtable
  */
 export const Tables = {
-  EVENTS: 'Events',
+  CLASSES: 'Classes', // Primary table for classes/events
+  EVENTS: 'Classes', // Alias for now - can be separate table later
   STUDIOS: 'Studios',
-  CONTENT_QUEUE: 'ContentQueue',
-  ANALYTICS: 'Analytics',
+  LOCATIONS: 'Locations',
+  CATEGORIES: 'Categories',
 } as const;
 
 /**
@@ -34,31 +45,33 @@ export const Tables = {
  */
 function transformEventRecord(record: any): Event {
   const fields = record.fields;
+  const name = fields.Name || fields.name || 'Untitled';
+
   return {
     id: record.id,
-    name: fields.name || '',
-    slug: fields.slug || '',
-    description: fields.description || '',
-    event_type: fields.event_type,
-    event_date: fields.event_date || '',
-    meeting_time: fields.meeting_time || '',
-    meeting_day: fields.meeting_day,
-    location: fields.location || '',
-    address: fields.address || '',
-    image_url: fields.image_url || '',
-    price: fields.price || 0,
-    tags: fields.tags || [],
-    status: fields.status || 'pending',
+    name,
+    slug: fields.Slug || fields.slug || generateSlug(name),
+    description: fields.Description || fields.description || '',
+    event_type: fields.EventType || fields.event_type,
+    event_date: fields.Date || fields.event_date || fields.date || '',
+    meeting_time: fields.Time || fields.meeting_time || '',
+    meeting_day: fields.Day || fields.meeting_day,
+    location: fields.Location || fields.location || '',
+    address: fields.Address || fields.address || '',
+    image_url: fields.Image || fields.image_url || '',
+    price: fields.Price || fields.price || 0,
+    tags: fields.Category || fields.Tags || fields.tags || [],
+    status: fields.Status || fields.status || 'active',
     webflow_status: fields.webflow_status,
-    sync_to_webflow: fields.sync_to_webflow || false,
+    sync_to_webflow: fields.sync_to_webflow !== false, // Default to true
     dynamic_label: fields.dynamic_label,
-    spots_available: fields.spots_available,
-    instructor_name: fields.instructor_name,
-    link_url: fields.link_url,
+    spots_available: fields.SpotsAvailable || fields.spots_available,
+    instructor_name: fields.Instructor || fields.instructor_name,
+    link_url: fields.BookingURL || fields.link_url,
     instagram_post_url: fields.instagram_post_url,
     website_title: fields.website_title,
     website_h1: fields.website_h1,
-    studio_id: fields.studio_id,
+    studio_id: fields.Studio || fields.studio_id,
     original_caption: fields.original_caption,
     ai_rewritten_description: fields.ai_rewritten_description,
     internal_notes: fields.internal_notes,
@@ -165,7 +178,7 @@ export async function fetchActiveEvents(
     }
 
     // Fetch records from Airtable
-    const records = await base(Tables.EVENTS)
+    const records = await base(Tables.CLASSES)
       .select({
         filterByFormula: filterFormula,
         sort: [
@@ -231,7 +244,7 @@ export async function fetchEventBySlug(
   slug: string
 ): Promise<ApiResponse<EventDetailData | null>> {
   try {
-    const records = await base(Tables.EVENTS)
+    const records = await base(Tables.CLASSES)
       .select({
         filterByFormula: `{slug} = '${slug}'`,
         maxRecords: 1,
@@ -256,7 +269,7 @@ export async function fetchEventBySlug(
     }
 
     // Fetch related events (same category or same studio)
-    const relatedRecords = await base(Tables.EVENTS)
+    const relatedRecords = await base(Tables.CLASSES)
       .select({
         filterByFormula: `AND(
           {status} = 'active',

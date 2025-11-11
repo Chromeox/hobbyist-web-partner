@@ -1841,11 +1841,30 @@ class LocationService: ObservableObject {
     static let shared = LocationService()
     @Published var currentLocation: CLLocation?
     @Published var locationPublisher = CurrentValueSubject<CLLocation?, Never>(nil)
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
     private init() {}
 
     func requestLocationPermission() {
         print("Location permission requested")
+    }
+
+    func getVancouverNeighborhood(for location: CLLocation) -> String {
+        // Simple neighborhood determination based on coordinates
+        // Vancouver approximate coordinates: 49.2827° N, 123.1207° W
+        let lat = location.coordinate.latitude
+        let lon = location.coordinate.longitude
+
+        // Simplified neighborhood detection
+        if lat > 49.28 && lon < -123.10 {
+            return "Downtown"
+        } else if lat > 49.26 && lat < 49.28 {
+            return "Kitsilano"
+        } else if lat > 49.28 {
+            return "North Vancouver"
+        } else {
+            return "Greater Vancouver"
+        }
     }
 }
 

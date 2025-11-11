@@ -375,13 +375,36 @@ public struct HeroClassDetailView: View {
 // MARK: - Sample Data Extension
 
 extension ClassItem {
-    static let sample = ClassItem(
+    static let sampleHero = ClassItem(
         id: "sample-1",
-        title: "Morning Yoga Flow",
+        name: "Morning Yoga Flow",
+        category: "Fitness",
         instructor: "Sarah Chen",
-        duration: "60 minutes",
+        instructorInitials: "SC",
         description: "Start your day with this energizing yoga flow designed for all skill levels. Focus on breath work, gentle stretches, and building mindful movement patterns.",
-        imageURL: nil
+        duration: "60 minutes",
+        difficulty: "All Levels",
+        price: "$25",
+        creditsRequired: 10,
+        startTime: Date(),
+        endTime: Date().addingTimeInterval(3600),
+        location: "Studio 1",
+        venueName: "Serenity Yoga",
+        address: "123 Main St, Vancouver",
+        coordinate: CLLocationCoordinate2D(latitude: 49.2827, longitude: -123.1207),
+        spotsAvailable: 8,
+        totalSpots: 12,
+        rating: "4.8",
+        reviewCount: "24",
+        icon: "figure.yoga",
+        categoryColor: .green,
+        isFeatured: true,
+        requirements: ["Yoga mat", "Water bottle"],
+        amenities: [
+            Amenity(name: "Showers", icon: "drop.fill"),
+            Amenity(name: "WiFi", icon: "wifi")
+        ],
+        equipment: []
     )
 }
 
@@ -395,7 +418,7 @@ extension ClassItem {
             LazyVStack(spacing: 16) {
                 ForEach(0..<3, id: \.self) { index in
                     HeroClassCard(
-                        classItem: ClassItem.sample,
+                        classItem: ClassItem.sampleHero,
                         namespace: heroNamespace
                     ) {
                         // Navigation to detail would be handled here
