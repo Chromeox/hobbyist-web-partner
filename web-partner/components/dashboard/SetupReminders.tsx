@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
@@ -35,6 +35,21 @@ interface SetupItem {
 
 export default function SetupReminders({ className = '', onComplete }: SetupRemindersProps) {
   const [dismissedItems, setDismissedItems] = useState<Set<string>>(new Set());
+  const [isClient, setIsClient] = useState(false);
+
+  // Load dismissed items from localStorage on mount
+  useEffect(() => {
+    setIsClient(true);
+    const storedDismissed = localStorage.getItem('dismissed-setup-reminders');
+    if (storedDismissed) {
+      try {
+        const parsed = JSON.parse(storedDismissed);
+        setDismissedItems(new Set(parsed));
+      } catch (e) {
+        console.error('Failed to parse dismissed items from localStorage', e);
+      }
+    }
+  }, []);
 
   // Mock incomplete setup items - in production, this would come from user's actual setup status
   const incompleteSetups: SetupItem[] = [
@@ -52,11 +67,17 @@ export default function SetupReminders({ className = '', onComplete }: SetupRemi
     }
   ];
 
-  // For demo purposes, always show setup reminders
-  const activeSetups = incompleteSetups; // .filter(setup => !dismissedItems.has(setup.id));
+  // Filter out dismissed items
+  const activeSetups = incompleteSetups.filter(setup => !dismissedItems.has(setup.id));
 
   const handleDismiss = (setupId: string) => {
-    setDismissedItems(prev => new Set([...prev, setupId]));
+    const newDismissed = new Set([...dismissedItems, setupId]);
+    setDismissedItems(newDismissed);
+
+    // Save to localStorage
+    if (isClient) {
+      localStorage.setItem('dismissed-setup-reminders', JSON.stringify([...newDismissed]));
+    }
   };
 
   const handleComplete = (setupId: string) => {

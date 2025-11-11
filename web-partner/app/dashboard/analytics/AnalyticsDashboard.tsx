@@ -225,7 +225,13 @@ export default function AnalyticsDashboard() {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white text-gray-900 font-medium"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white text-gray-900 font-medium appearance-none pr-10 cursor-pointer"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em'
+            }}
           >
             <option value="week">This Week</option>
             <option value="month">This Month</option>

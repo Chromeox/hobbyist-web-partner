@@ -44,6 +44,29 @@
 		E2D9937B2E89ED51007D3F6D /* ClassModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937A2E89ED51007D3F6D /* ClassModel.swift */; };
 		E2D9937D2E89ED58007D3F6D /* CreditTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937C2E89ED58007D3F6D /* CreditTypes.swift */; };
 		E2D9937F2E89ED61007D3F6D /* ActivityFeedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D9937E2E89ED61007D3F6D /* ActivityFeedTypes.swift */; };
+		E2DE21CE2EC2B28600C03CE8 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21CD2EC2B28600C03CE8 /* AppConfiguration.swift */; };
+		E2DE220B2EC2B46600C03CE8 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22042EC2B46600C03CE8 /* DesignTokens.swift */; };
+		E2DE220C2EC2B46600C03CE8 /* SkeletonLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21FE2EC2B46600C03CE8 /* SkeletonLoader.swift */; };
+		E2DE220D2EC2B46600C03CE8 /* HobbyistButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21F72EC2B46600C03CE8 /* HobbyistButton.swift */; };
+		E2DE220E2EC2B46600C03CE8 /* AccessibilityHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21F52EC2B46600C03CE8 /* AccessibilityHelpers.swift */; };
+		E2DE220F2EC2B46600C03CE8 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22092EC2B46600C03CE8 /* ShareSheet.swift */; };
+		E2DE22102EC2B46600C03CE8 /* AnimatedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22002EC2B46600C03CE8 /* AnimatedButton.swift */; };
+		E2DE22112EC2B46600C03CE8 /* SelectionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22082EC2B46600C03CE8 /* SelectionButton.swift */; };
+		E2DE22122EC2B46600C03CE8 /* BrandedLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21FD2EC2B46600C03CE8 /* BrandedLoadingView.swift */; };
+		E2DE22132EC2B46600C03CE8 /* HeroAnimationSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22062EC2B46600C03CE8 /* HeroAnimationSystem.swift */; };
+		E2DE22142EC2B46600C03CE8 /* GlassmorphicCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22052EC2B46600C03CE8 /* GlassmorphicCard.swift */; };
+		E2DE22152EC2B46600C03CE8 /* KeyboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22072EC2B46600C03CE8 /* KeyboardManager.swift */; };
+		E2DE22162EC2B46600C03CE8 /* CustomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22032EC2B46600C03CE8 /* CustomNavigationBar.swift */; };
+		E2DE22172EC2B46600C03CE8 /* HobbyistCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21F92EC2B46600C03CE8 /* HobbyistCard.swift */; };
+		E2DE22182EC2B46600C03CE8 /* ScreenTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE21FB2EC2B46600C03CE8 /* ScreenTemplate.swift */; };
+		E2DE22192EC2B46600C03CE8 /* BrandedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22022EC2B46600C03CE8 /* BrandedButton.swift */; };
+		E2DE221A2EC2B46600C03CE8 /* AnimatedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22012EC2B46600C03CE8 /* AnimatedList.swift */; };
+		E2DE22232EC2B50800C03CE8 /* EnhancedOnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221E2EC2B50800C03CE8 /* EnhancedOnboardingFlow.swift */; };
+		E2DE22242EC2B50800C03CE8 /* DemographicsStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221B2EC2B50800C03CE8 /* DemographicsStep.swift */; };
+		E2DE22252EC2B50800C03CE8 /* PhoneAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22202EC2B50800C03CE8 /* PhoneAuthView.swift */; };
+		E2DE22262EC2B50800C03CE8 /* OnboardingProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221C2EC2B50800C03CE8 /* OnboardingProgressView.swift */; };
+		E2DE22272EC2B50800C03CE8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE221F2EC2B50800C03CE8 /* LoginView.swift */; };
+		E2DE22282EC2B50800C03CE8 /* WelcomeLandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22212EC2B50800C03CE8 /* WelcomeLandingView.swift */; };
 		E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA02E790C1900F90F24 /* Booking.swift */; };
 		E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA72E790C1900F90F24 /* SearchModels.swift */; };
 		E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA22E790C1900F90F24 /* Following.swift */; };
@@ -98,6 +121,30 @@
 		E2D9937C2E89ED58007D3F6D /* CreditTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditTypes.swift; sourceTree = "<group>"; };
 		E2D9937E2E89ED61007D3F6D /* ActivityFeedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityFeedTypes.swift; sourceTree = "<group>"; };
 		E2D993802E89FB18007D3F6D /* HobbyAppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HobbyAppDebug.entitlements; sourceTree = "<group>"; };
+		E2DE21C32EC2B20100C03CE8 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		E2DE21CD2EC2B28600C03CE8 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		E2DE21F52EC2B46600C03CE8 /* AccessibilityHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHelpers.swift; sourceTree = "<group>"; };
+		E2DE21F72EC2B46600C03CE8 /* HobbyistButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistButton.swift; sourceTree = "<group>"; };
+		E2DE21F92EC2B46600C03CE8 /* HobbyistCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyistCard.swift; sourceTree = "<group>"; };
+		E2DE21FB2EC2B46600C03CE8 /* ScreenTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTemplate.swift; sourceTree = "<group>"; };
+		E2DE21FD2EC2B46600C03CE8 /* BrandedLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedLoadingView.swift; sourceTree = "<group>"; };
+		E2DE21FE2EC2B46600C03CE8 /* SkeletonLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoader.swift; sourceTree = "<group>"; };
+		E2DE22002EC2B46600C03CE8 /* AnimatedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedButton.swift; sourceTree = "<group>"; };
+		E2DE22012EC2B46600C03CE8 /* AnimatedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedList.swift; sourceTree = "<group>"; };
+		E2DE22022EC2B46600C03CE8 /* BrandedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedButton.swift; sourceTree = "<group>"; };
+		E2DE22032EC2B46600C03CE8 /* CustomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationBar.swift; sourceTree = "<group>"; };
+		E2DE22042EC2B46600C03CE8 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		E2DE22052EC2B46600C03CE8 /* GlassmorphicCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassmorphicCard.swift; sourceTree = "<group>"; };
+		E2DE22062EC2B46600C03CE8 /* HeroAnimationSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroAnimationSystem.swift; sourceTree = "<group>"; };
+		E2DE22072EC2B46600C03CE8 /* KeyboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardManager.swift; sourceTree = "<group>"; };
+		E2DE22082EC2B46600C03CE8 /* SelectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionButton.swift; sourceTree = "<group>"; };
+		E2DE22092EC2B46600C03CE8 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		E2DE221B2EC2B50800C03CE8 /* DemographicsStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemographicsStep.swift; sourceTree = "<group>"; };
+		E2DE221C2EC2B50800C03CE8 /* OnboardingProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressView.swift; sourceTree = "<group>"; };
+		E2DE221E2EC2B50800C03CE8 /* EnhancedOnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedOnboardingFlow.swift; sourceTree = "<group>"; };
+		E2DE221F2EC2B50800C03CE8 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E2DE22202EC2B50800C03CE8 /* PhoneAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthView.swift; sourceTree = "<group>"; };
+		E2DE22212EC2B50800C03CE8 /* WelcomeLandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeLandingView.swift; sourceTree = "<group>"; };
 		E2E5EFA02E790C1900F90F24 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
 		E2E5EFA12E790C1900F90F24 /* ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItem.swift; sourceTree = "<group>"; };
 		E2E5EFA22E790C1900F90F24 /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
@@ -156,6 +203,7 @@
 			children = (
 				060B2BF73BB944689D985C7A /* Store */,
 				148300B9D0AA4F8A91FE0AE6 /* Profile */,
+				E2DE21C32EC2B20100C03CE8 /* ShareSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -188,6 +236,8 @@
 		7A1234541234567890ABCDEF /* HobbyApp */ = {
 			isa = PBXGroup;
 			children = (
+				E2DE22222EC2B50800C03CE8 /* Auth */,
+				E2DE220A2EC2B46600C03CE8 /* Components */,
 				E2C2261C2EC00F50006E42C6 /* BrandConstants.swift */,
 				E2D7A4632E8A2F5400044E9B /* GoogleService-Info.plist */,
 				E2D7A45E2E8A2C8500044E9B /* HobbyApp.entitlements */,
@@ -203,6 +253,7 @@
 				7A1234591234567890ABCDEF /* Assets.xcassets */,
 				7A12345E1234567890ABCDEF /* Info.plist */,
 				7A12345B1234567890ABCDEF /* Preview Content */,
+				E2DE21CD2EC2B28600C03CE8 /* AppConfiguration.swift */,
 			);
 			path = HobbyApp;
 			sourceTree = "<group>";
@@ -230,6 +281,90 @@
 				C5CD3A5EC0694DA392151196 /* StoreViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E2DE21F62EC2B46600C03CE8 /* Accessibility */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21F52EC2B46600C03CE8 /* AccessibilityHelpers.swift */,
+			);
+			path = Accessibility;
+			sourceTree = "<group>";
+		};
+		E2DE21F82EC2B46600C03CE8 /* Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21F72EC2B46600C03CE8 /* HobbyistButton.swift */,
+			);
+			path = Buttons;
+			sourceTree = "<group>";
+		};
+		E2DE21FA2EC2B46600C03CE8 /* Cards */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21F92EC2B46600C03CE8 /* HobbyistCard.swift */,
+			);
+			path = Cards;
+			sourceTree = "<group>";
+		};
+		E2DE21FC2EC2B46600C03CE8 /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21FB2EC2B46600C03CE8 /* ScreenTemplate.swift */,
+			);
+			path = Layout;
+			sourceTree = "<group>";
+		};
+		E2DE21FF2EC2B46600C03CE8 /* Loading */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21FD2EC2B46600C03CE8 /* BrandedLoadingView.swift */,
+				E2DE21FE2EC2B46600C03CE8 /* SkeletonLoader.swift */,
+			);
+			path = Loading;
+			sourceTree = "<group>";
+		};
+		E2DE220A2EC2B46600C03CE8 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE21F62EC2B46600C03CE8 /* Accessibility */,
+				E2DE21F82EC2B46600C03CE8 /* Buttons */,
+				E2DE21FA2EC2B46600C03CE8 /* Cards */,
+				E2DE21FC2EC2B46600C03CE8 /* Layout */,
+				E2DE21FF2EC2B46600C03CE8 /* Loading */,
+				E2DE22002EC2B46600C03CE8 /* AnimatedButton.swift */,
+				E2DE22012EC2B46600C03CE8 /* AnimatedList.swift */,
+				E2DE22022EC2B46600C03CE8 /* BrandedButton.swift */,
+				E2DE22032EC2B46600C03CE8 /* CustomNavigationBar.swift */,
+				E2DE22042EC2B46600C03CE8 /* DesignTokens.swift */,
+				E2DE22052EC2B46600C03CE8 /* GlassmorphicCard.swift */,
+				E2DE22062EC2B46600C03CE8 /* HeroAnimationSystem.swift */,
+				E2DE22072EC2B46600C03CE8 /* KeyboardManager.swift */,
+				E2DE22082EC2B46600C03CE8 /* SelectionButton.swift */,
+				E2DE22092EC2B46600C03CE8 /* ShareSheet.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		E2DE221D2EC2B50800C03CE8 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE221B2EC2B50800C03CE8 /* DemographicsStep.swift */,
+				E2DE221C2EC2B50800C03CE8 /* OnboardingProgressView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E2DE22222EC2B50800C03CE8 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE221D2EC2B50800C03CE8 /* Onboarding */,
+				E2DE221E2EC2B50800C03CE8 /* EnhancedOnboardingFlow.swift */,
+				E2DE221F2EC2B50800C03CE8 /* LoginView.swift */,
+				E2DE22202EC2B50800C03CE8 /* PhoneAuthView.swift */,
+				E2DE22212EC2B50800C03CE8 /* WelcomeLandingView.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		E2E73DF72E764DF500994856 /* Frameworks */ = {
@@ -364,10 +499,33 @@
 				E2E5EFAE2E790C1900F90F24 /* HobbyClass.swift in Sources */,
 				E2E5EFAF2E790C1900F90F24 /* Review.swift in Sources */,
 				E2E5EFB02E790C1900F90F24 /* Payment.swift in Sources */,
+				E2DE22232EC2B50800C03CE8 /* EnhancedOnboardingFlow.swift in Sources */,
+				E2DE22242EC2B50800C03CE8 /* DemographicsStep.swift in Sources */,
+				E2DE22252EC2B50800C03CE8 /* PhoneAuthView.swift in Sources */,
+				E2DE22262EC2B50800C03CE8 /* OnboardingProgressView.swift in Sources */,
+				E2DE22272EC2B50800C03CE8 /* LoginView.swift in Sources */,
+				E2DE22282EC2B50800C03CE8 /* WelcomeLandingView.swift in Sources */,
 				E2BBE57D2E81B18F00CFDD45 /* SimpleSupabaseService.swift in Sources */,
+				E2DE21CE2EC2B28600C03CE8 /* AppConfiguration.swift in Sources */,
 				E2E5EFB12E790C1900F90F24 /* UserProfile.swift in Sources */,
 				E2E5EFB22E790C1900F90F24 /* Instructor.swift in Sources */,
 				E2E5EFB32E790C1900F90F24 /* ClassItem.swift in Sources */,
+				E2DE220B2EC2B46600C03CE8 /* DesignTokens.swift in Sources */,
+				E2DE220C2EC2B46600C03CE8 /* SkeletonLoader.swift in Sources */,
+				E2DE220D2EC2B46600C03CE8 /* HobbyistButton.swift in Sources */,
+				E2DE220E2EC2B46600C03CE8 /* AccessibilityHelpers.swift in Sources */,
+				E2DE220F2EC2B46600C03CE8 /* ShareSheet.swift in Sources */,
+				E2DE22102EC2B46600C03CE8 /* AnimatedButton.swift in Sources */,
+				E2DE22112EC2B46600C03CE8 /* SelectionButton.swift in Sources */,
+				E2DE22122EC2B46600C03CE8 /* BrandedLoadingView.swift in Sources */,
+				E2DE22132EC2B46600C03CE8 /* HeroAnimationSystem.swift in Sources */,
+				E2DE22142EC2B46600C03CE8 /* GlassmorphicCard.swift in Sources */,
+				E2DE22152EC2B46600C03CE8 /* KeyboardManager.swift in Sources */,
+				E2DE22162EC2B46600C03CE8 /* CustomNavigationBar.swift in Sources */,
+				E2DE22172EC2B46600C03CE8 /* HobbyistCard.swift in Sources */,
+				E2DE22182EC2B46600C03CE8 /* ScreenTemplate.swift in Sources */,
+				E2DE22192EC2B46600C03CE8 /* BrandedButton.swift in Sources */,
+				E2DE221A2EC2B46600C03CE8 /* AnimatedList.swift in Sources */,
 				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
 				7A1234561234567890ABCDEF /* HobbyAppApp.swift in Sources */,
 				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,

@@ -10,6 +10,7 @@ import { useUserProfile } from '@/lib/hooks/useAuth'
 import DashboardLayout from '../DashboardLayout'
 import StudioIntelligenceDashboard from '@/components/studio/StudioIntelligenceDashboard'
 import CalendarImportWidget from '@/components/studio/CalendarImportWidget'
+import SetupReminders from '@/components/dashboard/SetupReminders'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -105,6 +106,9 @@ export default function IntelligencePage() {
               </p>
             </div>
           </div>
+
+          {/* Setup Reminders - Calendar Integration Prompt */}
+          <SetupReminders className="mb-6" />
 
           {/* Calendar Import Widget - Show if no data or setup mode */}
           {(showImportWidget || !hasCalendarData) && (

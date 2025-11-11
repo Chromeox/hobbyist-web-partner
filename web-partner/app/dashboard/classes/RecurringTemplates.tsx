@@ -655,7 +655,15 @@ export default function RecurringTemplates({ onClose, onSave }: RecurringTemplat
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-700">Default lead time</span>
-                      <select className="text-sm border border-gray-300 rounded px-2 py-1">
+                      <select
+                        className="text-sm border border-gray-300 rounded px-2 py-1 appearance-none bg-white pr-8 cursor-pointer"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.25rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.25em 1.25em'
+                        }}
+                      >
                         <option>4 weeks</option>
                         <option>6 weeks</option>
                         <option>8 weeks</option>
@@ -663,7 +671,15 @@ export default function RecurringTemplates({ onClose, onSave }: RecurringTemplat
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-700">Generation frequency</span>
-                      <select className="text-sm border border-gray-300 rounded px-2 py-1">
+                      <select
+                        className="text-sm border border-gray-300 rounded px-2 py-1 appearance-none bg-white pr-8 cursor-pointer"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.25rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.25em 1.25em'
+                        }}
+                      >
                         <option>Weekly</option>
                         <option>Daily</option>
                         <option>Monthly</option>
@@ -689,7 +705,15 @@ export default function RecurringTemplates({ onClose, onSave }: RecurringTemplat
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-700">Email summary</span>
-                      <select className="text-sm border border-gray-300 rounded px-2 py-1">
+                      <select
+                        className="text-sm border border-gray-300 rounded px-2 py-1 appearance-none bg-white pr-8 cursor-pointer"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.25rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.25em 1.25em'
+                        }}
+                      >
                         <option>Weekly</option>
                         <option>Daily</option>
                         <option>Monthly</option>

@@ -18,8 +18,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import StudioIntelligenceSummary from '../../components/studio/StudioIntelligenceSummary';
-import SetupReminders from '../../components/dashboard/SetupReminders';
 import { motion } from 'framer-motion';
 import { dashboardService } from '@/lib/services/dashboard';
 import { formatCurrency } from '@/lib/utils';
@@ -123,6 +123,7 @@ const EmptyState = ({ title, message, actionText, onAction, icon: Icon = BookOpe
 );
 
 export default function DashboardOverview({ studioId }: DashboardOverviewProps) {
+  const router = useRouter();
   const effectiveStudioId = studioId || 'demo-studio-id';
   const [selectedPeriod, setSelectedPeriod] = useState<DashboardPeriod>('week');
   const [isLoading, setIsLoading] = useState(true);
@@ -389,7 +390,13 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as DashboardPeriod)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10 cursor-pointer"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em'
+            }}
           >
             <option value="today">Today</option>
             <option value="week">This Week</option>
@@ -539,9 +546,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
         )}
       </div>
 
-      {/* Setup Reminders */}
-      <SetupReminders className="mb-6" />
-
       {/* Studio Intelligence Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <StudioIntelligenceSummary
@@ -556,7 +560,7 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="bg-white shadow-lg border border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 group cursor-pointer"
-            onClick={() => window.location.href = '/dashboard/classes'}
+            onClick={() => router.push('/dashboard/classes')}
           >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">

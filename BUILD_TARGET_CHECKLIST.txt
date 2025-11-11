@@ -1,0 +1,59 @@
+═══════════════════════════════════════════════════════════════
+  XCODE BUILD TARGET - QUICK CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+Xcode is now open at: HobbyApp.xcodeproj
+
+FOR EACH FILE BELOW:
+  1. Click file in left sidebar
+  2. Press ⌘⌥1 (opens right sidebar)
+  3. Find "Target Membership" section
+  4. Check ☑️ "HobbyApp" box
+
+───────────────────────────────────────────────────────────────
+
+FILE 1: LoginView.swift
+  Location: HobbyApp → Views → Auth → LoginView.swift
+  Status: ☐ Added to target
+
+FILE 2: EnhancedOnboardingFlow.swift
+  Location: HobbyApp → Views → Auth → EnhancedOnboardingFlow.swift
+  Status: ☐ Added to target
+
+FILE 3: AppConfiguration.swift
+  Location: HobbyApp → Configuration → AppConfiguration.swift
+  Status: ☐ Added to target
+
+FILE 4: ShareSheet.swift
+  Location: HobbyApp → Views → Components → ShareSheet.swift
+  Status: ☐ Added to target
+
+FILE 5: SkeletonLoader.swift
+  Location: HobbyApp → Views → Components → Loading → SkeletonLoader.swift
+  Status: ☐ Added to target
+
+FILE 6: BrandedLoadingView.swift
+  Location: HobbyApp → Views → Components → Loading → BrandedLoadingView.swift
+  Status: ☐ Added to target
+
+───────────────────────────────────────────────────────────────
+
+VERIFICATION:
+  □ Press ⌘B to build project
+  □ Check that "Cannot find 'LoginView'" errors are gone
+  □ OR run: ./verify_build_target.sh
+
+EXPECTED RESULT:
+  • Before: ~69 errors (6 "Cannot find" + 63 AppError.swift)
+  • After:  ~63 errors (0 "Cannot find" + 63 AppError.swift)
+
+───────────────────────────────────────────────────────────────
+
+TIPS:
+  • Multi-select: Hold ⌘ while clicking multiple files
+  • Search files: Press ⌘⇧O, type filename
+  • Toggle Inspector: ⌘⌥1
+  • Clean build: ⌘⇧K
+  • Build: ⌘B
+
+═══════════════════════════════════════════════════════════════

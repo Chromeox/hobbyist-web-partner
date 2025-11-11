@@ -383,7 +383,15 @@ export default function DynamicPricing() {
             </div>
             <div>
               <label className="text-sm text-gray-700">Time Slot</label>
-              <select className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white">
+              <select
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white appearance-none pr-10 cursor-pointer"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                  backgroundPosition: 'right 0.5rem center',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '1.5em 1.5em'
+                }}
+              >
                 <option>Morning (6-9am)</option>
                 <option>Evening (5-9pm)</option>
                 <option>Weekend</option>
