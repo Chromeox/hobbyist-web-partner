@@ -104,19 +104,19 @@ class LocationService: NSObject, ObservableObject {
         
         // Rough neighborhood boundaries
         switch (lat, lng) {
-        case (49.275...49.295, -123.14... -123.11):
+        case (49.275...49.295, -123.14...(-123.11)):
             return "Downtown"
-        case (49.27...49.29, -123.15... -123.13):
+        case (49.27...49.29, -123.15...(-123.13)):
             return "West End"
-        case (49.265...49.275, -123.14... -123.12):
+        case (49.265...49.275, -123.14...(-123.12)):
             return "Yaletown"
-        case (49.28...49.295, -123.13... -123.10):
+        case (49.28...49.295, -123.13...(-123.10)):
             return "Gastown"
-        case (49.25...49.275, -123.17... -123.14):
+        case (49.25...49.275, -123.17...(-123.14)):
             return "Kitsilano"
-        case (49.255...49.275, -123.13... -123.10):
+        case (49.255...49.275, -123.13...(-123.10)):
             return "Mount Pleasant"
-        case (49.26...49.28, -123.10... -123.07):
+        case (49.26...49.28, -123.10...(-123.07)):
             return "Commercial Drive"
         default:
             return nil
