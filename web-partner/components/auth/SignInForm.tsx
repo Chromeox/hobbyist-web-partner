@@ -38,6 +38,27 @@ export const SignInForm = memo(function SignInForm() {
     }
   })
 
+  // Check for error messages in URL
+  React.useEffect(() => {
+    const urlError = searchParams.get('error')
+    const urlMessage = searchParams.get('message')
+
+    if (urlError || urlMessage) {
+      let errorMessage = urlMessage || 'Authentication failed'
+
+      // User-friendly error messages
+      if (urlError === 'link_expired') {
+        errorMessage = 'This link has expired. Please request a new one.'
+      } else if (urlError === 'otp_expired') {
+        errorMessage = 'Your email link has expired. Please sign in again or request a new link.'
+      } else if (urlError === 'access_denied') {
+        errorMessage = 'Access was denied. Please try again.'
+      }
+
+      setState(prev => ({ ...prev, error: errorMessage }))
+    }
+  }, [searchParams])
+
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
