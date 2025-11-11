@@ -103,13 +103,15 @@ class SearchViewModel: ObservableObject {
     private var currentSearchParameters: SearchParameters?
     
     // SearchScope is now defined in SearchModels.swift
-    
-    init() {
-        setupBindings()
-        setupVoiceRecognition()
-        loadInitialData()
-        requestLocationPermissionIfNeeded()
-        syncSearchProperties()
+
+    nonisolated init() {
+        Task { @MainActor in
+            self.setupBindings()
+            self.setupVoiceRecognition()
+            self.loadInitialData()
+            self.requestLocationPermissionIfNeeded()
+            self.syncSearchProperties()
+        }
     }
     
     private func setupBindings() {

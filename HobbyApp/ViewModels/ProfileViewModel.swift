@@ -24,10 +24,12 @@ class ProfileViewModel: ObservableObject {
     private let authManager: AuthenticationManager
     private var cancellables = Set<AnyCancellable>()
 
-    init(authManager: AuthenticationManager? = nil) {
+    nonisolated init(authManager: AuthenticationManager? = nil) {
         self.authManager = authManager ?? AuthenticationManager.shared
-        setupBindings()
-        Task { await loadProfile() }
+        Task { @MainActor in
+            self.setupBindings()
+            await self.loadProfile()
+        }
     }
     
     private func setupBindings() {

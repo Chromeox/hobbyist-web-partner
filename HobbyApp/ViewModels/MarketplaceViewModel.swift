@@ -57,7 +57,7 @@ class MarketplaceViewModel: ObservableObject {
                 self.classes = fetchedClasses
                 self.featuredClasses = Array(fetchedClasses.prefix(5))
                 self.nearbyInstructors = self.filterNearbyInstructors(fetchedInstructors)
-                self.popularVenues = self.sortVenuesByPopularity(fetchedVenues)
+                self.popularVenues = self.sortVenuesByPopularity(fetchedVenues.toVenues())
                 self.extractCategories(from: fetchedClasses)
                 self.isLoading = false
             } catch {

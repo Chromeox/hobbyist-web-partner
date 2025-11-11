@@ -25,11 +25,11 @@ class HomeViewModel: ObservableObject {
     private let classService = ClassService.shared
     private let instructorService = InstructorService.shared
     private let searchService = SearchService.shared
-    
-    init() {
-        loadCategories()
-        Task {
-            await loadInitialData()
+
+    nonisolated init() {
+        Task { @MainActor in
+            self.loadCategories()
+            await self.loadInitialData()
         }
     }
     

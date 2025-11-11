@@ -13,9 +13,11 @@ final class StoreViewModel: ObservableObject {
     private let storeKitManager: StoreKitManager
     private var cancellables = Set<AnyCancellable>()
 
-    init(storeKitManager: StoreKitManager = .shared) {
+    nonisolated init(storeKitManager: StoreKitManager = .shared) {
         self.storeKitManager = storeKitManager
-        setupBindings()
+        Task { @MainActor in
+            self.setupBindings()
+        }
     }
 
     func fetchProducts() async {

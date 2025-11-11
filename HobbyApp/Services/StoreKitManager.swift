@@ -102,11 +102,15 @@ final class StoreKitManager: ObservableObject {
     }
 
     private func deliverPurchasedContent(for transaction: Transaction) async throws {
-        guard let receiptJWS = transaction.jwsRepresentation else {
+        // iOS 15+ uses jsonRepresentation instead of jwsRepresentation
+        let receiptData = try transaction.payloadData
+        let receiptString = String(data: receiptData, encoding: .utf8) ?? ""
+
+        guard !receiptString.isEmpty else {
             throw StoreKitManagerError.missingReceipt
         }
 
-        try await BackendService.validateReceipt(receiptJWS)
+        try await BackendService.validateReceipt(receiptString)
 
         if transaction.productType == .nonConsumable || transaction.productType == .autoRenewable {
             purchasedProductIDs.insert(transaction.productID)
