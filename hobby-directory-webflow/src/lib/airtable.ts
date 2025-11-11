@@ -58,7 +58,7 @@ function transformEventRecord(record: any): Event {
     meeting_day: fields.Day || fields.meeting_day,
     location: fields.Location || fields.location || '',
     address: fields.Address || fields.address || '',
-    image_url: fields.Image || fields.image_url || '',
+    image_url: fields.Image_URL || fields.Image || fields.image_url || 'https://via.placeholder.com/800x450?text=No+Image',
     price: fields.Price || fields.price || 0,
     tags: fields.Category || fields.Tags || fields.tags || [],
     status: fields.Status || fields.status || 'active',

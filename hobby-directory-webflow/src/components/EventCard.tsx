@@ -51,6 +51,11 @@ export function EventCard({
           alt={event.name}
           className="event-card__image"
           loading="lazy"
+          onError={(e) => {
+            // Fallback if image fails to load
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://via.placeholder.com/800x450?text=Image+Loading';
+          }}
         />
 
         {/* Urgency Badge */}
