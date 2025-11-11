@@ -17,13 +17,16 @@ export async function GET(request: Request) {
   const type = requestUrl.searchParams.get('type')
   const next = requestUrl.searchParams.get('next') || '/dashboard'
 
-  console.log('Auth callback received:', {
+  console.log('[Auth Callback] Full URL:', requestUrl.href)
+  console.log('[Auth Callback] All search params:', Object.fromEntries(requestUrl.searchParams))
+  console.log('[Auth Callback] Parsed params:', {
     code: code ? `${code.substring(0, 10)}...` : null,
     token_hash: token_hash ? `${token_hash.substring(0, 10)}...` : null,
     type,
     error,
     error_code,
-    url: requestUrl.href
+    hasTokenHash: !!token_hash,
+    hasType: !!type
   })
 
   // Handle OAuth errors from provider
