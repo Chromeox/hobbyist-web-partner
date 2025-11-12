@@ -670,6 +670,11 @@ extension ClassItem {
             return BrandConstants.Colors.primary
         }
     }
+
+    // Static convenience function for backward compatibility
+    static func from(hobbyClass: HobbyClass) -> ClassItem {
+        return ClassItem(from: hobbyClass)
+    }
 }
 
 // Extension for Color to make it Codable

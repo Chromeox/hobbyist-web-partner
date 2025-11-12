@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import CoreLocation
 
+// Import Services - LocationService is defined in Services directory
 @MainActor
 class MarketplaceViewModel: ObservableObject {
     @Published var classes: [ClassItem] = []
@@ -31,7 +32,7 @@ class MarketplaceViewModel: ObservableObject {
     private func setupLocationUpdates() {
         locationManager.$currentLocation
             .compactMap { $0 }
-            .sink { [weak self] _ in
+            .sink { [weak self] (location: CLLocation) in
                 self?.loadNearbyData()
             }
             .store(in: &cancellables)
