@@ -345,7 +345,16 @@ class SearchViewModel: ObservableObject {
         
         do {
             autocompleteSuggestions = try await searchService.getAutocompleteSuggestions(query: query)
-            searchSuggestions = await searchService.getSearchSuggestions(for: query)
+            // Bridge SearchService.SearchSuggestion to SearchSuggestion
+            let serviceSuggestions = await searchService.getSearchSuggestions(for: query)
+            searchSuggestions = serviceSuggestions.map { svc in
+                SearchSuggestion(
+                    id: UUID(),
+                    text: svc.text,
+                    type: svc.type,
+                    metadata: svc.metadata
+                )
+            }
         } catch {
             // Silently fail for autocomplete
             autocompleteSuggestions = []
