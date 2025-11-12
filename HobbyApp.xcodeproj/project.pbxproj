@@ -41,10 +41,6 @@
 		E2B682882EC343DB00BEEA09 /* ErrorHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B682782EC343DB00BEEA09 /* ErrorHandlingService.swift */; };
 		E2BBE57D2E81B18F00CFDD45 /* SimpleSupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2BBE57C2E81B18F00CFDD45 /* SimpleSupabaseService.swift */; };
 		E2C2261D2EC00F50006E42C6 /* BrandConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C2261C2EC00F50006E42C6 /* BrandConstants.swift */; };
-		E2D0CB5E2EBCA23B0008E6EA /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = E2D0CB5D2EBCA23B0008E6EA /* FacebookCore */; };
-		E2D0CB602EBCA23B0008E6EA /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = E2D0CB5F2EBCA23B0008E6EA /* FacebookLogin */; };
-		E2D0CB632EBCAC600008E6EA /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = E2D0CB622EBCAC600008E6EA /* Stripe */; };
-		E2D0CB652EBCAC600008E6EA /* StripeApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = E2D0CB642EBCAC600008E6EA /* StripeApplePay */; };
 		E2D7A45B2E8A2BDB00044E9B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E2D7A45A2E8A2BDB00044E9B /* GoogleSignIn */; };
 		E2D7A45D2E8A2BDB00044E9B /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E2D7A45C2E8A2BDB00044E9B /* GoogleSignInSwift */; };
 		E2D7A4602E8A2D9700044E9B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E2D7A45F2E8A2D9700044E9B /* GoogleSignIn */; };
@@ -182,7 +178,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2D0CB652EBCAC600008E6EA /* StripeApplePay in Frameworks */,
 				E2D7A45D2E8A2BDB00044E9B /* GoogleSignInSwift in Frameworks */,
 				E2E73DF22E764B4800994856 /* PostgREST in Frameworks */,
 				E2D7A45B2E8A2BDB00044E9B /* GoogleSignIn in Frameworks */,
@@ -190,9 +185,6 @@
 				E2D993772E87532B007D3F6D /* LocalAuthentication.framework in Frameworks */,
 				E2D7A4602E8A2D9700044E9B /* GoogleSignIn in Frameworks */,
 				E2E73DF92E764DF500994856 /* Supabase in Frameworks */,
-				E2D0CB632EBCAC600008E6EA /* Stripe in Frameworks */,
-				E2D0CB602EBCA23B0008E6EA /* FacebookLogin in Frameworks */,
-				E2D0CB5E2EBCA23B0008E6EA /* FacebookCore in Frameworks */,
 				E2E73DEE2E764B4800994856 /* Auth in Frameworks */,
 				E2E73DF62E764B4800994856 /* Storage in Frameworks */,
 				E2E73DF42E764B4800994856 /* Realtime in Frameworks */,
@@ -463,8 +455,6 @@
 			packageReferences = (
 				E2E73DEC2E764B4800994856 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E2D7A4592E8A2BDB00044E9B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				E2D0CB5C2EBCA23B0008E6EA /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
-				E2D0CB612EBCAC600008E6EA /* XCRemoteSwiftPackageReference "stripe-ios" */,
 			);
 			productRefGroup = 7A1234531234567890ABCDEF /* Products */;
 			projectDirPath = "";
@@ -801,22 +791,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E2D0CB5C2EBCA23B0008E6EA /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 14.1.0;
-			};
-		};
-		E2D0CB612EBCAC600008E6EA /* XCRemoteSwiftPackageReference "stripe-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/stripe/stripe-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 25.0.0;
-			};
-		};
 		E2D7A4592E8A2BDB00044E9B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -836,26 +810,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E2D0CB5D2EBCA23B0008E6EA /* FacebookCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2D0CB5C2EBCA23B0008E6EA /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
-			productName = FacebookCore;
-		};
-		E2D0CB5F2EBCA23B0008E6EA /* FacebookLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2D0CB5C2EBCA23B0008E6EA /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
-			productName = FacebookLogin;
-		};
-		E2D0CB622EBCAC600008E6EA /* Stripe */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2D0CB612EBCAC600008E6EA /* XCRemoteSwiftPackageReference "stripe-ios" */;
-			productName = Stripe;
-		};
-		E2D0CB642EBCAC600008E6EA /* StripeApplePay */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2D0CB612EBCAC600008E6EA /* XCRemoteSwiftPackageReference "stripe-ios" */;
-			productName = StripeApplePay;
-		};
 		E2D7A45A2E8A2BDB00044E9B /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E2D7A4592E8A2BDB00044E9B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;

@@ -28,7 +28,8 @@ const nextConfig = {
   
   // Compiler options for smaller bundles
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Keep console logs for debugging password reset
+    removeConsole: false,
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
   
