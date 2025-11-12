@@ -1,6 +1,7 @@
 import SwiftUI
-import GoogleSignIn
-import FacebookCore
+// REMOVED: Packages no longer in project
+// import GoogleSignIn
+// import FacebookCore
 
 // DISABLED: Using ProductionApp.swift as main entry point instead
 // This file kept for reference only - has Facebook/Google integration
