@@ -3,7 +3,7 @@
 # Stripe Webhook Endpoint Test Script
 # Tests that the webhook endpoint is accessible and responding
 
-WEBHOOK_URL="https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app/api/stripe/webhooks"
+WEBHOOK_URL="https://hobbyist-web-partner-v3.vercel.app/api/stripe/webhooks"
 
 echo "🧪 Testing Stripe Webhook Endpoint"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
