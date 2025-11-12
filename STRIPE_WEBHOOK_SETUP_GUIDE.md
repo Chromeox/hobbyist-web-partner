@@ -8,14 +8,14 @@
 
 ## Production Deployment URL
 
-Based on your test-password-reset.md, your production URL is:
+Your production URL is:
 ```
-https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app
+https://hobbyist-web-partner-v3.vercel.app
 ```
 
-**Webhook Endpoint**:
+**Webhook Endpoint** (✅ VERIFIED WORKING):
 ```
-https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app/api/stripe/webhooks
+https://hobbyist-web-partner-v3.vercel.app/api/stripe/webhooks
 ```
 
 ---

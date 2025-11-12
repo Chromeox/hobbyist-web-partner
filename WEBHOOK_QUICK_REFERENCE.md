@@ -1,8 +1,8 @@
 # Stripe Webhook Quick Reference Card
 
-## Your Webhook URL
+## Your Webhook URL (✅ WORKING)
 ```
-https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app/api/stripe/webhooks
+https://hobbyist-web-partner-v3.vercel.app/api/stripe/webhooks
 ```
 
 ## Events to Select in Stripe Dashboard
@@ -25,7 +25,7 @@ https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app/api/stri
 
 ### Test endpoint accessibility:
 ```bash
-curl -X POST https://hobbyist-web-partner-v3-feyd9jgm9-chromeoxs-projects.vercel.app/api/stripe/webhooks \
+curl -X POST https://hobbyist-web-partner-v3.vercel.app/api/stripe/webhooks \
   -H "Content-Type: application/json" \
   -d '{"type":"test"}'
 ```
