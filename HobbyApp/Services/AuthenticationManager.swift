@@ -43,40 +43,37 @@ struct AppUser: Codable, Identifiable {
     }
 }
 
-// MARK: - Auth Errors
-enum AuthError: LocalizedError {
-    case invalidCredentials
-    case emailAlreadyInUse
-    case weakPassword
-    case networkError
-    case userNotFound
-    case unknown(String)
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidCredentials:
-            return "Invalid email or password"
-        case .emailAlreadyInUse:
-            return "This email is already registered"
-        case .weakPassword:
-            return "Password must be at least 8 characters"
-        case .networkError:
-            return "Network connection error"
-        case .userNotFound:
-            return "No account found with this email"
-        case .unknown(let message):
-            return message
-        }
-    }
-}
-
 // MARK: - Authentication Manager
 @MainActor
 class AuthenticationManager: ObservableObject {
     static let shared = AuthenticationManager()
 
-    // Type alias to avoid ambiguity with AppError.swift's AuthError
-    typealias AuthError = AuthenticationManager.AuthError
+    // MARK: - Auth Errors (nested to avoid ambiguity)
+    enum AuthError: LocalizedError {
+        case invalidCredentials
+        case emailAlreadyInUse
+        case weakPassword
+        case networkError
+        case userNotFound
+        case unknown(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidCredentials:
+                return "Invalid email or password"
+            case .emailAlreadyInUse:
+                return "This email is already registered"
+            case .weakPassword:
+                return "Password must be at least 8 characters"
+            case .networkError:
+                return "Network connection error"
+            case .userNotFound:
+                return "No account found with this email"
+            case .unknown(let message):
+                return message
+            }
+        }
+    }
 
     @Published var isAuthenticated = false
     @Published var currentUser: AppUser?
