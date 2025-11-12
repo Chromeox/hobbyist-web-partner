@@ -74,11 +74,14 @@ enum AuthError: LocalizedError {
 @MainActor
 class AuthenticationManager: ObservableObject {
     static let shared = AuthenticationManager()
-    
+
+    // Type alias to avoid ambiguity with AppError.swift's AuthError
+    typealias AuthError = AuthenticationManager.AuthError
+
     @Published var isAuthenticated = false
     @Published var currentUser: AppUser?
     @Published var isLoading = false
-    @Published var authError: AuthenticationManager.AuthError?
+    @Published var authError: AuthError?
     
     // Form state for UI binding
     @Published var email = ""
