@@ -1,7 +1,13 @@
 import Airtable from 'airtable';
 
-const AIRTABLE_API_KEY = 'patFsYfcWo1hUENf6.8ed5d88b28ff7719b89c2835b37a6a6692cd5c8ff42a8b28f34e189c44221e21';
-const AIRTABLE_BASE_ID = 'appo3x0WjbCIhA0Lz';
+// Load from environment variables
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || 'appo3x0WjbCIhA0Lz';
+
+if (!AIRTABLE_API_KEY) {
+  console.error('❌ Error: AIRTABLE_API_KEY environment variable is required');
+  process.exit(1);
+}
 
 const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
