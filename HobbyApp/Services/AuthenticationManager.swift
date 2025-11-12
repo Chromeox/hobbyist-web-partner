@@ -78,7 +78,7 @@ class AuthenticationManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var currentUser: AppUser?
     @Published var isLoading = false
-    @Published var authError: AuthError?
+    @Published var authError: AuthenticationManager.AuthError?
     
     // Form state for UI binding
     @Published var email = ""

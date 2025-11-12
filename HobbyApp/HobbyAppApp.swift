@@ -8,50 +8,49 @@ import SwiftUI
 //@main
 struct HobbyAppApp: App {
     init() {
-        // Configure Google Sign In
-        configureGoogleSignIn()
-
-        // Configure Facebook SDK
-        configureFacebookSDK()
+        // DISABLED: Packages removed from project
+        // configureGoogleSignIn()
+        // configureFacebookSDK()
 
         // Configure app appearance
         configureAppearance()
-        print("✅ HobbyApp initialized")
+        print("✅ HobbyApp initialized (disabled - reference only)")
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .onOpenURL(perform: { url in
-                    // Handle Facebook URL callbacks
-                    ApplicationDelegate.shared.application(
-                        UIApplication.shared,
-                        open: url,
-                        sourceApplication: nil,
-                        annotation: [UIApplication.OpenURLOptionsKey.annotation]
-                    )
-                })
+                // DISABLED: Facebook package removed
+                // .onOpenURL(perform: { url in
+                //     ApplicationDelegate.shared.application(
+                //         UIApplication.shared,
+                //         open: url,
+                //         sourceApplication: nil,
+                //         annotation: [UIApplication.OpenURLOptionsKey.annotation]
+                //     )
+                // })
         }
     }
 
-    private func configureGoogleSignIn() {
-        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-              let plist = NSDictionary(contentsOfFile: path),
-              let clientId = plist["CLIENT_ID"] as? String else {
-            fatalError("No GoogleService-Info.plist file")
-        }
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
-        print("✅ Google Sign In configured with client ID: \(clientId)")
-    }
-    
-    private func configureFacebookSDK() {
-        // Initialize Facebook SDK
-        ApplicationDelegate.shared.application(
-            UIApplication.shared,
-            didFinishLaunchingWithOptions: nil
-        )
-        print("✅ Facebook SDK initialized")
-    }
+    // DISABLED: Google package removed
+    // private func configureGoogleSignIn() {
+    //     guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+    //           let plist = NSDictionary(contentsOfFile: path),
+    //           let clientId = plist["CLIENT_ID"] as? String else {
+    //         fatalError("No GoogleService-Info.plist file")
+    //     }
+    //     GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
+    //     print("✅ Google Sign In configured with client ID: \(clientId)")
+    // }
+
+    // DISABLED: Facebook package removed
+    // private func configureFacebookSDK() {
+    //     ApplicationDelegate.shared.application(
+    //         UIApplication.shared,
+    //         didFinishLaunchingWithOptions: nil
+    //     )
+    //     print("✅ Facebook SDK initialized")
+    // }
 
     private func configureAppearance() {
         // Configure navigation bar appearance
