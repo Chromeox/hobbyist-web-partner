@@ -1,4 +1,12 @@
-# Password Reset Flow - Root Cause & Fix
+# Password Reset Flow - Final Working Solution ✅
+
+## ✅ RESOLVED - Working Solution
+**Date**: 2025-11-11
+**Solution**: Supabase Native `{{ .ConfirmationURL }}` Flow
+**Implementation Time**: 2 minutes
+**Status**: Password reset fully functional
+
+---
 
 ## Problem Summary
 Password reset emails were sent successfully, but clicking the link resulted in "Authentication Error: No authentication data found" instead of showing the password reset form.
@@ -197,7 +205,44 @@ Password reset tokens expire after a certain time (usually 1 hour):
 
 ---
 
+## 🎯 Final Working Solution
+
+After 9 hours of debugging custom token handling, the solution was to use **Supabase's native password reset flow**.
+
+### What We Changed (2 minutes)
+
+1. **Supabase Email Template** → Authentication → Email Templates → Reset Password:
+   ```html
+   <a href="{{ .ConfirmationURL }}">Reset Password</a>
+   ```
+
+2. **Supabase Redirect URL** → Authentication → URL Configuration:
+   ```
+   https://your-app.vercel.app/auth/reset-password
+   ```
+
+3. **Code Cleanup**:
+   - Removed password reset handling from `/app/auth/callback/route.ts`
+   - Kept OAuth flow intact (Google sign-in still works)
+   - Existing `/auth/reset-password` page works perfectly as-is
+
+### Why This Works
+
+- Supabase handles token verification automatically
+- Tokens are in URL fragment (`#access_token=...`), not consumed by middleware
+- Battle-tested flow used by thousands of apps
+- No custom server-side token handling needed
+
+### Result
+
+✅ User clicks email link → Direct to password reset form
+✅ Token verified automatically by Supabase
+✅ Password reset completes successfully
+✅ OAuth still works perfectly
+
+---
+
 **Fixed**: 2025-11-11
-**Issue Duration**: 9 hours
-**Root Cause**: Middleware consuming one-time tokens
-**Solution**: Skip middleware for callback URLs with token_hash parameter
+**Issue Duration**: 9 hours debugging custom approach + 2 minutes implementing native flow
+**Root Cause**: Over-engineering instead of using Supabase's built-in solution
+**Final Solution**: Supabase native `{{ .ConfirmationURL }}` flow
