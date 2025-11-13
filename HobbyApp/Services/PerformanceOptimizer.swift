@@ -388,7 +388,7 @@ public extension View {
 
 // MARK: - Performance Dashboard (Debug)
 
-public struct PerformanceDebugView: View {
+public struct PerformanceOptimizerDebugView: View {
     @StateObject private var optimizer = PerformanceOptimizer.shared
 
     public var body: some View {
@@ -456,7 +456,7 @@ public struct PerformanceDebugView: View {
 
 #Preview("Performance Optimizer") {
     VStack(spacing: 20) {
-        PerformanceDebugView()
+        PerformanceOptimizerDebugView()
 
         VStack(spacing: 12) {
             ForEach(0..<5, id: \.self) { index in

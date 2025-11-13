@@ -1,6 +1,36 @@
 import Foundation
 import Combine
 
+// MARK: - App Configuration (Config-Dev.plist support)
+
+class AppConfiguration {
+    static let shared = AppConfiguration()
+    
+    var supabaseURL: String?
+    var supabaseAnonKey: String?
+    
+    private init() {
+        loadConfiguration()
+    }
+    
+    private func loadConfiguration() {
+        // Try to load from Config-Dev.plist first
+        if let path = Bundle.main.path(forResource: "Config-Dev", ofType: "plist"),
+           let config = NSDictionary(contentsOfFile: path) as? [String: Any] {
+            supabaseURL = config["SUPABASE_URL"] as? String
+            supabaseAnonKey = config["SUPABASE_ANON_KEY"] as? String
+            
+            if let url = supabaseURL, !url.isEmpty {
+                print("✅ Loaded Supabase URL from Config-Dev.plist")
+            }
+        } else {
+            print("⚠️ Config-Dev.plist not found, will fall back to environment variables")
+        }
+    }
+}
+
+// MARK: - Configuration
+
 struct Configuration {
     static let shared = Configuration()
     

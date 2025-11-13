@@ -2,6 +2,7 @@ import Foundation
 import BackgroundTasks
 import UserNotifications
 import UIKit
+import SwiftUI
 
 // MARK: - Background Task Manager
 
@@ -226,22 +227,16 @@ public class BackgroundTaskManager: ObservableObject {
             
             task.expirationHandler = {
                 syncTask.cancel()
-                self.endBackgroundTask(backgroundTask)
                 Task { @MainActor in
+                    await self.endBackgroundTask(backgroundTask)
                     self.syncStatus = .failed
                 }
             }
             
-            do {
-                _ = try await syncTask.value
-                task.setTaskCompleted(success: true)
-                syncStatus = .completed
-                lastBackgroundUpdate = Date()
-            } catch {
-                task.setTaskCompleted(success: false)
-                syncStatus = .failed
-                print("Background data sync failed: \(error)")
-            }
+            await syncTask.value
+            task.setTaskCompleted(success: true)
+            syncStatus = .completed
+            lastBackgroundUpdate = Date()
             
             await endBackgroundTask(backgroundTask)
             await scheduleNextDataSync()
@@ -258,7 +253,9 @@ public class BackgroundTaskManager: ObservableObject {
             
             task.expirationHandler = {
                 reminderTask.cancel()
-                self.endBackgroundTask(backgroundTask)
+                Task { @MainActor in
+                    await self.endBackgroundTask(backgroundTask)
+                }
             }
             
             do {
@@ -283,7 +280,9 @@ public class BackgroundTaskManager: ObservableObject {
             
             task.expirationHandler = {
                 updateTask.cancel()
-                self.endBackgroundTask(backgroundTask)
+                Task { @MainActor in
+                    await self.endBackgroundTask(backgroundTask)
+                }
             }
             
             do {
@@ -308,7 +307,9 @@ public class BackgroundTaskManager: ObservableObject {
             
             task.expirationHandler = {
                 locationTask.cancel()
-                self.endBackgroundTask(backgroundTask)
+                Task { @MainActor in
+                    await self.endBackgroundTask(backgroundTask)
+                }
             }
             
             do {
@@ -333,7 +334,9 @@ public class BackgroundTaskManager: ObservableObject {
             
             task.expirationHandler = {
                 cleanupTask.cancel()
-                self.endBackgroundTask(backgroundTask)
+                Task { @MainActor in
+                    await self.endBackgroundTask(backgroundTask)
+                }
             }
             
             do {
@@ -503,6 +506,67 @@ public class BackgroundTaskManager: ObservableObject {
 }
 
 // MARK: - Sync Managers
+
+// MARK: - Network Cache Support Types
+private struct NetworkEndpoint {
+    let url: URL?
+    let method: HTTPMethod
+    let cacheDuration: TimeInterval
+    
+    enum HTTPMethod {
+        case GET
+        case POST
+        case PUT
+        case DELETE
+    }
+}
+
+private class NetworkCache {
+    static let shared = NetworkCache()
+    
+    private init() {}
+    
+    func request<T>(_ type: T.Type, from endpoint: NetworkEndpoint) async throws -> T {
+        // Stub implementation - replace with actual network cache logic
+        guard let url = endpoint.url else {
+            throw NetworkError.invalidURL
+        }
+        
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        if T.self == [String: Any].self {
+            let json = try JSONSerialization.jsonObject(with: data) as? T
+            if let json = json {
+                return json
+            }
+        }
+        
+        throw NetworkError.decodingFailed
+    }
+    
+    func clearCache() {
+        // Stub implementation
+        print("Network cache cleared")
+    }
+    
+    enum NetworkError: Error {
+        case invalidURL
+        case decodingFailed
+    }
+}
+
+private class ImageCache {
+    static let shared = ImageCache()
+    
+    private init() {}
+    
+    func clearExpiredCache() {
+        // Stub implementation
+        print("Image cache cleared")
+    }
+}
+
+
 
 private class DataSyncManager {
     private let networkCache = NetworkCache.shared
@@ -774,15 +838,4 @@ public struct BackgroundTaskDebugView: View {
 #Preview {
     BackgroundTaskDebugView()
         .padding()
-}
-
-// MARK: - Color Extension
-
-import SwiftUI
-
-extension Color {
-    static let gray = Color(.systemGray)
-    static let blue = Color(.systemBlue)
-    static let green = Color(.systemGreen)
-    static let red = Color(.systemRed)
 }

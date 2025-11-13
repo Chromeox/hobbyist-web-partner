@@ -105,4 +105,48 @@ final class PaymentService: ObservableObject {
             paymentMethod: nil
         )
     }
+    
+    // MARK: - Additional Stubbed Methods
+    
+    func configurePaymentSheet(
+        with paymentIntent: PaymentIntent,
+        merchantDisplayName: String = "HobbyApp"
+    ) async -> Result<PaymentSheetConfiguration, PaymentError> {
+        print("⚠️ configurePaymentSheet disabled - use credits instead")
+        return .failure(.configurationError)
+    }
+    
+    func presentPaymentSheet(
+        configuration: PaymentSheetConfiguration
+    ) async -> PaymentResult {
+        print("⚠️ presentPaymentSheet disabled - use credits instead")
+        return PaymentResult(
+            success: false,
+            paymentIntentId: nil,
+            error: .configurationError,
+            paymentMethod: nil
+        )
+    }
+    
+    func confirmPayment(
+        with paymentIntentId: String
+    ) async -> PaymentResult {
+        print("⚠️ confirmPayment disabled - use credits instead")
+        return PaymentResult(
+            success: false,
+            paymentIntentId: paymentIntentId,
+            error: .configurationError,
+            paymentMethod: nil
+        )
+    }
+    
+    func createBookingPaymentIntent(
+        amount: Int,
+        currency: String = "usd",
+        bookingId: String,
+        userId: String
+    ) async -> Result<PaymentIntent, PaymentError> {
+        print("⚠️ createBookingPaymentIntent disabled - use credits instead")
+        return .failure(.configurationError)
+    }
 }

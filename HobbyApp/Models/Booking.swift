@@ -8,6 +8,37 @@ enum PaymentMethodType: String, Codable {
     case bankTransfer = "bank_transfer"
 }
 
+// MARK: - Supporting Models
+
+struct Venue: Codable, Equatable {
+    let id: String
+    let name: String
+    let address: String
+    let city: String
+    let province: String
+    let postalCode: String
+    let latitude: Double
+    let longitude: Double
+    
+    var fullAddress: String {
+        return "\(address), \(city), \(province) \(postalCode)"
+    }
+}
+
+struct Instructor: Codable, Equatable {
+    let id: String
+    let name: String
+    let bio: String?
+    let rating: Double
+    let reviewCount: Int
+    let specialties: [String]
+    let avatar: String?
+    
+    var displayRating: String {
+        return String(format: "%.1f", rating)
+    }
+}
+
 // MARK: - Booking Model
 
 struct Booking: Identifiable, Codable, Equatable {
@@ -220,43 +251,6 @@ enum BookingStatus: String, Codable, CaseIterable {
         case .completed: return "star.fill"
         case .noShow: return "person.fill.xmark"
         case .refunded: return "arrow.uturn.backward.circle"
-        }
-    }
-}
-
-// MARK: - Booking Errors
-
-enum BookingError: LocalizedError {
-    case classFullyBooked
-    case invalidPayment
-    case userNotAuthenticated
-    case bookingNotFound
-    case cancellationNotAllowed
-    case modificationNotAllowed
-    case refundNotAllowed
-    case networkError
-    case unknown(String)
-    
-    var errorDescription: String? {
-        switch self {
-        case .classFullyBooked:
-            return "This class is fully booked"
-        case .invalidPayment:
-            return "Payment processing failed. Please try again"
-        case .userNotAuthenticated:
-            return "Please sign in to complete your booking"
-        case .bookingNotFound:
-            return "Booking not found"
-        case .cancellationNotAllowed:
-            return "This booking cannot be cancelled at this time"
-        case .modificationNotAllowed:
-            return "This booking cannot be modified at this time"
-        case .refundNotAllowed:
-            return "This booking is not eligible for a refund"
-        case .networkError:
-            return "Network error. Please check your connection"
-        case .unknown(let message):
-            return message
         }
     }
 }

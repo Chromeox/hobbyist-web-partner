@@ -101,33 +101,6 @@ func createMockVenueInfo(
     )
 }
 
-// MARK: - Data Models
-
-struct Achievement: Codable, Identifiable {
-    let id: String
-    let title: String
-    let description: String
-    let isCompleted: Bool
-    let dateEarned: Date?
-    let iconName: String
-
-    init(
-        id: String = UUID().uuidString,
-        title: String = "",
-        description: String = "",
-        isCompleted: Bool = false,
-        dateEarned: Date? = nil,
-        iconName: String = "star.fill"
-    ) {
-        self.id = id
-        self.title = title
-        self.description = description
-        self.isCompleted = isCompleted
-        self.dateEarned = dateEarned
-        self.iconName = iconName
-    }
-}
-
 // MARK: - Service Classes
 
 // MARK: - Studio struct for service compatibility
@@ -1602,92 +1575,235 @@ class FavoritesService: ObservableObject {
 
 // MARK: - Error Definitions
 
-enum AppError: LocalizedError {
-    case networkError(String)
-    case authenticationError(String)
-    case invalidCredentials
-    case userNotFound
-    case emailAlreadyInUse
-    case weakPassword
-    case insufficientCredits
-    case bookingConflict
-    case classFull
-    case paymentFailed(String)
-    case dataCorrupted
-    case unauthorized
-    case serverError(Int)
-    case validationError(String)
-    case unknown(String)
+enum AppError: LocalizedError, Equatable {
+    // Network errors
+    case network(NetworkError)
     
-    var errorDescription: String? {
+    // Authentication errors
+    case authentication(AuthenticationError)
+    
+    // Booking errors
+    case booking(BookingError)
+    
+    // Payment errors
+    case payment(PaymentError)
+    
+    // Credit errors
+    case credit(CreditError)
+    
+    // Generic errors
+    case unknown(String)
+    case validationError(String)
+    
+    // MARK: - Nested Error Types
+    
+    enum NetworkError: Equatable {
+        case noConnection
+        case timeout
+        case serverUnavailable
+        case connectionFailed(String)
+        case networkError(String)
+        case unknownError
+    }
+    
+    enum AuthenticationError: Equatable {
+        case invalidCredentials
+        case userNotFound
+        case emailAlreadyInUse
+        case weakPassword
+        case unauthorized
+        case sessionExpired
+    }
+    
+    enum BookingError: Equatable {
+        case bookingConflict
+        case classFull
+        case classFullyBooked
+        case modificationNotAllowed
+        case cancellationNotAllowed
+        case invalidBooking
+    }
+    
+    enum PaymentError: Equatable {
+        case paymentFailed(String)
+        case insufficientFunds
+        case invalidPaymentMethod
+    }
+    
+    enum CreditError: Equatable {
+        case insufficientCredits
+        case invalidCreditAmount
+    }
+    
+    // MARK: - Properties
+    
+    var title: String {
         switch self {
-        case .networkError(let message):
-            return "Network Error: \(message)"
-        case .authenticationError(let message):
-            return "Authentication Error: \(message)"
-        case .invalidCredentials:
-            return "Invalid email or password"
-        case .userNotFound:
-            return "User not found"
-        case .emailAlreadyInUse:
-            return "This email is already registered"
-        case .weakPassword:
-            return "Password must be at least 8 characters"
-        case .insufficientCredits:
-            return "Insufficient credits for this booking"
-        case .bookingConflict:
-            return "You already have a booking at this time"
-        case .classFull:
-            return "This class is full"
-        case .paymentFailed(let reason):
-            return "Payment failed: \(reason)"
-        case .dataCorrupted:
-            return "Data error occurred. Please try again"
-        case .unauthorized:
-            return "You don't have permission to perform this action"
-        case .serverError(let code):
-            return "Server error (\(code))"
-        case .validationError(let message):
-            return "Validation Error: \(message)"
+        case .network:
+            return "Network Error"
+        case .authentication:
+            return "Authentication Error"
+        case .booking:
+            return "Booking Error"
+        case .payment:
+            return "Payment Error"
+        case .credit:
+            return "Credits Error"
+        case .unknown:
+            return "Error"
+        case .validationError:
+            return "Validation Error"
+        }
+    }
+    
+    var userMessage: String {
+        switch self {
+        case .network(let error):
+            switch error {
+            case .noConnection:
+                return "No internet connection available"
+            case .timeout:
+                return "The request timed out"
+            case .serverUnavailable:
+                return "Server is temporarily unavailable"
+            case .connectionFailed(let message), .networkError(let message):
+                return message
+            case .unknownError:
+                return "An unknown network error occurred"
+            }
+        case .authentication(let error):
+            switch error {
+            case .invalidCredentials:
+                return "Invalid email or password"
+            case .userNotFound:
+                return "User not found"
+            case .emailAlreadyInUse:
+                return "This email is already registered"
+            case .weakPassword:
+                return "Password must be at least 8 characters"
+            case .unauthorized:
+                return "You don't have permission to perform this action"
+            case .sessionExpired:
+                return "Your session has expired. Please log in again"
+            }
+        case .booking(let error):
+            switch error {
+            case .bookingConflict:
+                return "You already have a booking at this time"
+            case .classFull, .classFullyBooked:
+                return "This class is full"
+            case .modificationNotAllowed:
+                return "This booking cannot be modified"
+            case .cancellationNotAllowed:
+                return "This booking cannot be cancelled"
+            case .invalidBooking:
+                return "Invalid booking information"
+            }
+        case .payment(let error):
+            switch error {
+            case .paymentFailed(let reason):
+                return "Payment failed: \(reason)"
+            case .insufficientFunds:
+                return "Insufficient funds"
+            case .invalidPaymentMethod:
+                return "Invalid payment method"
+            }
+        case .credit(let error):
+            switch error {
+            case .insufficientCredits:
+                return "Insufficient credits for this booking"
+            case .invalidCreditAmount:
+                return "Invalid credit amount"
+            }
         case .unknown(let message):
             return message.isEmpty ? "An unexpected error occurred" : message
+        case .validationError(let message):
+            return message
         }
+    }
+    
+    var technicalMessage: String {
+        return userMessage // Can be customized for logging
+    }
+    
+    var category: String {
+        switch self {
+        case .network:
+            return "network"
+        case .authentication:
+            return "authentication"
+        case .booking:
+            return "booking"
+        case .payment:
+            return "payment"
+        case .credit:
+            return "credit"
+        case .unknown:
+            return "unknown"
+        case .validationError:
+            return "validation"
+        }
+    }
+    
+    var isRecoverable: Bool {
+        switch self {
+        case .network(let error):
+            switch error {
+            case .noConnection, .timeout, .serverUnavailable:
+                return true
+            default:
+                return false
+            }
+        case .authentication(.sessionExpired):
+            return true
+        case .payment:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var errorDescription: String? {
+        return userMessage
     }
     
     var recoverySuggestion: String? {
         switch self {
-        case .networkError:
+        case .network:
             return "Please check your internet connection and try again"
-        case .authenticationError, .invalidCredentials:
-            return "Please check your credentials and try again"
-        case .emailAlreadyInUse:
-            return "Try logging in or use a different email"
-        case .weakPassword:
-            return "Use a stronger password with at least 8 characters"
-        case .insufficientCredits:
-            return "Purchase more credits to book this class"
-        case .bookingConflict:
-            return "Choose a different class time"
-        case .classFull:
-            return "Join the waitlist or choose another class"
-        case .paymentFailed:
+        case .authentication(let error):
+            switch error {
+            case .invalidCredentials:
+                return "Please check your credentials and try again"
+            case .emailAlreadyInUse:
+                return "Try logging in or use a different email"
+            case .weakPassword:
+                return "Use a stronger password with at least 8 characters"
+            case .unauthorized, .sessionExpired:
+                return "Please log in to continue"
+            default:
+                return "Please try again"
+            }
+        case .booking(let error):
+            switch error {
+            case .bookingConflict:
+                return "Choose a different class time"
+            case .classFull, .classFullyBooked:
+                return "Join the waitlist or choose another class"
+            default:
+                return "Please contact support if this issue persists"
+            }
+        case .payment:
             return "Check your payment details and try again"
-        case .unauthorized:
-            return "Please log in to continue"
-        case .serverError:
-            return "Please try again later"
+        case .credit(.insufficientCredits):
+            return "Purchase more credits to book this class"
         default:
             return "Please try again"
         }
     }
     
     var isRetryable: Bool {
-        switch self {
-        case .networkError, .serverError:
-            return true
-        default:
-            return false
-        }
+        return isRecoverable
     }
 }
 

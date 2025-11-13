@@ -132,7 +132,7 @@ extension View {
     ) -> some View {
         modifier(ReducedMotionModifier(
             animation: animation,
-            fallbackAnimation: fallback ?? <#default value#>
+            fallbackAnimation: fallback ?? .linear(duration: 0.2)
         ))
     }
     

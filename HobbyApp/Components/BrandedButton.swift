@@ -30,7 +30,8 @@ struct BrandedButton: View {
             HStack(spacing: BrandConstants.Spacing.sm) {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .progressViewStyle(.circular)
+                        .tint(.white)
                         .scaleEffect(0.9)
                         .accessibilityHidden(true)
                 } else if let icon = icon {
@@ -67,7 +68,7 @@ struct BrandedButton: View {
         .animation(BrandConstants.Animation.spring, value: isLoading)
         .accessibilityLabel(isLoading ? "\(title), loading" : title)
         .accessibilityHint(isDisabled ? "This button is currently disabled" : "Double tap to activate")
-        .accessibilityAddTraits(isDisabled ? [.notEnabled] : [])
+        .accessibilityAddTraits(isDisabled ? [.isButton] : [.isButton])
         .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
         .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
     }

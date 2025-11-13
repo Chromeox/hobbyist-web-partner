@@ -383,7 +383,7 @@ final class SimpleSupabaseService: ObservableObject {
                 .limit(50)
                 .execute()
 
-            guard let schedules = try response.value as? [[String: Any]] else {
+            guard let schedules = response.value as? [[String: Any]] else {
                 print("⚠️ No schedule data found, using fallback data")
                 return generateFallbackClasses()
             }
@@ -526,7 +526,7 @@ final class SimpleSupabaseService: ObservableObject {
                 reviews: 31,
                 isOnline: true
             )
-        ]
+        ].compactMap { $0 }
     }
     
     private func createFallbackClass(
@@ -626,7 +626,7 @@ final class SimpleSupabaseService: ObservableObject {
                 .order("created_at", ascending: false)
                 .execute()
 
-            guard let bookings = try response.value as? [[String: Any]] else {
+            guard let bookings = response.value as? [[String: Any]] else {
                 print("⚠️ No booking data found, using fallback")
                 return generateFallbackBookings(userId: userId)
             }
@@ -747,7 +747,7 @@ final class SimpleSupabaseService: ObservableObject {
                     .limit(1)
                     .execute()
 
-                if let rows = try response.value as? [[String: Any]],
+                if let rows = response.value as? [[String: Any]],
                    let foundId = rows.first?["id"] as? String {
                     targetScheduleId = foundId
                 }
@@ -795,40 +795,20 @@ final class SimpleSupabaseService: ObservableObject {
             print("📘 Attempting Supabase authentication with Facebook...")
 
             // TODO: Facebook OAuth needs proper implementation for iOS
-            // The Swift SDK's signInWithOAuth API may differ from the JS SDK
+            // The Supabase Swift SDK's OAuth API may differ from the JS SDK
+            // For now, this is a stub implementation
+            
+            // Commented out until proper Facebook SDK integration
+            /*
             let authResponse = try await supabaseClient.auth.signInWithOAuth(
                 provider: .facebook,
                 redirectTo: nil
-                // launchUrl parameter may not be supported in current SDK version
             )
+            */
             
-            // Alternative: Use access token directly if supported
-            // This might need to be handled differently depending on Supabase Swift SDK version
-            
-            print("📘 Facebook OAuth initiated, checking auth state...")
-
-            // Check current session
-            let session = try await supabaseClient.auth.session
-            if session.user.isAnonymous {
-                print("❌ Facebook Sign In failed - no valid session created")
-                errorMessage = "Facebook authentication failed. Please try again."
-            } else {
-                // TODO: Create or update user profile
-                // await createUserProfileIfNeeded(user: session.user)
-
-                // Update UI state
-                let userName = session.user.userMetadata["full_name"]?.value as? String
-                    ?? session.user.userMetadata["name"]?.value as? String
-                    ?? "Facebook User"
-                currentUser = SimpleUser(
-                    id: session.user.id.uuidString,
-                    email: session.user.email ?? "",
-                    name: userName
-                )
-                
-                isAuthenticated = true
-                print("✅ Facebook Sign In completed successfully")
-            }
+            // Stub implementation - in production this would use the Facebook SDK
+            print("⚠️ Facebook Sign In is not yet implemented")
+            errorMessage = "Facebook Sign In is coming soon. Please use email or Google Sign In."
             
         } catch {
             print("❌ Facebook Sign In error: \(error)")
@@ -859,22 +839,14 @@ final class SimpleSupabaseService: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        do {
-            // For now, just save to UserDefaults as a fallback
-            // TODO: Implement proper Supabase integration when user_profiles table is ready
-            UserDefaults.standard.set(true, forKey: "hobbyist_onboarding_completed")
-            UserDefaults.standard.set(preferences, forKey: "hobbyist_user_preferences")
+        // For now, just save to UserDefaults as a fallback
+        // TODO: Implement proper Supabase integration when user_profiles table is ready
+        UserDefaults.standard.set(true, forKey: "hobbyist_onboarding_completed")
+        UserDefaults.standard.set(preferences, forKey: "hobbyist_user_preferences")
 
-            print("✅ Onboarding preferences saved successfully (to UserDefaults)")
-            isLoading = false
-            return true
-
-        } catch {
-            print("❌ Error saving onboarding preferences: \(error)")
-            errorMessage = "Failed to save your preferences. Please try again."
-            isLoading = false
-            return false
-        }
+        print("✅ Onboarding preferences saved successfully (to UserDefaults)")
+        isLoading = false
+        return true
     }
 
     // MARK: - Storage (Profile Pictures)
@@ -967,10 +939,11 @@ final class SimpleSupabaseService: ObservableObject {
                 .from("user_profiles")
                 .select("avatar_url")
                 .eq("id", value: userId)
-                .single()
+                .limit(1)
                 .execute()
 
-            guard let data = response.value as? [String: Any] else {
+            guard let rows = response.value as? [[String: Any]],
+                  let data = rows.first else {
                 print("❌ Failed to cast avatar response to dictionary")
                 return nil
             }
@@ -1065,10 +1038,11 @@ final class SimpleSupabaseService: ObservableObject {
                     updated_at
                 """)
                 .eq("id", value: userId)
-                .single()
+                .limit(1)
                 .execute()
 
-            guard let data = response.value as? [String: Any] else {
+            guard let rows = response.value as? [[String: Any]],
+                  let data = rows.first else {
                 print("❌ Failed to cast user profile response to dictionary")
                 return nil
             }

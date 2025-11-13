@@ -89,6 +89,15 @@ struct InstructorInfo: Codable, Hashable {
     let socialLinks: SocialLinks?
 }
 
+// MARK: - Social Links
+struct SocialLinks: Codable, Hashable {
+    let instagram: String?
+    let facebook: String?
+    let twitter: String?
+    let website: String?
+    let linkedin: String?
+}
+
 // MARK: - Simplified Venue Info for HobbyClass
 struct VenueInfo: Codable, Hashable {
     let id: String

@@ -70,6 +70,10 @@
 		E2DE22192EC2B46600C03CE8 /* BrandedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22022EC2B46600C03CE8 /* BrandedButton.swift */; };
 		E2DE221A2EC2B46600C03CE8 /* AnimatedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22012EC2B46600C03CE8 /* AnimatedList.swift */; };
 		E2DE222A2EC2C0FB00C03CE8 /* Studio+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DE22292EC2C0FB00C03CE8 /* Studio+Extensions.swift */; };
+		E2E58ECC2EC69DD10072967E /* SecurityTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E58ECB2EC69DD00072967E /* SecurityTypes.swift */; };
+		E2E58ECE2EC6A3330072967E /* CreditService 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E58ECD2EC6A3330072967E /* CreditService 2.swift */; };
+		E2E58ED02EC6A42F0072967E /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E58ECF2EC6A42F0072967E /* SupabaseManager.swift */; };
+		E2E58ED22EC6A46C0072967E /* BUILD_FIX_SUMMARY.md in Resources */ = {isa = PBXBuildFile; fileRef = E2E58ED12EC6A46C0072967E /* BUILD_FIX_SUMMARY.md */; };
 		E2E5EFAA2E790C1900F90F24 /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA02E790C1900F90F24 /* Booking.swift */; };
 		E2E5EFAB2E790C1900F90F24 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA72E790C1900F90F24 /* SearchModels.swift */; };
 		E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E5EFA22E790C1900F90F24 /* Following.swift */; };
@@ -155,6 +159,10 @@
 		E2DE22082EC2B46600C03CE8 /* SelectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionButton.swift; sourceTree = "<group>"; };
 		E2DE22092EC2B46600C03CE8 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		E2DE22292EC2C0FB00C03CE8 /* Studio+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Studio+Extensions.swift"; sourceTree = "<group>"; };
+		E2E58ECB2EC69DD00072967E /* SecurityTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityTypes.swift; sourceTree = "<group>"; };
+		E2E58ECD2EC6A3330072967E /* CreditService 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CreditService 2.swift"; sourceTree = "<group>"; };
+		E2E58ECF2EC6A42F0072967E /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		E2E58ED12EC6A46C0072967E /* BUILD_FIX_SUMMARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BUILD_FIX_SUMMARY.md; sourceTree = "<group>"; };
 		E2E5EFA02E790C1900F90F24 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
 		E2E5EFA12E790C1900F90F24 /* ClassItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItem.swift; sourceTree = "<group>"; };
 		E2E5EFA22E790C1900F90F24 /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
@@ -346,6 +354,7 @@
 				E2DE22072EC2B46600C03CE8 /* KeyboardManager.swift */,
 				E2DE22082EC2B46600C03CE8 /* SelectionButton.swift */,
 				E2DE22092EC2B46600C03CE8 /* ShareSheet.swift */,
+				E2E58ECB2EC69DD00072967E /* SecurityTypes.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -404,6 +413,9 @@
 				E2B6827B2EC343DB00BEEA09 /* PerformanceMonitor.swift */,
 				E2B6827C2EC343DB00BEEA09 /* PerformanceOptimizer.swift */,
 				E2B6827D2EC343DB00BEEA09 /* SearchService.swift */,
+				E2E58ECD2EC6A3330072967E /* CreditService 2.swift */,
+				E2E58ECF2EC6A42F0072967E /* SupabaseManager.swift */,
+				E2E58ED12EC6A46C0072967E /* BUILD_FIX_SUMMARY.md */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -472,6 +484,7 @@
 			files = (
 				7A12345D1234567890ABCDEF /* Preview Assets.xcassets in Resources */,
 				7A12345A1234567890ABCDEF /* Assets.xcassets in Resources */,
+				E2E58ED22EC6A46C0072967E /* BUILD_FIX_SUMMARY.md in Resources */,
 				E2D7A4642E8A2F5400044E9B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -492,11 +505,13 @@
 				E2E5EFAC2E790C1900F90F24 /* Following.swift in Sources */,
 				E2E5EFAD2E790C1900F90F24 /* Venue.swift in Sources */,
 				E2E5EFAE2E790C1900F90F24 /* HobbyClass.swift in Sources */,
+				E2E58ED02EC6A42F0072967E /* SupabaseManager.swift in Sources */,
 				E2E5EFAF2E790C1900F90F24 /* Review.swift in Sources */,
 				E2E5EFB02E790C1900F90F24 /* Payment.swift in Sources */,
 				E2BBE57D2E81B18F00CFDD45 /* SimpleSupabaseService.swift in Sources */,
 				E2E5EFB12E790C1900F90F24 /* UserProfile.swift in Sources */,
 				E2E5EFB22E790C1900F90F24 /* Instructor.swift in Sources */,
+				E2E58ECC2EC69DD10072967E /* SecurityTypes.swift in Sources */,
 				E2E5EFB32E790C1900F90F24 /* ClassItem.swift in Sources */,
 				E2DE220B2EC2B46600C03CE8 /* DesignTokens.swift in Sources */,
 				E2DE220C2EC2B46600C03CE8 /* SkeletonLoader.swift in Sources */,
@@ -524,6 +539,7 @@
 				E20303612EC30C3A000C1B98 /* NotificationSettings.swift in Sources */,
 				E20C131C2E78E1AD00F31D4C /* HapticFeedbackService.swift in Sources */,
 				E20C13272E78E1C600F31D4C /* ActivityFeedViewModel.swift in Sources */,
+				E2E58ECE2EC6A3330072967E /* CreditService 2.swift in Sources */,
 				E20C13282E78E1C600F31D4C /* FollowingViewModel.swift in Sources */,
 				E20C13292E78E1C600F31D4C /* MarketplaceViewModel.swift in Sources */,
 				E20C132A2E78E1C600F31D4C /* ProfileViewModel.swift in Sources */,
