@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/server';
 
+// Force rebuild: 2025-11-13-07:02 UTC
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 
 // Initialize Stripe client only when needed
@@ -183,7 +184,7 @@ async function handleAccountDeauthorized(deauthorization: any) {
 }
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-  console.log('Payment succeeded:', {
+  console.log('🎯 [NEW DEPLOYMENT] Payment succeeded:', {
     id: paymentIntent.id,
     amount: paymentIntent.amount,
     currency: paymentIntent.currency,
