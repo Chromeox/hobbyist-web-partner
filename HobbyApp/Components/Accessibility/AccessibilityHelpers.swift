@@ -60,9 +60,10 @@ struct OnboardingAccessibilityModifier: ViewModifier {
             .accessibilityScrollAction { edge in
                 // Announce scroll actions for screen readers
                 if edge == .trailing {
-                    return .handled
+                    AccessibilityAnnouncer.announce("Next step")
+                } else if edge == .leading {
+                    AccessibilityAnnouncer.announce("Previous step")
                 }
-                return .ignored
             }
     }
 }
@@ -131,7 +132,7 @@ extension View {
     ) -> some View {
         modifier(ReducedMotionModifier(
             animation: animation,
-            fallbackAnimation: fallback
+            fallbackAnimation: fallback ?? <#default value#>
         ))
     }
     
@@ -268,7 +269,7 @@ class MemoryPressureMonitor: ObservableObject {
 /// Helper for making accessibility announcements
 struct AccessibilityAnnouncer {
     /// Announces important state changes to screen readers
-    static func announce(_ message: String, priority: UIAccessibility.NotificationFeedback = .medium) {
+    static func announce(_ message: String) {
         DispatchQueue.main.async {
             UIAccessibility.post(notification: .announcement, argument: message)
         }

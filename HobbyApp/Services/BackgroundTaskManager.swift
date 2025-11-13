@@ -28,7 +28,6 @@ public class BackgroundTaskManager: ObservableObject {
     // Services
     private let notificationCenter = UNUserNotificationCenter.current()
     private let performanceMonitor = PerformanceMonitor.shared
-    private let securityService = SecurityService.shared
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     
     // Sync managers
@@ -479,14 +478,14 @@ public class BackgroundTaskManager: ObservableObject {
     // MARK: - App Lifecycle Handlers
     
     @objc private func appDidEnterBackground() {
-        Task { @MainActor in
+        Task {
             await schedulePendingTasks()
             print("App entered background, scheduled pending tasks")
         }
     }
     
     @objc private func appWillEnterForeground() {
-        Task { @MainActor in
+        Task {
             checkBackgroundRefreshStatus()
             await updatePendingNotificationCount()
             print("App entering foreground, updated status")
@@ -653,26 +652,6 @@ private class PerformanceCleanupManager {
 }
 
 // MARK: - Supporting Types
-
-public enum SyncStatus: String, CaseIterable {
-    case idle = "Idle"
-    case syncing = "Syncing"
-    case completed = "Completed"
-    case failed = "Failed"
-    
-    public var color: Color {
-        switch self {
-        case .idle:
-            return .gray
-        case .syncing:
-            return .blue
-        case .completed:
-            return .green
-        case .failed:
-            return .red
-        }
-    }
-}
 
 public enum ClassUpdateType {
     case cancelled

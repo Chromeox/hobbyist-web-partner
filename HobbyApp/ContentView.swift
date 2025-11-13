@@ -210,27 +210,6 @@ struct BrandedButton: View {
     }
 }
 
-/// Speech bubble component
-struct SpeechBubble: View {
-    let text: String
-    let alignment: Alignment
-
-    init(_ text: String, alignment: Alignment = .leading) {
-        self.text = text
-        self.alignment = alignment
-    }
-
-    var body: some View {
-        Text(text)
-            .font(BrandConstants.Typography.subheadline)
-            .fontWeight(.medium)
-            .foregroundColor(BrandConstants.Colors.surface)
-            .padding(.horizontal, BrandConstants.Spacing.md)
-            .padding(.vertical, BrandConstants.Spacing.sm)
-            .background(Capsule().fill(BrandConstants.Colors.text.opacity(0.85)))
-    }
-}
-
 // MARK: - Welcome Landing View
 
 struct WelcomeLandingView: View {

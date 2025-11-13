@@ -34,8 +34,8 @@ struct GlassmorphicCard<Content: View>: View {
                         y: BrandConstants.Shadow.lg.y
                     )
             )
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityHint(accessibilityHint)
+            .accessibilityLabel(accessibilityLabel ?? "")
+            .accessibilityHint(accessibilityHint ?? "")
             .accessibilityElement(children: accessibilityLabel != nil ? .ignore : .contain)
     }
 }
@@ -116,8 +116,8 @@ struct Triangle: Shape {
             .padding(.horizontal)
 
             VStack(spacing: 16) {
-                SpeechBubble("Let's create!", alignment: .leading)
-                SpeechBubble("Let's go!", alignment: .trailing)
+                SpeechBubble("Let's create!", alignment: .leading) as SpeechBubble
+                SpeechBubble("Let's go!", alignment: .trailing) as SpeechBubble
             }
         }
     }
