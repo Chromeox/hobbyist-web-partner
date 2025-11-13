@@ -9,25 +9,25 @@ final class SimpleSupabaseService: ObservableObject {
     static let shared = SimpleSupabaseService()
 
     private lazy var supabaseClient: SupabaseClient = {
-        guard let configuration = AppConfiguration.shared.current else {
+        // Use Configuration.shared which handles AppConfiguration + environment fallback
+        let supabaseURL = Configuration.shared.supabaseURL
+        let supabaseAnonKey = Configuration.shared.supabaseAnonKey
+
+        guard !supabaseURL.isEmpty,
+              let url = URL(string: supabaseURL) else {
             fatalError("""
-            Supabase configuration missing.
+            Invalid Supabase URL in configuration.
             Configure Config-Dev.plist or environment variables before running the app.
             """)
         }
 
-        guard !configuration.supabaseURL.isEmpty,
-              let url = URL(string: configuration.supabaseURL) else {
-            fatalError("Invalid Supabase URL in configuration.")
-        }
-
-        guard !configuration.supabaseAnonKey.isEmpty else {
+        guard !supabaseAnonKey.isEmpty else {
             fatalError("Supabase anon key is missing in configuration.")
         }
 
         return SupabaseClient(
             supabaseURL: url,
-            supabaseKey: configuration.supabaseAnonKey
+            supabaseKey: supabaseAnonKey
         )
     }()
 
@@ -759,20 +759,17 @@ final class SimpleSupabaseService: ObservableObject {
                 return false
             }
 
-            var payload: [String: Any] = [
-                "user_id": userId,
-                "class_schedule_id": scheduleIdentifier,
-                "credits_used": creditsUsed,
-                "status": "confirmed"
-            ]
-
-            if let paymentMethod {
-                payload["payment_method"] = paymentMethod
-            }
+            let booking = BookingInsert(
+                user_id: userId,
+                class_schedule_id: scheduleIdentifier,
+                credits_used: creditsUsed,
+                status: "confirmed",
+                payment_method: paymentMethod
+            )
 
             let _ = try await supabaseClient
                 .from("bookings")
-                .insert(payload)
+                .insert(booking)
                 .execute()
 
             print("✅ Booking created successfully")
@@ -820,11 +817,13 @@ final class SimpleSupabaseService: ObservableObject {
                 // await createUserProfileIfNeeded(user: session.user)
 
                 // Update UI state
+                let userName = session.user.userMetadata["full_name"]?.value as? String
+                    ?? session.user.userMetadata["name"]?.value as? String
+                    ?? "Facebook User"
                 currentUser = SimpleUser(
                     id: session.user.id.uuidString,
                     email: session.user.email ?? "",
-                    fullName: session.user.userMetadata["full_name"]?.value as? String ?? session.user.userMetadata["name"]?.value as? String ?? "Facebook User",
-                    avatarURL: session.user.userMetadata["avatar_url"]?.value as? String
+                    name: userName
                 )
                 
                 isAuthenticated = true
@@ -928,26 +927,16 @@ final class SimpleSupabaseService: ObservableObject {
 
         do {
             // Use UPSERT to insert if row doesn't exist, update if it does
-            var payload: [String: Any] = [
-                "id": userId,
-                "updated_at": ISO8601DateFormatter().string(from: Date())
-            ]
-
-            if let avatarURL {
-                payload["avatar_url"] = avatarURL
-            }
-
-            if let fullName {
-                payload["full_name"] = fullName
-            }
-
-            if let bio {
-                payload["bio"] = bio
-            }
+            let profile = UserProfileUpsert(
+                id: userId,
+                avatarURL: avatarURL,
+                fullName: fullName,
+                bio: bio
+            )
 
             let _ = try await supabaseClient
                 .from("user_profiles")
-                .upsert(payload)
+                .upsert(profile)
                 .execute()
 
             print("✅ User profile upserted successfully (avatar URL saved)")
@@ -1097,6 +1086,32 @@ struct SimpleUser {
     let id: String
     let email: String
     let name: String
+}
+
+// MARK: - Encodable Insert/Update Models
+
+struct BookingInsert: Encodable {
+    let user_id: String
+    let class_schedule_id: String
+    let credits_used: Int
+    let status: String
+    let payment_method: String?
+}
+
+struct UserProfileUpsert: Encodable {
+    let id: String
+    let updated_at: String
+    let avatar_url: String?
+    let full_name: String?
+    let bio: String?
+
+    init(id: String, avatarURL: String? = nil, fullName: String? = nil, bio: String? = nil) {
+        self.id = id
+        self.updated_at = ISO8601DateFormatter().string(from: Date())
+        self.avatar_url = avatarURL
+        self.full_name = fullName
+        self.bio = bio
+    }
 }
 
 struct SimpleClass: Identifiable {

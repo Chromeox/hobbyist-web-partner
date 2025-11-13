@@ -156,31 +156,8 @@ struct Studio: Codable, Identifiable {
 }
 
 // MARK: - Extensions for ClassItem compatibility
-
-extension ClassItem {
-    static func from(hobbyClass: HobbyClass) -> ClassItem {
-        return ClassItem(
-            id: hobbyClass.id,
-            title: hobbyClass.title,
-            description: hobbyClass.description,
-            instructor: hobbyClass.instructor.name,
-            venue: hobbyClass.venue.name,
-            startDate: hobbyClass.startDate,
-            endDate: hobbyClass.endDate,
-            price: hobbyClass.price,
-            maxParticipants: hobbyClass.maxParticipants,
-            currentParticipants: hobbyClass.currentParticipants,
-            category: hobbyClass.category.rawValue,
-            difficulty: hobbyClass.difficulty.rawValue,
-            tags: hobbyClass.tags,
-            requirements: hobbyClass.requirements,
-            whatToBring: hobbyClass.whatToBring,
-            averageRating: hobbyClass.averageRating,
-            totalReviews: hobbyClass.totalReviews,
-            isOnline: hobbyClass.isOnline
-        )
-    }
-}
+// NOTE: Use HobbyClass.toClassItem property for converting HobbyClass to ClassItem
+// The proper conversion logic is in HobbyClass.swift
 
 class ServiceContainer {
     static let shared = ServiceContainer()

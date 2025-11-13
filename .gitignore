@@ -211,3 +211,4 @@ build/
 # Large files
 *.pack
 *.bundle
+vercel-environment-variables.env

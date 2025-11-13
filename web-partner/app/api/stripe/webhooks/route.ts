@@ -317,9 +317,13 @@ async function handleTransferCreated(transfer: Stripe.Transfer) {
     const studioId = transfer.metadata?.studio_id || null;
 
     // Record transfer using helper function (with idempotency)
+    const destinationAccount = typeof transfer.destination === 'string'
+      ? transfer.destination
+      : transfer.destination?.id || null;
+
     const { data, error } = await supabase.rpc('record_stripe_transfer', {
       p_stripe_transfer_id: transfer.id,
-      p_destination_account: typeof transfer.destination === 'string' ? transfer.destination : transfer.destination.id,
+      p_destination_account: destinationAccount,
       p_amount: transfer.amount,
       p_currency: transfer.currency,
       p_description: transfer.description || null,

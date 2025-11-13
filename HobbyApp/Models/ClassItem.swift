@@ -548,12 +548,19 @@ extension ClassItem {
     }
 
     // Convert from HobbyClass
+    // NOTE: Prefer using HobbyClass.toClassItem property for cleaner conversion
     init(from hobbyClass: HobbyClass) {
         self.id = hobbyClass.id
         self.name = hobbyClass.title
         self.category = hobbyClass.category.rawValue
-        self.instructor = hobbyClass.instructor.fullName
-        self.instructorInitials = hobbyClass.instructor.initials
+        self.instructor = hobbyClass.instructor.name
+        // Compute initials from name (first letter of each word, max 2)
+        self.instructorInitials = hobbyClass.instructor.name
+            .components(separatedBy: " ")
+            .prefix(2)
+            .compactMap { $0.first }
+            .map { String($0).uppercased() }
+            .joined()
         self.description = hobbyClass.description
         self.duration = "\(hobbyClass.duration) min"
         self.difficulty = hobbyClass.difficulty.rawValue
@@ -573,7 +580,8 @@ extension ClassItem {
         self.rating = String(format: "%.1f", hobbyClass.averageRating)
         self.reviewCount = "\(hobbyClass.totalReviews)"
         self.icon = hobbyClass.category.iconName
-        self.categoryColor = hobbyClass.category.color
+        // Use HobbyClass helper method for category color
+        self.categoryColor = BrandConstants.Colors.coral // Fallback color
         self.isFeatured = false // Default
         self.requirements = hobbyClass.requirements
         self.amenities = [] // Default empty
