@@ -14,7 +14,7 @@ public class PerformanceOptimizer: ObservableObject {
     @Published var animationQuality: AnimationQuality = .full
 
     private var frameRateMonitor: DisplayLink?
-    private var performanceMetrics: PerformanceMetrics = PerformanceMetrics()
+    private var performanceMetrics: FrameRateTracker = FrameRateTracker()
     private var deviceCapability: DeviceCapability = .unknown
 
     private init() {
@@ -236,7 +236,7 @@ enum DeviceCapability {
 
 // MARK: - Performance Metrics
 
-private class PerformanceMetrics {
+private class FrameRateTracker {
     private var frameTimes: [CFTimeInterval] = []
     private let maxSamples = 60
     private var lastFrameTime: CFTimeInterval = 0

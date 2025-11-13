@@ -210,54 +210,6 @@ struct BrandedButton: View {
     }
 }
 
-/// Secondary outline button
-struct OutlineButton: View {
-    let title: String
-    let icon: String?
-    let action: () -> Void
-
-    init(_ title: String, icon: String? = nil, action: @escaping () -> Void) {
-        self.title = title
-        self.icon = icon
-        self.action = action
-    }
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: BrandConstants.Spacing.sm) {
-                if let icon = icon {
-                    Image(systemName: icon)
-                }
-                Text(title)
-                    .fontWeight(.semibold)
-            }
-            .foregroundColor(BrandConstants.Colors.primary)
-            .frame(maxWidth: .infinity, minHeight: 54)
-            .background(Color(.systemBackground))
-            .cornerRadius(BrandConstants.CornerRadius.lg)
-            .overlay(
-                RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.lg)
-                    .stroke(BrandConstants.Colors.primary, lineWidth: 2)
-            )
-        }
-    }
-}
-
-/// Text button style
-struct TextButton: View {
-    let title: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .fontWeight(.semibold)
-                .foregroundColor(BrandConstants.Colors.primary)
-                .underline()
-        }
-    }
-}
-
 /// Speech bubble component
 struct SpeechBubble: View {
     let text: String

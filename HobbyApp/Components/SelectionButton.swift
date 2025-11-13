@@ -16,7 +16,7 @@ public struct SelectionButton: View {
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: {
             if isEnabled {
                 // Add haptic feedback

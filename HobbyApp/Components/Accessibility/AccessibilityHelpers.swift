@@ -127,7 +127,7 @@ extension View {
     /// Applies reduced motion support to animations
     func adaptiveAnimation(
         _ animation: Animation,
-        fallback: Animation = .none
+        fallback: Animation? = nil
     ) -> some View {
         modifier(ReducedMotionModifier(
             animation: animation,

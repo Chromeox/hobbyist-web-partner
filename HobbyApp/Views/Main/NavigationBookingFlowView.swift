@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 /// Wrapper for BookingFlowView that works with classID strings for navigation
 struct NavigationBookingFlowView: View {
