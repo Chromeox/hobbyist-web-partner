@@ -491,7 +491,7 @@ struct ClassItem: Identifiable, Codable {
 }
 
 // Make CLLocationCoordinate2D Codable
-extension CLLocationCoordinate2D: Codable {
+extension CLLocationCoordinate2D: @retroactive Codable {
     enum CodingKeys: String, CodingKey {
         case latitude, longitude
     }
