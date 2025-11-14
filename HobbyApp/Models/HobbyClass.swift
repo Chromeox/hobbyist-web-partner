@@ -89,14 +89,7 @@ struct InstructorInfo: Codable, Hashable {
     let socialLinks: SocialLinks?
 }
 
-// MARK: - Social Links
-struct SocialLinks: Codable, Hashable {
-    let instagram: String?
-    let facebook: String?
-    let twitter: String?
-    let website: String?
-    let linkedin: String?
-}
+
 
 // MARK: - Simplified Venue Info for HobbyClass
 struct VenueInfo: Codable, Hashable {
@@ -208,15 +201,15 @@ extension HobbyClass {
             instructor: InstructorInfo(
                 id: UUID().uuidString,
                 name: item.instructor,
-                bio: nil,
-                profileImageUrl: nil,
+                bio: nil as String?,
+                profileImageUrl: nil as String?,
                 rating: Double(item.rating) ?? 0.0,
                 totalClasses: 0,
                 totalStudents: 0,
                 specialties: [],
                 certifications: [],
                 yearsOfExperience: 0,
-                socialLinks: nil
+                socialLinks: nil as SocialLinks?
             ),
             venue: VenueInfo(
                 id: UUID().uuidString,
@@ -228,7 +221,7 @@ extension HobbyClass {
                 latitude: item.coordinate.latitude,
                 longitude: item.coordinate.longitude,
                 amenities: item.amenities.map { $0.name },
-                parkingInfo: nil,
+                parkingInfo: nil as String?,
                 publicTransit: nil,
                 imageUrls: nil,
                 accessibilityInfo: nil
@@ -275,7 +268,7 @@ extension HobbyClass {
         self.instructor = InstructorInfo(
             id: UUID().uuidString,
             name: simpleClass.instructor,
-            bio: nil,
+            bio: nil as String?,
             profileImageUrl: simpleClass.imageURL,
             rating: simpleClass.averageRating,
             totalClasses: 0,
@@ -283,7 +276,7 @@ extension HobbyClass {
             specialties: simpleClass.tags,
             certifications: [],
             yearsOfExperience: 0,
-            socialLinks: nil
+            socialLinks: nil as SocialLinks?
         )
         self.venue = VenueInfo(
             id: UUID().uuidString,
@@ -295,7 +288,7 @@ extension HobbyClass {
             latitude: simpleClass.latitude ?? 49.2827,
             longitude: simpleClass.longitude ?? -123.1207,
             amenities: simpleClass.tags,
-            parkingInfo: nil,
+            parkingInfo: nil as String?,
             publicTransit: nil,
             imageUrls: simpleClass.imageURL.map { [$0] },
             accessibilityInfo: nil

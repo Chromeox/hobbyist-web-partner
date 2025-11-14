@@ -8,47 +8,17 @@ enum PaymentMethodType: String, Codable {
     case bankTransfer = "bank_transfer"
 }
 
-// MARK: - Supporting Models
-
-struct Venue: Codable, Equatable {
-    let id: String
-    let name: String
-    let address: String
-    let city: String
-    let province: String
-    let postalCode: String
-    let latitude: Double
-    let longitude: Double
-    
-    var fullAddress: String {
-        return "\(address), \(city), \(province) \(postalCode)"
-    }
-}
-
-struct Instructor: Codable, Equatable {
-    let id: String
-    let name: String
-    let bio: String?
-    let rating: Double
-    let reviewCount: Int
-    let specialties: [String]
-    let avatar: String?
-    
-    var displayRating: String {
-        return String(format: "%.1f", rating)
-    }
-}
-
 // MARK: - Booking Model
+// Note: Venue and Instructor models are defined in Venue.swift and Instructor.swift
 
 struct Booking: Identifiable, Codable, Equatable {
-    let id: String
-    let classId: String
+    let id: UUID
+    let classId: UUID
     let className: String
-    let userId: String
+    let userId: UUID
     let participantCount: Int
     let specialRequests: String?
-    let paymentId: String
+    let paymentId: UUID?
     let totalAmount: Double
     let status: BookingStatus
     let createdAt: Date
@@ -149,69 +119,19 @@ struct Booking: Identifiable, Codable, Equatable {
         case remindersSent = "reminders_sent"
         case cancellationDeadline = "cancellation_deadline"
     }
-}
-
-// MARK: - Booking Request
-
-struct BookingRequest: Codable {
-    let classId: String
-    let userId: String
-    let participantCount: Int
-    let specialRequests: String?
-    let paymentId: String
-    let couponId: String?
-    let totalAmount: Double
     
-    // Enhanced payment information
-    let paymentMethod: PaymentMethodType
-    let paymentIntentId: String?
-    let creditsUsed: Int?
-    let discountApplied: Double?
-    let processingFee: Double?
-    
-    // Participant details
-    let participantNames: [String]?
-    let emergencyContact: EmergencyContact?
-    let equipmentRental: [String]?
-    let experienceLevel: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case classId = "class_id"
-        case userId = "user_id"
-        case participantCount = "participant_count"
-        case specialRequests = "special_requests"
-        case paymentId = "payment_id"
-        case couponId = "coupon_id"
-        case totalAmount = "total_amount"
-        
-        // Enhanced payment information
-        case paymentMethod = "payment_method"
-        case paymentIntentId = "payment_intent_id"
-        case creditsUsed = "credits_used"
-        case discountApplied = "discount_applied"
-        case processingFee = "processing_fee"
-        
-        // Participant details
-        case participantNames = "participant_names"
-        case emergencyContact = "emergency_contact"
-        case equipmentRental = "equipment_rental"
-        case experienceLevel = "experience_level"
-    }
-}
-
-// MARK: - Emergency Contact
-
-struct EmergencyContact: Codable {
-    let name: String
-    let phone: String
-    
-    enum CodingKeys: String, CodingKey {
-        case name
-        case phone
+    // Custom Equatable implementation
+    static func == (lhs: Booking, rhs: Booking) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.classId == rhs.classId &&
+               lhs.userId == rhs.userId &&
+               lhs.status == rhs.status &&
+               lhs.totalAmount == rhs.totalAmount
     }
 }
 
 // MARK: - Booking Status
+// Note: BookingRequest and EmergencyContact models are defined in BookingService.swift
 
 enum BookingStatus: String, Codable, CaseIterable {
     case pending = "pending"

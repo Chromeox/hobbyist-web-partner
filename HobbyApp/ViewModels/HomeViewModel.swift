@@ -156,7 +156,8 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let searchResults = try await searchService.searchClasses(query: query)
+            // Use ClassService directly instead of SearchService
+            let searchResults = try await ClassService.shared.searchClasses(query: query)
             let classItems = searchResults.map { ClassItem.from(hobbyClass: $0) }
             
             featuredClasses = Array(classItems.prefix(6))

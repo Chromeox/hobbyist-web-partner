@@ -3,12 +3,15 @@ import Combine
 import CoreLocation
 
 // Import Services - LocationService is defined in Services directory
+// Note: Using the Instructor and Venue types from SearchModels for marketplace functionality
+// These are more feature-rich than the basic Booking models
+
 @MainActor
 class MarketplaceViewModel: ObservableObject {
     @Published var classes: [ClassItem] = []
     @Published var featuredClasses: [ClassItem] = []
-    @Published var nearbyInstructors: [Instructor] = []
-    @Published var popularVenues: [Venue] = []
+    @Published var nearbyInstructors: [InstructorInfo] = []
+    @Published var popularVenues: [VenueInfo] = []
     @Published var categories: [String] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -58,7 +61,7 @@ class MarketplaceViewModel: ObservableObject {
                 self.classes = fetchedClasses
                 self.featuredClasses = Array(fetchedClasses.prefix(5))
                 self.nearbyInstructors = self.filterNearbyInstructors(fetchedInstructors)
-                self.popularVenues = self.sortVenuesByPopularity(fetchedVenues.toVenues())
+                self.popularVenues = self.sortVenuesByPopularity(fetchedVenues)
                 self.extractCategories(from: fetchedClasses)
                 self.isLoading = false
             } catch {
@@ -85,21 +88,21 @@ class MarketplaceViewModel: ObservableObject {
         }
     }
     
-    private func filterNearbyInstructors(_ instructors: [Instructor]) -> [Instructor] {
+    private func filterNearbyInstructors(_ instructors: [InstructorInfo]) -> [InstructorInfo] {
         // For now, return top rated instructors
         // In a real app, this would filter by location
         return instructors
-            .filter { $0.isActive }
+            .filter { $0.rating > 0 }
             .sorted { $0.rating > $1.rating }
             .prefix(10)
             .map { $0 }
     }
     
-    private func sortVenuesByPopularity(_ venues: [Venue]) -> [Venue] {
-        // For now, return active venues
+    private func sortVenuesByPopularity(_ venues: [VenueInfo]) -> [VenueInfo] {
+        // For now, return venues sorted by name
         // In a real app, this would sort by popularity metrics
         return venues
-            .filter { $0.isActive }
+            .sorted { $0.name < $1.name }
             .prefix(5)
             .map { $0 }
     }

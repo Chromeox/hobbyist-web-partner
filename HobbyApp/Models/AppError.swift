@@ -230,12 +230,11 @@ class ReviewService {
         
         return Review(
             id: id,
-            userId: userId,
-            classId: classId,
             userName: userName,
+            userInitials: String(userName.prefix(2)),
             rating: rating,
             comment: reviewText,
-            createdAt: createdAt
+            date: createdAt
         )
     }
     
@@ -262,10 +261,10 @@ class ReviewService {
                     "class_id": classId,
                     "user_id": userId,
                     "instructor_id": instructorId,
-                    "rating": rating,
+                    "rating": String(rating),
                     "review_text": comment,
-                    "is_approved": true, // Auto-approve for now
-                    "verified_booking": true
+                    "is_approved": "true", // Auto-approve for now
+                    "verified_booking": "true"
                 ])
                 .execute()
             
@@ -315,21 +314,19 @@ class ReviewService {
         return [
             Review(
                 id: UUID().uuidString,
-                userId: UUID().uuidString,
-                classId: classId,
                 userName: "Alex M.",
+                userInitials: "AM",
                 rating: 5,
                 comment: "Amazing class! The instructor was so helpful and the atmosphere was perfect.",
-                createdAt: Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date()
+                date: Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date()
             ),
             Review(
                 id: UUID().uuidString,
-                userId: UUID().uuidString,
-                classId: classId,
                 userName: "Jamie L.",
+                userInitials: "JL",
                 rating: 4,
                 comment: "Really enjoyed this class. Great for beginners like me!",
-                createdAt: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+                date: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
             )
         ]
     }
@@ -554,26 +551,40 @@ class InstructorService {
             
             if let instructorData = try response.value as? [[String: Any]] {
                 let realInstructors = instructorData.compactMap { data -> Instructor? in
-                    guard let id = data["id"] as? String,
+                    guard let idString = data["id"] as? String,
+                          let id = UUID(uuidString: idString),
                           let name = data["display_name"] as? String else { return nil }
                     
                     let userEmail = (data["users"] as? [String: Any])?["email"] as? String ?? "instructor@example.com"
                     let bio = data["bio"] as? String ?? ""
                     let specialties = data["specialties"] as? [String] ?? []
                     let rating = data["average_rating"] as? Double ?? 0.0
-                    let totalClasses = data["total_classes_taught"] as? Int ?? 0
+                    let totalReviews = data["total_classes_taught"] as? Int ?? 0
                     let isActive = data["is_active"] as? Bool ?? true
+                    
+                    let nameParts = name.components(separatedBy: " ")
+                    let firstName = nameParts.first ?? name
+                    let lastName = nameParts.count > 1 ? nameParts.dropFirst().joined(separator: " ") : ""
                     
                     return Instructor(
                         id: id,
-                        name: name,
+                        userId: UUID(),
+                        firstName: firstName,
+                        lastName: lastName,
                         email: userEmail,
+                        phone: nil,
                         bio: bio,
                         specialties: specialties,
-                        rating: rating,
-                        totalClasses: totalClasses,
+                        certificationInfo: nil,
+                        rating: Decimal(rating),
+                        totalReviews: totalReviews,
+                        profileImageUrl: nil,
+                        yearsOfExperience: nil,
+                        socialLinks: nil,
+                        availability: nil,
                         isActive: isActive,
-                        studioId: nil
+                        createdAt: Date(),
+                        updatedAt: nil
                     )
                 }
                 
@@ -626,26 +637,40 @@ class InstructorService {
             
             if let instructorData = try response.value as? [[String: Any]] {
                 let searchResults = instructorData.compactMap { data -> Instructor? in
-                    guard let id = data["id"] as? String,
+                    guard let idString = data["id"] as? String,
+                          let id = UUID(uuidString: idString),
                           let name = data["display_name"] as? String else { return nil }
                     
                     let userEmail = (data["users"] as? [String: Any])?["email"] as? String ?? "instructor@example.com"
                     let bio = data["bio"] as? String ?? ""
                     let specialties = data["specialties"] as? [String] ?? []
                     let rating = data["average_rating"] as? Double ?? 0.0
-                    let totalClasses = data["total_classes_taught"] as? Int ?? 0
+                    let totalReviews = data["total_classes_taught"] as? Int ?? 0
                     let isActive = data["is_active"] as? Bool ?? true
+                    
+                    let nameParts = name.components(separatedBy: " ")
+                    let firstName = nameParts.first ?? name
+                    let lastName = nameParts.count > 1 ? nameParts.dropFirst().joined(separator: " ") : ""
                     
                     return Instructor(
                         id: id,
-                        name: name,
+                        userId: UUID(),
+                        firstName: firstName,
+                        lastName: lastName,
                         email: userEmail,
+                        phone: nil,
                         bio: bio,
                         specialties: specialties,
-                        rating: rating,
-                        totalClasses: totalClasses,
+                        certificationInfo: nil,
+                        rating: Decimal(rating),
+                        totalReviews: totalReviews,
+                        profileImageUrl: nil,
+                        yearsOfExperience: nil,
+                        socialLinks: nil,
+                        availability: nil,
                         isActive: isActive,
-                        studioId: nil
+                        createdAt: Date(),
+                        updatedAt: nil
                     )
                 }
                 
@@ -665,14 +690,14 @@ class InstructorService {
         let lowerQuery = query.lowercased()
         return allInstructors.filter { instructor in
             instructor.name.lowercased().contains(lowerQuery) ||
-            instructor.bio.lowercased().contains(lowerQuery) ||
+            (instructor.bio?.lowercased().contains(lowerQuery) ?? false) ||
             instructor.specialties.contains { $0.lowercased().contains(lowerQuery) }
         }
     }
     
     func getInstructorDetails(id: String) async throws -> Instructor? {
         let allInstructors = try await fetchInstructors()
-        return allInstructors.first { $0.id == id }
+        return allInstructors.first { $0.id.uuidString == id }
     }
     
     func getInstructorClasses(instructorId: String) async throws -> [HobbyClass] {
@@ -683,37 +708,64 @@ class InstructorService {
     private func generateMockInstructors() -> [Instructor] {
         return [
             Instructor(
-                id: UUID().uuidString,
-                name: "Sarah Johnson",
+                id: UUID(),
+                userId: UUID(),
+                firstName: "Sarah",
+                lastName: "Johnson",
                 email: "sarah@example.com",
+                phone: nil,
                 bio: "Certified yoga instructor with 8 years of experience in Hatha and Vinyasa yoga.",
                 specialties: ["Hatha Yoga", "Vinyasa", "Meditation"],
-                rating: 4.8,
-                totalClasses: 156,
+                certificationInfo: nil,
+                rating: Decimal(4.8),
+                totalReviews: 156,
+                profileImageUrl: nil,
+                yearsOfExperience: 8,
+                socialLinks: nil,
+                availability: nil,
                 isActive: true,
-                studioId: nil
+                createdAt: Date(),
+                updatedAt: nil
             ),
             Instructor(
-                id: UUID().uuidString,
-                name: "Marcus Chen",
+                id: UUID(),
+                userId: UUID(),
+                firstName: "Marcus",
+                lastName: "Chen",
                 email: "marcus@example.com",
+                phone: nil,
                 bio: "Professional ceramics artist and teacher, specializing in wheel throwing and glazing techniques.",
                 specialties: ["Pottery", "Wheel Throwing", "Glazing"],
-                rating: 4.9,
-                totalClasses: 89,
+                certificationInfo: nil,
+                rating: Decimal(4.9),
+                totalReviews: 89,
+                profileImageUrl: nil,
+                yearsOfExperience: 12,
+                socialLinks: nil,
+                availability: nil,
                 isActive: true,
-                studioId: nil
+                createdAt: Date(),
+                updatedAt: nil
             ),
             Instructor(
-                id: UUID().uuidString,
-                name: "Emily Rodriguez",
+                id: UUID(),
+                userId: UUID(),
+                firstName: "Emily",
+                lastName: "Rodriguez",
                 email: "emily@example.com",
+                phone: nil,
                 bio: "Contemporary dance instructor with a background in ballet and modern dance.",
                 specialties: ["Contemporary Dance", "Ballet", "Modern Dance"],
-                rating: 4.7,
-                totalClasses: 203,
+                certificationInfo: nil,
+                rating: Decimal(4.7),
+                totalReviews: 203,
+                profileImageUrl: nil,
+                yearsOfExperience: 10,
+                socialLinks: nil,
+                availability: nil,
                 isActive: true,
-                studioId: nil
+                createdAt: Date(),
+                updatedAt: nil
             )
         ]
     }
@@ -1136,26 +1188,67 @@ class ClassService {
         }
         
         // Create instructor info
+        let nameParts = instructorName.components(separatedBy: " ")
+        let firstName = nameParts.first ?? instructorName
+        let lastName = nameParts.count > 1 ? nameParts.dropFirst().joined(separator: " ") : ""
+        
         let instructor = Instructor(
-            id: UUID().uuidString,
-            name: instructorName,
+            id: UUID(),
+            userId: UUID(),
+            firstName: firstName,
+            lastName: lastName,
             email: instructorEmail,
+            phone: nil,
             bio: "Experienced instructor specializing in \(categoryString.lowercased())",
             specialties: [categoryString],
-            rating: 4.5,
-            totalClasses: 50,
+            certificationInfo: nil,
+            rating: Decimal(4.5),
+            totalReviews: 50,
+            profileImageUrl: nil,
+            yearsOfExperience: 5,
+            socialLinks: nil,
+            availability: nil,
             isActive: true,
-            studioId: data["studio_id"] as? String
+            createdAt: Date(),
+            updatedAt: nil
         )
         
         // Create venue info
         let venueName = room != nil ? "\(location) - \(room!)" : location
+        let venueId: UUID
+        if let studioIdString = data["studio_id"] as? String,
+           let uuid = UUID(uuidString: studioIdString) {
+            venueId = uuid
+        } else {
+            venueId = UUID()
+        }
+        
         let venue = Venue(
-            id: data["studio_id"] as? String ?? UUID().uuidString,
+            id: venueId,
             name: venueName,
+            description: nil,
             address: "Studio Location",
             city: "Vancouver",
-            isActive: true
+            state: "BC",
+            zipCode: "V6B 1A1",
+            latitude: 49.2827,
+            longitude: -123.1207,
+            phone: nil,
+            email: nil,
+            website: nil,
+            amenities: ["WiFi", "Parking"],
+            capacity: maxParticipants,
+            hourlyRate: nil,
+            isActive: true,
+            imageUrls: [],
+            operatingHours: [:],
+            parkingInfo: "Street parking available",
+            publicTransit: "Near transit",
+            accessibilityInfo: "Wheelchair accessible",
+            averageRating: 4.5,
+            totalReviews: 0,
+            createdAt: Date(),
+            updatedAt: nil
         )
         
         // Map category
@@ -1171,67 +1264,111 @@ class ClassService {
             id: id,
             title: title,
             description: description,
-            instructor: instructor,
-            venue: venue,
-            startDate: startDate,
-            endDate: endDate,
-            price: totalPrice,
-            maxParticipants: maxParticipants,
-            currentParticipants: currentParticipants,
             category: category,
             difficulty: difficulty,
+            price: totalPrice,
+            startDate: startDate,
+            endDate: endDate,
+            duration: duration,
+            maxParticipants: maxParticipants,
+            enrolledCount: currentParticipants,
+            instructor: instructor.toInstructorInfo(),
+            venue: venue.toVenueInfo(),
+            imageUrl: nil,
+            thumbnailUrl: nil,
+            averageRating: 4.5,
+            totalReviews: 10,
             tags: [categoryString.lowercased(), skillLevel.lowercased()],
             requirements: ["Comfortable clothing"],
             whatToBring: ["Water bottle"],
-            averageRating: 4.5,
-            totalReviews: 10,
-            isOnline: location.lowercased().contains("online")
+            cancellationPolicy: "Free cancellation up to 24 hours before class",
+            isOnline: location.lowercased().contains("online"),
+            meetingUrl: nil
         )
     }
     
     private func convertToHobbyClass(_ simpleClass: SimpleClass) -> HobbyClass? {
         // Convert SimpleClass format to HobbyClass format
-        guard let instructorName = simpleClass.instructor.components(separatedBy: " ").first else { return nil }
+        let nameParts = simpleClass.instructor.components(separatedBy: " ")
+        let firstName = nameParts.first ?? simpleClass.instructor
+        let lastName = nameParts.count > 1 ? nameParts.dropFirst().joined(separator: " ") : ""
         
         let instructor = Instructor(
-            id: UUID().uuidString,
-            name: simpleClass.instructor,
-            email: "\(instructorName.lowercased())@example.com",
+            id: UUID(),
+            userId: UUID(),
+            firstName: firstName,
+            lastName: lastName,
+            email: "\(firstName.lowercased())@example.com",
+            phone: nil,
             bio: "Experienced instructor specializing in \(simpleClass.category.lowercased())",
             specialties: [simpleClass.category],
-            rating: simpleClass.averageRating,
-            totalClasses: 50,
+            certificationInfo: nil,
+            rating: Decimal(simpleClass.averageRating),
+            totalReviews: 50,
+            profileImageUrl: nil,
+            yearsOfExperience: 5,
+            socialLinks: nil,
+            availability: nil,
             isActive: true,
-            studioId: nil
+            createdAt: Date(),
+            updatedAt: nil
         )
         
         let venue = Venue(
-            id: UUID().uuidString,
+            id: UUID(),
             name: simpleClass.locationName ?? "Studio",
+            description: nil,
             address: simpleClass.displayLocation,
             city: simpleClass.locationCity ?? "Vancouver",
-            isActive: true
+            state: "BC",
+            zipCode: "V6B 1A1",
+            latitude: 49.2827,
+            longitude: -123.1207,
+            phone: nil,
+            email: nil,
+            website: nil,
+            amenities: ["WiFi", "Parking"],
+            capacity: simpleClass.maxParticipants ?? 20,
+            hourlyRate: nil,
+            isActive: true,
+            imageUrls: [],
+            operatingHours: [:],
+            parkingInfo: "Street parking available",
+            publicTransit: "Near transit",
+            accessibilityInfo: "Wheelchair accessible",
+            averageRating: 4.5,
+            totalReviews: 0,
+            createdAt: Date(),
+            updatedAt: nil
         )
+        
+        let instructorInfo = instructor.toInstructorInfo()
+        let venueInfo = venue.toVenueInfo()
         
         return HobbyClass(
             id: simpleClass.id,
             title: simpleClass.title,
             description: simpleClass.description,
-            instructor: instructor,
-            venue: venue,
-            startDate: simpleClass.startDate ?? Date(),
-            endDate: simpleClass.endDate ?? Date().addingTimeInterval(3600),
-            price: simpleClass.price,
-            maxParticipants: simpleClass.maxParticipants ?? 20,
-            currentParticipants: simpleClass.currentParticipants ?? 0,
             category: ClassCategory(rawValue: simpleClass.category) ?? .other,
             difficulty: DifficultyLevel(rawValue: simpleClass.difficulty) ?? .beginner,
+            price: simpleClass.price,
+            startDate: simpleClass.startDate ?? Date(),
+            endDate: simpleClass.endDate ?? Date().addingTimeInterval(3600),
+            duration: simpleClass.duration,
+            maxParticipants: simpleClass.maxParticipants ?? 20,
+            enrolledCount: simpleClass.currentParticipants ?? 0,
+            instructor: instructorInfo,
+            venue: venueInfo,
+            imageUrl: simpleClass.imageURL,
+            thumbnailUrl: simpleClass.imageURL,
+            averageRating: simpleClass.averageRating,
+            totalReviews: simpleClass.totalReviews,
             tags: simpleClass.tags,
             requirements: simpleClass.requirements,
             whatToBring: simpleClass.whatToBring,
-            averageRating: simpleClass.averageRating,
-            totalReviews: simpleClass.totalReviews,
-            isOnline: simpleClass.isOnline
+            cancellationPolicy: simpleClass.cancellationPolicy ?? "Standard cancellation policy applies",
+            isOnline: simpleClass.isOnline,
+            meetingUrl: simpleClass.onlineLink
         )
     }
 
@@ -1418,6 +1555,22 @@ class ClassService {
             )
         }
 
+        // Pre-calculate dates to avoid complex expressions
+        let class1Start = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        let class1End = Calendar.current.date(byAdding: .hour, value: 1, to: class1Start) ?? class1Start
+        
+        let class2Start = Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()
+        let class2End = Calendar.current.date(byAdding: .hour, value: 2, to: class2Start) ?? class2Start
+        
+        let class3Start = Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date()
+        let class3End = Calendar.current.date(byAdding: .hour, value: 1, to: class3Start) ?? class3Start
+        
+        let class4Start = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        let class4End = Calendar.current.date(byAdding: .minute, value: 45, to: class4Start) ?? class4Start
+        
+        let class5Start = Calendar.current.date(byAdding: .day, value: 4, to: Date()) ?? Date()
+        let class5End = Calendar.current.date(byAdding: .hour, value: 3, to: class5Start) ?? class5Start
+
         return [
             HobbyClass(
                 id: UUID().uuidString,
@@ -1426,8 +1579,8 @@ class ClassService {
                 category: .fitness,
                 difficulty: .intermediate,
                 price: 25.0,
-                startDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 1, to: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()) ?? Date(),
+                startDate: class1Start,
+                endDate: class1End,
                 duration: 60,
                 maxParticipants: 15,
                 enrolledCount: 8,
@@ -1451,8 +1604,8 @@ class ClassService {
                 category: .arts,
                 difficulty: .beginner,
                 price: 45.0,
-                startDate: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 2, to: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()) ?? Date(),
+                startDate: class2Start,
+                endDate: class2End,
                 duration: 120,
                 maxParticipants: 8,
                 enrolledCount: 5,
@@ -1476,8 +1629,8 @@ class ClassService {
                 category: .fitness,
                 difficulty: .intermediate,
                 price: 35.0,
-                startDate: Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 1, to: Calendar.current.date(byAdding: .day, value: 3, to: Date()) ?? Date()) ?? Date(),
+                startDate: class3Start,
+                endDate: class3End,
                 duration: 60,
                 maxParticipants: 12,
                 enrolledCount: 9,
@@ -1501,8 +1654,8 @@ class ClassService {
                 category: .fitness,
                 difficulty: .beginner,
                 price: 20.0,
-                startDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .minute, value: 45, to: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()) ?? Date(),
+                startDate: class4Start,
+                endDate: class4End,
                 duration: 45,
                 maxParticipants: 20,
                 enrolledCount: 14,
@@ -1526,8 +1679,8 @@ class ClassService {
                 category: .arts,
                 difficulty: .advanced,
                 price: 65.0,
-                startDate: Calendar.current.date(byAdding: .day, value: 4, to: Date()) ?? Date(),
-                endDate: Calendar.current.date(byAdding: .hour, value: 3, to: Calendar.current.date(byAdding: .day, value: 4, to: Date()) ?? Date()) ?? Date(),
+                startDate: class5Start,
+                endDate: class5End,
                 duration: 180,
                 maxParticipants: 6,
                 enrolledCount: 4,
@@ -1547,7 +1700,7 @@ class ClassService {
         ]
     }
 
-    private func makeServiceError() -> NSError {
+    @MainActor private func makeServiceError() -> NSError {
         NSError(
             domain: "ClassService",
             code: -1,
