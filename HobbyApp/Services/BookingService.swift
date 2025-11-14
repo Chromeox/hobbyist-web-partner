@@ -2,6 +2,20 @@ import Foundation
 import Combine
 import Supabase
 
+// MARK: - AnyEncodable Helper
+
+struct AnyEncodable: Encodable {
+    private let encodable: Encodable
+
+    init(_ encodable: Encodable) {
+        self.encodable = encodable
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try encodable.encode(to: encoder)
+    }
+}
+
 // MARK: - Edge Function Response Types
 
 struct EmptyResponse: Codable {
@@ -362,21 +376,30 @@ final class BookingService: ObservableObject {
     
     private func createBookingRecord(request: BookingRequest, paymentResult: PaymentResult?) async throws -> Booking {
         // Create booking in Supabase
-        let bookingData: [String: Any] = [
-            "class_id": request.classId,
-            "user_id": request.userId,
-            "participant_count": request.participantCount,
-            "special_requests": request.specialRequests as Any,
-            "payment_id": paymentResult?.paymentIntentId ?? UUID().uuidString,
-            "total_amount": request.totalAmount,
-            "status": BookingStatus.confirmed.rawValue,
-            "payment_method": request.paymentMethod.rawValue,
-            "payment_intent_id": paymentResult?.paymentIntentId as Any,
-            "paid_with_credits": request.creditsUsed != nil && request.creditsUsed! > 0,
-            "credits_used": request.creditsUsed as Any,
-            "confirmation_code": generateConfirmationCode()
+        var bookingData: [String: AnyEncodable] = [
+            "class_id": AnyEncodable(request.classId),
+            "user_id": AnyEncodable(request.userId),
+            "participant_count": AnyEncodable(request.participantCount),
+            "payment_id": AnyEncodable(paymentResult?.paymentIntentId ?? UUID().uuidString),
+            "total_amount": AnyEncodable(request.totalAmount),
+            "status": AnyEncodable(BookingStatus.confirmed.rawValue),
+            "payment_method": AnyEncodable(request.paymentMethod.rawValue),
+            "paid_with_credits": AnyEncodable(request.creditsUsed != nil && request.creditsUsed! > 0),
+            "confirmation_code": AnyEncodable(generateConfirmationCode())
         ]
-        
+
+        if let specialRequests = request.specialRequests {
+            bookingData["special_requests"] = AnyEncodable(specialRequests)
+        }
+
+        if let paymentIntentId = paymentResult?.paymentIntentId {
+            bookingData["payment_intent_id"] = AnyEncodable(paymentIntentId)
+        }
+
+        if let creditsUsed = request.creditsUsed {
+            bookingData["credits_used"] = AnyEncodable(creditsUsed)
+        }
+
         let response = try await supabaseService.client
             .from("bookings")
             .insert(bookingData)
@@ -419,11 +442,11 @@ final class BookingService: ObservableObject {
     
     private func sendBookingConfirmation(booking: Booking) async throws {
         // Send confirmation via Supabase Edge Function
-        let notificationData: [String: Any] = [
-            "action": "send_booking_confirmation",
-            "booking_id": booking.id,
-            "user_id": booking.userId,
-            "confirmation_code": booking.confirmationCode
+        let notificationData: [String: AnyEncodable] = [
+            "action": AnyEncodable("send_booking_confirmation"),
+            "booking_id": AnyEncodable(booking.id.uuidString),
+            "user_id": AnyEncodable(booking.userId.uuidString),
+            "confirmation_code": AnyEncodable(booking.confirmationCode)
         ]
 
         let _: EmptyResponse = try await supabaseService.client
@@ -457,12 +480,15 @@ final class BookingService: ObservableObject {
     
     private func processRefund(booking: Booking) async throws {
         // Process refund through payment service or manual process
-        let refundData: [String: Any] = [
-            "action": "process_refund",
-            "booking_id": booking.id,
-            "payment_intent_id": booking.paymentIntentId as Any,
-            "refund_amount": booking.refundAmount
+        var refundData: [String: AnyEncodable] = [
+            "action": AnyEncodable("process_refund"),
+            "booking_id": AnyEncodable(booking.id.uuidString),
+            "refund_amount": AnyEncodable(booking.refundAmount)
         ]
+
+        if let paymentIntentId = booking.paymentIntentId {
+            refundData["payment_intent_id"] = AnyEncodable(paymentIntentId)
+        }
 
         let _: EmptyResponse = try await supabaseService.client
             .functions
@@ -489,10 +515,10 @@ final class BookingService: ObservableObject {
     }
     
     private func sendCancellationNotification(booking: Booking) async throws {
-        let notificationData: [String: Any] = [
-            "action": "send_cancellation_notification",
-            "booking_id": booking.id,
-            "user_id": booking.userId
+        let notificationData: [String: AnyEncodable] = [
+            "action": AnyEncodable("send_cancellation_notification"),
+            "booking_id": AnyEncodable(booking.id.uuidString),
+            "user_id": AnyEncodable(booking.userId.uuidString)
         ]
 
         let _: EmptyResponse = try await supabaseService.client
@@ -582,23 +608,51 @@ extension BookingService {
                 classStartDate: Date().addingTimeInterval(86400), // Tomorrow
                 classEndDate: Date().addingTimeInterval(86400 + 7200), // Tomorrow + 2 hours
                 venue: Venue(
-                    id: "venue_1",
+                    id: UUID(uuidString: "00000000-0000-0000-0000-000000000101") ?? UUID(),
                     name: "Clay Studio Vancouver",
+                    description: "Premier pottery studio in Vancouver",
                     address: "123 Art Street",
                     city: "Vancouver",
-                    province: "BC",
-                    postalCode: "V6B 1A1",
+                    state: "BC",
+                    zipCode: "V6B 1A1",
                     latitude: 49.2827,
-                    longitude: -123.1207
+                    longitude: -123.1207,
+                    phone: nil,
+                    email: nil,
+                    website: nil,
+                    amenities: ["Pottery Wheels", "Kiln"],
+                    capacity: 12,
+                    hourlyRate: 45.0,
+                    isActive: true,
+                    imageUrls: [],
+                    operatingHours: [:],
+                    parkingInfo: nil,
+                    publicTransit: nil,
+                    accessibilityInfo: nil,
+                    averageRating: 4.8,
+                    totalReviews: 89,
+                    createdAt: Date(),
+                    updatedAt: nil
                 ),
                 instructor: Instructor(
-                    id: "instructor_1",
-                    name: "Sarah Chen",
+                    id: UUID(uuidString: "00000000-0000-0000-0000-000000000201") ?? UUID(),
+                    userId: UUID(uuidString: "00000000-0000-0000-0000-000000000221") ?? UUID(),
+                    firstName: "Sarah",
+                    lastName: "Chen",
+                    email: "sarah.chen@example.com",
+                    phone: nil,
                     bio: "Expert pottery instructor with 10+ years experience",
-                    rating: 4.9,
-                    reviewCount: 156,
                     specialties: ["Pottery", "Ceramics"],
-                    avatar: nil
+                    certificationInfo: nil,
+                    rating: Decimal(4.9),
+                    totalReviews: 156,
+                    profileImageUrl: nil,
+                    yearsOfExperience: 10,
+                    socialLinks: nil,
+                    availability: nil,
+                    isActive: true,
+                    createdAt: Date(),
+                    updatedAt: nil
                 ),
                 confirmationCode: "AB1234",
                 qrCode: nil,
@@ -632,26 +686,54 @@ extension BookingService {
                 classStartDate: Date().addingTimeInterval(-259200), // 3 days ago
                 classEndDate: Date().addingTimeInterval(-259200 + 10800), // 3 days ago + 3 hours
                 venue: Venue(
-                    id: "venue_2",
+                    id: UUID(uuidString: "00000000-0000-0000-0000-000000000102") ?? UUID(),
                     name: "Urban Photography Studio",
+                    description: "Modern photography studio in downtown Vancouver",
                     address: "456 Photo Ave",
                     city: "Vancouver",
-                    province: "BC",
-                    postalCode: "V6C 2B2",
+                    state: "BC",
+                    zipCode: "V6C 2B2",
                     latitude: 49.2827,
-                    longitude: -123.1207
+                    longitude: -123.1207,
+                    phone: nil,
+                    email: nil,
+                    website: nil,
+                    amenities: ["Photography Equipment", "Lighting", "Backdrops"],
+                    capacity: 15,
+                    hourlyRate: 60.0,
+                    isActive: true,
+                    imageUrls: [],
+                    operatingHours: [:],
+                    parkingInfo: nil,
+                    publicTransit: nil,
+                    accessibilityInfo: nil,
+                    averageRating: 4.7,
+                    totalReviews: 124,
+                    createdAt: Date(),
+                    updatedAt: nil
                 ),
                 instructor: Instructor(
-                    id: "instructor_2",
-                    name: "Alex Kim",
+                    id: UUID(uuidString: "00000000-0000-0000-0000-000000000202") ?? UUID(),
+                    userId: UUID(uuidString: "00000000-0000-0000-0000-000000000222") ?? UUID(),
+                    firstName: "Alex",
+                    lastName: "Kim",
+                    email: "alex.kim@example.com",
+                    phone: nil,
                     bio: "Professional photographer and educator",
-                    rating: 4.8,
-                    reviewCount: 203,
                     specialties: ["Photography", "Street Photography"],
-                    avatar: nil
+                    certificationInfo: nil,
+                    rating: Decimal(4.8),
+                    totalReviews: 203,
+                    profileImageUrl: nil,
+                    yearsOfExperience: 8,
+                    socialLinks: nil,
+                    availability: nil,
+                    isActive: true,
+                    createdAt: Date(),
+                    updatedAt: nil
                 ),
                 confirmationCode: "CD5678",
-                qrCode: nil as String?,
+                qrCode: nil,
                 paymentMethod: .credits,
                 paymentIntentId: nil,
                 paidWithCredits: true,
