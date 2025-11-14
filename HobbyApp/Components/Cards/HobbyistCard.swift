@@ -13,7 +13,7 @@ struct HobbyistCard<Content: View>: View {
 
     init(
         style: CardStyle = .default,
-        padding: CGFloat = HobbyistSpacing.md,
+        padding: CGFloat = BrandConstants.Spacing.md,
         tapAction: (() -> Void)? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
@@ -55,7 +55,12 @@ struct HobbyistCard<Content: View>: View {
                     .stroke(style.borderColor, lineWidth: style.borderWidth)
             )
             .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
-            .hobbyistShadow(style.shadowStyle)
+            .shadow(
+                color: style.useShadow ? BrandConstants.Shadow.md.color : .clear,
+                radius: style.useShadow ? BrandConstants.Shadow.md.radius : 0,
+                x: style.useShadow ? BrandConstants.Shadow.md.x : 0,
+                y: style.useShadow ? BrandConstants.Shadow.md.y : 0
+            )
     }
 }
 
@@ -86,13 +91,13 @@ extension HobbyistCard {
         }
 
         var cornerRadius: CGFloat {
-            HobbyistRadius.lg
+            BrandConstants.CornerRadius.lg
         }
 
-        var shadowStyle: HobbyistShadow {
+        var useShadow: Bool {
             switch self {
-            case .default, .outlined, .minimal: return .small
-            case .elevated: return .large
+            case .default, .outlined, .minimal: return false
+            case .elevated: return true
             }
         }
     }
@@ -114,7 +119,7 @@ struct ClassCard: View {
             accessibilityLabel: "\(className) class with \(instructor)",
             accessibilityHint: "Class starts at \(time), costs \(price). Double tap to view details"
         ) {
-            VStack(alignment: .leading, spacing: HobbyistSpacing.sm) {
+            VStack(alignment: .leading, spacing: BrandConstants.Spacing.sm) {
                 // Image placeholder
                 if let image = image {
                     AsyncImage(url: URL(string: image)) { image in
@@ -126,7 +131,7 @@ struct ClassCard: View {
                             .fill(Color.gray.opacity(0.3))
                     }
                     .frame(height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                    .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                     .accessibilityLabel("\(className) class image")
                     .accessibilityHidden(false)
                 } else {
@@ -137,7 +142,7 @@ struct ClassCard: View {
                             endPoint: .bottomTrailing
                         ))
                         .frame(height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                        .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                         .overlay(
                             Image(systemName: "figure.strengthtraining.traditional")
                                 .font(BrandConstants.Typography.heroTitle)
@@ -148,7 +153,7 @@ struct ClassCard: View {
                 }
 
                 // Class info
-                VStack(alignment: .leading, spacing: HobbyistSpacing.xs) {
+                VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
                     Text(className)
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
@@ -196,7 +201,7 @@ struct StudioCard: View {
             accessibilityLabel: "\(studioName) studio in \(location)",
             accessibilityHint: "Rated \(String(format: "%.1f", rating)) stars, \(distance) away. Double tap to view studio details"
         ) {
-            HStack(spacing: HobbyistSpacing.md) {
+            HStack(spacing: BrandConstants.Spacing.md) {
                 // Studio image
                 if let image = image {
                     AsyncImage(url: URL(string: image)) { image in
@@ -208,13 +213,13 @@ struct StudioCard: View {
                             .fill(Color.gray.opacity(0.3))
                     }
                     .frame(width: 80, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                    .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                     .accessibilityLabel("\(studioName) studio image")
                 } else {
                     Rectangle()
                         .fill(Color.hobbyistSecondary.opacity(0.3))
                         .frame(width: 80, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: HobbyistRadius.md))
+                        .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                         .overlay(
                             Image(systemName: "building.2.crop.circle")
                                 .font(BrandConstants.Typography.title2)
@@ -225,7 +230,7 @@ struct StudioCard: View {
                 }
 
                 // Studio info
-                VStack(alignment: .leading, spacing: HobbyistSpacing.xs) {
+                VStack(alignment: .leading, spacing: BrandConstants.Spacing.xs) {
                     Text(studioName)
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
@@ -270,7 +275,7 @@ struct StudioCard: View {
 // MARK: - Preview
 #Preview("Card Styles") {
     ScrollView {
-        VStack(spacing: HobbyistSpacing.md) {
+        VStack(spacing: BrandConstants.Spacing.md) {
             HobbyistCard(style: .default) {
                 Text("Default Card")
                     .font(BrandConstants.Typography.body)
