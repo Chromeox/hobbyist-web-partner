@@ -441,6 +441,7 @@ struct ProductionLoginView: View {
                     icon: "lock.fill",
                     placeholder: "Password",
                     text: $password,
+                    textContentType: .password,
                     isSecure: !isPasswordVisible,
                     trailingIcon: AnyView(
                         Button(action: {
@@ -452,7 +453,6 @@ struct ProductionLoginView: View {
                                 .foregroundColor(.white.opacity(0.7))
                         }
                     ),
-                    textContentType: .password,
                     focusState: $focusedField,
                     field: .password,
                     submitLabel: .go,

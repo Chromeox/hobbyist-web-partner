@@ -498,13 +498,13 @@ final class BookingService: ObservableObject {
     private func restoreCredits(amount: Int, reason: String) async throws {
         // Restore credits through credit service
         // This would typically involve adding credits back to the user's account
-        let transactionData: [String: Any] = [
-            "user_id": supabaseService.currentUser?.id ?? "",
-            "amount": amount,
-            "transaction_type": "refund",
-            "description": reason
+        let transactionData: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(supabaseService.currentUser?.id ?? ""),
+            "amount": AnyEncodable(amount),
+            "transaction_type": AnyEncodable("refund"),
+            "description": AnyEncodable(reason)
         ]
-        
+
         try await supabaseService.client
             .from("credit_transactions")
             .insert(transactionData)
