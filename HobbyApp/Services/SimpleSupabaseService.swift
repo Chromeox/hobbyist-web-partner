@@ -873,7 +873,7 @@ final class SimpleSupabaseService: ObservableObject {
             // Upload to Supabase Storage 'avatars' bucket
             let uploadResponse = try await supabaseClient.storage
                 .from("avatars")
-                .upload(path: filePath, file: imageData, options: .init(upsert: true))
+                .upload(filePath, data: imageData, options: .init(upsert: true))
 
             print("✅ Upload successful: \(uploadResponse)")
 
