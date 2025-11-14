@@ -88,17 +88,51 @@ final class ErrorHandlingService: ObservableObject {
         if let appError = error as? AppError {
             return appError
         }
-        
+
         if let bookingError = error as? BookingError {
-            return AppError.booking(bookingError)
+            // Convert standalone BookingError to AppError.BookingError
+            switch bookingError {
+            case .classFullyBooked:
+                return AppError.booking(.classFullyBooked)
+            case .cancellationNotAllowed:
+                return AppError.booking(.cancellationNotAllowed)
+            case .modificationNotAllowed:
+                return AppError.booking(.modificationNotAllowed)
+            case .invalidBookingRequest, .bookingNotFound:
+                return AppError.booking(.invalidBooking)
+            case .userNotAuthenticated:
+                return AppError.authentication(.unauthorized)
+            case .insufficientCredits:
+                return AppError.credit(.insufficientCredits)
+            case .invalidPayment, .paymentProcessingFailed:
+                return AppError.payment(.paymentFailed(bookingError.localizedDescription))
+            case .networkError(let message):
+                return AppError.network(.networkError(message))
+            }
         }
 
         if let paymentError = error as? PaymentError {
-            return AppError.payment(paymentError)
+            // Convert standalone PaymentError to AppError.PaymentError
+            switch paymentError {
+            case .failed(let message):
+                return AppError.payment(.paymentFailed(message))
+            case .invalidAmount:
+                return AppError.payment(.invalidPaymentMethod)
+            case .networkError:
+                return AppError.network(.networkError("Network error during payment"))
+            case .cancelled, .configurationError:
+                return AppError.payment(.paymentFailed(paymentError.localizedDescription))
+            }
         }
 
         if let creditError = error as? CreditServiceError {
-            return AppError.credit(.transactionFailed(creditError.localizedDescription))
+            // Convert CreditServiceError to appropriate AppError
+            switch creditError {
+            case .userNotAuthenticated:
+                return AppError.authentication(.unauthorized)
+            case .paymentSetupFailed(let message), .purchaseFailed(let message):
+                return AppError.payment(.paymentFailed(message))
+            }
         }
 
         // Network errors
@@ -117,7 +151,17 @@ final class ErrorHandlingService: ObservableObject {
     
     private func convertToPaymentError(_ error: Error) -> AppError {
         if let paymentError = error as? PaymentError {
-            return AppError.payment(paymentError)
+            // Convert standalone PaymentError to AppError.PaymentError
+            switch paymentError {
+            case .failed(let message):
+                return AppError.payment(.paymentFailed(message))
+            case .invalidAmount:
+                return AppError.payment(.invalidPaymentMethod)
+            case .networkError:
+                return AppError.network(.networkError("Network error during payment"))
+            case .cancelled, .configurationError:
+                return AppError.payment(.paymentFailed(paymentError.localizedDescription))
+            }
         }
 
         // Stripe-specific error handling
@@ -129,12 +173,30 @@ final class ErrorHandlingService: ObservableObject {
             return AppError.credit(.insufficientCredits)
         }
 
-        return AppError.payment(.unknownError(error.localizedDescription))
+        return AppError.payment(.paymentFailed(error.localizedDescription))
     }
     
     private func convertToBookingError(_ error: Error, context: BookingContext) -> AppError {
         if let bookingError = error as? BookingError {
-            return AppError.booking(bookingError)
+            // Convert standalone BookingError to AppError.BookingError
+            switch bookingError {
+            case .classFullyBooked:
+                return AppError.booking(.classFullyBooked)
+            case .cancellationNotAllowed:
+                return AppError.booking(.cancellationNotAllowed)
+            case .modificationNotAllowed:
+                return AppError.booking(.modificationNotAllowed)
+            case .invalidBookingRequest, .bookingNotFound:
+                return AppError.booking(.invalidBooking)
+            case .userNotAuthenticated:
+                return AppError.authentication(.unauthorized)
+            case .insufficientCredits:
+                return AppError.credit(.insufficientCredits)
+            case .invalidPayment, .paymentProcessingFailed:
+                return AppError.payment(.paymentFailed(bookingError.localizedDescription))
+            case .networkError(let message):
+                return AppError.network(.networkError(message))
+            }
         }
 
         // Context-specific error handling
@@ -153,7 +215,7 @@ final class ErrorHandlingService: ObservableObject {
             return AppError.booking(.cancellationNotAllowed)
         }
 
-        return AppError.booking(.invalidBooking(error.localizedDescription))
+        return AppError.booking(.invalidBooking)
     }
     
     private func convertURLError(_ error: URLError, context: String) -> AppError {
@@ -209,7 +271,7 @@ final class ErrorHandlingService: ObservableObject {
     }
     
     private func getCurrentUserId() -> String? {
-        return SimpleSupabaseService.shared.currentUser?.id.uuidString
+        return SimpleSupabaseService.shared.currentUser?.id
     }
 }
 

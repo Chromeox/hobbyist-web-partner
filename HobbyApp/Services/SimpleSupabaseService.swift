@@ -383,12 +383,14 @@ final class SimpleSupabaseService: ObservableObject {
                 .limit(50)
                 .execute()
 
-            guard let schedules = response.value as? [[String: Any]] else {
+            // Decode the response data using JSONSerialization
+            let jsonData = response.data
+            guard let schedules = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]] else {
                 print("⚠️ No schedule data found, using fallback data")
                 return generateFallbackClasses()
             }
 
-            let realClasses = schedules.compactMap { schedule in
+            let realClasses = schedules.compactMap { schedule -> SimpleClass? in
                 guard var classData = schedule["classes"] as? [String: Any] else { return nil }
 
                 classData["schedule_id"] = schedule["id"]
@@ -626,7 +628,9 @@ final class SimpleSupabaseService: ObservableObject {
                 .order("created_at", ascending: false)
                 .execute()
 
-            guard let bookings = response.value as? [[String: Any]] else {
+            // Decode the response data using JSONSerialization
+            let jsonData = response.data
+            guard let bookings = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]] else {
                 print("⚠️ No booking data found, using fallback")
                 return generateFallbackBookings(userId: userId)
             }
@@ -747,7 +751,9 @@ final class SimpleSupabaseService: ObservableObject {
                     .limit(1)
                     .execute()
 
-                if let rows = response.value as? [[String: Any]],
+                // Decode the response data
+                let jsonData = response.data
+                if let rows = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]],
                    let foundId = rows.first?["id"] as? String {
                     targetScheduleId = foundId
                 }
@@ -942,9 +948,11 @@ final class SimpleSupabaseService: ObservableObject {
                 .limit(1)
                 .execute()
 
-            guard let rows = response.value as? [[String: Any]],
+            // Decode the response data
+            let jsonData = response.data
+            guard let rows = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]],
                   let data = rows.first else {
-                print("❌ Failed to cast avatar response to dictionary")
+                print("❌ Failed to parse avatar response")
                 return nil
             }
             let avatarURL = data["avatar_url"] as? String
@@ -1041,9 +1049,11 @@ final class SimpleSupabaseService: ObservableObject {
                 .limit(1)
                 .execute()
 
-            guard let rows = response.value as? [[String: Any]],
+            // Decode the response data
+            let jsonData = response.data
+            guard let rows = try? JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]],
                   let data = rows.first else {
-                print("❌ Failed to cast user profile response to dictionary")
+                print("❌ Failed to parse user profile response")
                 return nil
             }
             return SimpleUserProfile(from: data, fallbackEmail: currentUser?.email ?? "")

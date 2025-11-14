@@ -237,12 +237,12 @@ public enum MainTab: String, CaseIterable {
     }
 }
 
-public enum NavigationDestination: Hashable {
+public enum NavigationDestination: Hashable, Equatable {
     case classDetail(String)
     case profile
     case settings
     case credits
-    case store(StoreCategory = .creditPacks)
+    case store
     case outOfCredits(Int)
     case rewards
     case bookingFlow(String)
@@ -268,9 +268,8 @@ public enum NavigationDestination: Hashable {
             hasher.combine("settings")
         case .credits:
             hasher.combine("credits")
-        case .store(let category):
+        case .store:
             hasher.combine("store")
-            hasher.combine(category)
         case .outOfCredits(let needed):
             hasher.combine("outOfCredits")
             hasher.combine(needed)

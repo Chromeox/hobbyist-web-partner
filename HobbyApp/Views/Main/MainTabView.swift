@@ -104,8 +104,8 @@ struct MainTabView: View {
             SettingsView()
         case .credits:
             CreditsView()
-        case .store(let category):
-            StoreView(initialCategory: category)
+        case .store:
+            CreditsView()
                 .navigationTitle("Store")
         case .outOfCredits(let creditsNeeded):
             OutOfCreditsView(requiredAdditionalCredits: creditsNeeded)
