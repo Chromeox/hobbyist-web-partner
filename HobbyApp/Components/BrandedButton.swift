@@ -116,7 +116,6 @@ struct OutlineButton: View {
                     .stroke(borderColor, lineWidth: 2)
             )
         }
-        .buttonStyle(ScaleButtonStyle())
         .accessibilityLabel(title)
         .accessibilityHint("Double tap to activate")
         .accessibilityAddTraits(.isButton)
@@ -147,17 +146,6 @@ struct TextButton: View {
         .accessibilityLabel(title)
         .accessibilityHint("Double tap to activate this link")
         .accessibilityAddTraits([.isButton, .isLink])
-    }
-}
-
-// MARK: - Button Styles
-
-/// Scale animation on press
-struct ScaleButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 
