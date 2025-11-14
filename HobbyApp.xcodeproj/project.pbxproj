@@ -10,6 +10,8 @@
 		08235EFFC834425FA0D89E85 /* RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED1FAC3E07F4562924E516E /* RewardsView.swift */; };
 		13AD27098CB54870890BFC98 /* OutOfCreditsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2982779DE89F44D3ACD16E2F /* OutOfCreditsView.swift */; };
 		7A1234561234567890ABCDEF /* HobbyAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1234551234567890ABCDEF /* HobbyAppApp.swift */; };
+		E2PROD0011234567890ABCDEF /* ProductionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2PROD0001234567890ABCDEF /* ProductionApp.swift */; };
+		E2CONFIG011234567890ABCDEF /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E73E1A1234567890ABCDEF /* Configuration.swift */; };
 		7A1234581234567890ABCDEF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1234571234567890ABCDEF /* ContentView.swift */; };
 		7A12345A1234567890ABCDEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A1234591234567890ABCDEF /* Assets.xcassets */; };
 		7A12345D1234567890ABCDEF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A12345C1234567890ABCDEF /* Preview Assets.xcassets */; };
@@ -99,6 +101,7 @@
 		6ED1FAC3E07F4562924E516E /* RewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsView.swift; sourceTree = "<group>"; };
 		7A1234521234567890ABCDEF /* HobbyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HobbyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A1234551234567890ABCDEF /* HobbyAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HobbyAppApp.swift; sourceTree = "<group>"; };
+		E2PROD0001234567890ABCDEF /* ProductionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionApp.swift; sourceTree = "<group>"; };
 		7A1234571234567890ABCDEF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7A1234591234567890ABCDEF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7A12345C1234567890ABCDEF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -256,6 +259,7 @@
 				E2F1234567890ABCDEF12345 /* StoreKit.storekit */,
 				E20C13262E78E1C600F31D4C /* ViewModels */,
 				7A1234551234567890ABCDEF /* HobbyAppApp.swift */,
+				E2PROD0001234567890ABCDEF /* ProductionApp.swift */,
 				7A1234571234567890ABCDEF /* ContentView.swift */,
 				E2E73E1A1234567890ABCDEF /* Configuration.swift */,
 				E2E73E042E76522F00994856 /* Services */,
@@ -528,6 +532,8 @@
 				E2DE22192EC2B46600C03CE8 /* BrandedButton.swift in Sources */,
 				E2DE221A2EC2B46600C03CE8 /* AnimatedList.swift in Sources */,
 				7A1234581234567890ABCDEF /* ContentView.swift in Sources */,
+				E2PROD0011234567890ABCDEF /* ProductionApp.swift in Sources */,
+				E2CONFIG011234567890ABCDEF /* Configuration.swift in Sources */,
 				7A1234561234567890ABCDEF /* HobbyAppApp.swift in Sources */,
 				E2E73DFF2E7651EC00994856 /* NavigationManager.swift in Sources */,
 				E2D993752E8752D5007D3F6D /* OnboardingService.swift in Sources */,
