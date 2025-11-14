@@ -742,9 +742,8 @@ class SearchViewModel: ObservableObject {
     }
     
     func removeSavedSearch(_ savedSearch: SavedSearch) {
-        // Convert SavedSearch (UUID) back to SearchService.SavedSearch (String)
-        // Note: This bridging is temporary until AppError.swift duplicates are removed
-        if let serviceSearch = searchService.savedSearches.first(where: { $0.id == savedSearch.id.uuidString }) {
+        // Both SavedSearch types use UUID for id, so compare directly
+        if let serviceSearch = searchService.savedSearches.first(where: { $0.id == savedSearch.id }) {
             searchService.removeSavedSearch(serviceSearch)
         }
     }
