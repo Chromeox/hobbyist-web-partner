@@ -88,7 +88,7 @@ class SearchViewModel: ObservableObject {
     // MARK: - Services
     private let searchService = SearchService.shared
     private let locationService = LocationService.shared
-    private let analyticsService = AnalyticsService.shared
+    // Analytics service removed during cleanup - can be re-added later if needed
     
     // MARK: - Voice Recognition
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-CA"))
@@ -183,9 +183,7 @@ class SearchViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newStatus in
                 self?.locationPermissionStatus = newStatus
-                Task {
-                    await self?.analyticsService.trackLocationPermissionGranted()
-                }
+                // Analytics tracking removed during cleanup
             }
             .store(in: &cancellables)
 
@@ -204,11 +202,8 @@ class SearchViewModel: ObservableObject {
                 group.addTask { await self.loadSavedSearches() }
             }
         }
-        
-        // Track initial screen view
-        Task {
-            await analyticsService.trackSearchScreenViewed()
-        }
+
+        // Analytics tracking removed during cleanup
     }
     
     private func setupVoiceRecognition() {
@@ -230,10 +225,10 @@ class SearchViewModel: ObservableObject {
     
     private func requestLocationPermissionIfNeeded() {
         guard locationPermissionStatus == .notDetermined else { return }
-        
+
         Task {
             await locationService.requestLocationPermission()
-            await analyticsService.trackLocationPermissionRequested()
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -297,7 +292,7 @@ class SearchViewModel: ObservableObject {
                 searchResults = []
                 allResults = []
                 filteredResults = []
-                await analyticsService.trackError(error: error, context: "search_execution")
+                // Analytics tracking removed during cleanup
             }
         }
         
@@ -330,9 +325,9 @@ class SearchViewModel: ObservableObject {
             
         } catch {
             errorMessage = "Failed to load more results: \(error.localizedDescription)"
-            await analyticsService.trackError(error: error, context: "load_more_results")
+            // Analytics tracking removed during cleanup
         }
-        
+
         isSearching = false
     }
     
@@ -357,10 +352,10 @@ class SearchViewModel: ObservableObject {
     func selectAutocompleteSuggestion(_ suggestion: String) {
         searchQuery = suggestion
         autocompleteSuggestions = []
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackButtonTap("autocomplete_suggestion", context: suggestion)
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -383,7 +378,7 @@ class SearchViewModel: ObservableObject {
         
         Task {
             await performSearch()
-            await analyticsService.trackButtonTap("search_suggestion", context: suggestion.text)
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -462,10 +457,8 @@ class SearchViewModel: ObservableObject {
         hasMoreResults = false
         hasSearched = false
         currentSearchParameters = nil
-        
-        Task {
-            await analyticsService.trackSearchCleared()
-        }
+
+        // Analytics tracking removed during cleanup
     }
     
     func performQuickSearch(query: String) {
@@ -480,7 +473,7 @@ class SearchViewModel: ObservableObject {
         searchScope = .classes
         Task {
             await performSearch()
-            await analyticsService.trackCategoryBrowsed(category.rawValue)
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -511,17 +504,10 @@ class SearchViewModel: ObservableObject {
     }
     
     // Location is now passed directly from currentLocation
-    
+
     private func trackSearch(query: String, resultCount: Int) async {
-        let filterStrings = currentFilters.hasActiveFilters ? ["filters_applied"] : []
-        
-        await analyticsService.trackSearch(
-            query: query,
-            scope: searchScope.rawValue,
-            resultCount: resultCount,
-            appliedFilters: filterStrings,
-            executionTime: 0.0 // Could measure actual execution time
-        )
+        // Analytics tracking removed during cleanup - can be re-implemented later
+        // Previously tracked: query, scope, resultCount, appliedFilters, executionTime
     }
     
     // MARK: - Filter Management
@@ -564,18 +550,16 @@ class SearchViewModel: ObservableObject {
         currentFilters = SearchFilters()
         activeFilterCount = 0
         applyCurrentFilters()
-        
-        Task {
-            await analyticsService.trackButtonTap("reset_filters")
-        }
+
+        // Analytics tracking removed during cleanup
     }
     
     func applyQuickFilter(_ preset: QuickFilterPreset) {
         currentFilters = preset.filters
         applyCurrentFilters()
-        
+
         Task {
-            await analyticsService.trackQuickFilterUsed(preset.name)
+            // Analytics tracking removed during cleanup
             if hasSearched {
                 await performSearch()
             }
@@ -731,11 +715,7 @@ class SearchViewModel: ObservableObject {
         await stopVoiceSearch()
         await performSearch()
 
-        await analyticsService.trackVoiceSearch(
-            originalText: text,
-            processedQuery: processedQuery,
-            resultCount: searchResults.count
-        )
+        // Analytics tracking removed during cleanup
     }
     
     // MARK: - Saved Searches
@@ -746,20 +726,18 @@ class SearchViewModel: ObservableObject {
             query: searchQuery,
             filters: currentFilters
         )
-        
-        Task {
-            await analyticsService.trackButtonTap("save_search", context: name)
-        }
+
+        // Analytics tracking removed during cleanup
     }
     
     func applySavedSearch(_ savedSearch: SavedSearch) {
         searchQuery = savedSearch.query
         currentFilters = savedSearch.filters
         applyCurrentFilters()
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackSavedSearchUsed(savedSearch.name)
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -778,15 +756,15 @@ class SearchViewModel: ObservableObject {
             showingLocationPermission = true
             return
         }
-        
+
         var filters = SearchFilters()
         filters.distance = .nearby
         currentFilters = filters
         searchQuery = ""
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackNearbySearchUsed(distance: 5.0)
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -795,10 +773,10 @@ class SearchViewModel: ObservableObject {
         filters.setFreeOnly()
         currentFilters = filters
         searchQuery = "free"
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackQuickFilterUsed("free_classes")
+            // Analytics tracking removed during cleanup
         }
     }
     
@@ -807,28 +785,28 @@ class SearchViewModel: ObservableObject {
         filters.setThisWeekend()
         currentFilters = filters
         searchQuery = ""
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackQuickFilterUsed("this_weekend")
+            // Analytics tracking removed during cleanup
         }
     }
     
     func useRecentSearch(_ query: String) {
         searchQuery = query
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackRecentSearchUsed(query)
+            // Analytics tracking removed during cleanup
         }
     }
     
     func usePopularSearch(_ query: String) {
         searchQuery = query
-        
+
         Task {
             await performSearch()
-            await analyticsService.trackPopularSearchUsed(query)
+            // Analytics tracking removed during cleanup
         }
     }
     
