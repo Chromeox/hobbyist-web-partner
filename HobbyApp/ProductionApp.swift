@@ -57,7 +57,7 @@ struct ProductionContentView: View {
     var body: some View {
         Group {
             if isLoading {
-                LoadingView()
+                BrandedLoadingView(message: "Loading...")
             } else if showOnboarding {
                 // Use new modular onboarding if feature flag is enabled
                 if featureFlagManager.isEnabled(.onboardingModule) {
@@ -418,7 +418,7 @@ struct ProductionLoginView: View {
                         text: $fullName,
                         textContentType: .name,
                         capitalization: .words,
-                        focusState: _focusedField,
+                        focusState: $focusedField,
                         field: .fullName,
                         onSubmit: { focusedField = .email }
                     )
@@ -432,7 +432,7 @@ struct ProductionLoginView: View {
                     keyboard: .emailAddress,
                     textContentType: .emailAddress,
                     capitalization: .never,
-                    focusState: _focusedField,
+                    focusState: $focusedField,
                     field: .email,
                     onSubmit: { focusedField = .password }
                 )
@@ -453,7 +453,7 @@ struct ProductionLoginView: View {
                         }
                     ),
                     textContentType: .password,
-                    focusState: _focusedField,
+                    focusState: $focusedField,
                     field: .password,
                     submitLabel: .go,
                     onSubmit: handlePrimaryAction
@@ -627,14 +627,14 @@ struct ProductionMainTabView: View {
                 }
                 .tag(0)
 
-            SearchView()
+            ProductionSearchView()
                 .tabItem {
                     Image(systemName: selectedTab == 1 ? "magnifyingglass" : "magnifyingglass")
                     Text("Search")
                 }
                 .tag(1)
 
-            BookingsView()
+            ProductionBookingsView()
                 .tabItem {
                     Image(systemName: selectedTab == 2 ? "calendar" : "calendar")
                     Text("Bookings")
@@ -649,6 +649,50 @@ struct ProductionMainTabView: View {
                 .tag(3)
         }
         .accentColor(.blue)
+    }
+}
+
+struct ProductionSearchView: View {
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Image(systemName: "magnifyingglass")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                    .padding()
+
+                Text("Search")
+                    .font(BrandConstants.Typography.title2)
+                    .fontWeight(.bold)
+
+                Text("Coming soon")
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
+            }
+            .navigationTitle("Search")
+        }
+    }
+}
+
+struct ProductionBookingsView: View {
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Image(systemName: "calendar")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                    .padding()
+
+                Text("Bookings")
+                    .font(BrandConstants.Typography.title2)
+                    .fontWeight(.bold)
+
+                Text("Coming soon")
+                    .font(BrandConstants.Typography.subheadline)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
+            }
+            .navigationTitle("Bookings")
+        }
     }
 }
 

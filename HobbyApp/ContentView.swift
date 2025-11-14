@@ -386,6 +386,69 @@ struct FeatureRow: View {
     }
 }
 
+// MARK: - Placeholder MainTabView for ContentView
+// Note: The real MainTabView is in Views/Main/MainTabView.swift
+// This is a simple placeholder for ContentView which is legacy
+private struct MainTabView: View {
+    @State private var selectedTab = 0
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            VStack {
+                Image(systemName: "house.fill")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                Text("Home")
+                    .font(BrandConstants.Typography.title2)
+            }
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("Home")
+            }
+            .tag(0)
+
+            VStack {
+                Image(systemName: "magnifyingglass")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                Text("Search")
+                    .font(BrandConstants.Typography.title2)
+            }
+            .tabItem {
+                Image(systemName: "magnifyingglass")
+                Text("Search")
+            }
+            .tag(1)
+
+            VStack {
+                Image(systemName: "calendar")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                Text("Bookings")
+                    .font(BrandConstants.Typography.title2)
+            }
+            .tabItem {
+                Image(systemName: "calendar")
+                Text("Bookings")
+            }
+            .tag(2)
+
+            VStack {
+                Image(systemName: "person.fill")
+                    .font(BrandConstants.Typography.heroTitle)
+                    .foregroundColor(BrandConstants.Colors.primary)
+                Text("Profile")
+                    .font(BrandConstants.Typography.title2)
+            }
+            .tabItem {
+                Image(systemName: "person.fill")
+                Text("Profile")
+            }
+            .tag(3)
+        }
+    }
+}
+
 #Preview {
     ContentView()
 }

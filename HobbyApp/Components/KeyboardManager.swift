@@ -114,12 +114,7 @@ public struct EnhancedSearchField: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(isFocused ? .blue : .secondary)
                 .scaleEffect(isFocused ? 1.1 : 1.0)
-                .optimizedSpring(
-                    response: 0.3,
-                    dampingFraction: 0.7,
-                    type: .essential,
-                    priority: .high
-                )
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
 
             // Search Field
             TextField(placeholder, text: $text)
@@ -163,19 +158,10 @@ public struct EnhancedSearchField: View {
         .overlay(
             RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md)
                 .stroke(isFocused ? Color.blue.opacity(0.5) : Color.clear, lineWidth: 2)
-                .optimizedAnimation(
-                    .easeInOut(duration: 0.2),
-                    type: .essential,
-                    priority: .high
-                )
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
         )
         .scaleEffect(isFocused ? 1.02 : 1.0)
-        .optimizedSpring(
-            response: 0.3,
-            dampingFraction: 0.8,
-            type: .essential,
-            priority: .high
-        )
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFocused)
         .onChange(of: isFocused) { focused in
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 isActive = focused
@@ -198,11 +184,7 @@ public struct KeyboardAwareContainer<Content: View>: View {
         GeometryReader { geometry in
             content
                 .padding(.bottom, keyboardManager.isKeyboardVisible ? keyboardManager.keyboardHeight - geometry.safeAreaInsets.bottom : 0)
-                .optimizedAnimation(
-                    .easeInOut(duration: 0.3),
-                    type: .navigation,
-                    priority: .high
-                )
+                .animation(.easeInOut(duration: 0.3), value: keyboardManager.isKeyboardVisible)
         }
         .modifier(KeyboardDismissalModifier())
     }
@@ -295,11 +277,7 @@ public struct HomeSearchBar: View {
         }
         .padding(.horizontal)
         .padding(.bottom, keyboardManager.isKeyboardVisible ? 8 : 0)
-        .optimizedAnimation(
-            .easeInOut(duration: 0.3),
-            type: .content,
-            priority: .normal
-        )
+        .animation(.easeInOut(duration: 0.3), value: keyboardManager.isKeyboardVisible)
     }
 }
 

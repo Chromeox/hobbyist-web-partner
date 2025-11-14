@@ -455,11 +455,11 @@ final class BookingService: ObservableObject {
     }
     
     private func updateBookingStatus(bookingId: String, status: BookingStatus) async throws -> Booking {
-        let updateData: [String: Any] = [
-            "status": status.rawValue,
-            "updated_at": ISO8601DateFormatter().string(from: Date())
+        let updateData: [String: AnyEncodable] = [
+            "status": AnyEncodable(status.rawValue),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date()))
         ]
-        
+
         let response = try await supabaseService.client
             .from("bookings")
             .update(updateData)
@@ -528,18 +528,18 @@ final class BookingService: ObservableObject {
     
     private func processBookingModification(request: BookingModificationRequest) async throws -> Booking {
         // Process booking modification
-        var updateData: [String: Any] = [
-            "updated_at": ISO8601DateFormatter().string(from: Date())
+        var updateData: [String: AnyEncodable] = [
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date()))
         ]
-        
+
         if let newDate = request.newDate {
-            updateData["class_start_date"] = ISO8601DateFormatter().string(from: newDate)
+            updateData["class_start_date"] = AnyEncodable(ISO8601DateFormatter().string(from: newDate))
         }
-        
+
         if let newParticipantCount = request.newParticipantCount {
-            updateData["participant_count"] = newParticipantCount
+            updateData["participant_count"] = AnyEncodable(newParticipantCount)
         }
-        
+
         let response = try await supabaseService.client
             .from("bookings")
             .update(updateData)
