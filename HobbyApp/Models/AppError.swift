@@ -369,11 +369,11 @@ class UserService {
             
         } catch {
             print("⚠️ Error updating profile in database: \(error)")
-            
+
             // Fallback to SimpleSupabaseService
             do {
-                try await simpleSupabaseService.updateUserProfile(
-                    avatarURL: nil,
+                try await supabase.updateUserProfile(
+                    avatarURL: nil as String?,
                     fullName: fullName,
                     bio: bio
                 )
@@ -1126,10 +1126,10 @@ class ClassService {
         } catch {
             print("⚠️ Error fetching classes from database: \(error)")
         }
-        
+
         // Try to get classes from SimpleSupabaseService as fallback
-        let simpleClasses = await simpleSupabaseService.fetchClasses()
-        
+        let simpleClasses = await supabase.fetchClasses()
+
         if !simpleClasses.isEmpty {
             // Convert SimpleClass to HobbyClass
             return simpleClasses.compactMap { simpleClass in
@@ -1702,7 +1702,7 @@ class ClassService {
         NSError(
             domain: "ClassService",
             code: -1,
-            userInfo: [NSLocalizedDescriptionKey: simpleSupabaseService.errorMessage ?? "Unable to load classes from Supabase."]
+            userInfo: [NSLocalizedDescriptionKey: SimpleSupabaseService.shared.errorMessage ?? "Unable to load classes from Supabase."]
         )
     }
 }
