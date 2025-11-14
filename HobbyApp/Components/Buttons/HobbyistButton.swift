@@ -29,7 +29,7 @@ struct HobbyistButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: HobbyistSpacing.sm) {
+            HStack(spacing: BrandConstants.Spacing.sm) {
                 if isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
@@ -53,7 +53,12 @@ struct HobbyistButton: View {
                     .stroke(style.borderColor, lineWidth: style.borderWidth)
             )
             .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
-            .hobbyistShadow(style.shadowStyle)
+            .shadow(
+                color: style.useShadow ? BrandConstants.Shadow.md.color : .clear,
+                radius: style.useShadow ? BrandConstants.Shadow.md.radius : 0,
+                x: style.useShadow ? BrandConstants.Shadow.md.x : 0,
+                y: style.useShadow ? BrandConstants.Shadow.md.y : 0
+            )
         }
         .disabled(isDisabled || isLoading)
         .opacity(isDisabled ? 0.6 : 1.0)
@@ -61,7 +66,6 @@ struct HobbyistButton: View {
         .animation(.easeInOut(duration: 0.2), value: isDisabled)
         .accessibilityLabel(isLoading ? "\(title), loading" : title)
         .accessibilityHint(isDisabled ? "This button is currently disabled" : style.accessibilityHint)
-        .accessibilityAddTraits(isDisabled ? [.notEnabled] : [])
         .accessibilityAddTraits(isLoading ? [.updatesFrequently] : [.isButton])
         .accessibilityRemoveTraits(isLoading ? [.isButton] : [])
     }
@@ -74,10 +78,10 @@ extension HobbyistButton {
 
         var backgroundColor: Color {
             switch self {
-            case .primary: return .hobbyistPrimary
-            case .secondary: return .hobbyistSecondary
-            case .tertiary: return .hobbyistSurface
-            case .destructive: return .hobbyistError
+            case .primary: return BrandConstants.Colors.primary
+            case .secondary: return BrandConstants.Colors.teal
+            case .tertiary: return BrandConstants.Colors.surface
+            case .destructive: return BrandConstants.Colors.error
             case .ghost: return .clear
             }
         }
@@ -85,8 +89,8 @@ extension HobbyistButton {
         var foregroundColor: Color {
             switch self {
             case .primary, .secondary, .destructive: return .white
-            case .tertiary: return .hobbyistTextPrimary
-            case .ghost: return .hobbyistPrimary
+            case .tertiary: return BrandConstants.Colors.text
+            case .ghost: return BrandConstants.Colors.primary
             }
         }
 
@@ -94,7 +98,7 @@ extension HobbyistButton {
             switch self {
             case .primary, .secondary, .destructive: return .clear
             case .tertiary: return Color.gray.opacity(0.3)
-            case .ghost: return .hobbyistPrimary
+            case .ghost: return BrandConstants.Colors.primary
             }
         }
 
@@ -105,11 +109,10 @@ extension HobbyistButton {
             }
         }
 
-        var shadowStyle: HobbyistShadow {
+        var useShadow: Bool {
             switch self {
-            case .primary, .secondary: return .medium
-            case .tertiary: return .small
-            case .destructive, .ghost: return .small
+            case .primary, .secondary: return true
+            case .tertiary, .destructive, .ghost: return false
             }
         }
         
@@ -137,17 +140,17 @@ extension HobbyistButton {
 
         var font: Font {
             switch self {
-            case .small: return .hobbyistCallout()
-            case .medium: return .hobbyistBody()
-            case .large: return .hobbyistHeadline()
+            case .small: return BrandConstants.Typography.caption
+            case .medium: return BrandConstants.Typography.body
+            case .large: return BrandConstants.Typography.headline
             }
         }
 
         var cornerRadius: CGFloat {
             switch self {
-            case .small: return HobbyistRadius.sm
-            case .medium: return HobbyistRadius.md
-            case .large: return HobbyistRadius.lg
+            case .small: return BrandConstants.CornerRadius.sm
+            case .medium: return BrandConstants.CornerRadius.md
+            case .large: return BrandConstants.CornerRadius.lg
             }
         }
 
@@ -162,7 +165,7 @@ extension HobbyistButton {
 
 // MARK: - Preview
 #Preview {
-    VStack(spacing: HobbyistSpacing.md) {
+    VStack(spacing: BrandConstants.Spacing.md) {
         HobbyistButton("Primary Button", style: .primary) {
             print("Primary tapped")
         }
