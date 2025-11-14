@@ -576,22 +576,40 @@ class SearchService: ObservableObject {
     func searchWithGeofiltering(location: CLLocation, radius: Double, query: String = "") async -> [SearchResult] {
         let classes = await supabaseService.fetchClasses()
         let hobbyClasses = classes.map { HobbyClass(simpleClass: $0) }
-        
-        return hobbyClasses.compactMap { hobbyClass in
+
+        // First, filter classes by radius and query
+        let filteredResults = hobbyClasses.compactMap { hobbyClass -> SearchResult? in
             let classLocation = CLLocation(latitude: hobbyClass.venue.latitude, longitude: hobbyClass.venue.longitude)
             let distance = location.distance(from: classLocation) / 1000 // Convert to km
-            
+
             if distance <= radius {
                 if query.isEmpty || matchesQuery(hobbyClass, query: query) {
                     return SearchResult.class(hobbyClass)
                 }
             }
             return nil
-        }.sorted { lhs, rhs in
-            // Sort by distance
-            let leftLocation = CLLocation(latitude: lhs.title == hobbyClass.title ? hobbyClass.venue.latitude : 0, longitude: lhs.title == hobbyClass.title ? hobbyClass.venue.longitude : 0)
-            let rightLocation = CLLocation(latitude: rhs.title == hobbyClass.title ? hobbyClass.venue.latitude : 0, longitude: rhs.title == hobbyClass.title ? hobbyClass.venue.longitude : 0)
-            return location.distance(from: leftLocation) < location.distance(from: rightLocation)
+        }
+
+        // Then, sort by distance
+        let sortedResults = filteredResults.sorted { lhs, rhs in
+            let leftDistance = distanceFromUserLocation(lhs, to: location)
+            let rightDistance = distanceFromUserLocation(rhs, to: location)
+            return leftDistance < rightDistance
+        }
+
+        return sortedResults
+    }
+
+    private func distanceFromUserLocation(_ result: SearchResult, to userLocation: CLLocation) -> Double {
+        switch result {
+        case .class(let hobbyClass):
+            let classLocation = CLLocation(latitude: hobbyClass.venue.latitude, longitude: hobbyClass.venue.longitude)
+            return userLocation.distance(from: classLocation)
+        case .venue(let venue):
+            let venueLocation = CLLocation(latitude: venue.latitude, longitude: venue.longitude)
+            return userLocation.distance(from: venueLocation)
+        case .instructor:
+            return Double.infinity // Instructors don't have specific locations
         }
     }
     
