@@ -44,6 +44,175 @@ Views/
 
 ---
 
+## UUID/String Type Reference (CRITICAL)
+
+### Type Mappings - Complete Reference
+
+**⚠️ ALWAYS CONSULT `/docs/type-reference-guide.md` FOR DEFINITIVE TYPE MAPPINGS**
+
+**Quick Reference:**
+```swift
+// Core Models
+HobbyClass.id = String          // ⚠️ STRING (not UUID)
+Instructor.id = UUID            // ✅ UUID
+Venue.id = UUID                 // ✅ UUID
+Booking.id = UUID               // ✅ UUID (all booking IDs are UUID)
+
+// Nested Info Models (in HobbyClass)
+InstructorInfo.id = String      // ⚠️ STRING (converted from Instructor)
+VenueInfo.id = String           // ⚠️ STRING (converted from Venue)
+
+// Search Models
+SavedSearch.id = UUID           // ✅ UUID (all search models use UUID)
+
+// Service Models
+SimpleUser.id = String          // ⚠️ STRING (Supabase auth)
+SimpleClass.id = String         // ⚠️ STRING (database compatibility)
+SimpleBooking.id = String       // ⚠️ STRING (database compatibility)
+```
+
+### UUID/String Conversion Patterns
+
+**Pattern 1: UUID → String (Always Safe)**
+```swift
+let uuid: UUID = UUID()
+let string: String = uuid.uuidString  // ✅ Always safe
+
+// Using extension (preferred):
+let string: String = uuid.asString    // ✅ Clearer intent
+```
+
+**Pattern 2: String → UUID (Requires Validation)**
+```swift
+let string: String = "550e8400-e29b-41d4-a716-446655440000"
+let uuid: UUID? = UUID(uuidString: string)  // ⚠️ Can return nil
+
+// Safe unwrapping:
+guard let uuid = UUID(uuidString: string) else {
+    throw ConversionError.invalidUUID
+}
+
+// Using extension with default:
+let uuid: UUID = string.asUUID(default: UUID())  // ✅ Always returns UUID
+```
+
+**Pattern 3: Common Mistakes**
+
+❌ **WRONG**: Trying to convert UUID to UUID via String
+```swift
+let saved: SavedSearch  // saved.id is UUID
+guard let uuid = UUID(uuidString: saved.id) else { return }  // ERROR!
+```
+
+✅ **CORRECT**: UUID is already UUID, use directly
+```swift
+let saved: SavedSearch
+let newSearch = SavedSearch(id: saved.id, ...)  // Just copy it
+```
+
+❌ **WRONG**: Calling .uuidString on String
+```swift
+let user: SimpleUser  // user.id is String
+let idString = user.id.uuidString  // ERROR: String has no .uuidString
+```
+
+✅ **CORRECT**: It's already String
+```swift
+let user: SimpleUser
+let idString = user.id  // It's already String
+```
+
+❌ **WRONG**: Passing String where UUID expected
+```swift
+let user: SimpleUser  // user.id is String
+let booking = Booking(userId: user.id)  // ERROR: expects UUID
+```
+
+✅ **CORRECT**: Convert String to UUID
+```swift
+let user: SimpleUser
+guard let userId = UUID(uuidString: user.id) else {
+    throw BookingError.invalidUserID
+}
+let booking = Booking(userId: userId)
+```
+
+### Conversion Helper Extensions
+
+**Available in `/HobbyApp/Utils/IDConversionExtensions.swift`:**
+
+```swift
+// UUID extensions
+uuid.asString                    // UUID → String
+UUID.isValid(string)             // Validate UUID format
+
+// String extensions
+string.asUUID                    // String → UUID?
+string.asUUID(default: UUID())   // String → UUID (with fallback)
+string.isValidUUID               // Check if valid UUID
+
+// Array conversions
+[UUID].asStrings                 // [UUID] → [String]
+[String].asUUIDs                 // [String] → [UUID] (filters invalid)
+
+// Optional handling
+uuid?.asString                   // UUID? → String?
+string?.asUUID                   // String? → UUID?
+```
+
+### Type Aliases for Clarity
+
+**Available in `/HobbyApp/Models/TypeAliases.swift`:**
+
+```swift
+typealias ClassID = String       // HobbyClass uses String
+typealias BookingID = UUID       // Booking uses UUID
+typealias UserID = String        // SimpleUser uses String
+typealias InstructorID = UUID    // Instructor uses UUID
+typealias VenueID = UUID         // Venue uses UUID
+typealias PaymentID = UUID       // Payment uses UUID
+typealias SavedSearchID = UUID   // SavedSearch uses UUID
+```
+
+**Use in function signatures for clarity:**
+```swift
+✅ CLEAR:
+func bookClass(classId: ClassID, userId: UserID) -> BookingID
+
+❌ UNCLEAR:
+func bookClass(classId: String, userId: String) -> UUID
+```
+
+### Decision Tree for ID Conversions
+
+```
+Do I have a UUID and need a String?
+├─ YES → Use .uuidString or .asString
+└─ NO → Continue
+
+Do I have a String and need a UUID?
+├─ YES → Use UUID(uuidString:) with guard or .asUUID
+└─ NO → Continue
+
+Are both sides the same type?
+├─ YES → Just assign/copy directly (no conversion needed)
+└─ NO → Check type-reference-guide.md (might be a bug)
+
+Getting "Cannot convert UUID to String" error?
+├─ YES → Add .uuidString to the UUID
+└─ NO → Continue
+
+Getting "Cannot convert String to UUID" error?
+├─ YES → Use UUID(uuidString: string) with optional handling
+└─ NO → Continue
+
+Getting "Value of type String has no member 'uuidString'" error?
+├─ YES → Variable is already String, remove .uuidString
+└─ NO → Continue
+```
+
+---
+
 ## Error Pattern Database
 
 ### Pattern 1: Nested Enum Type Mismatch
