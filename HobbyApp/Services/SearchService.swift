@@ -465,8 +465,15 @@ class SearchService: ObservableObject {
     private var cacheTimestamps: [String: Date] = [:]
     
     private func generateCacheKey(for parameters: SearchParameters) -> String {
-        let filtersHash = parameters.filters?.hashValue ?? 0
-        let locationHash = parameters.location?.hashValue ?? 0
+        // Create a stable hash from filters by combining hash values of individual components
+        var filtersHash = 0
+        if let filters = parameters.filters {
+            filtersHash = filters.categories.hashValue ^
+                          filters.difficultyLevels.hashValue ^
+                          filters.dateRange.hashValue ^
+                          filters.distance.hashValue
+        }
+        let locationHash = parameters.location?.coordinate.latitude.hashValue ?? 0
         return "\(parameters.query)_\(parameters.scope.rawValue)_\(parameters.sortBy.rawValue)_\(filtersHash)_\(locationHash)"
     }
     

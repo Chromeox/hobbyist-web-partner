@@ -2,6 +2,12 @@ import Foundation
 import Combine
 import Supabase
 
+// MARK: - Edge Function Response Types
+
+struct EmptyResponse: Codable {
+    // Empty response for functions that don't return data
+}
+
 // MARK: - Booking Request
 
 struct BookingRequest {
@@ -120,7 +126,7 @@ final class BookingService: ObservableObject {
             
             // Step 4: Apply credits if used
             if let creditsUsed = request.creditsUsed, creditsUsed > 0 {
-                try await applyCreditPayment(creditsUsed: creditsUsed, bookingId: booking.id)
+                try await applyCreditPayment(creditsUsed: creditsUsed, bookingId: booking.id.uuidString)
             }
             
             // Step 5: Send confirmation notifications
@@ -184,7 +190,7 @@ final class BookingService: ObservableObject {
         
         do {
             // Step 1: Update booking status
-            let updatedBooking = try await updateBookingStatus(bookingId: booking.id, status: .cancelled)
+            let updatedBooking = try await updateBookingStatus(bookingId: booking.id.uuidString, status: .cancelled)
             
             // Step 2: Process refund if applicable
             if booking.canBeRefunded {
@@ -224,7 +230,7 @@ final class BookingService: ObservableObject {
         do {
             // Create modification request
             let modificationRequest = BookingModificationRequest(
-                bookingId: booking.id,
+                bookingId: booking.id.uuidString,
                 newDate: newDate,
                 newParticipantCount: newParticipantCount
             )
@@ -329,7 +335,7 @@ final class BookingService: ObservableObject {
                 success: true,
                 paymentIntentId: "credits_only_\(UUID().uuidString)",
                 error: nil,
-                paymentMethod: .credits
+                paymentMethod: "credits"
             )
         }
         
@@ -368,15 +374,6 @@ final class BookingService: ObservableObject {
             "payment_intent_id": paymentResult?.paymentIntentId as Any,
             "paid_with_credits": request.creditsUsed != nil && request.creditsUsed! > 0,
             "credits_used": request.creditsUsed as Any,
-            "discount_applied": request.discountApplied as Any,
-            "processing_fee": request.processingFee as Any,
-            "participant_names": request.participantNames as Any,
-            "emergency_contact": try JSONSerialization.data(withJSONObject: [
-                "name": request.emergencyContact?.name ?? "",
-                "phone": request.emergencyContact?.phone ?? ""
-            ]),
-            "equipment_rental": request.equipmentRental as Any,
-            "experience_level": request.experienceLevel as Any,
             "confirmation_code": generateConfirmationCode()
         ]
         
@@ -407,7 +404,7 @@ final class BookingService: ObservableObject {
         
         // Record credit transaction in database
         let transactionData: [String: Any] = [
-            "user_id": supabaseService.currentUser?.id.uuidString ?? "",
+            "user_id": supabaseService.currentUser?.id ?? "",
             "booking_id": bookingId,
             "amount": -creditsUsed,
             "transaction_type": "booking_payment",
@@ -428,10 +425,10 @@ final class BookingService: ObservableObject {
             "user_id": booking.userId,
             "confirmation_code": booking.confirmationCode
         ]
-        
-        try await supabaseService.client
+
+        let _: EmptyResponse = try await supabaseService.client
             .functions
-            .invoke("send-notification", with: notificationData)
+            .invoke("send-notification", options: FunctionInvokeOptions(body: notificationData))
     }
     
     private func updateBookingStatus(bookingId: String, status: BookingStatus) async throws -> Booking {
@@ -466,17 +463,17 @@ final class BookingService: ObservableObject {
             "payment_intent_id": booking.paymentIntentId as Any,
             "refund_amount": booking.refundAmount
         ]
-        
-        try await supabaseService.client
+
+        let _: EmptyResponse = try await supabaseService.client
             .functions
-            .invoke("payments", with: refundData)
+            .invoke("payments", options: FunctionInvokeOptions(body: refundData))
     }
     
     private func restoreCredits(amount: Int, reason: String) async throws {
         // Restore credits through credit service
         // This would typically involve adding credits back to the user's account
         let transactionData: [String: Any] = [
-            "user_id": supabaseService.currentUser?.id.uuidString ?? "",
+            "user_id": supabaseService.currentUser?.id ?? "",
             "amount": amount,
             "transaction_type": "refund",
             "description": reason
@@ -497,10 +494,10 @@ final class BookingService: ObservableObject {
             "booking_id": booking.id,
             "user_id": booking.userId
         ]
-        
-        try await supabaseService.client
+
+        let _: EmptyResponse = try await supabaseService.client
             .functions
-            .invoke("send-notification", with: notificationData)
+            .invoke("send-notification", options: FunctionInvokeOptions(body: notificationData))
     }
     
     private func processBookingModification(request: BookingModificationRequest) async throws -> Booking {
@@ -571,13 +568,13 @@ extension BookingService {
         userBookings = [
             // Upcoming booking
             Booking(
-                id: "1",
-                classId: "class_1",
+                id: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID(),
+                classId: UUID(uuidString: "00000000-0000-0000-0000-000000000011") ?? UUID(),
                 className: "Pottery Basics",
-                userId: "user_1",
+                userId: UUID(uuidString: "00000000-0000-0000-0000-000000000021") ?? UUID(),
                 participantCount: 1,
                 specialRequests: nil,
-                paymentId: "payment_1",
+                paymentId: UUID(uuidString: "00000000-0000-0000-0000-000000000031"),
                 totalAmount: 45.0,
                 status: .confirmed,
                 createdAt: Date().addingTimeInterval(-3600),
@@ -621,13 +618,13 @@ extension BookingService {
             
             // Past booking
             Booking(
-                id: "2",
-                classId: "class_2",
+                id: UUID(uuidString: "00000000-0000-0000-0000-000000000002") ?? UUID(),
+                classId: UUID(uuidString: "00000000-0000-0000-0000-000000000012") ?? UUID(),
                 className: "Photography Walk",
-                userId: "user_1",
+                userId: UUID(uuidString: "00000000-0000-0000-0000-000000000021") ?? UUID(),
                 participantCount: 2,
                 specialRequests: "Beginner level please",
-                paymentId: "payment_2",
+                paymentId: UUID(uuidString: "00000000-0000-0000-0000-000000000032"),
                 totalAmount: 60.0,
                 status: .completed,
                 createdAt: Date().addingTimeInterval(-604800), // 1 week ago
@@ -654,7 +651,7 @@ extension BookingService {
                     avatar: nil
                 ),
                 confirmationCode: "CD5678",
-                qrCode: nil,
+                qrCode: nil as String?,
                 paymentMethod: .credits,
                 paymentIntentId: nil,
                 paidWithCredits: true,
