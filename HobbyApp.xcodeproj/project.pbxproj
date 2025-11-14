@@ -74,7 +74,7 @@
 
 /* Begin PBXFileReference section */
 		2982779DE89F44D3ACD16E2F /* OutOfCreditsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfCreditsView.swift; sourceTree = "<group>"; };
-56267081FE794541ACE186D9 /* EnhancedOnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedOnboardingFlow.swift; sourceTree = "<group>"; };
+56267081FE794541ACE186D9 /* EnhancedOnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Auth/EnhancedOnboardingFlow.swift; sourceTree = "<group>"; };
 		7A1234521234567890ABCDEF /* HobbyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HobbyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2PROD0001234567890ABCDEF /* ProductionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionApp.swift; sourceTree = "<group>"; };
 		7A1234571234567890ABCDEF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
