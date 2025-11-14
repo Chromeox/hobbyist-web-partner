@@ -258,7 +258,7 @@ struct ProductionLoginView: View {
         case signUp = "Sign Up"
     }
 
-    private enum Field: Hashable {
+    fileprivate enum Field: Hashable {
         case fullName, email, password
     }
 
