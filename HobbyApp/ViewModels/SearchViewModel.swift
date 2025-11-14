@@ -402,17 +402,8 @@ class SearchViewModel: ObservableObject {
 
     private func loadSavedSearches() async {
         // Copy from SearchService (both are @MainActor)
-        // Map to ensure type compatibility - convert String ID to UUID
-        self.savedSearches = searchService.savedSearches.compactMap { saved in
-            guard let uuid = UUID(uuidString: saved.id) else { return nil }
-            return SavedSearch(
-                id: uuid,
-                name: saved.name,
-                query: saved.query,
-                filters: saved.filters,
-                createdAt: saved.createdAt
-            )
-        }
+        // Both SavedSearch models use UUID for id - direct copy
+        self.savedSearches = searchService.savedSearches
     }
     
     private func loadNearbyClasses() async {
