@@ -74,8 +74,8 @@ struct CustomNavigationHeader: View {
                     .opacity(0)
             }
         }
-        .padding(.horizontal, HobbyistSpacing.md)
-        .padding(.vertical, HobbyistSpacing.sm)
+        .padding(.horizontal, BrandConstants.Spacing.md)
+        .padding(.vertical, BrandConstants.Spacing.sm)
         .background(.regularMaterial)
     }
 }
@@ -90,7 +90,7 @@ struct LoadingScreenTemplate: View {
 
     var body: some View {
         ScreenTemplate {
-            VStack(spacing: HobbyistSpacing.lg) {
+            VStack(spacing: BrandConstants.Spacing.lg) {
                 ProgressView()
                     .scaleEffect(1.5)
                     .tint(.hobbyistPrimary)
@@ -126,12 +126,12 @@ struct EmptyStateTemplate: View {
     }
 
     var body: some View {
-        VStack(spacing: HobbyistSpacing.lg) {
+        VStack(spacing: BrandConstants.Spacing.lg) {
             Image(systemName: icon)
                 .font(.system(size: 64))
                 .foregroundColor(.hobbyistTextTertiary)
 
-            VStack(spacing: HobbyistSpacing.sm) {
+            VStack(spacing: BrandConstants.Spacing.sm) {
                 Text(title)
                     .font(.hobbyistTitle())
                     .fontWeight(.semibold)
@@ -145,10 +145,10 @@ struct EmptyStateTemplate: View {
 
             if let actionTitle = actionTitle, let action = action {
                 HobbyistButton(actionTitle, style: .primary, action: action)
-                    .padding(.top, HobbyistSpacing.md)
+                    .padding(.top, BrandConstants.Spacing.md)
             }
         }
-        .padding(HobbyistSpacing.xl)
+        .padding(BrandConstants.Spacing.xl)
     }
 }
 
@@ -185,7 +185,7 @@ struct ErrorStateTemplate: View {
         title: "Example Screen",
         showBackButton: true
     ) {
-        VStack(spacing: HobbyistSpacing.lg) {
+        VStack(spacing: BrandConstants.Spacing.lg) {
             Text("This is the main content area")
                 .font(.hobbyistBody())
 
