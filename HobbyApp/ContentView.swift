@@ -179,37 +179,6 @@ struct SplashView: View {
 
 // MARK: - Enhanced Onboarding Flow
 
-// MARK: - Branded UI Components
-
-/// Primary branded button with gradient background
-struct BrandedButton: View {
-    let title: String
-    let icon: String?
-    let action: () -> Void
-
-    init(_ title: String, icon: String? = nil, action: @escaping () -> Void) {
-        self.title = title
-        self.icon = icon
-        self.action = action
-    }
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: BrandConstants.Spacing.sm) {
-                if let icon = icon {
-                    Image(systemName: icon)
-                }
-                Text(title)
-                    .fontWeight(.semibold)
-            }
-            .foregroundColor(BrandConstants.Colors.surface)
-            .frame(maxWidth: .infinity, minHeight: 54)
-            .background(BrandConstants.Gradients.primary)
-            .cornerRadius(BrandConstants.CornerRadius.lg)
-        }
-    }
-}
-
 // MARK: - Welcome Landing View
 
 struct WelcomeLandingView: View {

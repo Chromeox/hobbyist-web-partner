@@ -71,7 +71,7 @@ extension HobbyistCard {
 
         var backgroundColor: Color {
             switch self {
-            case .default, .elevated, .outlined: return .hobbyistSurface
+            case .default, .elevated, .outlined: return BrandConstants.Colors.surface
             case .minimal: return .clear
             }
         }
@@ -137,7 +137,7 @@ struct ClassCard: View {
                 } else {
                     Rectangle()
                         .fill(LinearGradient(
-                            colors: [.hobbyistPrimary.opacity(0.7), .hobbyistSecondary.opacity(0.7)],
+                            colors: [BrandConstants.Colors.primary.opacity(0.7), BrandConstants.Colors.teal.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
@@ -157,19 +157,19 @@ struct ClassCard: View {
                     Text(className)
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.hobbyistTextPrimary)
+                        .foregroundColor(BrandConstants.Colors.text)
                         .lineLimit(2)
                         .accessibilityAddTraits(.isHeader)
 
                     Text(instructor)
                         .font(BrandConstants.Typography.subheadline)
-                        .foregroundColor(.hobbyistTextSecondary)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                         .accessibilityLabel("Instructor: \(instructor)")
 
                     HStack {
                         Text(time)
                             .font(BrandConstants.Typography.caption)
-                            .foregroundColor(.hobbyistTextTertiary)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                             .accessibilityLabel("Time: \(time)")
 
                         Spacer()
@@ -177,7 +177,7 @@ struct ClassCard: View {
                         Text(price)
                             .font(BrandConstants.Typography.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.hobbyistPrimary)
+                            .foregroundColor(BrandConstants.Colors.primary)
                             .accessibilityLabel("Price: \(price)")
                     }
                 }
@@ -217,13 +217,13 @@ struct StudioCard: View {
                     .accessibilityLabel("\(studioName) studio image")
                 } else {
                     Rectangle()
-                        .fill(Color.hobbyistSecondary.opacity(0.3))
+                        .fill(BrandConstants.Colors.teal.opacity(0.3))
                         .frame(width: 80, height: 80)
                         .clipShape(RoundedRectangle(cornerRadius: BrandConstants.CornerRadius.md))
                         .overlay(
                             Image(systemName: "building.2.crop.circle")
                                 .font(BrandConstants.Typography.title2)
-                                .foregroundColor(.hobbyistSecondary)
+                                .foregroundColor(BrandConstants.Colors.teal)
                                 .accessibilityHidden(true)
                         )
                         .accessibilityLabel("\(studioName) studio placeholder image")
@@ -234,12 +234,12 @@ struct StudioCard: View {
                     Text(studioName)
                         .font(BrandConstants.Typography.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.hobbyistTextPrimary)
+                        .foregroundColor(BrandConstants.Colors.text)
                         .accessibilityAddTraits(.isHeader)
 
                     Text(location)
                         .font(BrandConstants.Typography.subheadline)
-                        .foregroundColor(.hobbyistTextSecondary)
+                        .foregroundColor(BrandConstants.Colors.secondaryText)
                         .lineLimit(2)
                         .accessibilityLabel("Location: \(location)")
 
@@ -252,7 +252,7 @@ struct StudioCard: View {
 
                             Text(String(format: "%.1f", rating))
                                 .font(BrandConstants.Typography.caption)
-                                .foregroundColor(.hobbyistTextTertiary)
+                                .foregroundColor(BrandConstants.Colors.secondaryText)
                         }
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel("Rating: \(String(format: "%.1f", rating)) out of 5 stars")
@@ -261,7 +261,7 @@ struct StudioCard: View {
 
                         Text(distance)
                             .font(BrandConstants.Typography.caption)
-                            .foregroundColor(.hobbyistTextTertiary)
+                            .foregroundColor(BrandConstants.Colors.secondaryText)
                             .accessibilityLabel("Distance: \(distance)")
                     }
                 }

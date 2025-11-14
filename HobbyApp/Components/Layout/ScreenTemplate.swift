@@ -14,7 +14,7 @@ struct ScreenTemplate<Content: View>: View {
         title: String? = nil,
         showBackButton: Bool = false,
         showNavigation: Bool = true,
-        backgroundColor: Color = .hobbyistBackground,
+        backgroundColor: Color = BrandConstants.Colors.background,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.title = title
@@ -53,24 +53,24 @@ struct CustomNavigationHeader: View {
             if showBackButton {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                        .font(.hobbyistHeadline())
-                        .foregroundColor(.hobbyistTextPrimary)
+                        .font(BrandConstants.Typography.headline)
+                        .foregroundColor(BrandConstants.Colors.text)
                 }
             }
 
             Spacer()
 
             Text(title)
-                .font(.hobbyistTitle())
+                .font(BrandConstants.Typography.title)
                 .fontWeight(.semibold)
-                .foregroundColor(.hobbyistTextPrimary)
+                .foregroundColor(BrandConstants.Colors.text)
 
             Spacer()
 
             if showBackButton {
                 // Invisible spacer to center title
                 Image(systemName: "chevron.left")
-                    .font(.hobbyistHeadline())
+                    .font(BrandConstants.Typography.headline)
                     .opacity(0)
             }
         }
@@ -93,11 +93,11 @@ struct LoadingScreenTemplate: View {
             VStack(spacing: BrandConstants.Spacing.lg) {
                 ProgressView()
                     .scaleEffect(1.5)
-                    .tint(.hobbyistPrimary)
+                    .tint(BrandConstants.Colors.primary)
 
                 Text(message)
-                    .font(.hobbyistBody())
-                    .foregroundColor(.hobbyistTextSecondary)
+                    .font(BrandConstants.Typography.body)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
             }
         }
     }
@@ -129,17 +129,17 @@ struct EmptyStateTemplate: View {
         VStack(spacing: BrandConstants.Spacing.lg) {
             Image(systemName: icon)
                 .font(.system(size: 64))
-                .foregroundColor(.hobbyistTextTertiary)
+                .foregroundColor(BrandConstants.Colors.secondaryText)
 
             VStack(spacing: BrandConstants.Spacing.sm) {
                 Text(title)
-                    .font(.hobbyistTitle())
+                    .font(BrandConstants.Typography.title)
                     .fontWeight(.semibold)
-                    .foregroundColor(.hobbyistTextPrimary)
+                    .foregroundColor(BrandConstants.Colors.text)
 
                 Text(message)
-                    .font(.hobbyistBody())
-                    .foregroundColor(.hobbyistTextSecondary)
+                    .font(BrandConstants.Typography.body)
+                    .foregroundColor(BrandConstants.Colors.secondaryText)
                     .multilineTextAlignment(.center)
             }
 
@@ -187,7 +187,7 @@ struct ErrorStateTemplate: View {
     ) {
         VStack(spacing: BrandConstants.Spacing.lg) {
             Text("This is the main content area")
-                .font(.hobbyistBody())
+                .font(BrandConstants.Typography.body)
 
             HobbyistButton("Example Button") {
                 print("Button tapped")
