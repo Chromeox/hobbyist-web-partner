@@ -85,11 +85,11 @@ class AuthenticationManager: ObservableObject {
     @Published var password = ""
     @Published var confirmPassword = ""
     @Published var fullName = ""
-    
+
     private var supabase: SupabaseClient? {
-        return SupabaseManager.shared.client
+        return SimpleSupabaseService.shared.client
     }
-    
+
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
