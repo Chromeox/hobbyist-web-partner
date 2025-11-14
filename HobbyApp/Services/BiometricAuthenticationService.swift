@@ -22,12 +22,12 @@ class BiometricAuthenticationService: ObservableObject {
         var error: NSError?
 
         print("🔍 Checking biometric availability...")
-        print("🔍 Device biometry type: \(context.biometryType.description)")
+        print("🔍 Device biometry type: \(context.biometryType.displayName)")
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             biometricsAvailable = true
             biometricType = context.biometryType
-            print("✅ Biometrics available: \(biometricType.description)")
+            print("✅ Biometrics available: \(biometricType.displayName)")
             print("✅ canUseBiometrics() will return: \(canUseBiometrics())")
         } else {
             biometricsAvailable = false

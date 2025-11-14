@@ -4,13 +4,15 @@ struct OutOfCreditsView: View {
     @Environment(\.dismiss) private var dismiss
 
     let requiredAdditionalCredits: Int
-    @State private var showStore = false
-    @State private var selectedCategory: StoreCategory = .creditPacks
 
     var body: some View {
         NavigationView {
             VStack(spacing: BrandConstants.Spacing.lg) {
                 VStack(spacing: BrandConstants.Spacing.md) {
+                    Image(systemName: "creditcard.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(BrandConstants.Colors.primary)
+
                     Text("You're out of credits")
                         .font(BrandConstants.Typography.title2)
                         .fontWeight(.semibold)
@@ -24,33 +26,22 @@ struct OutOfCreditsView: View {
 
                 VStack(spacing: BrandConstants.Spacing.md) {
                     Button {
-                        selectedCategory = .subscriptions
-                        showStore = true
+                        // TODO: Navigate to credit purchase screen when implemented
+                        dismiss()
                     } label: {
-                        Text("Subscribe & Save")
+                        Text("Buy Credits")
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
                     .buttonStyle(.borderedProminent)
-
-                    Button {
-                        selectedCategory = .creditPacks
-                        showStore = true
-                    } label: {
-                        Text("Buy a Credit Pack")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                    .buttonStyle(.bordered)
                 }
 
                 VStack(alignment: .leading, spacing: BrandConstants.Spacing.sm) {
-                    Label("Need help deciding?", systemImage: "lightbulb")
+                    Label("Coming Soon", systemImage: "sparkles")
                         .font(BrandConstants.Typography.subheadline)
                         .foregroundColor(BrandConstants.Colors.secondaryText)
-                    Text("Subscriptions keep you topped up automatically, while credit packs are perfect for occasional bookings.")
+                    Text("Credit purchase integration is coming soon. Please contact support to add credits to your account.")
                         .font(BrandConstants.Typography.footnote)
                         .foregroundColor(BrandConstants.Colors.secondaryText)
                 }
@@ -73,9 +64,6 @@ struct OutOfCreditsView: View {
                     }
                     .tint(BrandConstants.Colors.text)
                 }
-            }
-            .sheet(isPresented: $showStore) {
-                StoreView(initialCategory: selectedCategory)
             }
         }
     }

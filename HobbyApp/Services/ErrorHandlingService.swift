@@ -90,82 +90,82 @@ final class ErrorHandlingService: ObservableObject {
         }
         
         if let bookingError = error as? BookingError {
-            return AppError.booking(bookingError, context: context)
+            return AppError.booking(bookingError)
         }
-        
+
         if let paymentError = error as? PaymentError {
-            return AppError.payment(paymentError, context: context)
+            return AppError.payment(paymentError)
         }
-        
+
         if let creditError = error as? CreditServiceError {
-            return AppError.credit(creditError, context: context)
+            return AppError.credit(.transactionFailed(creditError.localizedDescription))
         }
-        
+
         // Network errors
         if let urlError = error as? URLError {
             return convertURLError(urlError, context: context)
         }
-        
+
         // Supabase errors
         if error.localizedDescription.contains("network") {
-            return AppError.network(.connectionFailed, context: context)
+            return AppError.network(.connectionFailed("Network connection issue in \(context)"))
         }
-        
+
         // Default unknown error
-        return AppError.unknown(error.localizedDescription, context: context)
+        return AppError.unknown("Error in \(context): \(error.localizedDescription)")
     }
     
     private func convertToPaymentError(_ error: Error) -> AppError {
         if let paymentError = error as? PaymentError {
-            return AppError.payment(paymentError, context: "Payment Processing")
+            return AppError.payment(paymentError)
         }
-        
+
         // Stripe-specific error handling
         if error.localizedDescription.contains("card") {
-            return AppError.payment(.paymentFailed("Your card was declined. Please try a different payment method."), context: "Card Processing")
+            return AppError.payment(.paymentFailed("Your card was declined. Please try a different payment method."))
         }
-        
+
         if error.localizedDescription.contains("insufficient") {
-            return AppError.payment(.insufficientCredits, context: "Payment Processing")
+            return AppError.credit(.insufficientCredits)
         }
-        
-        return AppError.payment(.unknownError(error.localizedDescription), context: "Payment Processing")
+
+        return AppError.payment(.unknownError(error.localizedDescription))
     }
     
     private func convertToBookingError(_ error: Error, context: BookingContext) -> AppError {
         if let bookingError = error as? BookingError {
-            return AppError.booking(bookingError, context: context.description)
+            return AppError.booking(bookingError)
         }
-        
+
         // Context-specific error handling
         switch context {
         case .classSelection:
             if error.localizedDescription.contains("availability") {
-                return AppError.booking(.classFullyBooked, context: "Class Selection")
+                return AppError.booking(.classFullyBooked)
             }
         case .paymentProcessing:
             return convertToPaymentError(error)
         case .confirmation:
-            return AppError.booking(.networkError, context: "Booking Confirmation")
+            return AppError.network(.connectionFailed("Booking confirmation failed"))
         case .modification:
-            return AppError.booking(.modificationNotAllowed, context: "Booking Modification")
+            return AppError.booking(.modificationNotAllowed)
         case .cancellation:
-            return AppError.booking(.cancellationNotAllowed, context: "Booking Cancellation")
+            return AppError.booking(.cancellationNotAllowed)
         }
-        
-        return AppError.booking(.unknown(error.localizedDescription), context: context.description)
+
+        return AppError.booking(.invalidBooking(error.localizedDescription))
     }
     
     private func convertURLError(_ error: URLError, context: String) -> AppError {
         switch error.code {
         case .notConnectedToInternet:
-            return AppError.network(.noConnection, context: context)
+            return AppError.network(.noConnection)
         case .timedOut:
-            return AppError.network(.timeout, context: context)
+            return AppError.network(.timeout)
         case .cannotFindHost, .cannotConnectToHost:
-            return AppError.network(.serverUnavailable, context: context)
+            return AppError.network(.serverUnavailable)
         default:
-            return AppError.network(.connectionFailed, context: context)
+            return AppError.network(.connectionFailed("Connection failed in \(context)"))
         }
     }
     
@@ -196,7 +196,7 @@ final class ErrorHandlingService: ObservableObject {
     
     private func logErrorToAnalytics(_ error: AppError, context: String) {
         // In production, send to analytics service
-        let analyticsData = [
+        let analyticsData: [String: Any] = [
             "error_type": error.category,
             "error_title": error.title,
             "context": context,
