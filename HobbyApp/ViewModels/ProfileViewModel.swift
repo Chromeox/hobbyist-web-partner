@@ -24,7 +24,7 @@ class ProfileViewModel: ObservableObject {
     private let authManager: AuthenticationManager
     private var cancellables = Set<AnyCancellable>()
 
-    nonisolated init(authManager: AuthenticationManager? = nil) {
+    init(authManager: AuthenticationManager? = nil) {
         self.authManager = authManager ?? AuthenticationManager.shared
         Task { @MainActor in
             self.setupBindings()

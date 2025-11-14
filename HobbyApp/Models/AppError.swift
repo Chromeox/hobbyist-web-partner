@@ -167,7 +167,7 @@ class CrashReportingService {
 
 class ReviewService {
     static let shared = ReviewService()
-    private let supabase = SimpleSupabaseService.shared
+    private nonisolated(unsafe) let supabase = SimpleSupabaseService.shared
     private init() {}
     
     func getReviews(classId: String) async throws -> [Review] {
@@ -336,8 +336,7 @@ class ReviewService {
 
 class UserService {
     static let shared = UserService()
-    private let supabase = SimpleSupabaseService.shared
-    private lazy var simpleSupabaseService = SimpleSupabaseService.shared
+    private nonisolated(unsafe) let supabase = SimpleSupabaseService.shared
     private init() {}
     
     func updateProfile(userId: String, fullName: String?, bio: String?) async throws -> Bool {
@@ -817,7 +816,7 @@ class InstructorService {
 
 class StudioService {
     static let shared = StudioService()
-    private let supabase = SimpleSupabaseService.shared
+    private nonisolated(unsafe) let supabase = SimpleSupabaseService.shared
     private init() {}
 
     func fetchStudios() async throws -> [Studio] {
@@ -940,8 +939,7 @@ typealias VenueService = StudioService
 
 class ClassService {
     static let shared = ClassService()
-    private let supabase = SimpleSupabaseService.shared
-    private lazy var simpleSupabaseService = SimpleSupabaseService.shared
+    private nonisolated(unsafe) let supabase = SimpleSupabaseService.shared
 
     private init() {}
 
