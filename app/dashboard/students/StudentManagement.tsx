@@ -146,9 +146,9 @@ export default function StudentManagement() {
       {/* Header with Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Students</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Manage Your Students</h1>
           <p className="text-base text-gray-600 mt-1">
-            Manage your {students.length} registered students
+            {students.length} registered students
           </p>
         </div>
         <div className="flex gap-3">
@@ -211,10 +211,14 @@ export default function StudentManagement() {
             <div className="p-2 bg-purple-100 rounded-lg">
               <Activity className="h-5 w-5 text-purple-600" />
             </div>
-            <span className="text-sm font-medium text-gray-600">This week</span>
+            <span className="text-sm font-medium text-green-600 flex items-center">
+              <TrendingUp className="h-3 w-3 mr-1" />
+              5%
+            </span>
           </div>
-          <p className="text-sm text-gray-600">Class Attendance</p>
+          <p className="text-sm text-gray-600">Weekly Attendance</p>
           <p className="text-xl font-bold text-gray-900">89%</p>
+          <p className="text-xs text-gray-500 mt-1">vs last week</p>
         </motion.div>
 
         <motion.div
@@ -290,9 +294,6 @@ export default function StudentManagement() {
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
                     Total Spent
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-medium text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -303,7 +304,8 @@ export default function StudentManagement() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="hover:bg-gray-50 transition-colors"
+                      onClick={() => setSelectedStudent(student)}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -322,16 +324,16 @@ export default function StudentManagement() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
-                          student.membershipStatus === 'active' 
+                          student.membershipStatus === 'active'
                             ? 'bg-green-100 text-green-800'
                             : student.membershipStatus === 'paused'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {student.membershipStatus}
+                          {student.membershipStatus.charAt(0).toUpperCase() + student.membershipStatus.slice(1)}
                         </span>
                         <span className="ml-2 text-sm text-gray-500">
-                          {student.membershipType}
+                          {student.membershipType === 'drop-in' ? 'Drop-In' : student.membershipType.charAt(0).toUpperCase() + student.membershipType.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -343,17 +345,6 @@ export default function StudentManagement() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         ${student.totalSpent.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button 
-                          onClick={() => setSelectedStudent(student)}
-                          className="text-blue-600 hover:text-blue-900 mr-3"
-                        >
-                          View
-                        </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreVertical className="h-5 w-5" />
-                        </button>
                       </td>
                     </motion.tr>
                   ))}
@@ -433,10 +424,7 @@ export default function StudentManagement() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                    Send Message
-                  </button>
-                  <button className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                  <button className="w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                     View History
                   </button>
                 </div>
