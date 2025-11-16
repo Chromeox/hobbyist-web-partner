@@ -37,7 +37,6 @@ import {
 import ClassEditor from './ClassEditor';
 import ClassSchedule from './ClassSchedule';
 import InstructorAssignment from './InstructorAssignment';
-import RecurringTemplates from './RecurringTemplates';
 import BackButton from '@/components/common/BackButton';
 import { useUserProfile } from '@/lib/hooks/useAuth';
 import type { Class, ClassFormData } from '@/types/class-management';
@@ -64,15 +63,12 @@ export default function ClassManagement() {
   const [selectedStatus, setSelectedStatus] =
     useState<'all' | ClassStatus>('all');
   const [sortBy, setSortBy] = useState('name');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [editorInitialData, setEditorInitialData] = useState<ClassFormData | undefined>(undefined);
   const [lastSavedClassId, setLastSavedClassId] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isInstructorAssignmentOpen, setIsInstructorAssignmentOpen] =
-    useState(false);
-  const [isRecurringTemplatesOpen, setIsRecurringTemplatesOpen] =
     useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -399,10 +395,6 @@ export default function ClassManagement() {
     setIsInstructorAssignmentOpen(true);
   };
 
-  const handleOpenRecurringTemplates = () => {
-    setIsRecurringTemplatesOpen(true);
-  };
-
   const loadingState =
     isLoading && !isRefreshing && !isProfileLoading && classes.length === 0;
 
@@ -414,7 +406,8 @@ export default function ClassManagement() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            aria-label="Refresh class list"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             disabled={isRefreshing}
           >
             {isRefreshing ? (
@@ -426,8 +419,18 @@ export default function ClassManagement() {
           </button>
 
           <button
+            onClick={handleOpenSchedule}
+            aria-label="Open class schedule"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Schedule</span>
+          </button>
+
+          <button
             onClick={handleCreateClass}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            aria-label="Create new class"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
             <span>New Class</span>
@@ -438,9 +441,9 @@ export default function ClassManagement() {
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Class Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Manage Your Classes</h1>
             <p className="text-gray-600 mt-1">
-              Manage your studio&apos;s classes, schedules, and instructors.
+              Create, edit, and organize your studio&apos;s class offerings.
             </p>
 
             {studioId && (
@@ -449,50 +452,18 @@ export default function ClassManagement() {
               </p>
             )}
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
-            >
-              View: {viewMode === 'grid' ? 'Grid' : 'List'}
-            </button>
-
-            <button
-              onClick={handleOpenSchedule}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Calendar className="h-4 w-4" />
-              Schedule
-            </button>
-
-            <button
-              onClick={handleOpenInstructorAssignment}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              Assign Instructors
-            </button>
-
-            <button
-              onClick={handleOpenRecurringTemplates}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Recurring
-            </button>
-          </div>
         </div>
 
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search classes by name, instructor, or category"
+                aria-label="Search classes"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -501,6 +472,7 @@ export default function ClassManagement() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
+                aria-label="Filter by category"
                 className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 {categoryOptions.map((category) => (
@@ -517,6 +489,7 @@ export default function ClassManagement() {
                 onChange={(e) =>
                   setSelectedStatus(e.target.value as 'all' | ClassStatus)
                 }
+                aria-label="Filter by status"
                 className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 {['all', ...STATUS_OPTIONS].map((status) => (
@@ -531,6 +504,7 @@ export default function ClassManagement() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort classes"
                 className="pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
               >
                 <option value="name">Sort by Name</option>
@@ -578,7 +552,17 @@ export default function ClassManagement() {
               key={cls.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden group ${
+              role="article"
+              aria-label={`${cls.name} class - ${cls.category} - ${cls.instructor}`}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleEditClass(cls);
+                }
+              }}
+              onClick={() => handleEditClass(cls)}
+              className={`bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 viewMode === 'list' ? 'flex' : ''
               }`}
             >
@@ -620,13 +604,24 @@ export default function ClassManagement() {
                   </div>
                 </div>
 
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                    <Tag className="h-3 w-3 mr-1" />
+                    {cls.category}
+                  </span>
+                </div>
+
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                   {cls.description}
                 </p>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
-                    <User className="h-4 w-4 mr-2" />
+                    {cls.instructor.includes(',') ? (
+                      <Users className="h-4 w-4 mr-2" />
+                    ) : (
+                      <User className="h-4 w-4 mr-2" />
+                    )}
                     {cls.instructor}
                   </div>
 
@@ -643,11 +638,6 @@ export default function ClassManagement() {
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="h-4 w-4 mr-2" />
                     {cls.location}
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-600">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    ${cls.price} per class
                   </div>
 
                   <div className="flex items-center text-sm font-medium text-blue-600">
@@ -781,12 +771,6 @@ export default function ClassManagement() {
         {isInstructorAssignmentOpen && (
           <InstructorAssignment
             onClose={() => setIsInstructorAssignmentOpen(false)}
-          />
-        )}
-
-        {isRecurringTemplatesOpen && (
-          <RecurringTemplates
-            onClose={() => setIsRecurringTemplatesOpen(false)}
           />
         )}
       </AnimatePresence>
