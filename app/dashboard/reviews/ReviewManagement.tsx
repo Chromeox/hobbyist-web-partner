@@ -33,6 +33,7 @@ import {
 import BackButton from '@/components/common/BackButton';
 import RatingStars from './RatingStars';
 import ReviewModal, { ReviewSubmissionData } from './ReviewModal';
+import { MetricCard } from '@/components/dashboard/MetricCard';
 
 interface Review {
   id: string;
@@ -483,58 +484,36 @@ const ReviewManagement: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Reviews</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-            </div>
-            <MessageCircle className="text-blue-600" size={24} />
-          </div>
-        </div>
-        
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Average Rating</p>
-              <div className="flex items-center gap-2">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.averageRating}</p>
-                <Star className="text-yellow-400" size={20} fill="currentColor" />
-              </div>
-            </div>
-            <RatingStars rating={parseFloat(stats.averageRating)} size="sm" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Approved</p>
-              <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
-            </div>
-            <CheckCircle className="text-green-600" size={24} />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
-              <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
-            </div>
-            <AlertTriangle className="text-orange-600" size={24} />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.responseRate}%</p>
-            </div>
-            <Reply className="text-blue-600" size={24} />
-          </div>
-        </div>
+        <MetricCard
+          label="Total Reviews"
+          value={stats.total}
+          icon={MessageCircle}
+          color="blue"
+        />
+        <MetricCard
+          label="Average Rating"
+          value={stats.averageRating}
+          icon={Star}
+          color="yellow"
+        />
+        <MetricCard
+          label="Approved"
+          value={stats.approved}
+          icon={CheckCircle}
+          color="green"
+        />
+        <MetricCard
+          label="Pending"
+          value={stats.pending}
+          icon={AlertTriangle}
+          color="orange"
+        />
+        <MetricCard
+          label="Response Rate"
+          value={`${stats.responseRate}%`}
+          icon={Reply}
+          color="blue"
+        />
       </div>
 
       {/* Filters and Search */}

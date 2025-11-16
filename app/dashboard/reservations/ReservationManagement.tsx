@@ -33,6 +33,7 @@ import BackButton from '@/components/common/BackButton';
 import ReservationDetailsModal from './ReservationDetailsModal';
 import MessageModal from './MessageModal';
 import RefundModal from './RefundModal';
+import { MetricCard } from '@/components/dashboard/MetricCard';
 
 interface Reservation {
   id: string;
@@ -359,79 +360,63 @@ export default function ReservationManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Reservations</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{reservations.length}</p>
-            </div>
-            <Calendar className="h-6 w-6 text-blue-600" />
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Confirmed</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {reservations.filter(r => r.status === 'confirmed').length}
-              </p>
-            </div>
-            <CheckCircle className="h-6 w-6 text-green-600" />
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {reservations.filter(r => r.status === 'pending').length}
-              </p>
-            </div>
-            <Clock className="h-6 w-6 text-yellow-600" />
-          </div>
-        </div>
-        
+        <MetricCard
+          label="Total Reservations"
+          value={reservations.length}
+          icon={Calendar}
+          color="blue"
+          change={12}
+          changeLabel="vs last week"
+        />
+
+        <MetricCard
+          label="Confirmed"
+          value={reservations.filter(r => r.status === 'confirmed').length}
+          icon={CheckCircle}
+          color="green"
+          change={8}
+          changeLabel="vs last week"
+        />
+
+        <MetricCard
+          label="Pending"
+          value={reservations.filter(r => r.status === 'pending').length}
+          icon={Clock}
+          color="yellow"
+          change={-3}
+          changeLabel="vs last week"
+        />
+
         {isCreditsEnabled ? (
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Credits Used</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {reservations.filter(r => r.paymentStatus === 'paid')
-                           .reduce((sum, r) => sum + r.creditCost, 0)}
-                </p>
-              </div>
-              <CreditCard className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
+          <MetricCard
+            label="Credits Used"
+            value={reservations.filter(r => r.paymentStatus === 'paid')
+                     .reduce((sum, r) => sum + r.creditCost, 0)}
+            icon={CreditCard}
+            color="green"
+            change={15}
+            changeLabel="vs last week"
+          />
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Revenue</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  ${reservations.filter(r => r.paymentStatus === 'paid')
-                           .reduce((sum, r) => sum + r.paymentAmount, 0)}
-                </p>
-              </div>
-              <DollarSign className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
+          <MetricCard
+            label="Revenue"
+            value={`$${reservations.filter(r => r.paymentStatus === 'paid')
+                     .reduce((sum, r) => sum + r.paymentAmount, 0)}`}
+            icon={DollarSign}
+            color="green"
+            change={15}
+            changeLabel="vs last week"
+          />
         )}
-        
-        <div className="bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">First-Time Students</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {reservations.filter(r => r.isFirstTime).length}
-              </p>
-            </div>
-            <Star className="h-6 w-6 text-purple-600" />
-          </div>
-        </div>
+
+        <MetricCard
+          label="First-Time Students"
+          value={reservations.filter(r => r.isFirstTime).length}
+          icon={Star}
+          color="purple"
+          change={5}
+          changeLabel="vs last week"
+        />
       </div>
 
       {/* Filters */}

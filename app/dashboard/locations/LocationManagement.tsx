@@ -25,6 +25,7 @@ import {
   X
 } from 'lucide-react';
 import BackButton from '@/components/common/BackButton';
+import { MetricCard } from '@/components/dashboard/MetricCard';
 
 interface StudioLocation {
   id: string;
@@ -438,67 +439,36 @@ export default function LocationManagement() {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/20 rounded-lg">
-              <Building2 className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalStats.locations}</p>
-              <p className="text-sm text-gray-600">Locations</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/20 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalStats.activeClasses}</p>
-              <p className="text-sm text-gray-600">Total Classes</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-500/20 rounded-lg">
-              <Users className="w-5 h-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalStats.totalStudents}</p>
-              <p className="text-sm text-gray-600">Total Students</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-500/20 rounded-lg">
-              <DollarSign className="w-5 h-5 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                ${(totalStats.monthlyRevenue / 1000).toFixed(1)}k
-              </p>
-              <p className="text-sm text-gray-600">Monthly Revenue</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-pink-500/20 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-pink-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{totalStats.avgFillRate}%</p>
-              <p className="text-sm text-gray-600">Avg Fill Rate</p>
-            </div>
-          </div>
-        </div>
+        <MetricCard
+          label="Locations"
+          value={totalStats.locations}
+          icon={Building2}
+          color="purple"
+        />
+        <MetricCard
+          label="Total Classes"
+          value={totalStats.activeClasses}
+          icon={Calendar}
+          color="blue"
+        />
+        <MetricCard
+          label="Total Students"
+          value={totalStats.totalStudents}
+          icon={Users}
+          color="green"
+        />
+        <MetricCard
+          label="Monthly Revenue"
+          value={`$${(totalStats.monthlyRevenue / 1000).toFixed(1)}k`}
+          icon={DollarSign}
+          color="green"
+        />
+        <MetricCard
+          label="Avg Fill Rate"
+          value={`${totalStats.avgFillRate}%`}
+          icon={TrendingUp}
+          color="orange"
+        />
       </div>
 
       {/* Location Cards */}

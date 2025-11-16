@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  CreditCard, 
-  Package, 
+import {
+  DollarSign,
+  TrendingUp,
+  CreditCard,
+  Package,
   Calendar,
   Download,
   RefreshCw,
@@ -15,6 +15,7 @@ import {
   Users,
   Eye
 } from 'lucide-react';
+import { MetricCard } from '@/components/dashboard/MetricCard';
 
 interface RevenueMetrics {
   total_revenue_cents: number;
@@ -204,79 +205,42 @@ export default function RevenueReporting() {
 function RevenueOverview({ metrics }: { metrics: RevenueMetrics | null }) {
   if (!metrics) return null;
 
-  const kpis = [
-    {
-      label: 'Total Revenue',
-      value: `$${metrics.total_revenue_formatted}`,
-      icon: DollarSign,
-      color: 'blue',
-      change: '+12.5%',
-      changeType: 'positive'
-    },
-    {
-      label: 'Platform Commission',
-      value: `$${metrics.total_commission_formatted}`,
-      icon: BarChart3,
-      color: 'green',
-      change: '+12.5%',
-      changeType: 'positive'
-    },
-    {
-      label: 'Instructor Payouts',
-      value: `$${(metrics.total_instructor_payouts_cents / 100).toFixed(2)}`,
-      icon: Users,
-      color: 'purple',
-      change: '+12.5%',
-      changeType: 'positive'
-    },
-    {
-      label: 'Total Bookings',
-      value: metrics.total_bookings.toString(),
-      icon: Calendar,
-      color: 'orange',
-      change: '+8.3%',
-      changeType: 'positive'
-    }
-  ];
-
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpis.map((kpi, index) => {
-          const IconComponent = kpi.icon;
-          const colorClasses = {
-            blue: 'bg-blue-100 text-blue-600',
-            green: 'bg-green-100 text-green-600',
-            purple: 'bg-purple-100 text-purple-600',
-            orange: 'bg-orange-100 text-orange-600'
-          };
-          
-          return (
-            <motion.div
-              key={kpi.label}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{kpi.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{kpi.value}</p>
-                  <p className={`text-sm mt-1 ${
-                    kpi.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {kpi.change} from last period
-                  </p>
-                </div>
-                <div className={`p-3 rounded-lg ${colorClasses[kpi.color as keyof typeof colorClasses]}`}>
-                  <IconComponent className="h-6 w-6" />
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+        <MetricCard
+          label="Total Revenue"
+          value={`$${metrics.total_revenue_formatted}`}
+          icon={DollarSign}
+          color="green"
+          change={12.5}
+          changeLabel="from last period"
+        />
+        <MetricCard
+          label="Platform Commission"
+          value={`$${metrics.total_commission_formatted}`}
+          icon={BarChart3}
+          color="green"
+          change={12.5}
+          changeLabel="from last period"
+        />
+        <MetricCard
+          label="Instructor Payouts"
+          value={`$${(metrics.total_instructor_payouts_cents / 100).toFixed(2)}`}
+          icon={Users}
+          color="green"
+          change={12.5}
+          changeLabel="from last period"
+        />
+        <MetricCard
+          label="Total Bookings"
+          value={metrics.total_bookings}
+          icon={Calendar}
+          color="blue"
+          change={8.3}
+          changeLabel="from last period"
+        />
       </div>
 
       {/* Payment Method Breakdown */}

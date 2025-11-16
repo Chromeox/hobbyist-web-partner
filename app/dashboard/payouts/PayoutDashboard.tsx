@@ -26,6 +26,7 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
+import { MetricCard } from '@/components/dashboard/MetricCard';
 import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 import {
   LineChart,
@@ -298,72 +299,32 @@ const PayoutDashboard: React.FC = () => {
 
       {/* Summary Cards: Displays key financial metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Total Earnings Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalEarnings.toLocaleString()}</div>
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              {growthRate > 0 ? (
-                <>
-                  <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                  <span className="text-green-500">{growthRate}%</span>
-                </>
-              ) : (
-                <>
-                  <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                  <span className="text-red-500">{Math.abs(growthRate)}%</span>
-                </>
-              )}
-              <span className="ml-1">from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pending Payouts Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${pendingPayouts.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Next payout: {nextPayoutDateDisplay ?? 'TBD'}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Total Students Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalStudents.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Across all venues
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Average Class Value Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Class Value</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${averageClassValue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Per class session
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          label="Total Earnings"
+          value={`$${totalEarnings.toLocaleString()}`}
+          icon={DollarSign}
+          color="green"
+          change={growthRate}
+          changeLabel="from last month"
+        />
+        <MetricCard
+          label="Pending Payouts"
+          value={`$${pendingPayouts.toLocaleString()}`}
+          icon={Clock}
+          color="yellow"
+        />
+        <MetricCard
+          label="Total Students"
+          value={totalStudents.toLocaleString()}
+          icon={Users}
+          color="blue"
+        />
+        <MetricCard
+          label="Avg Class Value"
+          value={`$${averageClassValue.toFixed(2)}`}
+          icon={Activity}
+          color="green"
+        />
       </div>
 
       {/* Charts Section: Visual representation of earnings, classes, and students data */}
