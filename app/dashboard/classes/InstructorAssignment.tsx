@@ -325,7 +325,8 @@ export default function InstructorAssignment({ onClose, onSave }: InstructorAssi
                   <select
                     value={filterSpecialty}
                     onChange={(e) => setFilterSpecialty(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                    className="border border-gray-300 rounded-lg pl-3 pr-10 py-2 focus:ring-2 focus:ring-purple-500 bg-white appearance-none cursor-pointer"
+                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
                   >
                     <option value="all">All Specialties</option>
                     {allSpecialties.map(specialty => (
@@ -336,7 +337,8 @@ export default function InstructorAssignment({ onClose, onSave }: InstructorAssi
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                    className="border border-gray-300 rounded-lg pl-3 pr-10 py-2 focus:ring-2 focus:ring-purple-500 bg-white appearance-none cursor-pointer"
+                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
                   >
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
