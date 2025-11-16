@@ -51,8 +51,7 @@ const navigationSections = [
       { id: 'classes', label: 'Classes', icon: BookOpen, href: '/dashboard/classes' },
       { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
       { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
-      { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' },
-      { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics' }
+      { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' }
     ]
   },
   {
@@ -93,8 +92,6 @@ const navigationSections = [
     icon: Zap,
     expanded: false,
     items: [
-      { id: 'marketing', label: 'Marketing', icon: Megaphone, href: '/dashboard/marketing' },
-      { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/dashboard/messages' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' }
     ]
   },
@@ -262,9 +259,6 @@ export default function DashboardLayout({ children, studioName = 'Your Studio', 
                           >
                             <ItemIcon className={`h-4 w-4 mr-3 ${isActive ? 'text-blue-700' : 'text-gray-500'}`} />
                             <span className="text-sm font-medium">{item.label}</span>
-                            {item.id === 'messages' && (
-                              <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
-                            )}
                             {['payouts', 'studio-approval', 'instructor-approvals'].includes(item.id) && (
                               <span className="ml-auto bg-purple-100 text-purple-700 text-xs px-1.5 py-0.5 rounded text-[10px] font-semibold">ADMIN</span>
                             )}
