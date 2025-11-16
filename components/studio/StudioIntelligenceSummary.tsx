@@ -199,15 +199,13 @@ export default function StudioIntelligenceSummary({
   return (
     <Card className={`hover:shadow-lg transition-all duration-300 ${className}`}>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Brain className="h-5 w-5 text-blue-600" />
-            Studio Intelligence
-          </CardTitle>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Brain className="h-5 w-5 text-blue-600" />
+          Studio Intelligence
           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
             {totalOpportunities} insights
           </Badge>
-        </div>
+        </CardTitle>
         <CardDescription>
           AI-powered recommendations to optimize your studio
         </CardDescription>

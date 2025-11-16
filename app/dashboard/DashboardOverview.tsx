@@ -505,24 +505,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
                     </div>
                   </div>
 
-                  {/* Mini Chart or Progress Bar */}
-                  <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full bg-gradient-to-r ${
-                        kpi.color === 'green'
-                          ? 'from-green-400 to-green-600'
-                          : kpi.color === 'blue'
-                            ? 'from-blue-400 to-blue-600'
-                            : kpi.color === 'purple'
-                              ? 'from-purple-400 to-purple-600'
-                              : 'from-yellow-400 to-yellow-600'
-                      }`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, Math.abs(kpi.change) * 5)}%` }}
-                      transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                    />
-                  </div>
-
                   {/* Period comparison */}
                   <p className="text-xs text-gray-500 mt-2">
                     vs last {selectedPeriod === 'today' ? 'day' : selectedPeriod}
