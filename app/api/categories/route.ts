@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      categories: (data ?? []).map((category) => ({
+      categories: (data ?? []).map((category: any) => ({
         id: category.id,
         name: category.name,
         slug: category.slug,
