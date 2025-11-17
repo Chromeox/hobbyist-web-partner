@@ -9,10 +9,12 @@ export const dynamic = 'force-dynamic';
 // Stripe sends real-time notifications to this endpoint whenever an event occurs
 // (e.g., a payment succeeds, a refund is issued, a dispute is created).
 
-// Initialize Supabase client with service role key for database operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+// Lazy initialization to avoid build-time evaluation
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createClient(supabaseUrl, supabaseServiceRoleKey);
+};
 
 // Stripe configuration
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';

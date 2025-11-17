@@ -4,9 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+// Lazy initialization to avoid build-time evaluation
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createClient(supabaseUrl, supabaseServiceRoleKey);
+};
 
 type PricingSettingsPayload = {
   studio_id?: string | null;
@@ -24,6 +27,7 @@ const DEFAULT_SETTINGS: PricingSettingsPayload = {
 
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabase();
     const { searchParams } = new URL(request.url);
     const studioId = searchParams.get('studioId');
 
@@ -60,6 +64,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const supabase = getSupabase();
     const payload = await request.json();
     const settings = payload?.settings as PricingSettingsPayload | undefined;
     const studioId: string | null | undefined =

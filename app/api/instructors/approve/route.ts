@@ -4,13 +4,16 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 
-// Initialize Supabase client with service role key for elevated privileges
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+// Lazy initialization to avoid build-time evaluation
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createClient(supabaseUrl, supabaseServiceRoleKey);
+};
 
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabase();
     // --- Authentication/Authorization (Crucial for Production) ---
     // This route should only be accessible by authenticated administrators.
     // You would typically verify the user's session and role here.
