@@ -38,6 +38,7 @@ function getWebhookSecret() {
 }
 
 export async function POST(req: Request) {
+  const supabase = getSupabase();
   let event: Stripe.Event;
 
   try {
