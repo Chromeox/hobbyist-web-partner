@@ -262,7 +262,7 @@ export function WorkshopScheduler({ studioId, rooms, workshops }: WorkshopSchedu
   }, [scheduledWorkshops]);
 
   const getWeekDays = (date: Date) => {
-    const week = [];
+    const week: Date[] = [];
     const startOfWeek = new Date(date);
     startOfWeek.setDate(date.getDate() - date.getDay()); // Start on Sunday
 
