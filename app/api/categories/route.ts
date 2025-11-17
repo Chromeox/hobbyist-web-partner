@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServiceSupabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
 export async function GET() {
   try {
+    const supabase = createServiceSupabase();
     const { data, error } = await supabase
       .from('categories')
       .select('id, name, slug, is_active')

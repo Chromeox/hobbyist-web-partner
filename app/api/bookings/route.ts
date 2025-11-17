@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServiceSupabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-
-// Initialize Supabase client with service role key for elevated privileges
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
 export async function GET(request: Request) {
   try {
+    const supabase = createServiceSupabase();
     const { searchParams } = new URL(request.url);
     const studioId = searchParams.get('studioId');
     const classId = searchParams.get('classId');
@@ -102,6 +97,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const supabase = createServiceSupabase();
     const bookingData = await request.json();
 
     // Validate required fields
@@ -163,6 +159,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const supabase = createServiceSupabase();
     const { searchParams } = new URL(request.url);
     const bookingId = searchParams.get('id');
 
@@ -203,6 +200,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const supabase = createServiceSupabase();
     const { searchParams } = new URL(request.url);
     const bookingId = searchParams.get('id');
 
