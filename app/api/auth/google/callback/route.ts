@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleCalendarIntegration } from '@/lib/integrations/google-calendar';
 import type { CalendarIntegration, GoogleCalendarSettings } from '@/types/calendar-integration';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

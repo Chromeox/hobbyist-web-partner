@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
+export const dynamic = 'force-dynamic';
+
+
 // This API route handles the automated payout process for instructors/studios.
 // It's designed to be triggered periodically (e.g., by a cron job or an admin action).
 

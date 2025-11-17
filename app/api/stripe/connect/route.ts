@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+export const dynamic = 'force-dynamic';
+
+
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 
 // Initialize Stripe client only when needed

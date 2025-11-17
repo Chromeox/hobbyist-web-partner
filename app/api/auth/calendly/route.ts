@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     const clientId = process.env.CALENDLY_CLIENT_ID;

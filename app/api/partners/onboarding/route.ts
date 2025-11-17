@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
 import type { Json } from '@/types/supabase'
 
+export const dynamic = 'force-dynamic';
+
+
 type OnboardingPayload = {
   owner?: {
     name?: string

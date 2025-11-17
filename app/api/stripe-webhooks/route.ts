@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
+export const dynamic = 'force-dynamic';
+
+
 // This API route serves as a webhook endpoint for Stripe events.
 // Stripe sends real-time notifications to this endpoint whenever an event occurs
 // (e.g., a payment succeeds, a refund is issued, a dispute is created).

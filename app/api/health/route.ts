@@ -5,6 +5,9 @@ import { NextResponse } from 'next/server';
 import { createServiceSupabase } from '@/lib/supabase';
 import { logMonitoringEvent } from '@/lib/monitoring/logflare';
 
+export const dynamic = 'force-dynamic';
+
+
 type CheckStatus = 'pass' | 'fail';
 
 interface HealthCheck {

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
+
 // Force rebuild: 2025-11-13-07:02 UTC
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-08-27.basil';
 

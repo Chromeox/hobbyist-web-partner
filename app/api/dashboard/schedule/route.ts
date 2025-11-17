@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
 import { resolveDashboardPeriod } from '@/lib/utils/dateRange'
 
+export const dynamic = 'force-dynamic';
+
+
 type ScheduleRow = {
   schedule_id: string
   start_time: string

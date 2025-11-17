@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CalendlyIntegration } from '@/lib/integrations/calendly-integration';
 import { CalendarIntegrationManager } from '@/lib/integrations/calendar-manager';
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
 import { resolveDashboardPeriod, type DashboardPeriod } from '@/lib/utils/dateRange'
 
+export const dynamic = 'force-dynamic';
+
+
 type TrendRow = {
   bucket_date: string
   revenue: number | null

@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server'
 import { createServiceSupabase } from '@/lib/supabase'
 import { resolveDashboardPeriod, type DashboardPeriod } from '@/lib/utils/dateRange'
 
+export const dynamic = 'force-dynamic';
+
+
 type PopularClassRow = {
   schedule_id: string
   class_id: string

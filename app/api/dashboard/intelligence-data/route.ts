@@ -4,6 +4,9 @@ import { createServiceSupabase } from '@/lib/supabase'
 import { logMonitoringEvent } from '@/lib/monitoring/logflare'
 import type { Database } from '@/types/supabase'
 
+export const dynamic = 'force-dynamic';
+
+
 const MS_IN_DAY = 86_400_000
 
 export async function GET(request: Request) {

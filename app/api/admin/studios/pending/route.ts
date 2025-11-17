@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
+
 /**
  * GET /api/admin/studios/pending
  * Fetches all studios with pending approval status

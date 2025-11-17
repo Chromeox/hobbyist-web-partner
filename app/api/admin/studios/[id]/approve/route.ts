@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
+
 /**
  * POST /api/admin/studios/[id]/approve
  * Approves a pending studio
