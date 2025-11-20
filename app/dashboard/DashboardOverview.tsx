@@ -627,10 +627,8 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
-        {/* Revenue Chart */}
-        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+      {/* Revenue Overview - Full Width */}
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Revenue Overview</h2>
             <button
@@ -684,6 +682,38 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
           </div>
         </div>
 
+      {/* Recent Activity */}
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
+          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            View All <ChevronRight className="inline h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          {recentActivities.length > 0 ? (
+            recentActivities.map(activity => (
+              <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <div className={`p-2 rounded-lg ${activity.type === 'booking' ? 'bg-blue-100 text-blue-600' :
+                    activity.type === 'review' ? 'bg-yellow-100 text-yellow-600' :
+                      activity.type === 'payment' ? 'bg-green-100 text-green-600' :
+                        'bg-red-100 text-red-600'
+                  }`}>
+                  <Activity className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-900">{activity.message}</p>
+                  <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyState
+              title="No recent activity"
+              message="Recent bookings, reviews, and payments will appear here."
+            />
+          )}
+        </div>
       </div>
 
       {/* Class Popularity */}
@@ -724,41 +754,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
               message="Once you have bookings, you will see your most popular classes here."
               actionText="Create a Class"
               onAction={() => { /* Navigate to create class page */ }}
-            />
-          )}
-        </div>
-      </div>
-
-
-      {/* Recent Activity */}
-      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
-          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-            View All <ChevronRight className="inline h-4 w-4" />
-          </button>
-        </div>
-        <div className="space-y-3">
-          {recentActivities.length > 0 ? (
-            recentActivities.map(activity => (
-              <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                <div className={`p-2 rounded-lg ${activity.type === 'booking' ? 'bg-blue-100 text-blue-600' :
-                    activity.type === 'review' ? 'bg-yellow-100 text-yellow-600' :
-                      activity.type === 'payment' ? 'bg-green-100 text-green-600' :
-                        'bg-red-100 text-red-600'
-                  }`}>
-                  <Activity className="h-4 w-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-900">{activity.message}</p>
-                  <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <EmptyState
-              title="No recent activity"
-              message="Recent bookings, reviews, and payments will appear here."
             />
           )}
         </div>
