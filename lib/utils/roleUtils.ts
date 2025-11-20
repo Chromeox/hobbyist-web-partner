@@ -8,32 +8,37 @@ export type UserRole = 'admin' | 'instructor' | 'student'
 
 /**
  * Check if user has admin role
+ * Prioritizes app_metadata (server-only) over user_metadata for security
  */
 export function isAdmin(user: User | null): boolean {
   if (!user) return false
 
-  // Check for admin role in user metadata or app metadata
-  const role = user.user_metadata?.role || user.app_metadata?.role
+  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
+  const role = user.app_metadata?.role || user.user_metadata?.role
   return role === 'admin'
 }
 
 /**
  * Check if user has instructor role or higher
+ * Prioritizes app_metadata (server-only) over user_metadata for security
  */
 export function isInstructorOrHigher(user: User | null): boolean {
   if (!user) return false
 
-  const role = user.user_metadata?.role || user.app_metadata?.role
+  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
+  const role = user.app_metadata?.role || user.user_metadata?.role
   return role === 'admin' || role === 'instructor'
 }
 
 /**
  * Check if user has specific role
+ * Prioritizes app_metadata (server-only) over user_metadata for security
  */
 export function hasRole(user: User | null, requiredRole: UserRole): boolean {
   if (!user) return false
 
-  const userRole = user.user_metadata?.role || user.app_metadata?.role
+  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
+  const userRole = user.app_metadata?.role || user.user_metadata?.role
 
   // Admin has access to everything
   if (userRole === 'admin') return true
@@ -44,11 +49,13 @@ export function hasRole(user: User | null, requiredRole: UserRole): boolean {
 
 /**
  * Get user's role
+ * Prioritizes app_metadata (server-only) over user_metadata for security
  */
 export function getUserRole(user: User | null): UserRole | null {
   if (!user) return null
 
-  const role = user.user_metadata?.role || user.app_metadata?.role
+  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
+  const role = user.app_metadata?.role || user.user_metadata?.role
   return role as UserRole || 'student'
 }
 
