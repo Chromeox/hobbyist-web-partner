@@ -19,7 +19,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import StudioIntelligenceSummary from '../../components/studio/StudioIntelligenceSummary';
 import { motion } from 'framer-motion';
 import { dashboardService } from '@/lib/services/dashboard';
 import { formatCurrency } from '@/lib/utils';
@@ -35,15 +34,12 @@ import {
   Activity,
   BookOpen,
   Target,
-  Award,
-  AlertCircle,
   ChevronRight,
   Download,
   RefreshCw,
-  Filter,
   Plus
 } from 'lucide-react';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,7 +47,6 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -64,7 +59,6 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -130,7 +124,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
   const [kpiData, setKpiData] = useState<KPICard[]>([]);
   const [revenueSeries, setRevenueSeries] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
   const [classPopularity, setClassPopularity] = useState<{ labels: string[]; values: number[] }>({ labels: [], values: [] });
-  const [scheduleSummary, setScheduleSummary] = useState<{ totalClasses: number; totalSeats: number; seatsBooked: number; occupancyPercent: number } | null>(null);
   const [upcomingClasses, setUpcomingClasses] = useState<any[]>([]);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [quickStats, setQuickStats] = useState<{ todaysRevenue: number; activeClasses: number }>({ todaysRevenue: 0, activeClasses: 0 });
@@ -220,8 +213,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
         values: classes.map(item => item.bookingCount)
       });
 
-      setScheduleSummary(scheduleOverview.summary);
-
       const formattedSchedules = scheduleOverview.schedules.map(schedule => ({
         id: schedule.scheduleId,
         time: formatTimeRange(schedule.startTime, schedule.endTime),
@@ -247,7 +238,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
       setKpiData([]);
       setClassPopularity({ labels: [], values: [] });
       setRevenueSeries({ labels: [], values: [] });
-      setScheduleSummary(null);
       setUpcomingClasses([]);
       setRecentActivities([]);
       setQuickStats({ todaysRevenue: 0, activeClasses: 0 });
@@ -312,49 +302,6 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
     };
   }, [classPopularity]);
 
-  const occupancyRateData = useMemo(() => {
-    const seatsBooked = scheduleSummary?.seatsBooked ?? 0;
-    const totalSeats = scheduleSummary?.totalSeats ?? 0;
-
-    if (totalSeats === 0) {
-      return {
-        labels: ['Occupied', 'Available'],
-        datasets: [
-          {
-            data: [0, 1],
-            backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(229, 231, 235, 0.8)'],
-            borderWidth: 0
-          }
-        ]
-      };
-    }
-
-    return {
-      labels: ['Occupied', 'Available'],
-      datasets: [
-        {
-          data: [seatsBooked, Math.max(totalSeats - seatsBooked, 0)],
-          backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(229, 231, 235, 0.8)'],
-          borderWidth: 0
-        }
-      ]
-    };
-  }, [scheduleSummary]);
-
-  const occupancySummary = useMemo(() => {
-    const percent = scheduleSummary?.occupancyPercent ?? 0;
-    const seatsBooked = scheduleSummary?.seatsBooked ?? 0;
-    const totalSeats = scheduleSummary?.totalSeats ?? 0;
-
-    return {
-      percent,
-      seatsBooked,
-      totalSeats,
-      label: totalSeats > 0
-        ? `${seatsBooked.toLocaleString()} of ${totalSeats.toLocaleString()} seats`
-        : 'No scheduled classes'
-    };
-  }, [scheduleSummary]);
 
   const handleRefresh = () => {
     fetchDashboardData();
@@ -556,15 +503,9 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
         )}
       </div>
 
-      {/* Studio Intelligence Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <StudioIntelligenceSummary
-          studioId={effectiveStudioId}
-          className="lg:col-span-1"
-        />
-
-        {/* Quick Action Cards */}
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Quick Action Cards */}
+      <div className="mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -643,10 +584,53 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
         </div>
       </div>
 
+      {/* Today's Classes */}
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Today's Classes</h2>
+          <span className="text-sm text-gray-500">{upcomingClasses.length} classes</span>
+        </div>
+        <div className="space-y-4">
+          {upcomingClasses.length > 0 ? (
+            upcomingClasses.map(cls => (
+              <div key={cls.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">{cls.time}</span>
+                  </div>
+                  <h3 className="font-medium text-gray-900 mt-1">{cls.name}</h3>
+                  <p className="text-sm text-gray-600">{cls.instructor}</p>
+                </div>
+                <div className="text-right">
+                  <div className={`text-sm font-medium ${cls.enrolled === cls.capacity ? 'text-red-600' : 'text-green-600'
+                    }`}>
+                    {cls.enrolled}/{cls.capacity}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {cls.enrolled === cls.capacity ? 'Full' : `${cls.capacity - cls.enrolled} spots`}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
+              <EmptyState
+                title="No classes on the schedule"
+                message="Add a class or enable calendar sync to see today's lineup."
+                actionText="Create a class"
+                onAction={() => router.push('/dashboard/classes')}
+                icon={Calendar}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
         {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Revenue Overview</h2>
             <button
@@ -700,138 +684,48 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
           </div>
         </div>
 
-        {/* Occupancy Rate */}
-        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Occupancy Rate</h2>
-          <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
-            <Doughnut
-              data={occupancyRateData}
+      </div>
+
+      {/* Class Popularity */}
+      <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Popular Classes</h2>
+          <span className="text-xs text-gray-500">Your studio's top performers</span>
+        </div>
+        <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
+          {classPopularityData && classPopularityData.datasets[0].data.length > 0 ? (
+            <Bar
+              data={classPopularityData}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '70%',
                 plugins: {
-                  legend: {
-                    position: 'bottom',
-                    labels: {
-                      padding: 15,
-                      font: {
-                        size: 12
-                      }
-                    }
-                  },
+                  legend: { display: false },
                   tooltip: {
                     callbacks: {
-                      label: (context) => {
-                        if (context.label === 'Occupied') {
-                          return `${context.label}: ${occupancySummary.seatsBooked.toLocaleString()} seats`;
-                        }
-                        const available = Math.max(occupancySummary.totalSeats - occupancySummary.seatsBooked, 0);
-                        return `${context.label}: ${available.toLocaleString()} seats`;
-                      }
+                      label: (context) => `${context.label}: ${context.parsed.y} bookings`
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Total Bookings'
                     }
                   }
                 }
               }}
             />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center mb-8">
-                <p className="text-2xl font-bold text-gray-900">{Math.round(occupancySummary.percent)}%</p>
-                <p className="text-sm text-gray-600">{occupancySummary.label}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Class Popularity & Upcoming Classes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
-        {/* Class Popularity */}
-        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Popular Classes</h2>
-            <span className="text-xs text-gray-500">Your studio's top performers</span>
-          </div>
-          <div className="relative h-64 min-h-[16rem] max-h-[16rem] overflow-hidden">
-            {classPopularityData && classPopularityData.datasets[0].data.length > 0 ? (
-              <Bar
-                data={classPopularityData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                      callbacks: {
-                        label: (context) => `${context.label}: ${context.parsed.y} bookings`
-                      }
-                    }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      title: {
-                        display: true,
-                        text: 'Total Bookings'
-                      }
-                    }
-                  }
-                }}
-              />
-            ) : (
-              <EmptyState
-                title="No class data available"
-                message="Once you have bookings, you will see your most popular classes here."
-                actionText="Create a Class"
-                onAction={() => { /* Navigate to create class page */ }}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Upcoming Classes */}
-        <div className="bg-white shadow-lg border border-gray-200 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Today's Classes</h2>
-            <span className="text-sm text-gray-500">{upcomingClasses.length} classes</span>
-          </div>
-          <div className="space-y-4">
-            {upcomingClasses.length > 0 ? (
-              upcomingClasses.map(cls => (
-                <div key={cls.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">{cls.time}</span>
-                    </div>
-                    <h3 className="font-medium text-gray-900 mt-1">{cls.name}</h3>
-                    <p className="text-sm text-gray-600">{cls.instructor}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-sm font-medium ${cls.enrolled === cls.capacity ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                      {cls.enrolled}/{cls.capacity}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {cls.enrolled === cls.capacity ? 'Full' : `${cls.capacity - cls.enrolled} spots`}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
-                <EmptyState
-                  title="No classes on the schedule"
-                  message="Add a class or enable calendar sync to see today's lineup."
-                  actionText="Create a class"
-                  onAction={() => {
-                    // TODO: navigate to create class page
-                  }}
-                  icon={Calendar}
-                />
-              </div>
-            )}
-          </div>
+          ) : (
+            <EmptyState
+              title="No class data available"
+              message="Once you have bookings, you will see your most popular classes here."
+              actionText="Create a Class"
+              onAction={() => { /* Navigate to create class page */ }}
+            />
+          )}
         </div>
       </div>
 
