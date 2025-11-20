@@ -51,18 +51,18 @@ const navigationSections = [
       { id: 'classes', label: 'Classes', icon: BookOpen, href: '/dashboard/classes' },
       { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/dashboard/reservations' },
       { id: 'students', label: 'Students', icon: Users, href: '/dashboard/students' },
-      { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' }
+      { id: 'intelligence', label: 'Smart Calendar', icon: Brain, href: '/dashboard/intelligence' },
+      { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' }
     ]
   },
   {
-    id: 'people',
-    label: 'People Management',
-    icon: Users,
+    id: 'team',
+    label: 'Team Management',
+    icon: GraduationCap,
     expanded: false,
     items: [
       { id: 'instructors', label: 'Instructors', icon: GraduationCap, href: '/dashboard/instructors' },
-      { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' },
-      { id: 'waitlist', label: 'Waitlist', icon: Clock, href: '/dashboard/waitlist' }
+      { id: 'staff', label: 'Staff', icon: UserPlus, href: '/dashboard/staff' }
     ]
   },
   {
@@ -77,21 +77,21 @@ const navigationSections = [
     ]
   },
   {
-    id: 'analytics',
-    label: 'AI & Smart Tools',
-    icon: Brain,
+    id: 'customer',
+    label: 'Customer Experience',
+    icon: Star,
     expanded: false,
     items: [
-      { id: 'intelligence', label: 'Smart Calendar', icon: Brain, href: '/dashboard/intelligence' },
       { id: 'reviews', label: 'Reviews', icon: Star, href: '/dashboard/reviews' }
     ]
   },
   {
-    id: 'tools',
-    label: 'Tools & Comms',
-    icon: Zap,
+    id: 'setup',
+    label: 'Studio Setup',
+    icon: Building2,
     expanded: false,
     items: [
+      { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' }
     ]
   },
