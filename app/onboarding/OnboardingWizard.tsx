@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
 import BusinessInfoStep from './steps/BusinessInfoStep';
 import VerificationStep from './steps/VerificationStep';
 import StudioProfileStep from './steps/StudioProfileStep';
@@ -25,6 +27,8 @@ const ONBOARDING_STEPS = [
 ];
 
 export default function OnboardingWizard() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -32,20 +36,28 @@ export default function OnboardingWizard() {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
 
-  // Mock user data - in production this would come from auth context
-  const mockUserData = {
-    accountType: 'studio' as 'studio' | 'instructor',
-    businessName: 'Creative Arts Studio',
-    userName: 'Sarah Johnson',
-    email: 'sarah@creativeartsstudio.com'
-  };
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/auth/signin?redirect=/onboarding');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  // Get real user data from auth
+  const userData = user ? {
+    userId: user.id,
+    accountType: (user.user_metadata?.role || 'studio') as 'studio' | 'instructor',
+    businessName: user.user_metadata?.business_name || '',
+    userName: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+    email: user.email || ''
+  } : null;
 
   const CurrentStepComponent = ONBOARDING_STEPS[currentStep].component;
 
   const handleNextStep = (stepData: any) => {
     setOnboardingData(prev => ({ ...prev, ...stepData }));
     setCompletedSteps(prev => new Set(Array.from(prev).concat(currentStep)));
-    
+
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -60,7 +72,7 @@ export default function OnboardingWizard() {
       }
     }
   }, [currentStep, unsavedChanges]);
-  
+
   const handleStepJump = (stepIndex: number) => {
     // Allow jumping to completed steps or the next sequential step
     if (completedSteps.has(stepIndex) || stepIndex === completedSteps.size) {
@@ -71,7 +83,7 @@ export default function OnboardingWizard() {
       }
     }
   };
-  
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -89,29 +101,50 @@ export default function OnboardingWizard() {
         console.log('Saving progress...', onboardingData);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [currentStep, handlePreviousStep, onboardingData]);
 
   const handleSubmitOnboarding = async () => {
+    if (!user || !userData) {
+      console.error('No authenticated user');
+      router.push('/auth/signin?redirect=/onboarding');
+      return;
+    }
+
     try {
+      const payload = {
+        owner: {
+          userId: user.id,
+          name: user.user_metadata?.full_name || userData.userName,
+          email: user.email!,
+          accountType: userData.accountType,
+          businessName: userData.businessName
+        },
+        businessInfo: onboardingData.businessInfo,
+        studioProfile: onboardingData.studioProfile,
+        verification: onboardingData.verification,
+        services: onboardingData.services,
+        payment: onboardingData.payment,
+        calendar: onboardingData.calendar
+      };
+
       const response = await fetch('/api/partners/onboarding', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          owner: {
-            name: mockUserData.userName,
-            email: mockUserData.email,
-            accountType: mockUserData.accountType,
-            businessName: mockUserData.businessName
-          },
-          ...onboardingData
-        })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        window.location.href = '/dashboard';
+        console.log('Onboarding submitted successfully!');
+        // Redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        const error = await response.json();
+        console.error('Onboarding submission failed:', error);
       }
     } catch (error) {
       console.error('Onboarding submission error:', error);
@@ -120,13 +153,30 @@ export default function OnboardingWizard() {
 
   const progressPercentage = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;
 
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated || !user || !userData) {
+    return null;
+  }
+
   // Show welcome screen first
   if (showWelcome) {
     return (
       <OnboardingWelcome
-        accountType={mockUserData.accountType}
-        businessName={mockUserData.businessName}
-        userName={mockUserData.userName}
+        accountType={userData.accountType}
+        businessName={userData.businessName}
+        userName={userData.userName}
         onStart={() => setShowWelcome(false)}
       />
     );
@@ -148,7 +198,7 @@ export default function OnboardingWizard() {
 
           {/* Enhanced Progress Indicator with Click Navigation */}
           <div className="relative">
-            <ProgressIndicator 
+            <ProgressIndicator
               steps={ONBOARDING_STEPS}
               currentStep={currentStep}
               completedSteps={completedSteps}
@@ -160,11 +210,10 @@ export default function OnboardingWizard() {
                   key={step.id}
                   onClick={() => handleStepJump(index)}
                   disabled={!completedSteps.has(index) && index !== completedSteps.size}
-                  className={`pointer-events-auto w-12 h-12 rounded-full transition-transform hover:scale-110 ${
-                    completedSteps.has(index) || index === completedSteps.size
+                  className={`pointer-events-auto w-12 h-12 rounded-full transition-transform hover:scale-110 ${completedSteps.has(index) || index === completedSteps.size
                       ? 'cursor-pointer'
                       : 'cursor-not-allowed opacity-50'
-                  }`}
+                    }`}
                   title={`${step.title}: ${step.description}`}
                 />
               ))}
@@ -191,16 +240,15 @@ export default function OnboardingWizard() {
                 <button
                   onClick={handlePreviousStep}
                   disabled={currentStep === 0}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                    currentStep === 0
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${currentStep === 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'glass-button hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   <ChevronLeft className="h-5 w-5" />
                   <span className="hidden sm:inline">Back</span>
                 </button>
-                
+
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">Step</span>
                   <span className="text-lg font-bold text-blue-600">
@@ -208,21 +256,20 @@ export default function OnboardingWizard() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 {/* Auto-save indicator */}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Save className="h-4 w-4" />
                   <span className="hidden sm:inline">Progress saved</span>
                 </div>
-                
+
                 <button
                   onClick={() => currentStep === ONBOARDING_STEPS.length - 1 ? handleSubmitOnboarding() : handleNextStep({})}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                    currentStep === ONBOARDING_STEPS.length - 1
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${currentStep === ONBOARDING_STEPS.length - 1
                       ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
-                  } shadow-md hover:shadow-lg`}
+                    } shadow-md hover:shadow-lg`}
                 >
                   <span className="hidden sm:inline">
                     {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
@@ -231,7 +278,7 @@ export default function OnboardingWizard() {
                 </button>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-b-xl shadow-xl p-8">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -246,7 +293,7 @@ export default function OnboardingWizard() {
                   onDragEnd={(e, { offset, velocity }) => {
                     const swipeThreshold = 100;
                     const swipeVelocityThreshold = 500;
-                    
+
                     // Swipe left to go forward
                     if (offset.x < -swipeThreshold || velocity.x < -swipeVelocityThreshold) {
                       if (currentStep < ONBOARDING_STEPS.length - 1) {
@@ -290,13 +337,12 @@ export default function OnboardingWizard() {
                           key={step.id}
                           onClick={() => handleStepJump(index)}
                           disabled={!completedSteps.has(index) && index !== completedSteps.size}
-                          className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${
-                            index === currentStep
+                          className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${index === currentStep
                               ? 'bg-blue-600 text-white'
                               : completedSteps.has(index)
-                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          }`}
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            }`}
                           title={step.title}
                         >
                           {index + 1}
@@ -304,17 +350,16 @@ export default function OnboardingWizard() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Primary Navigation Buttons */}
                   <div className="flex gap-3">
                     <button
                       onClick={handlePreviousStep}
                       disabled={currentStep === 0}
-                      className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
-                        currentStep === 0
+                      className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${currentStep === 0
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : 'glass-button hover:shadow-md'
-                      }`}
+                        }`}
                     >
                       <ArrowLeft className="mr-2 h-5 w-5" />
                       Previous
@@ -339,7 +384,7 @@ export default function OnboardingWizard() {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Navigation hints */}
                 <div className="mt-4 flex flex-col items-center gap-2">
                   {/* Desktop keyboard shortcuts */}
@@ -357,7 +402,7 @@ export default function OnboardingWizard() {
                       Save
                     </span>
                   </div>
-                  
+
                   {/* Mobile swipe hint */}
                   <div className="sm:hidden flex items-center gap-2 text-xs text-gray-500">
                     <motion.div
@@ -374,7 +419,7 @@ export default function OnboardingWizard() {
               </div>
             </div>
           </div>
-          
+
           {/* Navigation Warning Modal */}
           <AnimatePresence>
             {showNavigationWarning && (

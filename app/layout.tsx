@@ -28,7 +28,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#3b82f6" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <GlobalErrorBoundary>
           <AuthProvider>
             <PaymentModelProvider>

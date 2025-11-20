@@ -39,7 +39,7 @@
     "googleapis": "^160.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.539.0",
-    "next": "^16.0.1",
+    "next": "^16.0.3",
     "postcss": "^8.4.47",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.2.0",

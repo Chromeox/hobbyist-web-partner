@@ -64,6 +64,14 @@ export async function POST(request: Request) {
       )
     }
 
+    // Validate user ID is provided
+    if (!owner?.userId) {
+      return NextResponse.json(
+        { error: 'User ID is required. Please ensure you are logged in.' },
+        { status: 400 }
+      )
+    }
+
     const contactEmail =
       businessInfo.contactEmail?.trim().toLowerCase() ||
       owner?.email?.trim().toLowerCase()
