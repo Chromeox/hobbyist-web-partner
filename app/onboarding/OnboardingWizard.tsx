@@ -11,7 +11,7 @@ import ServicesStep from './steps/ServicesStep';
 import PaymentSetupStep from './steps/PaymentSetupStep';
 import CalendarSetupStep from './steps/CalendarSetupStep';
 import ReviewStep from './steps/ReviewStep';
-import { OnboardingProvider } from './context/OnboardingContext';
+import { OnboardingProvider, type OnboardingData } from './context/OnboardingContext';
 import ProgressIndicator from './components/ProgressIndicator';
 import OnboardingWelcome from './OnboardingWelcome';
 import { CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Save, AlertCircle } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function OnboardingWizard() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [onboardingData, setOnboardingData] = useState({});
+  const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
 

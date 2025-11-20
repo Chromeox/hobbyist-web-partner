@@ -2,12 +2,13 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface OnboardingData {
+export interface OnboardingData {
   businessInfo?: any;
   verification?: any;
   studioProfile?: any;
   services?: any;
   payment?: any;
+  calendar?: any;
   [key: string]: any;
 }
 

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { simpleMessagingService } from '@/lib/services/messaging-simple';
 import { supabase } from '@/lib/supabase';
-import { createDemoAuthSession, getDemoAuthStatus } from '@/lib/demo-auth';
+// Demo auth removed for security - use proper authentication
 import toast from 'react-hot-toast';
 
 interface Instructor {
@@ -82,8 +82,8 @@ export default function ConversationCreator({
   }, [isOpen]);
 
   const checkAuthStatus = async () => {
-    const status = await getDemoAuthStatus();
-    setIsAuthenticated(status.isAuthenticated);
+    const { data: { user } } = await supabase.auth.getUser();
+    setIsAuthenticated(!!user);
   };
 
   const handleDemoAuth = async () => {
