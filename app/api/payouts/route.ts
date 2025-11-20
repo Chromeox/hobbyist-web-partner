@@ -4,27 +4,27 @@ import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
 
-
 // This API route handles the automated payout process for instructors/studios.
 // It's designed to be triggered periodically (e.g., by a cron job or an admin action).
 
-// Initialize Supabase client with service role key for elevated privileges
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; 
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
-// Initialize Stripe client with secret key for secure API calls
-const STRIPE_API_VERSION = '2024-06-20' as Stripe.LatestApiVersion;
-const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: STRIPE_API_VERSION,
-    })
-  : null;
-
 // Platform commission rate as defined in PAYMENT_LOGIC.md
-const PLATFORM_COMMISSION_RATE = 0.15; 
+const PLATFORM_COMMISSION_RATE = 0.15;
+const STRIPE_API_VERSION = '2024-06-20' as Stripe.LatestApiVersion;
 
 export async function POST(request: Request) {
+  // Initialize Supabase client with service role key for elevated privileges
+  // Initialized at runtime to avoid build-time environment variable requirements
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+  // Initialize Stripe client with secret key for secure API calls
+  const stripe = process.env.STRIPE_SECRET_KEY
+    ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: STRIPE_API_VERSION,
+      })
+    : null;
+
   // Check if Stripe is configured
   if (!stripe) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
