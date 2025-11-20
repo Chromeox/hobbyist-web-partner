@@ -20,7 +20,8 @@
     "incremental": true,
     "downlevelIteration": true,
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
     "plugins": [
       {
