@@ -21,6 +21,7 @@ export interface Class {
   materials?: string[];
   prerequisites?: string[];
   cancellationPolicy?: string;
+  wheelchairAccessible?: boolean;
   recurring?: {
     enabled: boolean;
     pattern: 'weekly' | 'biweekly' | 'monthly';
