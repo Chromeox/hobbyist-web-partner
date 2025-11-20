@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { isAdmin } from '@/lib/utils/roleUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +23,13 @@ export async function GET(request: Request) {
       );
     }
 
-    // TODO: Add admin role check once user_profiles has role column
-    // For now, any authenticated user can access admin endpoints
-    // This is fine for alpha testing with single admin (you)
+    // Verify user has admin role
+    if (!isAdmin(user)) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
 
     // Fetch pending studios with their onboarding submissions
     const { data: pendingStudios, error: studiosError } = await supabase

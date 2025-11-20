@@ -11,10 +11,10 @@ export type UserRole = 'admin' | 'instructor' | 'student'
  */
 export function isAdmin(user: User | null): boolean {
   if (!user) return false
-  
-  // Check for admin role in user metadata
+
+  // Check for admin role in user metadata or app metadata
   const role = user.user_metadata?.role || user.app_metadata?.role
-  return role === 'admin' || user.id === 'admin-user-id'
+  return role === 'admin'
 }
 
 /**
@@ -22,9 +22,9 @@ export function isAdmin(user: User | null): boolean {
  */
 export function isInstructorOrHigher(user: User | null): boolean {
   if (!user) return false
-  
+
   const role = user.user_metadata?.role || user.app_metadata?.role
-  return role === 'admin' || role === 'instructor' || user.id === 'admin-user-id' || user.id === 'demo-user-id'
+  return role === 'admin' || role === 'instructor'
 }
 
 /**
@@ -32,12 +32,12 @@ export function isInstructorOrHigher(user: User | null): boolean {
  */
 export function hasRole(user: User | null, requiredRole: UserRole): boolean {
   if (!user) return false
-  
+
   const userRole = user.user_metadata?.role || user.app_metadata?.role
-  
+
   // Admin has access to everything
-  if (userRole === 'admin' || user.id === 'admin-user-id') return true
-  
+  if (userRole === 'admin') return true
+
   // Check specific role
   return userRole === requiredRole
 }
@@ -47,11 +47,7 @@ export function hasRole(user: User | null, requiredRole: UserRole): boolean {
  */
 export function getUserRole(user: User | null): UserRole | null {
   if (!user) return null
-  
-  // Check for admin user ID first
-  if (user.id === 'admin-user-id') return 'admin'
-  if (user.id === 'demo-user-id') return 'instructor'
-  
+
   const role = user.user_metadata?.role || user.app_metadata?.role
   return role as UserRole || 'student'
 }

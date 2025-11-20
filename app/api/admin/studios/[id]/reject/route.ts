@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { isAdmin } from '@/lib/utils/roleUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,8 +27,13 @@ export async function POST(
       );
     }
 
-    // TODO: Add admin role check once user_profiles has role column
-    // For now, any authenticated user can reject studios
+    // Verify user has admin role
+    if (!isAdmin(user)) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
 
     // Parse request body for rejection reason (required)
     const body = await request.json();

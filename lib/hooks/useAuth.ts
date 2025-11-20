@@ -333,29 +333,6 @@ export function useUserProfile() {
         return
       }
       
-      // Handle demo/admin user
-      if (user.id === 'demo-user-id' || user.id === 'admin-user-id') {
-        const isAdmin = user.id === 'admin-user-id'
-        setState({
-          profile: {
-            id: user.id,
-            email: user.email,
-            profile: {
-              firstName: isAdmin ? 'Admin' : 'Demo',
-              lastName: isAdmin ? 'User' : 'Studio'
-            },
-            instructor: {
-              businessName: isAdmin ? 'Hobbyist Admin' : 'Zenith Wellness Studio',
-              verified: true
-            },
-            role: isAdmin ? 'admin' : 'instructor'
-          },
-          isLoading: false,
-          error: null
-        })
-        return
-      }
-
       fetchingRef.current = true
 
       try {
