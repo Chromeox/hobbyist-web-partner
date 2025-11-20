@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
+// Force dynamic rendering to prevent prerender errors with Supabase client
+export const dynamic = 'force-dynamic';
+
 export default function AuthCallbackHandler() {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('Processing authentication...');

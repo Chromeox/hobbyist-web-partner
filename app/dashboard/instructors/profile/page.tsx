@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+
+// Force dynamic rendering to prevent prerender errors with Supabase client
+export const dynamic = 'force-dynamic';
 import {
   User,
   Mail,
