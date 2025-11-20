@@ -17,6 +17,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+// Force dynamic rendering to prevent prerender errors with Supabase client in AuthProvider
+export const dynamic = 'force-dynamic'
+
 export default function RootLayout({
   children,
 }: {
