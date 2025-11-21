@@ -113,11 +113,15 @@ export async function POST(request: Request) {
       social_links?: Json
       amenities?: string[]
       commission_rate?: number | null
+      stripe_account_id?: string | null
     }
 
     type StudiosUpdate = StudiosInsert & {
       updated_at?: string
     }
+
+    // Extract Stripe Account ID from payment payload
+    const stripeAccountId = payload.payment?.accountId as string | undefined;
 
     const baseStudioData: StudiosInsert = {
       name: studioName,
@@ -129,7 +133,8 @@ export async function POST(request: Request) {
       postal_code: businessInfo.address?.zipCode ?? null,
       profile: profilePayload,
       social_links: sanitisedSocialLinks as Json,
-      amenities: studioProfile?.amenities ?? []
+      amenities: studioProfile?.amenities ?? [],
+      stripe_account_id: stripeAccountId ?? null
     } satisfies StudiosInsert
 
     // Upsert studio by email (unique)

@@ -80,25 +80,37 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
     setIsConnecting(true);
     setSetupMode('connecting');
 
-    // Simulate Stripe Connect onboarding
-    setTimeout(() => {
-      setSetupMode('completed');
-      setTimeout(() => {
-        trackStripeConnected();
-        trackEvent('stripe_connect_completed', {
-          provider: 'stripe',
-          accountType: 'express'
-        });
-        onNext({
-          payment: {
-            provider: 'stripe',
-            status: 'connected',
-            connectedAt: new Date().toISOString(),
-            accountType: 'express'
-          }
-        });
-      }, 2000);
-    }, 3000);
+    try {
+      // Call the API to create a Stripe Express account
+      const response = await fetch('/api/stripe/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessName: data.businessInfo?.legalBusinessName || 'Hobbyist Partner',
+          businessEmail: data.owner?.email,
+          country: data.businessInfo?.address?.country || 'CA', // Default to CA or US
+          type: 'express'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.onboarding_url) {
+        // Redirect to Stripe onboarding
+        window.location.href = result.onboarding_url;
+      } else {
+        console.error('Stripe Connect failed:', result.error);
+        setIsConnecting(false);
+        setSetupMode('overview');
+        // You might want to show an error message here
+      }
+    } catch (error) {
+      console.error('Error initiating Stripe Connect:', error);
+      setIsConnecting(false);
+      setSetupMode('overview');
+    }
   };
 
   const handleSkip = () => {

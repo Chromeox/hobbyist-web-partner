@@ -14,6 +14,7 @@
 
 import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
+import { sendEmail } from "./email"
 
 export const auth = betterAuth({
   // Database configuration (Supabase PostgreSQL)
@@ -27,27 +28,36 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendVerificationEmail: async ({ user, token, url }) => {
-      // TODO: Implement email sending
-      // For now, log the verification URL (replace with actual email service)
       console.log(`Verification email for ${user.email}:`, url)
 
-      // In production, use your email service:
-      // await sendEmail({
-      //   to: user.email,
-      //   subject: "Verify your Hobbyist account",
-      //   html: `<p>Click <a href="${url}">here</a> to verify your email.</p>`
-      // })
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your Hobbyist account",
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Welcome to Hobbyist!</h2>
+            <p>Please verify your email address to complete your registration.</p>
+            <p><a href="${url}" style="background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a></p>
+            <p>Or copy this link: ${url}</p>
+          </div>
+        `
+      })
     },
     sendResetPassword: async ({ user, token, url }) => {
-      // TODO: Implement password reset email
       console.log(`Password reset for ${user.email}:`, url)
 
-      // In production:
-      // await sendEmail({
-      //   to: user.email,
-      //   subject: "Reset your Hobbyist password",
-      //   html: `<p>Click <a href="${url}">here</a> to reset your password.</p>`
-      // })
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your Hobbyist password",
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Reset Password</h2>
+            <p>You requested a password reset for your Hobbyist account.</p>
+            <p><a href="${url}" style="background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+            <p>If you didn't request this, please ignore this email.</p>
+          </div>
+        `
+      })
     },
   },
 

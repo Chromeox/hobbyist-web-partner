@@ -79,6 +79,44 @@ export default function OnboardingWizard() {
     }
   }, [currentStep, showWelcome]);
 
+  // Handle Stripe Connect Callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const accountId = params.get('account_id');
+    const status = params.get('status');
+
+    if (success === 'stripe_connected' && accountId) {
+      // Update onboarding data with Stripe info
+      setOnboardingData(prev => ({
+        ...prev,
+        payment: {
+          provider: 'stripe',
+          status: status || 'connected',
+          connectedAt: new Date().toISOString(),
+          accountId: accountId,
+          accountType: 'express'
+        }
+      }));
+
+      // Find the payment step index
+      const paymentStepIndex = ONBOARDING_STEPS.findIndex(s => s.id === 'payment');
+      if (paymentStepIndex !== -1) {
+        // Mark payment step as completed
+        setCompletedSteps(prev => new Set(Array.from(prev).concat(paymentStepIndex)));
+
+        // If we are not already on the payment step (e.g. page reload), jump to it
+        // or stay there to show the success state
+        if (currentStep !== paymentStepIndex) {
+          setCurrentStep(paymentStepIndex);
+        }
+      }
+
+      // Clean up URL
+      window.history.replaceState({}, '', '/onboarding');
+    }
+  }, [currentStep]);
+
   // Track drop-offs when component unmounts
   useEffect(() => {
     return () => {
@@ -328,8 +366,8 @@ export default function OnboardingWizard() {
                   onClick={() => handleStepJump(index)}
                   disabled={!completedSteps.has(index) && index !== completedSteps.size}
                   className={`pointer-events-auto w-12 h-12 rounded-full transition-transform hover:scale-110 ${completedSteps.has(index) || index === completedSteps.size
-                      ? 'cursor-pointer'
-                      : 'cursor-not-allowed opacity-50'
+                    ? 'cursor-pointer'
+                    : 'cursor-not-allowed opacity-50'
                     }`}
                   title={`${step.title}: ${step.description}`}
                 />
@@ -358,8 +396,8 @@ export default function OnboardingWizard() {
                   onClick={handlePreviousStep}
                   disabled={currentStep === 0}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${currentStep === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'glass-button hover:shadow-md'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'glass-button hover:shadow-md'
                     }`}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -384,8 +422,8 @@ export default function OnboardingWizard() {
                 <button
                   onClick={() => currentStep === ONBOARDING_STEPS.length - 1 ? handleSubmitOnboarding() : handleNextStep({})}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${currentStep === ONBOARDING_STEPS.length - 1
-                      ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
                     } shadow-md hover:shadow-lg`}
                 >
                   <span className="hidden sm:inline">
@@ -455,10 +493,10 @@ export default function OnboardingWizard() {
                           onClick={() => handleStepJump(index)}
                           disabled={!completedSteps.has(index) && index !== completedSteps.size}
                           className={`w-8 h-8 rounded-full text-xs font-medium transition-all ${index === currentStep
-                              ? 'bg-blue-600 text-white'
-                              : completedSteps.has(index)
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            ? 'bg-blue-600 text-white'
+                            : completedSteps.has(index)
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             }`}
                           title={step.title}
                         >
@@ -474,8 +512,8 @@ export default function OnboardingWizard() {
                       onClick={handlePreviousStep}
                       disabled={currentStep === 0}
                       className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${currentStep === 0
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'glass-button hover:shadow-md'
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'glass-button hover:shadow-md'
                         }`}
                     >
                       <ArrowLeft className="mr-2 h-5 w-5" />
