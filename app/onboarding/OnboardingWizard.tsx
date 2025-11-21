@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 import BusinessInfoStep from './steps/BusinessInfoStep';
 import VerificationStep from './steps/VerificationStep';
 import StudioProfileStep from './steps/StudioProfileStep';
@@ -29,6 +30,14 @@ const ONBOARDING_STEPS = [
 export default function OnboardingWizard() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const {
+    trackOnboardingStarted,
+    trackOnboardingStepCompleted,
+    trackOnboardingCompleted,
+    trackEvent,
+    identifyUser
+  } = useAnalytics();
+
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -36,12 +45,60 @@ export default function OnboardingWizard() {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
 
+  // Analytics tracking refs
+  const stepStartTimes = useRef<Record<number, number>>({});
+  const onboardingStartTime = useRef<number | null>(null);
+  const hasTrackedStart = useRef(false);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/auth/signin?redirect=/onboarding');
     }
   }, [isAuthenticated, isLoading, router]);
+
+  // Track onboarding start (when welcome screen is dismissed)
+  useEffect(() => {
+    if (!showWelcome && !hasTrackedStart.current && user) {
+      trackOnboardingStarted();
+      identifyUser(user.id, {
+        email: user.email,
+        accountType: user.user_metadata?.role || 'studio',
+        businessName: user.user_metadata?.business_name
+      });
+      onboardingStartTime.current = Date.now();
+      stepStartTimes.current[0] = Date.now();
+      hasTrackedStart.current = true;
+    }
+  }, [showWelcome, user, trackOnboardingStarted, identifyUser]);
+
+  // Track step timing when step changes
+  useEffect(() => {
+    if (!showWelcome && currentStep >= 0) {
+      stepStartTimes.current[currentStep] = Date.now();
+    }
+  }, [currentStep, showWelcome]);
+
+  // Track drop-offs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Only track drop-off if onboarding started but not completed
+      if (hasTrackedStart.current && completedSteps.size < ONBOARDING_STEPS.length) {
+        const timeSpent = onboardingStartTime.current
+          ? Math.round((Date.now() - onboardingStartTime.current) / 1000)
+          : 0;
+
+        trackEvent('onboarding_dropped_off', {
+          lastCompletedStep: Math.max(...Array.from(completedSteps), -1) + 1,
+          currentStepWhenLeft: currentStep + 1,
+          stepTitle: ONBOARDING_STEPS[currentStep]?.title,
+          completionPercentage: Math.round((completedSteps.size / ONBOARDING_STEPS.length) * 100),
+          timeSpentSeconds: timeSpent,
+          timeSpentMinutes: Math.round(timeSpent / 60)
+        });
+      }
+    };
+  }, [currentStep, completedSteps, trackEvent]);
 
   // Get real user data from auth
   const userData = user ? {
@@ -55,6 +112,21 @@ export default function OnboardingWizard() {
   const CurrentStepComponent = ONBOARDING_STEPS[currentStep].component;
 
   const handleNextStep = (stepData: any) => {
+    // Calculate time spent on current step
+    const timeSpent = stepStartTimes.current[currentStep]
+      ? Math.round((Date.now() - stepStartTimes.current[currentStep]) / 1000)
+      : 0;
+
+    // Track step completion with timing
+    trackOnboardingStepCompleted(currentStep + 1);
+    trackEvent('onboarding_step_detail', {
+      stepNumber: currentStep + 1,
+      stepId: ONBOARDING_STEPS[currentStep].id,
+      stepTitle: ONBOARDING_STEPS[currentStep].title,
+      timeSpentSeconds: timeSpent,
+      hasData: Object.keys(stepData).length > 0
+    });
+
     setOnboardingData(prev => ({ ...prev, ...stepData }));
     setCompletedSteps(prev => new Set(Array.from(prev).concat(currentStep)));
 
@@ -65,17 +137,31 @@ export default function OnboardingWizard() {
 
   const handlePreviousStep = useCallback(() => {
     if (currentStep > 0) {
+      // Track going back (indicates friction/confusion)
+      trackEvent('onboarding_step_back', {
+        fromStep: currentStep + 1,
+        toStep: currentStep,
+        stepTitle: ONBOARDING_STEPS[currentStep].title
+      });
+
       if (unsavedChanges) {
         setShowNavigationWarning(true);
       } else {
         setCurrentStep(currentStep - 1);
       }
     }
-  }, [currentStep, unsavedChanges]);
+  }, [currentStep, unsavedChanges, trackEvent]);
 
   const handleStepJump = (stepIndex: number) => {
     // Allow jumping to completed steps or the next sequential step
     if (completedSteps.has(stepIndex) || stepIndex === completedSteps.size) {
+      // Track step jumping
+      trackEvent('onboarding_step_jump', {
+        fromStep: currentStep + 1,
+        toStep: stepIndex + 1,
+        direction: stepIndex > currentStep ? 'forward' : 'backward'
+      });
+
       if (unsavedChanges) {
         setShowNavigationWarning(true);
       } else {
@@ -113,6 +199,11 @@ export default function OnboardingWizard() {
       return;
     }
 
+    // Calculate total onboarding time
+    const totalTimeSeconds = onboardingStartTime.current
+      ? Math.round((Date.now() - onboardingStartTime.current) / 1000)
+      : 0;
+
     try {
       const payload = {
         owner: {
@@ -140,14 +231,40 @@ export default function OnboardingWizard() {
 
       if (response.ok) {
         console.log('Onboarding submitted successfully!');
+
+        // Track successful completion with detailed metrics
+        trackOnboardingCompleted();
+        trackEvent('onboarding_completion_details', {
+          totalTimeSeconds,
+          totalTimeMinutes: Math.round(totalTimeSeconds / 60),
+          accountType: userData.accountType,
+          hasPaymentSetup: !!onboardingData.payment,
+          hasCalendarIntegration: !!onboardingData.calendar,
+          hasStudioProfile: !!onboardingData.studioProfile,
+          servicesCount: onboardingData.services?.categories?.length || 0,
+          completedAllSteps: completedSteps.size === ONBOARDING_STEPS.length
+        });
+
         // Redirect to dashboard
         router.push('/dashboard');
       } else {
         const error = await response.json();
         console.error('Onboarding submission failed:', error);
+
+        // Track submission failure
+        trackEvent('onboarding_submission_failed', {
+          error: error.message || 'Unknown error',
+          totalTimeSeconds
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Onboarding submission error:', error);
+
+      // Track submission error
+      trackEvent('onboarding_submission_error', {
+        error: error.message || 'Unknown error',
+        totalTimeSeconds
+      });
     }
   };
 
