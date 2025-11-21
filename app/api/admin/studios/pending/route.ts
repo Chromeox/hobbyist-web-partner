@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/utils/roleUtils';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,15 +10,17 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/admin/studios/pending
  * Fetches all studios with pending approval status
- * Admin-only endpoint
+ * Admin-only endpoint (Better Auth)
  */
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient();
+    // Get Better Auth session
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
 
     // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -24,12 +28,15 @@ export async function GET(request: Request) {
     }
 
     // Verify user has admin role
-    if (!isAdmin(user)) {
+    if (!isAdmin(session.user)) {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
       );
     }
+
+    // Continue using Supabase for database queries (not auth)
+    const supabase = await createClient();
 
     // Fetch pending studios with their onboarding submissions
     const { data: pendingStudios, error: studiosError } = await supabase

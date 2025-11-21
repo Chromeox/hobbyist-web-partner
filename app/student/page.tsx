@@ -210,7 +210,7 @@ export default function StudentHomePage() {
       {/* Welcome Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Welcome back, {user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'there'}! 👋
+          Welcome back, {user?.firstName || user?.email?.split('@')[0] || 'there'}! 👋
         </h1>
         <p className="text-gray-600">
           Discover amazing classes and connect with talented instructors in your area.

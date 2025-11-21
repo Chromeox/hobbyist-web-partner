@@ -156,7 +156,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-700 truncate">
-                    {user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'Student'}
+                    {user?.firstName || user?.email?.split('@')[0] || 'Student'}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {user?.email}

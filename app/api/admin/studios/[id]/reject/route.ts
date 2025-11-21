@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/utils/roleUtils';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,19 +10,22 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/admin/studios/[id]/reject
  * Rejects a pending studio
- * Admin-only endpoint
+ * Admin-only endpoint (Better Auth)
  */
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient();
     const { id: studioId } = await params;
 
+    // Get Better Auth session
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
+
     // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -28,12 +33,15 @@ export async function POST(
     }
 
     // Verify user has admin role
-    if (!isAdmin(user)) {
+    if (!isAdmin(session.user)) {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
       );
     }
+
+    // Continue using Supabase for database queries (not auth)
+    const supabase = await createClient();
 
     // Parse request body for rejection reason (required)
     const body = await request.json();
@@ -52,7 +60,7 @@ export async function POST(
       .update({
         approval_status: 'rejected',
         rejection_reason,
-        approved_by: user.id, // Track who made the decision
+        approved_by: session.user.id, // Track who made the decision
         approved_at: new Date().toISOString(), // Track when decision was made
         admin_notes: admin_notes || null,
         is_active: false, // Deactivate rejected studios
@@ -76,7 +84,7 @@ export async function POST(
       .update({
         submission_status: 'rejected',
         reviewed_at: new Date().toISOString(),
-        reviewed_by: user.id,
+        reviewed_by: session.user.id,
         admin_review_notes: `${rejection_reason}${admin_notes ? ' | ' + admin_notes : ''}`,
       })
       .eq('studio_id', studioId);

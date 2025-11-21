@@ -39,6 +39,7 @@ import ClassSchedule from './ClassSchedule';
 import InstructorAssignment from './InstructorAssignment';
 import BackButton from '@/components/common/BackButton';
 import { useUserProfile } from '@/lib/hooks/useAuth';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 import type { Class, ClassFormData } from '@/types/class-management';
 import { mapClassToFormData, mapDbClassToUiClass } from '@/lib/utils/class-mappers';
 import LoadingState, { LoadingStates } from '@/components/ui/LoadingState';
@@ -55,6 +56,7 @@ const generateLocalId = () =>
 export default function ClassManagement() {
   const { profile, isLoading: isProfileLoading } = useUserProfile();
   const studioId = profile?.instructor?.id;
+  const { trackClassCreated, trackClassUpdated, trackClassDeleted, trackEvent } = useAnalytics();
 
   const [classes, setClasses] = useState<Class[]>([]);
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
@@ -299,66 +301,127 @@ export default function ClassManagement() {
   };
 
   const handleSaveClass = async (classData: ClassFormData): Promise<void> => {
+    const isNewClass = !classData.id;
     const targetUrl = classData.id
       ? `/api/classes/meta/${classData.id}`
       : '/api/classes/meta';
 
-    const response = await fetch(targetUrl, {
-      method: classData.id ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        class: classData,
-        studioId: studioId ?? undefined,
-      }),
-    });
+    try {
+      const response = await fetch(targetUrl, {
+        method: classData.id ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          class: classData,
+          studioId: studioId ?? undefined,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorPayload = await response.json().catch(() => ({}));
-      const action = classData.id ? 'update' : 'create';
-      const message =
-        typeof errorPayload?.error === 'string'
-          ? errorPayload.error
-          : `Failed to ${action} class`;
-      throw new Error(message);
-    }
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        const action = classData.id ? 'update' : 'create';
+        const message =
+          typeof errorPayload?.error === 'string'
+            ? errorPayload.error
+            : `Failed to ${action} class`;
 
-    const payload = await response.json();
-    const savedRaw =
-      payload?.class ??
-      (Array.isArray(payload?.classes) ? payload.classes[0] : null);
+        // Track failure
+        trackEvent(`class_${action}_failed`, {
+          category: classData.category,
+          level: classData.level,
+          error: message
+        });
 
-    if (!savedRaw || typeof savedRaw !== 'object') {
-      throw new Error('Missing class data in save response');
-    }
-
-    const savedClass: Class =
-      'instructor' in savedRaw && 'creditCost' in savedRaw
-        ? (savedRaw as Class)
-        : mapDbClassToUiClass(savedRaw);
-
-    setClasses((prev) => {
-      const exists = prev.some((cls) => cls.id === savedClass.id);
-      if (exists) {
-        return prev.map((cls) =>
-          cls.id === savedClass.id ? { ...cls, ...savedClass } : cls
-        );
+        throw new Error(message);
       }
-      return [savedClass, ...prev];
-    });
 
-    handleCloseEditor();
-    setLastSavedClassId(savedClass.id);
+      const payload = await response.json();
+      const savedRaw =
+        payload?.class ??
+        (Array.isArray(payload?.classes) ? payload.classes[0] : null);
 
-    if (lastSavedTimerRef.current) {
-      clearTimeout(lastSavedTimerRef.current);
+      if (!savedRaw || typeof savedRaw !== 'object') {
+        throw new Error('Missing class data in save response');
+      }
+
+      const savedClass: Class =
+        'instructor' in savedRaw && 'creditCost' in savedRaw
+          ? (savedRaw as Class)
+          : mapDbClassToUiClass(savedRaw);
+
+      // Track successful creation or update
+      if (isNewClass) {
+        trackClassCreated({
+          classId: savedClass.id,
+          category: savedClass.category,
+          level: savedClass.level,
+          price: savedClass.price
+        });
+
+        // Track first class milestone
+        if (classes.length === 0) {
+          trackEvent('first_class_created', {
+            category: savedClass.category,
+            level: savedClass.level,
+            price: savedClass.price,
+            creditCost: savedClass.creditCost,
+            capacity: savedClass.capacity,
+            duration: savedClass.duration
+          });
+        }
+
+        // Track detailed class creation metrics
+        trackEvent('class_creation_details', {
+          classId: savedClass.id,
+          category: savedClass.category,
+          level: savedClass.level,
+          price: savedClass.price,
+          creditCost: savedClass.creditCost,
+          capacity: savedClass.capacity,
+          duration: savedClass.duration,
+          hasRecurring: classData.recurring?.enabled || false,
+          hasMaterials: (classData.materials?.length || 0) > 0,
+          hasPrerequisites: (classData.prerequisites?.length || 0) > 0,
+          hasImage: !!classData.image,
+          tagsCount: classData.tags?.length || 0,
+          status: classData.status,
+          totalClassesNow: classes.length + 1
+        });
+      } else {
+        trackClassUpdated(savedClass.id);
+        trackEvent('class_update_details', {
+          classId: savedClass.id,
+          category: savedClass.category,
+          level: savedClass.level
+        });
+      }
+
+      setClasses((prev) => {
+        const exists = prev.some((cls) => cls.id === savedClass.id);
+        if (exists) {
+          return prev.map((cls) =>
+            cls.id === savedClass.id ? { ...cls, ...savedClass } : cls
+          );
+        }
+        return [savedClass, ...prev];
+      });
+
+      handleCloseEditor();
+      setLastSavedClassId(savedClass.id);
+
+      if (lastSavedTimerRef.current) {
+        clearTimeout(lastSavedTimerRef.current);
+      }
+      lastSavedTimerRef.current = setTimeout(() => {
+        setLastSavedClassId((current) =>
+          current === savedClass.id ? null : current
+        );
+      }, 4000);
+    } catch (error) {
+      // Re-throw to let UI handle the error display
+      throw error;
     }
-    lastSavedTimerRef.current = setTimeout(() => {
-      setLastSavedClassId((current) =>
-        current === savedClass.id ? null : current
-      );
-    }, 4000);
   };
 
   const getLevelColor = (level: string) => {

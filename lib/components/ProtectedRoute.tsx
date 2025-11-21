@@ -1,6 +1,8 @@
 /**
- * Protected Route Component
- * 
+ * Protected Route Component (Better Auth)
+ *
+ * Migrated from Supabase Auth to Better Auth
+ *
  * Features:
  * - Route protection with authentication check
  * - Role-based access control
@@ -47,11 +49,12 @@ export const ProtectedRoute = memo(function ProtectedRoute({
   // Check role if required
   useEffect(() => {
     if (!isLoading && isAuthenticated && requiredRole) {
-      const userRole = user?.user_metadata?.role || user?.role
-      
+      // Better Auth: role is directly on user object
+      const userRole = user?.role || 'student'
+
       // Admin has access to everything
       if (userRole === 'admin') return
-      
+
       // Check if user has required role
       if (userRole !== requiredRole) {
         router.push('/unauthorized')
@@ -71,7 +74,8 @@ export const ProtectedRoute = memo(function ProtectedRoute({
 
   // Check role access
   if (requiredRole) {
-    const userRole = user?.user_metadata?.role || user?.role
+    // Better Auth: role is directly on user object
+    const userRole = user?.role || 'student'
     if (userRole !== 'admin' && userRole !== requiredRole) {
       return null
     }
@@ -112,7 +116,8 @@ export const RoleProtectedRoute = memo(function RoleProtectedRoute({
   const { user, isLoading, isAuthenticated } = useAuthContext()
   const router = useRouter()
 
-  const userRole = user?.user_metadata?.role || user?.role || 'student'
+  // Better Auth: role is directly on user object
+  const userRole = user?.role || 'student'
   const hasAccess = roles.includes(userRole as any) || userRole === 'admin'
 
   useEffect(() => {

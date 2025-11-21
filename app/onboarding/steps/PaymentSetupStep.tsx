@@ -16,6 +16,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import PrivacyPolicyBanner from '@/components/common/PrivacyPolicyBanner';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface PaymentSetupStepProps {
   onNext: (data: any) => void;
@@ -42,6 +43,7 @@ const StripeLogo = () => (
 );
 
 export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSetupStepProps) {
+  const { trackStripeConnected, trackEvent } = useAnalytics();
   const [setupMode, setSetupMode] = useState<'overview' | 'connecting' | 'completed'>('overview');
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
@@ -74,6 +76,7 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
   ];
 
   const handleConnectStripe = async () => {
+    trackEvent('stripe_connect_started');
     setIsConnecting(true);
     setSetupMode('connecting');
 
@@ -81,6 +84,11 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
     setTimeout(() => {
       setSetupMode('completed');
       setTimeout(() => {
+        trackStripeConnected();
+        trackEvent('stripe_connect_completed', {
+          provider: 'stripe',
+          accountType: 'express'
+        });
         onNext({
           payment: {
             provider: 'stripe',
@@ -94,6 +102,10 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
   };
 
   const handleSkip = () => {
+    trackEvent('stripe_connect_skipped', {
+      reason: 'user_choice',
+      step: 'onboarding'
+    });
     setIsSkipping(true);
     setTimeout(() => {
       onNext({ payment: { skipped: true, reason: 'user_choice' } });

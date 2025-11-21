@@ -1,6 +1,8 @@
 /**
- * Forgot Password Form Component
+ * Forgot Password Form Component (Better Auth)
  * Sends password reset email to user
+ *
+ * Migrated from Supabase Auth to Better Auth
  *
  * Security Features:
  * - Rate limiting (3 attempts per 15 minutes, 1 hour block)
@@ -13,7 +15,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { Mail, ArrowLeft, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useAuthContext } from '@/lib/context/AuthContext'
 import { passwordResetRateLimiter } from '@/lib/utils/rate-limit'
 
 interface FormState {
@@ -26,6 +28,8 @@ interface FormState {
 }
 
 export function ForgotPasswordForm() {
+  const { resetPassword } = useAuthContext()
+
   const [state, setState] = useState<FormState>({
     email: '',
     isLoading: false,
@@ -63,13 +67,12 @@ export function ForgotPasswordForm() {
       return
     }
 
-    // Send reset email - ALWAYS return success for security
+    // Send reset email using Better Auth - ALWAYS return success for security
     try {
-      await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`
-      })
+      const { error } = await resetPassword(email)
 
       // Always show success - don't reveal if email exists
+      // Better Auth handles email sending internally
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -89,7 +92,7 @@ export function ForgotPasswordForm() {
         resendCooldown: 60
       }))
     }
-  }, [])
+  }, [resetPassword])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()

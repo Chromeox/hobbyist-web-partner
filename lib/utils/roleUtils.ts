@@ -1,44 +1,46 @@
 /**
- * Role-based access control utilities
+ * Role-based access control utilities (Better Auth)
+ *
+ * Migrated from Supabase Auth to Better Auth
  */
 
-import { User } from '@supabase/supabase-js'
+import type { User } from '@/lib/auth'
 
-export type UserRole = 'admin' | 'instructor' | 'student'
+export type UserRole = 'admin' | 'instructor' | 'student' | 'studio'
 
 /**
  * Check if user has admin role
- * Prioritizes app_metadata (server-only) over user_metadata for security
+ * Better Auth: role is directly on user object
  */
 export function isAdmin(user: User | null): boolean {
   if (!user) return false
 
-  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
-  const role = user.app_metadata?.role || user.user_metadata?.role
+  // Better Auth: role is directly on user object, no metadata nesting
+  const role = user.role || 'student'
   return role === 'admin'
 }
 
 /**
  * Check if user has instructor role or higher
- * Prioritizes app_metadata (server-only) over user_metadata for security
+ * Better Auth: role is directly on user object
  */
 export function isInstructorOrHigher(user: User | null): boolean {
   if (!user) return false
 
-  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
-  const role = user.app_metadata?.role || user.user_metadata?.role
-  return role === 'admin' || role === 'instructor'
+  // Better Auth: role is directly on user object
+  const role = user.role || 'student'
+  return role === 'admin' || role === 'instructor' || role === 'studio'
 }
 
 /**
  * Check if user has specific role
- * Prioritizes app_metadata (server-only) over user_metadata for security
+ * Better Auth: role is directly on user object
  */
 export function hasRole(user: User | null, requiredRole: UserRole): boolean {
   if (!user) return false
 
-  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
-  const userRole = user.app_metadata?.role || user.user_metadata?.role
+  // Better Auth: role is directly on user object
+  const userRole = user.role || 'student'
 
   // Admin has access to everything
   if (userRole === 'admin') return true
@@ -49,14 +51,14 @@ export function hasRole(user: User | null, requiredRole: UserRole): boolean {
 
 /**
  * Get user's role
- * Prioritizes app_metadata (server-only) over user_metadata for security
+ * Better Auth: role is directly on user object
  */
 export function getUserRole(user: User | null): UserRole | null {
   if (!user) return null
 
-  // Prioritize app_metadata (server-only, secure) over user_metadata (user-editable)
-  const role = user.app_metadata?.role || user.user_metadata?.role
-  return role as UserRole || 'student'
+  // Better Auth: role is directly on user object
+  const role = user.role || 'student'
+  return role as UserRole
 }
 
 /**
@@ -64,7 +66,8 @@ export function getUserRole(user: User | null): UserRole | null {
  */
 export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   admin: 'Administrator',
-  instructor: 'Studio Owner',
+  instructor: 'Instructor',
+  studio: 'Studio Owner',
   student: 'Student'
 }
 

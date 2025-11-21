@@ -1,15 +1,17 @@
 /**
- * Reset Password Form Component
+ * Reset Password Form Component (Better Auth)
  * Allows users to set a new password after receiving reset email
+ *
+ * Migrated from Supabase Auth to Better Auth
  */
 
 'use client'
 
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { authClient } from '@/lib/auth-client'
 
 // Lazy load password strength bar to reduce bundle size
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'))
@@ -22,12 +24,15 @@ interface FormState {
   isLoading: boolean
   error: string | null
   success: boolean
-  sessionChecked: boolean
-  hasValidSession: boolean
+  tokenChecked: boolean
+  hasValidToken: boolean
+  token: string | null
 }
 
 export function ResetPasswordForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [state, setState] = useState<FormState>({
     password: '',
     confirmPassword: '',
@@ -36,74 +41,45 @@ export function ResetPasswordForm() {
     isLoading: false,
     error: null,
     success: false,
-    sessionChecked: false,
-    hasValidSession: false
+    tokenChecked: false,
+    hasValidToken: false,
+    token: null
   })
 
-  // Check for valid session on mount - user must have clicked reset link
+  // Check for valid token on mount - user must have clicked reset link
   useEffect(() => {
-    async function checkSession() {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+    const token = searchParams.get('token')
 
-        console.log('[Reset Password] Session check:', {
-          hasSession: !!session,
-          error: error?.message
-        })
+    console.log('[Reset Password] Token check:', {
+      hasToken: !!token,
+      token: token ? `${token.slice(0, 10)}...` : null
+    })
 
-        if (error || !session) {
-          console.warn('[Reset Password] No valid session found')
+    if (!token) {
+      console.warn('[Reset Password] No token found in URL')
 
-          // Provide specific error messages based on the error type
-          let errorMessage = 'Your password reset link has expired or is invalid.'
+      setState(prev => ({
+        ...prev,
+        tokenChecked: true,
+        hasValidToken: false,
+        error: 'No reset token found. Please click the link in your email or request a new one.'
+      }))
 
-          if (error?.message?.includes('expired')) {
-            errorMessage = 'Your password reset link has expired. Links are valid for 1 hour. Please request a new one.'
-          } else if (error?.message?.includes('invalid')) {
-            errorMessage = 'This password reset link is invalid. It may have already been used. Please request a new one.'
-          } else if (!session && !error) {
-            errorMessage = 'No active reset session found. Please click the link in your email or request a new one.'
-          }
-
-          setState(prev => ({
-            ...prev,
-            sessionChecked: true,
-            hasValidSession: false,
-            error: errorMessage
-          }))
-
-          // Redirect to forgot password after 4 seconds (give user time to read)
-          setTimeout(() => {
-            router.push('/auth/forgot-password')
-          }, 4000)
-          return
-        }
-
-        // Valid session found
-        setState(prev => ({
-          ...prev,
-          sessionChecked: true,
-          hasValidSession: true
-        }))
-      } catch (err: any) {
-        console.error('[Reset Password] Session check error:', err)
-
-        // Network or unexpected errors
-        const errorMessage = err?.message?.includes('network') || err?.message?.includes('fetch')
-          ? 'Network error. Please check your connection and try again.'
-          : 'An unexpected error occurred. Please try requesting a new reset link.'
-
-        setState(prev => ({
-          ...prev,
-          sessionChecked: true,
-          hasValidSession: false,
-          error: errorMessage
-        }))
-      }
+      // Redirect to forgot password after 4 seconds (give user time to read)
+      setTimeout(() => {
+        router.push('/auth/forgot-password')
+      }, 4000)
+      return
     }
 
-    checkSession()
-  }, [router])
+    // Valid token found
+    setState(prev => ({
+      ...prev,
+      tokenChecked: true,
+      hasValidToken: true,
+      token
+    }))
+  }, [router, searchParams])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,24 +100,33 @@ export function ResetPasswordForm() {
       return
     }
 
+    if (!state.token) {
+      setState(prev => ({ ...prev, error: 'No reset token found. Please request a new reset link.' }))
+      return
+    }
+
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: state.password
+      // Better Auth reset password with token
+      const result = await authClient.resetPassword({
+        newPassword: state.password,
+        token: state.token
       })
 
-      if (error) {
+      if (result.error) {
         // Provide user-friendly error messages
         let errorMessage = 'Failed to reset password. Please try again.'
 
-        if (error.message?.includes('session')) {
-          errorMessage = 'Your session has expired. Please request a new password reset link.'
-        } else if (error.message?.includes('password')) {
+        const errorMsg = result.error.message || ''
+
+        if (errorMsg.includes('token') || errorMsg.includes('expired')) {
+          errorMessage = 'Your reset link has expired. Please request a new password reset link.'
+        } else if (errorMsg.includes('password')) {
           errorMessage = 'Password does not meet security requirements. Please choose a stronger password.'
-        } else if (error.message?.includes('rate limit')) {
+        } else if (errorMsg.includes('rate limit')) {
           errorMessage = 'Too many attempts. Please wait a few minutes and try again.'
-        } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
           errorMessage = 'Network error. Please check your connection and try again.'
         }
 
@@ -158,9 +143,9 @@ export function ResetPasswordForm() {
           error: null
         }))
 
-        // Redirect to dashboard after 2 seconds
+        // Redirect to sign in page after 2 seconds
         setTimeout(() => {
-          router.push('/dashboard')
+          router.push('/auth/signin')
         }, 2000)
       }
     } catch (error: any) {
@@ -174,10 +159,10 @@ export function ResetPasswordForm() {
         error: errorMessage
       }))
     }
-  }, [state.password, state.confirmPassword, router])
+  }, [state.password, state.confirmPassword, state.token, router])
 
-  // Loading state while checking session
-  if (!state.sessionChecked) {
+  // Loading state while checking token
+  if (!state.tokenChecked) {
     return (
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -195,8 +180,8 @@ export function ResetPasswordForm() {
     )
   }
 
-  // Invalid/expired session state
-  if (!state.hasValidSession) {
+  // Invalid/expired token state
+  if (!state.hasValidToken) {
     return (
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
