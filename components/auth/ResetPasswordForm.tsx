@@ -53,16 +53,29 @@ export function ResetPasswordForm() {
 
         if (error || !session) {
           console.warn('[Reset Password] No valid session found')
+
+          // Provide specific error messages based on the error type
+          let errorMessage = 'Your password reset link has expired or is invalid.'
+
+          if (error?.message?.includes('expired')) {
+            errorMessage = 'Your password reset link has expired. Links are valid for 1 hour. Please request a new one.'
+          } else if (error?.message?.includes('invalid')) {
+            errorMessage = 'This password reset link is invalid. It may have already been used. Please request a new one.'
+          } else if (!session && !error) {
+            errorMessage = 'No active reset session found. Please click the link in your email or request a new one.'
+          }
+
           setState(prev => ({
             ...prev,
             sessionChecked: true,
             hasValidSession: false,
-            error: 'Your password reset link has expired. Please request a new one.'
+            error: errorMessage
           }))
-          // Redirect to forgot password after 3 seconds
+
+          // Redirect to forgot password after 4 seconds (give user time to read)
           setTimeout(() => {
             router.push('/auth/forgot-password')
-          }, 3000)
+          }, 4000)
           return
         }
 
@@ -72,13 +85,19 @@ export function ResetPasswordForm() {
           sessionChecked: true,
           hasValidSession: true
         }))
-      } catch (err) {
+      } catch (err: any) {
         console.error('[Reset Password] Session check error:', err)
+
+        // Network or unexpected errors
+        const errorMessage = err?.message?.includes('network') || err?.message?.includes('fetch')
+          ? 'Network error. Please check your connection and try again.'
+          : 'An unexpected error occurred. Please try requesting a new reset link.'
+
         setState(prev => ({
           ...prev,
           sessionChecked: true,
           hasValidSession: false,
-          error: 'An unexpected error occurred. Please try again.'
+          error: errorMessage
         }))
       }
     }
@@ -113,10 +132,23 @@ export function ResetPasswordForm() {
       })
 
       if (error) {
+        // Provide user-friendly error messages
+        let errorMessage = 'Failed to reset password. Please try again.'
+
+        if (error.message?.includes('session')) {
+          errorMessage = 'Your session has expired. Please request a new password reset link.'
+        } else if (error.message?.includes('password')) {
+          errorMessage = 'Password does not meet security requirements. Please choose a stronger password.'
+        } else if (error.message?.includes('rate limit')) {
+          errorMessage = 'Too many attempts. Please wait a few minutes and try again.'
+        } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.'
+        }
+
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: error.message
+          error: errorMessage
         }))
       } else {
         setState(prev => ({
@@ -132,10 +164,14 @@ export function ResetPasswordForm() {
         }, 2000)
       }
     } catch (error: any) {
+      const errorMessage = error?.message?.includes('network') || error?.message?.includes('fetch')
+        ? 'Network error. Please check your connection and try again.'
+        : 'An unexpected error occurred. Please try requesting a new reset link.'
+
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message || 'Failed to reset password'
+        error: errorMessage
       }))
     }
   }, [state.password, state.confirmPassword, router])

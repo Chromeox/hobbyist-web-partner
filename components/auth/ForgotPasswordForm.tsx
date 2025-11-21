@@ -1,20 +1,28 @@
 /**
  * Forgot Password Form Component
  * Sends password reset email to user
+ *
+ * Security Features:
+ * - Rate limiting (3 attempts per 15 minutes, 1 hour block)
+ * - Email enumeration prevention (always shows success)
+ * - Resend functionality with 60s cooldown
  */
 
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
-import { Mail, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Mail, ArrowLeft, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { passwordResetRateLimiter } from '@/lib/utils/rate-limit'
 
 interface FormState {
   email: string
   isLoading: boolean
   error: string | null
   success: boolean
+  canResend: boolean
+  resendCooldown: number
 }
 
 export function ForgotPasswordForm() {
@@ -22,8 +30,66 @@ export function ForgotPasswordForm() {
     email: '',
     isLoading: false,
     error: null,
-    success: false
+    success: false,
+    canResend: false,
+    resendCooldown: 0
   })
+
+  // Cooldown timer for resend button
+  useEffect(() => {
+    if (state.resendCooldown > 0) {
+      const timer = setTimeout(() => {
+        setState(prev => ({
+          ...prev,
+          resendCooldown: prev.resendCooldown - 1,
+          canResend: prev.resendCooldown - 1 === 0
+        }))
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [state.resendCooldown])
+
+  const sendResetEmail = useCallback(async (email: string) => {
+    // Check rate limit first
+    const rateLimitResult = await passwordResetRateLimiter.check(email)
+
+    if (!rateLimitResult.allowed) {
+      const minutes = Math.ceil(rateLimitResult.retryAfter! / 60)
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: `Too many attempts. Please try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`
+      }))
+      return
+    }
+
+    // Send reset email - ALWAYS return success for security
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`
+      })
+
+      // Always show success - don't reveal if email exists
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        success: true,
+        error: null,
+        canResend: false,
+        resendCooldown: 60
+      }))
+    } catch (error: any) {
+      // Even on error, show success to prevent email enumeration
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        success: true,
+        error: null,
+        canResend: false,
+        resendCooldown: 60
+      }))
+    }
+  }, [])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,34 +100,15 @@ export function ForgotPasswordForm() {
     }
 
     setState(prev => ({ ...prev, isLoading: true, error: null }))
+    await sendResetEmail(state.email)
+  }, [state.email, sendResetEmail])
 
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(state.email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`
-      })
+  const handleResend = useCallback(async () => {
+    if (!state.canResend || state.isLoading) return
 
-      if (error) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: error.message
-        }))
-      } else {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          success: true,
-          error: null
-        }))
-      }
-    } catch (error: any) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error.message || 'Failed to send reset email'
-      }))
-    }
-  }, [state.email])
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
+    await sendResetEmail(state.email)
+  }, [state.canResend, state.email, state.isLoading, sendResetEmail])
 
   if (state.success) {
     return (
@@ -78,6 +125,36 @@ export function ForgotPasswordForm() {
             <p className="text-sm text-gray-500 mb-6">
               Click the link in the email to reset your password. The link will expire in 1 hour.
             </p>
+
+            {/* Resend button with cooldown */}
+            <div className="mb-6">
+              <button
+                onClick={handleResend}
+                disabled={!state.canResend || state.isLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {state.isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : !state.canResend && state.resendCooldown > 0 ? (
+                  <>
+                    <Clock className="h-4 w-4" />
+                    Resend in {state.resendCooldown}s
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4" />
+                    Resend Email
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-gray-400 mt-2">
+                Didn't receive the email? Check your spam folder or click resend.
+              </p>
+            </div>
+
             <Link
               href="/auth/signin"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"

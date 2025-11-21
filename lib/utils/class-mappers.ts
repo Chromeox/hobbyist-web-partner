@@ -211,7 +211,7 @@ export const mapClassToFormData = (cls: Class): ClassFormData => ({
   materials: cls.materials ?? [],
   prerequisites: cls.prerequisites ?? [],
   cancellationPolicy: cls.cancellationPolicy ?? DEFAULT_CANCELLATION_POLICY,
-  wheelchairAccessible: cls.wheelchairAccessible ?? false,
+  wheelchairAccessible: (cls as any).wheelchairAccessible ?? false,
 });
 
 export type ClassUpsertPayload = {
