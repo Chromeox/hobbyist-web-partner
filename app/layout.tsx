@@ -2,8 +2,10 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { PaymentModelProvider } from '@/lib/contexts/PaymentModelContext'
+import { PostHogProvider, PostHogPageView } from '@/lib/context/PostHogProvider'
 import { Toaster } from 'react-hot-toast'
 import GlobalErrorBoundary from '@/components/error/GlobalErrorBoundary'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Hobbyist Partner Portal',
@@ -32,38 +34,43 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
       </head>
       <body suppressHydrationWarning>
-        <GlobalErrorBoundary>
-          <AuthProvider>
-            <PaymentModelProvider>
-              <div id="root">{children}</div>
-              <div id="modal-root" />
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
-                  },
-                  success: {
-                    duration: 3000,
-                    iconTheme: {
-                      primary: '#4ade80',
-                      secondary: '#fff',
+        <PostHogProvider>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          <GlobalErrorBoundary>
+            <AuthProvider>
+              <PaymentModelProvider>
+                <div id="root">{children}</div>
+                <div id="modal-root" />
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
                     },
-                  },
-                  error: {
-                    duration: 5000,
-                    iconTheme: {
-                      primary: '#ef4444',
-                      secondary: '#fff',
+                    success: {
+                      duration: 3000,
+                      iconTheme: {
+                        primary: '#4ade80',
+                        secondary: '#fff',
+                      },
                     },
-                  },
-                }}
-              />
-            </PaymentModelProvider>
-          </AuthProvider>
-        </GlobalErrorBoundary>
+                    error: {
+                      duration: 5000,
+                      iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#fff',
+                      },
+                    },
+                  }}
+                />
+              </PaymentModelProvider>
+            </AuthProvider>
+          </GlobalErrorBoundary>
+        </PostHogProvider>
       </body>
     </html>
   )
