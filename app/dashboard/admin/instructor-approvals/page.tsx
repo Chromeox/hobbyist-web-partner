@@ -64,9 +64,14 @@ export default function InstructorApprovalsPage() {
     setError(null);
     try {
       // Update the application status directly via Supabase
+      const updateData: Partial<InstructorApplication> = {
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      };
+
       const { error: updateError } = await supabase
         .from('instructor_applications')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', applicationId);
 
       if (updateError) throw updateError;
