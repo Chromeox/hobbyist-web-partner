@@ -79,9 +79,10 @@ export const auth = betterAuth({
 
   // Trusted origins for OAuth
   trustedOrigins: [
-    process.env.BETTER_AUTH_URL!,
+    process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
     "https://appleid.apple.com",
-  ],
+  ].filter(Boolean) as string[],
 
   // Session management
   session: {
