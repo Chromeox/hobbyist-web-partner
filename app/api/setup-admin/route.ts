@@ -41,9 +41,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (result.error) {
+    // Better Auth throws on error, but check token exists
+    if (!result || !result.user) {
       return NextResponse.json(
-        { error: result.error.message },
+        { error: 'Failed to create user account' },
         { status: 400 }
       );
     }
