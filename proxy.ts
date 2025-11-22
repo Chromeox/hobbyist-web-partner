@@ -13,18 +13,29 @@ export async function proxy(request: NextRequest) {
         headers: request.headers,
       });
 
+      console.log('[Proxy] Admin route access attempt:', {
+        path: request.nextUrl.pathname,
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userEmail: session?.user?.email,
+        userRole: session?.user?.role,
+      });
+
       // Check if user is authenticated
       if (!session?.user) {
+        console.log('[Proxy] No user session - redirecting to 404');
         // Redirect to 404 instead of login to hide admin portal existence
         return NextResponse.rewrite(new URL('/404', request.url));
       }
 
       // Check if user has admin role
       if (session.user.role !== 'admin') {
+        console.log('[Proxy] User is not admin - redirecting to 404');
         // Redirect to 404 for non-admins (not 403/unauthorized)
         return NextResponse.rewrite(new URL('/404', request.url));
       }
 
+      console.log('[Proxy] Admin access granted');
       // User is authenticated and is admin - continue with Supabase proxy below
     } catch (error) {
       console.error('[Proxy] Admin auth error:', error);
