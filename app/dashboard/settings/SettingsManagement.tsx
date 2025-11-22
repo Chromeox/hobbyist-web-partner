@@ -35,6 +35,7 @@ import {
   Upload
 } from 'lucide-react';
 import { SelectDropdown } from '@/components/common/SelectDropdown';
+import VerificationSettings from './VerificationSettings';
 
 interface StudioSettings {
   // Business Information
@@ -51,14 +52,14 @@ interface StudioSettings {
     zipCode: string;
     country: string;
   };
-  
+
   // Operational Settings
   timezone: string;
   currency: string;
   businessHours: {
     [key: string]: { open: string; close: string; closed: boolean };
   };
-  
+
   // Booking Settings
   bookingPolicy: {
     cancellationWindow: number; // hours
@@ -67,7 +68,7 @@ interface StudioSettings {
     requirePayment: boolean;
     allowSameDay: boolean;
   };
-  
+
   // Payment Model Settings
   paymentModel: {
     mode: 'credits' | 'cash' | 'hybrid';
@@ -78,7 +79,7 @@ interface StudioSettings {
     creditExpiration: number | null; // days, null for no expiration
     commissionRate: number; // percentage
   };
-  
+
   // Notification Settings
   notifications: {
     newBookings: boolean;
@@ -88,7 +89,7 @@ interface StudioSettings {
     lowCapacity: boolean;
     staffUpdates: boolean;
   };
-  
+
   // Privacy Settings
   privacy: {
     showInstructor: boolean;
@@ -252,6 +253,7 @@ export default function SettingsManagement() {
     { id: 'bookings', label: 'Booking Policy', icon: Calendar },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Privacy', icon: Shield },
+    { id: 'verification', label: 'Verification', icon: CheckCircle },
     { id: 'integrations', label: 'Integrations', icon: Globe }
   ];
 
@@ -324,7 +326,7 @@ export default function SettingsManagement() {
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
           <p className="text-gray-600 mt-1">Manage your studio preferences and configuration</p>
         </div>
-        
+
         {hasChanges && (
           <div className="flex items-center gap-3">
             <button
@@ -337,7 +339,7 @@ export default function SettingsManagement() {
               <X className="h-4 w-4 mr-2" />
               Discard
             </button>
-            
+
             <button
               onClick={handleSaveSettings}
               disabled={isSaving}
@@ -364,15 +366,13 @@ export default function SettingsManagement() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center px-3 py-2 text-left rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  className={`w-full flex items-center px-3 py-2 text-left rounded-lg transition-colors ${activeTab === tab.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                 >
-                  <Icon className={`h-5 w-5 mr-3 ${
-                    activeTab === tab.id ? 'text-blue-700' : 'text-gray-500'
-                  }`} />
+                  <Icon className={`h-5 w-5 mr-3 ${activeTab === tab.id ? 'text-blue-700' : 'text-gray-500'
+                    }`} />
                   {tab.label}
                 </button>
               );
@@ -388,7 +388,7 @@ export default function SettingsManagement() {
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Studio Information</h2>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -401,7 +401,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Legal Business Name
@@ -413,7 +413,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Description
@@ -425,7 +425,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Website
@@ -437,7 +437,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Email
@@ -449,7 +449,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Phone
@@ -479,7 +479,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         City
@@ -491,7 +491,7 @@ export default function SettingsManagement() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Province
@@ -527,7 +527,7 @@ export default function SettingsManagement() {
                         size="sm"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Currency
@@ -556,7 +556,7 @@ export default function SettingsManagement() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Model Configuration</h2>
                   <p className="text-gray-600 mb-6">Configure how your studio accepts payments from students</p>
-                  
+
                   {/* Payment Mode Selection */}
                   <div className="space-y-6">
                     <div>
@@ -566,11 +566,10 @@ export default function SettingsManagement() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <button
                           onClick={() => handleSettingsChange('paymentModel', 'mode', 'credits')}
-                          className={`relative p-4 rounded-lg border-2 transition-all ${
-                            settings.paymentModel.mode === 'credits'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${settings.paymentModel.mode === 'credits'
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                         >
                           <Coins className="h-8 w-8 mb-2 text-blue-600" />
                           <h3 className="font-semibold text-gray-900">Credits Only</h3>
@@ -581,14 +580,13 @@ export default function SettingsManagement() {
                             <Check className="absolute top-2 right-2 h-5 w-5 text-blue-600" />
                           )}
                         </button>
-                        
+
                         <button
                           onClick={() => handleSettingsChange('paymentModel', 'mode', 'cash')}
-                          className={`relative p-4 rounded-lg border-2 transition-all ${
-                            settings.paymentModel.mode === 'cash'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${settings.paymentModel.mode === 'cash'
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                         >
                           <DollarSign className="h-8 w-8 mb-2 text-green-600" />
                           <h3 className="font-semibold text-gray-900">Cash Only</h3>
@@ -599,14 +597,13 @@ export default function SettingsManagement() {
                             <Check className="absolute top-2 right-2 h-5 w-5 text-blue-600" />
                           )}
                         </button>
-                        
+
                         <button
                           onClick={() => handleSettingsChange('paymentModel', 'mode', 'hybrid')}
-                          className={`relative p-4 rounded-lg border-2 transition-all ${
-                            settings.paymentModel.mode === 'hybrid'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                          className={`relative p-4 rounded-lg border-2 transition-all ${settings.paymentModel.mode === 'hybrid'
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                         >
                           <CreditCard className="h-8 w-8 mb-2 text-purple-600" />
                           <h3 className="font-semibold text-gray-900">Hybrid</h3>
@@ -624,7 +621,7 @@ export default function SettingsManagement() {
                     {(settings.paymentModel.mode === 'credits' || settings.paymentModel.mode === 'hybrid') && (
                       <div className="border-t pt-6 space-y-4">
                         <h3 className="font-medium text-gray-900 mb-4">Credit Settings</h3>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Default Credits Per Class
@@ -641,7 +638,7 @@ export default function SettingsManagement() {
                             Standard number of credits required for most classes
                           </p>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Credit Expiration (days)
@@ -649,7 +646,7 @@ export default function SettingsManagement() {
                           <input
                             type="number"
                             value={settings.paymentModel.creditExpiration || ''}
-                            onChange={(e) => handleSettingsChange('paymentModel', 'creditExpiration', 
+                            onChange={(e) => handleSettingsChange('paymentModel', 'creditExpiration',
                               e.target.value ? parseInt(e.target.value) : null)}
                             className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             placeholder="No expiration"
@@ -658,7 +655,7 @@ export default function SettingsManagement() {
                             Leave empty for credits that never expire
                           </p>
                         </div>
-                        
+
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium text-gray-900">Enable Credit Packs</p>
@@ -681,7 +678,7 @@ export default function SettingsManagement() {
                     {settings.paymentModel.mode === 'hybrid' && (
                       <div className="border-t pt-6 space-y-4">
                         <h3 className="font-medium text-gray-900 mb-4">Hybrid Payment Settings</h3>
-                        
+
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium text-gray-900">Allow Mixed Payments</p>
@@ -697,7 +694,7 @@ export default function SettingsManagement() {
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
-                        
+
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium text-gray-900">Accept Cash Payments</p>
@@ -719,7 +716,7 @@ export default function SettingsManagement() {
                     {/* Commission Settings */}
                     <div className="border-t pt-6">
                       <h3 className="font-medium text-gray-900 mb-4">Platform Commission</h3>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Commission Rate (%)
@@ -749,11 +746,11 @@ export default function SettingsManagement() {
                         <div>
                           <h4 className="font-medium text-blue-900">Payment Model Impact</h4>
                           <p className="text-sm text-blue-700 mt-1">
-                            {settings.paymentModel.mode === 'credits' && 
+                            {settings.paymentModel.mode === 'credits' &&
                               "Credit-only mode encourages bulk purchases and improves cash flow. Students buy credits upfront and spend them over time."}
-                            {settings.paymentModel.mode === 'cash' && 
+                            {settings.paymentModel.mode === 'cash' &&
                               "Cash-only mode uses traditional per-class payments. Simple and familiar for most studios and students."}
-                            {settings.paymentModel.mode === 'hybrid' && 
+                            {settings.paymentModel.mode === 'hybrid' &&
                               "Hybrid mode offers maximum flexibility. Perfect for transitioning to credits or serving diverse customer preferences."}
                           </p>
                         </div>
@@ -770,16 +767,15 @@ export default function SettingsManagement() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-2">Subscription Plans</h2>
                   <p className="text-gray-600 mb-6">Choose the plan that best fits your studio's needs</p>
-                  
+
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {subscriptionPlans.map((plan) => (
                       <div
                         key={plan.id}
-                        className={`relative rounded-xl border-2 p-6 ${
-                          currentPlan === plan.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
-                        }`}
+                        className={`relative rounded-xl border-2 p-6 ${currentPlan === plan.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
                       >
                         {plan.isPopular && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -788,7 +784,7 @@ export default function SettingsManagement() {
                             </span>
                           </div>
                         )}
-                        
+
                         <div className="text-center mb-6">
                           <h3 className="text-xl font-semibold text-gray-900">{plan.name}</h3>
                           <div className="mt-2">
@@ -796,57 +792,68 @@ export default function SettingsManagement() {
                             <span className="text-gray-600">/{plan.interval}</span>
                           </div>
                         </div>
-                        
+
                         <ul className="space-y-3 mb-6">
                           {plan.features.map((feature, index) => (
-                            <li key={index} className="flex items-center text-sm">
-                              <Check className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" />
-                              {feature}
+                            <li key={index} className="flex items-center text-gray-600">
+                              <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                              <span className="text-sm">{feature}</span>
                             </li>
                           ))}
                         </ul>
-                        
+
                         <button
                           onClick={() => handlePlanChange(plan.id)}
-                          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                            currentPlan === plan.id
-                              ? 'bg-blue-600 text-white'
-                              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                          }`}
+                          className={`w-full py-2 rounded-lg font-medium transition-colors ${currentPlan === plan.id
+                              ? 'bg-blue-600 text-white hover:bg-blue-700'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
                         >
-                          {currentPlan === plan.id ? 'Current Plan' : 'Select Plan'}
+                          {currentPlan === plan.id ? 'Current Plan' : 'Upgrade'}
                         </button>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="text-md font-semibold text-gray-900 mb-4">Payment Method</h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <CreditCard className="h-6 w-6 text-gray-600 mr-3" />
-                        <div>
-                          <p className="font-medium">•••• •••• •••• 4242</p>
-                          <p className="text-sm text-gray-600">Expires 12/2027</p>
-                        </div>
-                      </div>
-                      <button className="text-blue-600 hover:text-blue-700 font-medium">
-                        Update
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
-            {/* Booking Policy */}
-            {activeTab === 'bookings' && (
+            {/* Verification Settings */}
+            {activeTab === 'verification' && (
+              <div className="p-6">
+                <VerificationSettings />
+              </div>
+            )}
+
+
+            <div className="border-t pt-6">
+              <h3 className="text-md font-semibold text-gray-900 mb-4">Payment Method</h3>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <CreditCard className="h-6 w-6 text-gray-600 mr-3" />
+                    <div>
+                      <p className="font-medium">•••• •••• •••• 4242</p>
+                      <p className="text-sm text-gray-600">Expires 12/2027</p>
+                    </div>
+                  </div>
+                  <button className="text-blue-600 hover:text-blue-700 font-medium">
+                    Update
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div >
+          )
+}
+
+          {/* Booking Policy */}
+          {
+            activeTab === 'bookings' && (
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Policy</h2>
-                  
+
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -862,7 +869,7 @@ export default function SettingsManagement() {
                         Students can cancel up to this many hours before class starts
                       </p>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Refund Policy
@@ -879,7 +886,7 @@ export default function SettingsManagement() {
                         size="sm"
                       />
                     </div>
-                    
+
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -896,7 +903,7 @@ export default function SettingsManagement() {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Require Payment</p>
@@ -912,7 +919,7 @@ export default function SettingsManagement() {
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium text-gray-900">Allow Same-Day Booking</p>
@@ -934,15 +941,17 @@ export default function SettingsManagement() {
                   </div>
                 </div>
               </div>
-            )}
+            )
+          }
 
-            {/* Notifications */}
-            {activeTab === 'notifications' && (
+          {/* Notifications */}
+          {
+            activeTab === 'notifications' && (
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h2>
                   <p className="text-gray-600 mb-6">Choose which notifications you'd like to receive</p>
-                  
+
                   <div className="space-y-4">
                     {Object.entries(settings.notifications).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between py-2">
@@ -973,15 +982,17 @@ export default function SettingsManagement() {
                   </div>
                 </div>
               </div>
-            )}
+            )
+          }
 
-            {/* Privacy */}
-            {activeTab === 'privacy' && (
+          {/* Privacy */}
+          {
+            activeTab === 'privacy' && (
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h2>
                   <p className="text-gray-600 mb-6">Control what information is visible to students</p>
-                  
+
                   <div className="space-y-4">
                     {Object.entries(settings.privacy).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between py-2">
@@ -1010,15 +1021,17 @@ export default function SettingsManagement() {
                   </div>
                 </div>
               </div>
-            )}
+            )
+          }
 
-            {/* Integrations */}
-            {activeTab === 'integrations' && (
+          {/* Integrations */}
+          {
+            activeTab === 'integrations' && (
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Integrations</h2>
                   <p className="text-gray-600 mb-6">Connect with third-party services to enhance your studio</p>
-                  
+
                   <div className="space-y-4">
                     {/* Existing Integrations */}
                     <div className="border rounded-lg p-4">
@@ -1037,7 +1050,7 @@ export default function SettingsManagement() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -1054,7 +1067,7 @@ export default function SettingsManagement() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -1071,7 +1084,7 @@ export default function SettingsManagement() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -1088,7 +1101,7 @@ export default function SettingsManagement() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -1110,7 +1123,7 @@ export default function SettingsManagement() {
                     <div className="border-t pt-6 mt-6">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Import</h3>
                       <p className="text-gray-600 mb-4">Upload CSV files to import your existing class schedules or student lists.</p>
-                      
+
                       <div className="flex flex-col sm:flex-row items-center gap-4">
                         <input
                           type="file"
@@ -1134,8 +1147,8 @@ export default function SettingsManagement() {
                             <Upload className="h-4 w-4 mr-2" />
                           )}
                           {uploadStatus === 'uploading' ? 'Uploading...' :
-                           uploadStatus === 'success' ? 'Uploaded!' :
-                           uploadStatus === 'error' ? 'Error!' : 'Upload CSV'}
+                            uploadStatus === 'success' ? 'Uploaded!' :
+                              uploadStatus === 'error' ? 'Error!' : 'Upload CSV'}
                         </button>
                       </div>
                       {uploadStatus === 'success' && (
@@ -1148,10 +1161,11 @@ export default function SettingsManagement() {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+            )
+          }
+        </div >
+      </div >
+    </div >
+    </div >
   );
 }

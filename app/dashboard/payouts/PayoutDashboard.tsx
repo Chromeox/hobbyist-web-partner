@@ -82,7 +82,7 @@ const PayoutDashboard: React.FC = () => {
   // Hooks for authentication, payment model, and Supabase client
   const { user } = useAuth();
   const { paymentModel } = usePaymentModel(); // Assuming this context provides payment-related info
-  
+
   // State variables for loading, date range, and fetched data
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30');
@@ -297,6 +297,32 @@ const PayoutDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Connect Stripe Banner - Show if no payout data/account connected */}
+      {(!summary || summary.totalEarnings === 0) && (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex gap-4">
+              <div className="p-3 bg-indigo-100 rounded-lg h-fit">
+                <CreditCard className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-indigo-900">Setup Payouts</h3>
+                <p className="text-indigo-700 mt-1 max-w-xl">
+                  Connect your Stripe account to start receiving payouts from your classes.
+                  You won't be able to receive funds until this is completed.
+                </p>
+                <Button
+                  onClick={handleUpdatePaymentMethod}
+                  className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  Connect with Stripe
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Summary Cards: Displays key financial metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
@@ -342,14 +368,14 @@ const PayoutDashboard: React.FC = () => {
               <TabsTrigger value="classes">Classes</TabsTrigger>
               <TabsTrigger value="students">Students</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="earnings" className="space-y-4">
               <ResponsiveContainer width="100%" height={350}>
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="date" />
@@ -479,7 +505,7 @@ const PayoutDashboard: React.FC = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-4 pt-4 border-t">
             <Button variant="outline" className="w-full">
               View All Payouts
