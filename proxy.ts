@@ -1,7 +1,36 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
 
 export async function proxy(request: NextRequest) {
+  // ===== ADMIN ROUTE PROTECTION =====
+  // Protect /internal/admin routes - require authentication and admin role
+  if (request.nextUrl.pathname.startsWith('/internal/admin')) {
+    try {
+      const session = await auth.api.getSession({
+        headers: request.headers,
+      });
+
+      // Check if user is authenticated
+      if (!session?.user) {
+        // Redirect to 404 instead of login to hide admin portal existence
+        return NextResponse.rewrite(new URL('/404', request.url));
+      }
+
+      // Check if user has admin role
+      if (session.user.role !== 'admin') {
+        // Redirect to 404 for non-admins (not 403/unauthorized)
+        return NextResponse.rewrite(new URL('/404', request.url));
+      }
+
+      // User is authenticated and is admin - continue with Supabase proxy below
+    } catch (error) {
+      console.error('[Proxy] Admin auth error:', error);
+      // On error, redirect to 404 to be safe
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  }
+  // ===== END ADMIN ROUTE PROTECTION =====
   // Log requests to auth routes for debugging
   if (request.nextUrl.pathname.startsWith('/auth/')) {
     console.log('[Proxy] Auth route:', {
