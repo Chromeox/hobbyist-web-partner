@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from './lib/auth';
 
 export async function proxy(request: NextRequest) {
   // ===== ADMIN ROUTE PROTECTION =====
