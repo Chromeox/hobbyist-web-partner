@@ -64,12 +64,13 @@ export default function InstructorApprovalsPage() {
     setError(null);
     try {
       // Update the application status directly via Supabase
+      // @ts-ignore - Supabase type definitions don't include all tables
       const { error: updateError } = await supabase
         .from('instructor_applications')
         .update({
           status: newStatus,
           updated_at: new Date().toISOString()
-        } as any)
+        })
         .eq('id', applicationId);
 
       if (updateError) throw updateError;
