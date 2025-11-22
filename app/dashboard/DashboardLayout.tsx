@@ -94,18 +94,8 @@ const navigationSections = [
       { id: 'locations', label: 'Locations', icon: MapPin, href: '/dashboard/locations' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' }
     ]
-  },
-  {
-    id: 'admin',
-    label: 'Admin',
-    icon: Crown,
-    expanded: false,
-    items: [
-      { id: 'instructor-approvals', label: 'Instructor Approvals', icon: Users, href: '/dashboard/admin/instructor-approvals' },
-      { id: 'studio-approval', label: 'Studio Approval', icon: Building2, href: '/dashboard/admin/studio-approval' },
-      { id: 'payouts', label: 'Payouts', icon: Wallet, href: '/dashboard/payouts' }
-    ]
   }
+  // Admin section removed - now at /internal/admin
 ];
 
 interface DashboardLayoutProps {

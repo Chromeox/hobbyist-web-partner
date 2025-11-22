@@ -1,0 +1,22 @@
+# Hobbyist Partner Portal - Robots.txt
+# Block admin portal and API routes from search engines
+
+User-agent: *
+
+# Allow general access to partner portal
+Allow: /
+
+# Block admin portal (hidden, admin-only access)
+Disallow: /internal/
+Disallow: /internal/*
+
+# Block API routes
+Disallow: /api/
+Disallow: /api/*
+
+# Block authentication pages (no SEO value)
+Disallow: /auth/
+Disallow: /auth/*
+
+# Sitemap (optional - can add later when public pages exist)
+# Sitemap: https://partner.hobbyist.com/sitemap.xml
