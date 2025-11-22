@@ -61,21 +61,25 @@ export const auth = betterAuth({
     },
   },
 
-  // Social OAuth providers
-  socialProviders: {
-    google: {
-      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
+  // Social OAuth providers (conditional - only enable if credentials are provided)
+  ...(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
+    socialProviders: {
+      google: {
+        clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
+      },
+      ...(process.env.NEXT_PUBLIC_APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET ? {
+        apple: {
+          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+          clientSecret: process.env.APPLE_CLIENT_SECRET,
+          redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/apple`,
+          // For iOS native apps (uses bundle ID)
+          appBundleIdentifier: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+        },
+      } : {}),
     },
-    apple: {
-      clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
-      clientSecret: process.env.APPLE_CLIENT_SECRET!,
-      redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/apple`,
-      // For iOS native apps (uses bundle ID)
-      appBundleIdentifier: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
-    },
-  },
+  } : {}),
 
   // Trusted origins for OAuth
   trustedOrigins: [

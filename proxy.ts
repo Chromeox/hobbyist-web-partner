@@ -1,12 +1,14 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from './lib/auth';
 
 export async function proxy(request: NextRequest) {
   // ===== ADMIN ROUTE PROTECTION =====
   // Protect /internal/admin routes - require authentication and admin role
   if (request.nextUrl.pathname.startsWith('/internal/admin')) {
     try {
+      // Lazy load auth module to prevent initialization during build
+      const { auth } = await import('./lib/auth');
+
       const session = await auth.api.getSession({
         headers: request.headers,
       });
