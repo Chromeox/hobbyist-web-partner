@@ -32,7 +32,8 @@ import {
   Coins,
   ToggleLeft,
   ToggleRight,
-  Upload
+  Upload,
+  CheckCircle
 } from 'lucide-react';
 import { SelectDropdown } from '@/components/common/SelectDropdown';
 import VerificationSettings from './VerificationSettings';
@@ -825,31 +826,8 @@ export default function SettingsManagement() {
               </div>
             )}
 
-
-            <div className="border-t pt-6">
-              <h3 className="text-md font-semibold text-gray-900 mb-4">Payment Method</h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <CreditCard className="h-6 w-6 text-gray-600 mr-3" />
-                    <div>
-                      <p className="font-medium">•••• •••• •••• 4242</p>
-                      <p className="text-sm text-gray-600">Expires 12/2027</p>
-                    </div>
-                  </div>
-                  <button className="text-blue-600 hover:text-blue-700 font-medium">
-                    Update
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div >
-          )
-}
-
-          {/* Booking Policy */}
-          {
-            activeTab === 'bookings' && (
+            {/* Booking Policy */}
+            {activeTab === 'bookings' && (
               <div className="p-6 space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Policy</h2>
@@ -1161,11 +1139,10 @@ export default function SettingsManagement() {
                   </div>
                 </div>
               </div>
-            )
-          }
-        </div >
-      </div >
-    </div >
-    </div >
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

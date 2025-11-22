@@ -18,10 +18,8 @@ jest.mock("pg", () => {
 
 describe("Apple Auth Endpoint", () => {
     let req: any
-    let json: any
 
     beforeEach(() => {
-        json = jest.fn()
         req = {
             json: jest.fn().mockResolvedValue({
                 idToken: "mock_token",
