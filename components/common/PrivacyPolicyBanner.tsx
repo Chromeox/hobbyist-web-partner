@@ -36,7 +36,7 @@ export default function PrivacyPolicyBanner({
         <p>
           {contextMessages[context]}{' '}
           <Link
-            href="/privacy"
+            href="/legal/privacy"
             className="text-blue-600 hover:text-blue-700 underline"
           >
             Privacy Policy
@@ -53,7 +53,7 @@ export default function PrivacyPolicyBanner({
         <span>
           {contextMessages[context]}{' '}
           <Link
-            href="/privacy"
+            href="/legal/privacy"
             className="text-blue-600 hover:text-blue-700 underline inline-flex items-center gap-1"
           >
             View Privacy Policy
@@ -89,7 +89,7 @@ export default function PrivacyPolicyBanner({
           )}
 
           <Link
-            href="/privacy"
+            href="/legal/privacy"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
           >
             Read Full Privacy Policy

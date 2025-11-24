@@ -53,13 +53,13 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <Link
-                  href="/privacy"
+                  href="/legal/privacy"
                   className="hover:text-white transition-colors font-medium"
                 >
                   Privacy Policy
                 </Link>
               </li>
-              <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/legal/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Cookie Policy</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Data Processing Agreement</Link></li>
             </ul>

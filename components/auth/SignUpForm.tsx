@@ -8,7 +8,7 @@
 import React, { useState, useCallback, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/lib/context/AuthContext'
-import { Mail, Lock, User, Building, Loader2, AlertCircle, CheckCircle, Users, Briefcase } from 'lucide-react'
+import { Mail, Lock, User, Building, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 
 // Stable form state shape
 interface FormState {
@@ -18,7 +18,6 @@ interface FormState {
   firstName: string
   lastName: string
   businessName: string
-  accountType: 'studio' | 'instructor' // Added accountType
   isLoading: boolean
   error: string | null
   success: boolean
@@ -35,7 +34,6 @@ export const SignUpForm = memo(function SignUpForm() {
     firstName: '',
     lastName: '',
     businessName: '',
-    accountType: 'studio', // Default to studio
     isLoading: false,
     error: null,
     success: false
@@ -55,51 +53,65 @@ export const SignUpForm = memo(function SignUpForm() {
 
     // Validate password strength
     if (state.password.length < 8) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Password must be at least 8 characters' 
+      setState(prev => ({
+        ...prev,
+        error: 'Password must be at least 8 characters'
       }))
       return
     }
 
-    // Validate business name for studio type
-    if (state.accountType === 'studio' && !state.businessName) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Business Name is required for Studio accounts' 
+    // Validate business name (required for all studio accounts)
+    if (!state.businessName) {
+      setState(prev => ({
+        ...prev,
+        error: 'Business Name is required'
       }))
       return
     }
 
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-    // Prepare metadata based on account type
-    const metadata = {
-      first_name: state.firstName,
-      last_name: state.lastName,
-      role: state.accountType, // Use selected accountType as role
-      ...(state.accountType === 'studio' && { business_name: state.businessName }) // Only include businessName for studio
-    }
+    try {
+      // Prepare metadata for studio account
+      const metadata = {
+        first_name: state.firstName,
+        last_name: state.lastName,
+        role: 'studio',
+        business_name: state.businessName
+      }
 
-    const { error } = await signUp(state.email, state.password, metadata)
+      console.log('Attempting signup with:', { email: state.email, metadata })
 
-    if (error) {
-      setState(prev => ({ 
-        ...prev, 
-        isLoading: false, 
-        error: error.message 
-      }))
-    } else {
-      setState(prev => ({ 
-        ...prev, 
+      const { error } = await signUp(state.email, state.password, metadata)
+
+      console.log('Signup response:', { error })
+
+      if (error) {
+        console.error('Signup error:', error)
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: error.message
+        }))
+      } else {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          success: true
+        }))
+
+        // Redirect to email verification flow
+        setTimeout(() => {
+          router.push(`/auth/check-email?email=${encodeURIComponent(state.email)}`)
+        }, 2000)
+      }
+    } catch (err) {
+      console.error('Signup exception:', err)
+      setState(prev => ({
+        ...prev,
         isLoading: false,
-        success: true 
+        error: err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.'
       }))
-      
-      // Redirect to email verification flow
-      setTimeout(() => {
-        router.push(`/auth/check-email?email=${encodeURIComponent(state.email)}`)
-      }, 2000)
     }
   }, [state, signUp, router])
 
@@ -147,103 +159,77 @@ export const SignUpForm = memo(function SignUpForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Account Type Selection */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">I am signing up as a:</label>
-            <div className="flex space-x-4">
-              <label className="inline-flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                  name="accountType"
-                  value="studio"
-                  checked={state.accountType === 'studio'}
-                  onChange={() => setState(prev => ({ ...prev, accountType: 'studio' }))}
-                  disabled={state.isLoading}
-                />
-                <div className="ml-2 flex items-center">
-                  <Building className="h-5 w-5 text-gray-500 mr-1" />
-                  <span className="text-gray-900">Studio</span>
-                </div>
-              </label>
-              <label className="inline-flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                  name="accountType"
-                  value="instructor"
-                  checked={state.accountType === 'instructor'}
-                  onChange={() => setState(prev => ({ ...prev, accountType: 'instructor' }))}
-                  disabled={state.isLoading}
-                />
-                <div className="ml-2 flex items-center">
-                  <Users className="h-5 w-5 text-gray-500 mr-1" />
-                  <span className="text-gray-900">Independent Instructor</span>
-                </div>
-              </label>
+          {/* Account Type - Studio Only for Alpha */}
+          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-center">
+              <Building className="h-5 w-5 text-blue-600 mr-2" />
+              <span className="text-sm font-medium text-blue-900">Creating Studio Account</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="firstName"
-                  type="text"
-                  value={state.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  required
-                  disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
-                  placeholder="John"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="lastName"
-                  type="text"
-                  value={state.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  required
-                  disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
-                  placeholder="Doe"
-                />
-              </div>
+          {/* Business Information */}
+          <div>
+            <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+              Business Name
+            </label>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                id="businessName"
+                type="text"
+                value={state.businessName}
+                onChange={(e) => handleInputChange('businessName', e.target.value)}
+                required
+                disabled={state.isLoading}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
+                placeholder="Wellness Studio"
+              />
             </div>
           </div>
 
-          {state.accountType === 'studio' && (
-            <div>
-              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-                Business Name
-              </label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="businessName"
-                  type="text"
-                  value={state.businessName}
-                  onChange={(e) => handleInputChange('businessName', e.target.value)}
-                  required={state.accountType === 'studio'} // Required only for studio
-                  disabled={state.isLoading}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  placeholder="Wellness Studio"
-                />
+          {/* Owner Information */}
+          <div className="pt-2">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Owner Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={state.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    required
+                    disabled={state.isLoading}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
+                    placeholder="John"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={state.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    required
+                    disabled={state.isLoading}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900"
+                    placeholder="Doe"
+                  />
+                </div>
               </div>
             </div>
-          )}
+          </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -314,12 +300,12 @@ export const SignUpForm = memo(function SignUpForm() {
             />
             <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
               I agree to the{' '}
-              <a href="/terms" className="text-blue-600 hover:text-blue-500">
+              <a href="/legal/terms" className="text-blue-600 hover:text-blue-500">
                 Terms and Conditions
               </a>
               {' '}
               and{' '}
-              <a href="/privacy" className="text-blue-600 hover:text-blue-500">
+              <a href="/legal/privacy" className="text-blue-600 hover:text-blue-500">
                 Privacy Policy
               </a>
             </label>
