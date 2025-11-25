@@ -19,8 +19,13 @@ import { sendEmail } from "./email"
 export const auth = betterAuth({
   // Database configuration (Supabase PostgreSQL)
   database: {
-    provider: "postgresql",
+    provider: "postgres",
     url: process.env.DATABASE_URL!,
+    options: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
   },
 
   // Email and password authentication

@@ -109,7 +109,7 @@ export default function TermsOfService() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">11. Governing Law</h2>
           <p className="mb-4">
-            These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction],
+            These Terms shall be governed by and construed in accordance with the laws of British Columbia, Canada,
             without regard to its conflict of law provisions.
           </p>
         </section>
@@ -129,7 +129,7 @@ export default function TermsOfService() {
           </p>
           <p className="mb-4">
             Email: legal@hobbyist.app<br />
-            Address: [Your Business Address]
+            Address: 1555 East 6th Ave, Vancouver BC, V5N 1P2
           </p>
         </section>
       </div>
