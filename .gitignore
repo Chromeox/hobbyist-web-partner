@@ -69,3 +69,7 @@ deployment-report-*.json
 .*.swp
 .*.swo
 .*.swn
+
+# Sensitive env exports
+web-partner-env-local
+web-partner-env-vercel
