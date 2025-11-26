@@ -204,8 +204,8 @@ async function handleUserDeleted(
 
   console.log('[Clerk Webhook] Handling user deletion:', { id });
 
-  // Option 1: Soft delete (recommended for data retention)
-  const { error } = await supabase
+  // Try soft delete first (requires deleted_at column from migration)
+  const { error: softDeleteError } = await supabase
     .from('profiles')
     .update({
       deleted_at: new Date().toISOString(),
@@ -213,16 +213,23 @@ async function handleUserDeleted(
     })
     .eq('id', id);
 
-  // Option 2: Hard delete (uncomment if preferred)
-  // const { error } = await supabase
-  //   .from('profiles')
-  //   .delete()
-  //   .eq('id', id);
+  // If soft delete fails (e.g., deleted_at column doesn't exist), fall back to hard delete
+  if (softDeleteError) {
+    console.log('[Clerk Webhook] Soft delete failed, attempting hard delete:', softDeleteError.message);
 
-  if (error) {
-    console.error('[Clerk Webhook] Failed to delete profile:', error);
-    throw error;
+    const { error: hardDeleteError } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', id);
+
+    if (hardDeleteError) {
+      console.error('[Clerk Webhook] Failed to delete profile:', hardDeleteError);
+      throw hardDeleteError;
+    }
+
+    console.log('[Clerk Webhook] ✅ User profile hard-deleted:', id);
+    return;
   }
 
-  console.log('[Clerk Webhook] ✅ User profile deleted:', id);
+  console.log('[Clerk Webhook] ✅ User profile soft-deleted:', id);
 }
