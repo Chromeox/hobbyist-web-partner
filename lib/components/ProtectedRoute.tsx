@@ -1,13 +1,14 @@
 /**
- * Protected Route Component (Better Auth)
- *
- * Migrated from Supabase Auth to Better Auth
+ * Protected Route Component (Clerk)
  *
  * Features:
  * - Route protection with authentication check
  * - Role-based access control
  * - Loading states during auth verification
  * - Automatic redirection
+ *
+ * Note: Most route protection is now handled by proxy.ts middleware.
+ * These components provide additional client-side protection and role checking.
  */
 
 'use client'

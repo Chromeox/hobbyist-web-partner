@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/utils/roleUtils';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getServerSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,14 +9,12 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/admin/studios/pending
  * Fetches all studios with pending approval status
- * Admin-only endpoint (Better Auth)
+ * Admin-only endpoint (Clerk)
  */
 export async function GET(request: Request) {
   try {
-    // Get Better Auth session
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
+    // Get Clerk session
+    const session = await getServerSession();
 
     // Verify user is authenticated
     if (!session?.user) {

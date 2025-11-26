@@ -1,154 +1,138 @@
 /**
- * Better Auth Server Configuration
+ * Server-side Auth Helper (Clerk)
  *
- * This is the main auth instance for the server-side.
- * Handles all authentication, authorization, and session management.
- *
- * Features:
- * - Email/password authentication with verification
- * - OAuth providers (Google, Apple)
- * - Session management with automatic refresh
- * - Role-based access control
- * - Organization support (studios, instructors)
+ * Provides server-side authentication utilities for API routes.
+ * Replaces Better Auth server-side functions with Clerk equivalents.
  */
 
-import { betterAuth } from "better-auth"
-import { nextCookies } from "better-auth/next-js"
-import { sendEmail } from "./email"
+import { auth as clerkAuth, currentUser } from '@clerk/nextjs/server';
 
-export const auth = betterAuth({
-  // Database configuration (Supabase PostgreSQL)
-  database: {
-    provider: "postgres",
-    url: process.env.DATABASE_URL!,
-    options: {
-      ssl: {
-        rejectUnauthorized: false,
+/**
+ * User type for server-side use
+ */
+export interface ServerUser {
+  id: string;
+  email: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  role?: string;
+  imageUrl?: string | null;
+}
+
+/**
+ * Session type for server-side use
+ */
+export interface ServerSession {
+  user: ServerUser;
+  userId: string;
+  sessionId: string;
+}
+
+/**
+ * Get the current session from Clerk
+ * Use this in API routes to verify authentication
+ *
+ * @example
+ * const session = await getServerSession();
+ * if (!session?.user) {
+ *   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+ * }
+ */
+export async function getServerSession(): Promise<ServerSession | null> {
+  try {
+    const { userId, sessionId } = await clerkAuth();
+
+    if (!userId || !sessionId) {
+      return null;
+    }
+
+    // Get full user details
+    const user = await currentUser();
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      user: {
+        id: user.id,
+        email: user.emailAddresses[0]?.emailAddress || '',
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: (user.unsafeMetadata?.role as string) || 'student',
+        imageUrl: user.imageUrl,
       },
+      userId,
+      sessionId,
+    };
+  } catch (error) {
+    console.error('[Auth] Error getting server session:', error);
+    return null;
+  }
+}
+
+/**
+ * Compatibility export for existing code that imports { auth } from '@/lib/auth'
+ * Provides a similar API structure to Better Auth
+ */
+export const auth = {
+  api: {
+    /**
+     * Get session - compatibility method for Better Auth migration
+     * @deprecated Use getServerSession() directly instead
+     */
+    getSession: async (_options?: { headers?: Headers }): Promise<ServerSession | null> => {
+      return getServerSession();
     },
   },
+};
 
-  // Email and password authentication
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-    sendVerificationEmail: async ({ user, token, url }) => {
-      console.log(`Verification email for ${user.email}:`, url)
+/**
+ * Check if user has admin role
+ */
+export function isAdminUser(user: ServerUser | null | undefined): boolean {
+  return user?.role === 'admin';
+}
 
-      await sendEmail({
-        to: user.email,
-        subject: "Verify your Hobbyist account",
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Welcome to Hobbyist!</h2>
-            <p>Please verify your email address to complete your registration.</p>
-            <p><a href="${url}" style="background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a></p>
-            <p>Or copy this link: ${url}</p>
-          </div>
-        `
-      })
-    },
-    sendResetPassword: async ({ user, token, url }) => {
-      console.log(`Password reset for ${user.email}:`, url)
+/**
+ * Get user ID from auth (simpler version when you just need the ID)
+ */
+export async function getAuthUserId(): Promise<string | null> {
+  const { userId } = await clerkAuth();
+  return userId;
+}
 
-      await sendEmail({
-        to: user.email,
-        subject: "Reset your Hobbyist password",
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Reset Password</h2>
-            <p>You requested a password reset for your Hobbyist account.</p>
-            <p><a href="${url}" style="background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
-            <p>If you didn't request this, please ignore this email.</p>
-          </div>
-        `
-      })
-    },
-  },
+/**
+ * Require authentication - throws if not authenticated
+ * Use in API routes that require auth
+ *
+ * @example
+ * const session = await requireAuth();
+ * // If we get here, user is authenticated
+ */
+export async function requireAuth(): Promise<ServerSession> {
+  const session = await getServerSession();
 
-  // Social OAuth providers (conditional - only enable if credentials are provided)
-  ...(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
-    socialProviders: {
-      google: {
-        clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
-      },
-      ...(process.env.NEXT_PUBLIC_APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET ? {
-        apple: {
-          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
-          clientSecret: process.env.APPLE_CLIENT_SECRET,
-          redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/apple`,
-          // For iOS native apps (uses bundle ID)
-          appBundleIdentifier: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
-        },
-      } : {}),
-    },
-  } : {}),
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
 
-  // Trusted origins for OAuth
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-    "https://appleid.apple.com",
-  ].filter(Boolean) as string[],
+  return session;
+}
 
-  // Session management
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24,      // Refresh after 1 day
-    freshAge: 60 * 60 * 24,       // Fresh session = 1 day
-    cookieCache: {
-      enabled: true,              // Enable cookie caching for performance
-      maxAge: 5 * 60,             // 5 minutes cache
-    },
-  },
+/**
+ * Require admin role - throws if not admin
+ *
+ * @example
+ * const session = await requireAdmin();
+ * // If we get here, user is authenticated and is admin
+ */
+export async function requireAdmin(): Promise<ServerSession> {
+  const session = await requireAuth();
 
-  // User fields customization
-  user: {
-    // Add custom fields to user table
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "student",
-        // Possible values: "student", "instructor", "admin", "studio"
-      },
-      businessName: {
-        type: "string",
-        required: false,
-      },
-      accountType: {
-        type: "string",
-        required: false,
-        defaultValue: "student",
-        // Possible values: "student", "instructor", "studio"
-      },
-      firstName: {
-        type: "string",
-        required: false,
-      },
-      lastName: {
-        type: "string",
-        required: false,
-      },
-    },
-  },
+  if (!isAdminUser(session.user)) {
+    throw new Error('Forbidden - Admin access required');
+  }
 
-  // Advanced configuration
-  advanced: {
-    // Use Next.js cookies adapter for better session handling
-    useSecureCookies: process.env.NODE_ENV === "production",
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-  },
-})
-
-// Export types for TypeScript
-// Full session object with both session data and user
-export type Session = typeof auth.$Infer.Session
-
-// Individual session data and user types
-export type SessionData = typeof auth.$Infer.Session.session
-export type User = typeof auth.$Infer.Session.user
+  return session;
+}

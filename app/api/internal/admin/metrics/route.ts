@@ -9,8 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getServerSession } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase with service role for admin access
@@ -21,8 +20,8 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const session = await auth.api.getSession({ headers: await headers() });
+    // Verify admin authentication (Clerk)
+    const session = await getServerSession();
 
     if (!session?.user || session.user.role !== 'admin') {
       return NextResponse.json(

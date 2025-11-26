@@ -1,11 +1,9 @@
 /**
- * Forgot Password Form Component (Better Auth)
- * Sends password reset email to user
- *
- * Migrated from Supabase Auth to Better Auth
+ * Forgot Password Form Component (Clerk)
+ * Sends password reset email to user via Clerk
  *
  * Security Features:
- * - Rate limiting (3 attempts per 15 minutes, 1 hour block)
+ * - Rate limiting (handled by Clerk)
  * - Email enumeration prevention (always shows success)
  * - Resend functionality with 60s cooldown
  */
@@ -14,9 +12,8 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
+import { useSignIn } from '@clerk/nextjs'
 import { Mail, ArrowLeft, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react'
-import { useAuthContext } from '@/lib/context/AuthContext'
-import { passwordResetRateLimiter } from '@/lib/utils/rate-limit'
 
 interface FormState {
   email: string
@@ -28,7 +25,7 @@ interface FormState {
 }
 
 export function ForgotPasswordForm() {
-  const { resetPassword } = useAuthContext()
+  const { isLoaded, signIn } = useSignIn()
 
   const [state, setState] = useState<FormState>({
     email: '',
@@ -54,25 +51,16 @@ export function ForgotPasswordForm() {
   }, [state.resendCooldown])
 
   const sendResetEmail = useCallback(async (email: string) => {
-    // Check rate limit first
-    const rateLimitResult = await passwordResetRateLimiter.check(email)
+    if (!isLoaded || !signIn) return
 
-    if (!rateLimitResult.allowed) {
-      const minutes = Math.ceil(rateLimitResult.retryAfter! / 60)
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: `Too many attempts. Please try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`
-      }))
-      return
-    }
-
-    // Send reset email using Better Auth - ALWAYS return success for security
     try {
-      const { error } = await resetPassword(email)
+      // Use Clerk's forgot password flow
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier: email,
+      })
 
-      // Always show success - don't reveal if email exists
-      // Better Auth handles email sending internally
+      // Always show success - even if email doesn't exist (security)
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -83,16 +71,26 @@ export function ForgotPasswordForm() {
       }))
     } catch (error: any) {
       // Even on error, show success to prevent email enumeration
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        success: true,
-        error: null,
-        canResend: false,
-        resendCooldown: 60
-      }))
+      // Unless it's a rate limit error
+      if (error.errors?.[0]?.code === 'too_many_requests') {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Too many attempts. Please try again later.'
+        }))
+      } else {
+        // Show success anyway to prevent email enumeration
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          success: true,
+          error: null,
+          canResend: false,
+          resendCooldown: 60
+        }))
+      }
     }
-  }, [resetPassword])
+  }, [isLoaded, signIn])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -123,11 +121,19 @@ export function ForgotPasswordForm() {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
             <p className="text-gray-600 mb-6">
-              We've sent a password reset link to <strong>{state.email}</strong>
+              If an account exists for <strong>{state.email}</strong>, we've sent a password reset code.
             </p>
             <p className="text-sm text-gray-500 mb-6">
-              Click the link in the email to reset your password. The link will expire in 1 hour.
+              Enter the code on the reset password page to create a new password.
             </p>
+
+            {/* Link to reset password page */}
+            <Link
+              href={`/auth/reset-password?email=${encodeURIComponent(state.email)}`}
+              className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors mb-4"
+            >
+              Enter Reset Code
+            </Link>
 
             {/* Resend button with cooldown */}
             <div className="mb-6">
@@ -149,7 +155,7 @@ export function ForgotPasswordForm() {
                 ) : (
                   <>
                     <Mail className="h-4 w-4" />
-                    Resend Email
+                    Resend Code
                   </>
                 )}
               </button>
@@ -177,7 +183,7 @@ export function ForgotPasswordForm() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
           <p className="text-gray-600">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we'll send you a code to reset your password
           </p>
         </div>
 
@@ -207,14 +213,14 @@ export function ForgotPasswordForm() {
                 onChange={(e) => setState(prev => ({ ...prev, email: e.target.value }))}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="you@example.com"
-                disabled={state.isLoading}
+                disabled={state.isLoading || !isLoaded}
               />
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={state.isLoading}
+            disabled={state.isLoading || !isLoaded}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {state.isLoading ? (
@@ -223,7 +229,7 @@ export function ForgotPasswordForm() {
                 Sending...
               </>
             ) : (
-              'Send Reset Link'
+              'Send Reset Code'
             )}
           </button>
         </form>

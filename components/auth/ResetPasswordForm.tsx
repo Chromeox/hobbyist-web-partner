@@ -1,88 +1,115 @@
 /**
- * Reset Password Form Component (Better Auth)
- * Allows users to set a new password after receiving reset email
+ * Reset Password Form Component (Clerk)
+ * Allows users to verify their reset code and set a new password
  *
- * Migrated from Supabase Auth to Better Auth
+ * Flow:
+ * 1. User receives code via email (from ForgotPasswordForm)
+ * 2. User enters code on this page
+ * 3. Code is verified, then user sets new password
  */
 
 'use client'
 
-import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react'
+import React, { useState, useCallback, lazy, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
+import { useSignIn } from '@clerk/nextjs'
+import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff, Mail, KeyRound } from 'lucide-react'
 
 // Lazy load password strength bar to reduce bundle size
 const PasswordStrengthBar = lazy(() => import('react-password-strength-bar'))
 
+type Step = 'code' | 'password' | 'success'
+
 interface FormState {
+  code: string
   password: string
   confirmPassword: string
   showPassword: boolean
   showConfirmPassword: boolean
   isLoading: boolean
   error: string | null
-  success: boolean
-  tokenChecked: boolean
-  hasValidToken: boolean
-  token: string | null
+  step: Step
 }
 
 export function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { isLoaded, signIn, setActive } = useSignIn()
+
+  // Get email from URL params (passed from ForgotPasswordForm)
+  const emailFromParams = searchParams.get('email') || ''
 
   const [state, setState] = useState<FormState>({
+    code: '',
     password: '',
     confirmPassword: '',
     showPassword: false,
     showConfirmPassword: false,
     isLoading: false,
     error: null,
-    success: false,
-    tokenChecked: false,
-    hasValidToken: false,
-    token: null
+    step: 'code'
   })
 
-  // Check for valid token on mount - user must have clicked reset link
-  useEffect(() => {
-    const token = searchParams.get('token')
+  // Handle code verification
+  const handleVerifyCode = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
 
-    console.log('[Reset Password] Token check:', {
-      hasToken: !!token,
-      token: token ? `${token.slice(0, 10)}...` : null
-    })
+    if (!isLoaded || !signIn) return
 
-    if (!token) {
-      console.warn('[Reset Password] No token found in URL')
-
-      setState(prev => ({
-        ...prev,
-        tokenChecked: true,
-        hasValidToken: false,
-        error: 'No reset token found. Please click the link in your email or request a new one.'
-      }))
-
-      // Redirect to forgot password after 4 seconds (give user time to read)
-      setTimeout(() => {
-        router.push('/auth/forgot-password')
-      }, 4000)
+    if (!state.code || state.code.length !== 6) {
+      setState(prev => ({ ...prev, error: 'Please enter the 6-digit code from your email' }))
       return
     }
 
-    // Valid token found
-    setState(prev => ({
-      ...prev,
-      tokenChecked: true,
-      hasValidToken: true,
-      token
-    }))
-  }, [router, searchParams])
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    try {
+      // Attempt to verify the reset code
+      const result = await signIn.attemptFirstFactor({
+        strategy: 'reset_password_email_code',
+        code: state.code,
+      })
+
+      if (result.status === 'needs_new_password') {
+        // Code verified, move to password step
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          step: 'password',
+          error: null
+        }))
+      } else {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Invalid code. Please check your email and try again.'
+        }))
+      }
+    } catch (error: any) {
+      let errorMessage = 'Failed to verify code. Please try again.'
+
+      if (error.errors?.[0]?.code === 'form_code_incorrect') {
+        errorMessage = 'Incorrect code. Please check your email and try again.'
+      } else if (error.errors?.[0]?.code === 'verification_expired') {
+        errorMessage = 'Code has expired. Please request a new reset link.'
+      } else if (error.errors?.[0]?.code === 'too_many_requests') {
+        errorMessage = 'Too many attempts. Please wait a few minutes.'
+      }
+
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage
+      }))
+    }
+  }, [isLoaded, signIn, state.code])
+
+  // Handle password reset
+  const handleResetPassword = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isLoaded || !signIn) return
 
     // Validation
     if (!state.password || !state.confirmPassword) {
@@ -100,58 +127,41 @@ export function ResetPasswordForm() {
       return
     }
 
-    if (!state.token) {
-      setState(prev => ({ ...prev, error: 'No reset token found. Please request a new reset link.' }))
-      return
-    }
-
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      // Better Auth reset password with token
-      const result = await authClient.resetPassword({
-        newPassword: state.password,
-        token: state.token
+      const result = await signIn.resetPassword({
+        password: state.password,
       })
 
-      if (result.error) {
-        // Provide user-friendly error messages
-        let errorMessage = 'Failed to reset password. Please try again.'
-
-        const errorMsg = result.error.message || ''
-
-        if (errorMsg.includes('token') || errorMsg.includes('expired')) {
-          errorMessage = 'Your reset link has expired. Please request a new password reset link.'
-        } else if (errorMsg.includes('password')) {
-          errorMessage = 'Password does not meet security requirements. Please choose a stronger password.'
-        } else if (errorMsg.includes('rate limit')) {
-          errorMessage = 'Too many attempts. Please wait a few minutes and try again.'
-        } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
-          errorMessage = 'Network error. Please check your connection and try again.'
-        }
+      if (result.status === 'complete') {
+        // Set the active session
+        await setActive({ session: result.createdSessionId })
 
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: errorMessage
+          step: 'success',
+          error: null
         }))
+
+        // Redirect to dashboard after 2 seconds
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 2000)
       } else {
         setState(prev => ({
           ...prev,
           isLoading: false,
-          success: true,
-          error: null
+          error: 'Failed to reset password. Please try again.'
         }))
-
-        // Redirect to sign in page after 2 seconds
-        setTimeout(() => {
-          router.push('/auth/signin')
-        }, 2000)
       }
     } catch (error: any) {
-      const errorMessage = error?.message?.includes('network') || error?.message?.includes('fetch')
-        ? 'Network error. Please check your connection and try again.'
-        : 'An unexpected error occurred. Please try requesting a new reset link.'
+      let errorMessage = 'Failed to reset password. Please try again.'
+
+      if (error.errors?.[0]?.message) {
+        errorMessage = error.errors[0].message
+      }
 
       setState(prev => ({
         ...prev,
@@ -159,54 +169,10 @@ export function ResetPasswordForm() {
         error: errorMessage
       }))
     }
-  }, [state.password, state.confirmPassword, state.token, router])
-
-  // Loading state while checking token
-  if (!state.tokenChecked) {
-    return (
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifying Link...</h2>
-            <p className="text-gray-600">
-              Please wait while we verify your password reset link
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Invalid/expired token state
-  if (!state.hasValidToken) {
-    return (
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Link Expired</h2>
-            <p className="text-gray-600 mb-6">
-              {state.error || 'Your password reset link has expired. Please request a new one.'}
-            </p>
-            <Link
-              href="/auth/forgot-password"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Request New Link
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  }, [isLoaded, signIn, setActive, state.password, state.confirmPassword, router])
 
   // Success state
-  if (state.success) {
+  if (state.step === 'success') {
     return (
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -228,18 +194,157 @@ export function ResetPasswordForm() {
     )
   }
 
-  // Reset password form
+  // Password entry step
+  if (state.step === 'password') {
+    return (
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Lock className="h-8 w-8 text-blue-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Set New Password</h1>
+            <p className="text-gray-600">
+              Enter your new password below
+            </p>
+          </div>
+
+          <form onSubmit={handleResetPassword} className="space-y-6">
+            {state.error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">{state.error}</p>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                New Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={state.showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={state.password}
+                  onChange={(e) => setState(prev => ({ ...prev, password: e.target.value }))}
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter new password"
+                  disabled={state.isLoading || !isLoaded}
+                />
+                <button
+                  type="button"
+                  onClick={() => setState(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {state.showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
+              </div>
+              {state.password && (
+                <div className="mt-2">
+                  <Suspense fallback={<div className="h-2 bg-gray-200 rounded animate-pulse" />}>
+                    <PasswordStrengthBar
+                      password={state.password}
+                      minLength={8}
+                      scoreWords={['very weak', 'weak', 'okay', 'good', 'strong']}
+                      shortScoreWord="too short"
+                    />
+                  </Suspense>
+                </div>
+              )}
+              <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={state.showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={state.confirmPassword}
+                  onChange={(e) => setState(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Confirm new password"
+                  disabled={state.isLoading || !isLoaded}
+                />
+                <button
+                  type="button"
+                  onClick={() => setState(prev => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }))}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {state.showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={state.isLoading || !isLoaded}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {state.isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Resetting Password...
+                </>
+              ) : (
+                'Reset Password'
+              )}
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Remember your password?{' '}
+          <Link href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-700">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    )
+  }
+
+  // Code verification step (default)
   return (
     <div className="w-full max-w-md">
       <div className="bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Set New Password</h1>
+          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <KeyRound className="h-8 w-8 text-blue-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Enter Reset Code</h1>
           <p className="text-gray-600">
-            Enter your new password below
+            Enter the 6-digit code sent to{' '}
+            {emailFromParams ? (
+              <strong>{emailFromParams}</strong>
+            ) : (
+              'your email'
+            )}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleVerifyCode} className="space-y-6">
           {state.error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -248,101 +353,61 @@ export function ResetPasswordForm() {
           )}
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              New Password
+            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
+              Verification Code
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400" />
               </div>
               <input
-                id="password"
-                name="password"
-                type={state.showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
+                id="code"
+                name="code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="one-time-code"
                 required
-                value={state.password}
-                onChange={(e) => setState(prev => ({ ...prev, password: e.target.value }))}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter new password"
-                disabled={state.isLoading}
+                maxLength={6}
+                value={state.code}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+                  setState(prev => ({ ...prev, code: value }))
+                }}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-xl tracking-[0.5em] font-mono"
+                placeholder="000000"
+                disabled={state.isLoading || !isLoaded}
               />
-              <button
-                type="button"
-                onClick={() => setState(prev => ({ ...prev, showPassword: !prev.showPassword }))}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {state.showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                )}
-              </button>
             </div>
-            {state.password && (
-              <div className="mt-2">
-                <Suspense fallback={<div className="h-2 bg-gray-200 rounded animate-pulse" />}>
-                  <PasswordStrengthBar
-                    password={state.password}
-                    minLength={8}
-                    scoreWords={['very weak', 'weak', 'okay', 'good', 'strong']}
-                    shortScoreWord="too short"
-                  />
-                </Suspense>
-              </div>
-            )}
-            <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm New Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={state.showConfirmPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                required
-                value={state.confirmPassword}
-                onChange={(e) => setState(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Confirm new password"
-                disabled={state.isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setState(prev => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }))}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {state.showConfirmPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                )}
-              </button>
-            </div>
+            <p className="mt-2 text-xs text-gray-500 text-center">
+              Check your email for the 6-digit code
+            </p>
           </div>
 
           <button
             type="submit"
-            disabled={state.isLoading}
+            disabled={state.isLoading || !isLoaded || state.code.length !== 6}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {state.isLoading ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Resetting Password...
+                Verifying...
               </>
             ) : (
-              'Reset Password'
+              'Verify Code'
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link
+            href="/auth/forgot-password"
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            Didn't receive a code? Request a new one
+          </Link>
+        </div>
       </div>
 
       <p className="mt-4 text-center text-sm text-gray-600">

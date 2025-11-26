@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
-import { AuthProvider } from '@/lib/context/AuthContext'
+import { ClerkProvider } from '@clerk/nextjs'
 import { PaymentModelProvider } from '@/lib/contexts/PaymentModelContext'
 import { PostHogProvider, PostHogPageView } from '@/lib/context/PostHogProvider'
 import { Toaster } from 'react-hot-toast'
@@ -34,12 +34,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#3b82f6" />
       </head>
       <body suppressHydrationWarning>
-        <PostHogProvider>
-          <Suspense fallback={null}>
-            <PostHogPageView />
-          </Suspense>
-          <GlobalErrorBoundary>
-            <AuthProvider>
+        <ClerkProvider>
+          <PostHogProvider>
+            <Suspense fallback={null}>
+              <PostHogPageView />
+            </Suspense>
+            <GlobalErrorBoundary>
               <PaymentModelProvider>
                 <div id="root">{children}</div>
                 <div id="modal-root" />
@@ -68,9 +68,9 @@ export default function RootLayout({
                   }}
                 />
               </PaymentModelProvider>
-            </AuthProvider>
-          </GlobalErrorBoundary>
-        </PostHogProvider>
+            </GlobalErrorBoundary>
+          </PostHogProvider>
+        </ClerkProvider>
       </body>
     </html>
   )

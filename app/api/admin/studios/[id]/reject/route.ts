@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/utils/roleUtils';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getServerSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +9,7 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/admin/studios/[id]/reject
  * Rejects a pending studio
- * Admin-only endpoint (Better Auth)
+ * Admin-only endpoint (Clerk)
  */
 export async function POST(
   request: Request,
@@ -19,10 +18,8 @@ export async function POST(
   try {
     const { id: studioId } = await params;
 
-    // Get Better Auth session
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
+    // Get Clerk session
+    const session = await getServerSession();
 
     // Verify user is authenticated
     if (!session?.user) {

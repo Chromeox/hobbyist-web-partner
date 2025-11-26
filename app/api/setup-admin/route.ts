@@ -1,84 +1,26 @@
 /**
- * One-Time Admin Setup Endpoint
+ * One-Time Admin Setup Endpoint (DEPRECATED)
  *
  * ⚠️ SECURITY: Delete this file after using it!
+ * ⚠️ With Clerk: Create admin users via Clerk Dashboard instead
  *
- * Usage:
- * POST http://localhost:3000/api/setup-admin
- * Body: { "email": "admin@hobbi.com", "password": "YourSecurePassword123!" }
+ * This endpoint is deprecated as Clerk handles user creation.
+ * To make a user admin in Clerk:
+ * 1. Go to Clerk Dashboard > Users
+ * 2. Select the user
+ * 3. Update their unsafeMetadata to include: { "role": "admin" }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
-  try {
-    // Parse request
-    const { email, password } = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate password strength
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters' },
-        { status: 400 }
-      );
-    }
-
-    // Create user with Better Auth
-    // This bypasses email verification
-    const result = await auth.api.signUpEmail({
-      body: {
-        email,
-        password,
-        name: 'Admin User',
-      },
-    });
-
-    // Better Auth throws on error, but check token exists
-    if (!result || !result.user) {
-      return NextResponse.json(
-        { error: 'Failed to create user account' },
-        { status: 400 }
-      );
-    }
-
-    // Update user to admin role using database
-    const pool = await import('pg').then((pg) => new pg.Pool({
-      connectionString: process.env.DATABASE_URL,
-    }));
-
-    await pool.query(`
-      UPDATE "user"
-      SET
-        role = 'admin',
-        "accountType" = 'admin',
-        "emailVerified" = true,
-        "firstName" = 'Admin',
-        "lastName" = 'User'
-      WHERE email = $1
-    `, [email]);
-
-    await pool.end();
-
-    return NextResponse.json({
-      success: true,
-      message: 'Admin user created successfully!',
-      email,
-      note: '⚠️ DELETE /app/api/setup-admin/route.ts NOW!',
-    });
-
-  } catch (error: any) {
-    console.error('Admin setup error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to create admin user' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    error: 'This endpoint is deprecated',
+    message: 'With Clerk authentication, create admin users via Clerk Dashboard instead.',
+    instructions: [
+      '1. Go to Clerk Dashboard > Users',
+      '2. Select or create the user',
+      '3. Update unsafeMetadata to include: { "role": "admin" }',
+    ],
+  }, { status: 410 }); // 410 Gone
 }

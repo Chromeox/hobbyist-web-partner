@@ -7,13 +7,12 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getServerSession } from '@/lib/auth';
 
 export async function GET() {
   try {
-    // Verify admin authentication
-    const session = await auth.api.getSession({ headers: await headers() });
+    // Verify admin authentication (Clerk)
+    const session = await getServerSession();
 
     if (!session?.user || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });

@@ -1,13 +1,13 @@
 /**
  * Sign Up Form Component
- * V8-optimized with memoization and stable callbacks
+ * Using Clerk for authentication
  */
 
 'use client'
 
 import React, { useState, useCallback, memo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuthContext } from '@/lib/context/AuthContext'
+import { useSignUp } from '@clerk/nextjs'
 import { Mail, Lock, User, Building, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 
 // Stable form state shape
@@ -20,13 +20,14 @@ interface FormState {
   businessName: string
   isLoading: boolean
   error: string | null
-  success: boolean
+  pendingVerification: boolean
+  verificationCode: string
 }
 
 export const SignUpForm = memo(function SignUpForm() {
   const router = useRouter()
-  const { signUp } = useAuthContext()
-  
+  const { isLoaded, signUp, setActive } = useSignUp()
+
   const [state, setState] = useState<FormState>({
     email: '',
     password: '',
@@ -36,17 +37,20 @@ export const SignUpForm = memo(function SignUpForm() {
     businessName: '',
     isLoading: false,
     error: null,
-    success: false
+    pendingVerification: false,
+    verificationCode: ''
   })
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
+    if (!isLoaded || !signUp) return
+
     // Validate passwords match
     if (state.password !== state.confirmPassword) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Passwords do not match' 
+      setState(prev => ({
+        ...prev,
+        error: 'Passwords do not match'
       }))
       return
     }
@@ -72,48 +76,75 @@ export const SignUpForm = memo(function SignUpForm() {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      // Prepare metadata for studio account
-      const metadata = {
-        first_name: state.firstName,
-        last_name: state.lastName,
-        role: 'studio',
-        business_name: state.businessName
-      }
+      // Create the user with Clerk
+      await signUp.create({
+        emailAddress: state.email,
+        password: state.password,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        unsafeMetadata: {
+          role: 'studio',
+          businessName: state.businessName
+        }
+      })
 
-      console.log('Attempting signup with:', { email: state.email, metadata })
+      // Send email verification code
+      await signUp.prepareEmailAddressVerification({
+        strategy: 'email_code'
+      })
 
-      const { error } = await signUp(state.email, state.password, metadata)
-
-      console.log('Signup response:', { error })
-
-      if (error) {
-        console.error('Signup error:', error)
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: error.message
-        }))
-      } else {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          success: true
-        }))
-
-        // Redirect to email verification flow
-        setTimeout(() => {
-          router.push(`/auth/check-email?email=${encodeURIComponent(state.email)}`)
-        }, 2000)
-      }
-    } catch (err) {
-      console.error('Signup exception:', err)
+      // Move to verification step
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.'
+        pendingVerification: true
+      }))
+    } catch (err: any) {
+      console.error('Signup error:', err)
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: err.errors?.[0]?.message || err.message || 'An unexpected error occurred. Please try again.'
       }))
     }
-  }, [state, signUp, router])
+  }, [isLoaded, signUp, state])
+
+  const handleVerification = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!isLoaded || !signUp) return
+
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
+
+    try {
+      const result = await signUp.attemptEmailAddressVerification({
+        code: state.verificationCode
+      })
+
+      if (result.status === 'complete') {
+        // Set the active session
+        await setActive({ session: result.createdSessionId })
+
+        // Redirect to onboarding
+        router.push('/onboarding')
+      } else {
+        // Handle other statuses if needed
+        console.log('Verification status:', result.status)
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Verification incomplete. Please try again.'
+        }))
+      }
+    } catch (err: any) {
+      console.error('Verification error:', err)
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: err.errors?.[0]?.message || 'Invalid verification code. Please try again.'
+      }))
+    }
+  }, [isLoaded, signUp, setActive, state.verificationCode, router])
 
   const handleInputChange = useCallback((field: keyof FormState, value: string) => {
     setState(prev => ({
@@ -123,22 +154,61 @@ export const SignUpForm = memo(function SignUpForm() {
     }))
   }, [])
 
-  if (state.success) {
+  // Verification code input screen
+  if (state.pendingVerification) {
     return (
       <div className="w-full max-w-md">
         <div className="glass-modal rounded-lg p-8">
-          <div className="text-center">
+          <div className="text-center mb-6">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Account Created Successfully!
+              Check your email
             </h2>
             <p className="text-gray-600">
-              Please check your email to verify your account.
-            </p>
-            <p className="text-sm text-gray-500 mt-4">
-              Redirecting to onboarding...
+              We sent a verification code to <strong>{state.email}</strong>
             </p>
           </div>
+
+          {state.error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <p className="text-sm text-red-800">{state.error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleVerification} className="space-y-4">
+            <div>
+              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                Verification Code
+              </label>
+              <input
+                id="code"
+                type="text"
+                value={state.verificationCode}
+                onChange={(e) => handleInputChange('verificationCode', e.target.value)}
+                required
+                disabled={state.isLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-900 text-center text-2xl tracking-widest"
+                placeholder="000000"
+                maxLength={6}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={state.isLoading}
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {state.isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Verifying...
+                </>
+              ) : (
+                'Verify Email'
+              )}
+            </button>
+          </form>
         </div>
       </div>
     )
@@ -313,7 +383,7 @@ export const SignUpForm = memo(function SignUpForm() {
 
           <button
             type="submit"
-            disabled={state.isLoading}
+            disabled={state.isLoading || !isLoaded}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {state.isLoading ? (

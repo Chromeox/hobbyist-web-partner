@@ -1,142 +1,74 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+/**
+ * Proxy/Middleware for Next.js 16
+ * Using Clerk for authentication
+ *
+ * In Next.js 16, proxy.ts replaces middleware.ts
+ */
 
-export async function proxy(request: NextRequest) {
-  // ===== ADMIN ROUTE PROTECTION =====
-  // Protect /internal/admin routes - require authentication and admin role
-  if (request.nextUrl.pathname.startsWith('/internal/admin')) {
-    try {
-      // Lazy load auth module to prevent initialization during build
-      const { auth } = await import('./lib/auth');
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-      const session = await auth.api.getSession({
-        headers: request.headers,
-      });
+// Define public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/auth/signin',
+  '/auth/signup',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/check-email',
+  '/auth/sso-callback',
+  '/api/auth/(.*)',
+  '/api/webhooks/(.*)',
+  '/api/stripe/(.*)',
+  '/api/health',
+  '/legal/(.*)',
+  '/privacy',
+  '/offline',
+]);
 
-      console.log('[Proxy] Admin route access attempt:', {
-        path: request.nextUrl.pathname,
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userEmail: session?.user?.email,
-        userRole: session?.user?.role,
-      });
+// Define admin routes
+const isAdminRoute = createRouteMatcher(['/internal/admin(.*)']);
 
-      // Check if user is authenticated
-      if (!session?.user) {
-        console.log('[Proxy] No user session - redirecting to 404');
-        // Redirect to 404 instead of login to hide admin portal existence
-        return NextResponse.rewrite(new URL('/404', request.url));
-      }
+// Export the Clerk middleware as proxy (Next.js 16 convention)
+export const proxy = clerkMiddleware(async (auth, request) => {
+  const { userId, sessionClaims } = await auth();
 
-      // Check if user has admin role
-      if (session.user.role !== 'admin') {
-        console.log('[Proxy] User is not admin - redirecting to 404');
-        // Redirect to 404 for non-admins (not 403/unauthorized)
-        return NextResponse.rewrite(new URL('/404', request.url));
-      }
+  // Allow public routes without auth
+  if (isPublicRoute(request)) {
+    return NextResponse.next();
+  }
 
-      console.log('[Proxy] Admin access granted');
-      // User is authenticated and is admin - continue with Supabase proxy below
-    } catch (error) {
-      console.error('[Proxy] Admin auth error:', error);
-      // On error, redirect to 404 to be safe
+  // Protect admin routes - require admin role
+  if (isAdminRoute(request)) {
+    if (!userId) {
+      // No user - rewrite to 404 to hide admin existence
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+
+    // Check for admin role in session claims
+    const userRole = sessionClaims?.metadata?.role as string | undefined;
+    if (userRole !== 'admin') {
+      // Not admin - rewrite to 404
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }
-  // ===== END ADMIN ROUTE PROTECTION =====
-  // Log requests to auth routes for debugging
-  if (request.nextUrl.pathname.startsWith('/auth/')) {
-    console.log('[Proxy] Auth route:', {
-      path: request.nextUrl.pathname,
-      search: request.nextUrl.search,
-      fullUrl: request.nextUrl.href
-    });
+
+  // For protected routes, redirect to sign-in if not authenticated
+  if (!userId) {
+    const signInUrl = new URL('/auth/signin', request.url);
+    signInUrl.searchParams.set('returnUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
   }
 
-  // CRITICAL: Skip proxy processing for auth callback with token_hash
-  // to prevent consuming one-time tokens before the callback route processes them
-  const hasTokenHash = request.nextUrl.searchParams.has('token_hash');
-  const isAuthCallback = request.nextUrl.pathname === '/auth/callback';
+  return NextResponse.next();
+});
 
-  if (isAuthCallback && hasTokenHash) {
-    console.log('[Proxy] Skipping session refresh for password reset callback');
-    return NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    });
-  }
-
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-        },
-      },
-    }
-  );
-
-  // Refresh session if expired - this is important for keeping user logged in
-  await supabase.auth.getUser();
-
-  return response;
-}
-
-// Apply proxy only to dashboard and auth routes
-// Exclude static assets and API routes
+// Configure which routes the proxy should run on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)',
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 };

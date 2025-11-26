@@ -1,13 +1,13 @@
 /**
  * Sign In Form Component
- * V8-optimized with memoization and stable callbacks
+ * Using Clerk for authentication
  */
 
 'use client'
 
 import React, { useState, useCallback, memo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuthContext } from '@/lib/context/AuthContext'
+import { useSignIn } from '@clerk/nextjs'
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 
 // Stable form state shape
@@ -22,7 +22,7 @@ interface FormState {
 export const SignInForm = memo(function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { signIn, signInWithOAuth } = useAuthContext()
+  const { isLoaded, signIn, setActive } = useSignIn()
 
   const [state, setState] = useState<FormState>(() => {
     // Check if we should remember credentials
@@ -64,47 +64,72 @@ export const SignInForm = memo(function SignInForm() {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!isLoaded || !signIn) return
+
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-    const { error } = await signIn(state.email, state.password)
+    try {
+      const result = await signIn.create({
+        identifier: state.email,
+        password: state.password,
+      })
 
-    if (error) {
+      if (result.status === 'complete') {
+        // Save remember me preferences
+        if (state.rememberMe) {
+          localStorage.setItem('hobbyist_remember_email', state.email)
+          localStorage.setItem('hobbyist_remember_me', 'true')
+        } else {
+          localStorage.removeItem('hobbyist_remember_email')
+          localStorage.removeItem('hobbyist_remember_me')
+        }
+
+        // Set the active session
+        await setActive({ session: result.createdSessionId })
+
+        // Redirect to return URL or dashboard
+        router.push(decodeURIComponent(returnUrl))
+      } else {
+        // Handle other statuses (e.g., needs_second_factor)
+        console.log('Sign in status:', result.status)
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Additional verification required. Please try again.'
+        }))
+      }
+    } catch (err: any) {
+      console.error('Sign in error:', err)
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message
+        error: err.errors?.[0]?.message || err.message || 'Invalid email or password'
       }))
-    } else {
-      // Save remember me preferences
-      if (state.rememberMe) {
-        localStorage.setItem('hobbyist_remember_email', state.email)
-        localStorage.setItem('hobbyist_remember_me', 'true')
-      } else {
-        localStorage.removeItem('hobbyist_remember_email')
-        localStorage.removeItem('hobbyist_remember_me')
-      }
-
-      // Redirect to return URL or dashboard
-      router.push(decodeURIComponent(returnUrl))
     }
-  }, [state.email, state.password, state.rememberMe, signIn, router, returnUrl])
+  }, [isLoaded, signIn, setActive, state.email, state.password, state.rememberMe, router, returnUrl])
 
   const handleOAuthSignIn = useCallback(async (
-    provider: 'google' | 'apple'
+    provider: 'oauth_google' | 'oauth_apple'
   ) => {
+    if (!isLoaded || !signIn) return
+
     setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-    const { error } = await signInWithOAuth(provider)
-
-    if (error) {
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: provider,
+        redirectUrl: '/auth/sso-callback',
+        redirectUrlComplete: returnUrl,
+      })
+    } catch (err: any) {
+      console.error('OAuth error:', err)
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message
+        error: err.errors?.[0]?.message || 'OAuth sign in failed'
       }))
     }
-    // OAuth will redirect automatically
-  }, [signInWithOAuth])
+  }, [isLoaded, signIn, returnUrl])
 
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({
@@ -207,7 +232,7 @@ export const SignInForm = memo(function SignInForm() {
 
           <button
             type="submit"
-            disabled={state.isLoading || !state.email || !state.password}
+            disabled={state.isLoading || !state.email || !state.password || !isLoaded}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {state.isLoading ? (
