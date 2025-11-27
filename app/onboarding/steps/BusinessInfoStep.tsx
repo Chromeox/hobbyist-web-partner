@@ -20,9 +20,9 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
     address: {
       street: data.address?.street || '',
       city: data.address?.city || '',
-      state: data.address?.state || '',
+      state: data.address?.state || 'BC',
       zipCode: data.address?.zipCode || '',
-      country: data.address?.country || 'US'
+      country: data.address?.country || 'CA'
     },
     yearEstablished: data.yearEstablished || ''
   });
@@ -55,20 +55,29 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
       isValid = false;
     }
 
-    // Street address is now OPTIONAL for MVP
-    // (removed validation)
+    // Required: Street address
+    if (!formData.address.street.trim()) {
+      newErrors.addressStreet = 'Street address is required';
+      isValid = false;
+    }
 
-    // Required: City only (minimum location for discovery)
+    // Required: City
     if (!formData.address.city.trim()) {
       newErrors.addressCity = 'City is required';
       isValid = false;
     }
 
-    // State/Province is now OPTIONAL for MVP
-    // (removed validation)
+    // Required: Province/State
+    if (!formData.address.state.trim()) {
+      newErrors.addressState = 'Province is required';
+      isValid = false;
+    }
 
-    // ZIP Code is now OPTIONAL for MVP
-    // (removed validation)
+    // Required: Postal Code
+    if (!formData.address.zipCode.trim()) {
+      newErrors.addressZipCode = 'Postal code is required';
+      isValid = false;
+    }
 
     setErrors(newErrors);
     return isValid;
@@ -225,7 +234,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Street Address
+              Street Address <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -235,7 +244,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.addressStreet ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="123 Main Street"
+              placeholder="1555 East 6th Ave"
             />
             {errors.addressStreet && (
               <p className="text-red-500 text-sm mt-1">{errors.addressStreet}</p>
@@ -245,7 +254,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                City
+                City <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -255,7 +264,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.addressCity ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="San Francisco"
+                placeholder="Vancouver"
               />
               {errors.addressCity && (
                 <p className="text-red-500 text-sm mt-1">{errors.addressCity}</p>
@@ -264,19 +273,31 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
 
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                State
+                Province <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 name="address.state"
                 value={formData.address.state}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.addressState ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="CA"
-                maxLength={2}
-              />
+              >
+                <option value="">Select Province</option>
+                <option value="BC">British Columbia</option>
+                <option value="AB">Alberta</option>
+                <option value="ON">Ontario</option>
+                <option value="QC">Quebec</option>
+                <option value="MB">Manitoba</option>
+                <option value="SK">Saskatchewan</option>
+                <option value="NS">Nova Scotia</option>
+                <option value="NB">New Brunswick</option>
+                <option value="NL">Newfoundland</option>
+                <option value="PE">Prince Edward Island</option>
+                <option value="NT">Northwest Territories</option>
+                <option value="YT">Yukon</option>
+                <option value="NU">Nunavut</option>
+              </select>
               {errors.addressState && (
                 <p className="text-red-500 text-sm mt-1">{errors.addressState}</p>
               )}
@@ -284,7 +305,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
 
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ZIP Code
+                Postal Code <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -294,7 +315,7 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.addressZipCode ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="94102"
+                placeholder="V5N 1P2"
               />
               {errors.addressZipCode && (
                 <p className="text-red-500 text-sm mt-1">{errors.addressZipCode}</p>
@@ -311,10 +332,8 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="US">United States</option>
                 <option value="CA">Canada</option>
-                <option value="GB">United Kingdom</option>
-                <option value="AU">Australia</option>
+                <option value="US">United States</option>
               </select>
             </div>
           </div>

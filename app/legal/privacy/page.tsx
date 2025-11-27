@@ -90,7 +90,7 @@ export default function PrivacyPolicy() {
           </p>
           <p className="mb-4">
             Email: privacy@hobbyist.app<br />
-            Address: [Your Business Address]
+            Address: 1555 East 6th Ave, Vancouver BC, V5N 1P2
           </p>
         </section>
       </div>

@@ -35,7 +35,7 @@ export default function FirstClassStep({ onNext, onPrevious, data }: FirstClassS
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch categories on mount
+  // Fetch categories on mount and inherit from studio specialties
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -51,6 +51,22 @@ export default function FirstClassStep({ onNext, onPrevious, data }: FirstClassS
           console.error('Error fetching categories:', error);
         } else {
           setCategories(cats || []);
+
+          // Auto-select category based on studio's first specialty (if not already set)
+          if (!formData.categoryId && cats && cats.length > 0) {
+            const studioSpecialties = data.studioProfile?.specialties || [];
+            if (studioSpecialties.length > 0) {
+              // Try to find a matching category for the first specialty
+              const firstSpecialty = studioSpecialties[0].toLowerCase();
+              const matchingCategory = cats.find(
+                (cat: Category) => cat.name.toLowerCase().includes(firstSpecialty) ||
+                                   firstSpecialty.includes(cat.name.toLowerCase())
+              );
+              if (matchingCategory) {
+                setFormData(prev => ({ ...prev, categoryId: matchingCategory.id }));
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to fetch categories:', err);
@@ -60,7 +76,7 @@ export default function FirstClassStep({ onNext, onPrevious, data }: FirstClassS
     }
 
     fetchCategories();
-  }, []);
+  }, [data.studioProfile?.specialties]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

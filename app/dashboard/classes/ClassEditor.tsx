@@ -81,7 +81,7 @@ export default function ClassEditor({ onClose, class: classData, onSave, studioI
     categoryId: undefined,
     level: 'beginner',
     duration: 60,
-    capacity: 8,
+    capacity: 10,
     price: 50,
     creditCost: 1,
     image: '',
@@ -758,22 +758,25 @@ export default function ClassEditor({ onClose, class: classData, onSave, studioI
               <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Duration (minutes) *
+                    Duration *
                   </label>
-                  <input
-                    type="number"
-                    min={15}
-                    step={15}
+                  <select
                     value={formData.duration}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        duration: Number.parseInt(e.target.value, 10) || 0,
+                        duration: Number.parseInt(e.target.value, 10) || 60,
                       }))
                     }
                     className={`w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.duration ? 'border-red-300' : 'border-gray-300'
                       }`}
-                  />
+                  >
+                    <option value={30}>30 minutes</option>
+                    <option value={45}>45 minutes</option>
+                    <option value={60}>1 hour</option>
+                    <option value={90}>1.5 hours</option>
+                    <option value={120}>2 hours</option>
+                  </select>
                   {errors.duration && (
                     <p className="mt-1 flex items-center gap-1 text-sm text-red-600">
                       <AlertCircle className="h-4 w-4" />
