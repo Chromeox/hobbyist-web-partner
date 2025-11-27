@@ -21,6 +21,13 @@ export const supabase = new Proxy({} as ReturnType<typeof createBrowserClient>, 
   }
 })
 
+// Browser client factory (alias for components that need fresh client)
+export const createBrowserSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+}
+
 // Server-side client for API routes (if needed)
 export const createServiceSupabase = () => {
   const { createClient } = require('@supabase/supabase-js')
