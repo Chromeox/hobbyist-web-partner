@@ -33,43 +33,42 @@ export default function BusinessInfoStep({ onNext, onPrevious, data }: BusinessI
     const newErrors: any = {};
     let isValid = true;
 
+    // Required: Studio/Business name
     if (!formData.legalBusinessName.trim()) {
-      newErrors.legalBusinessName = 'Legal Business Name is required';
+      newErrors.legalBusinessName = 'Studio name is required';
       isValid = false;
     }
 
-    if (!formData.taxId.trim()) {
-      newErrors.taxId = 'Tax ID is required';
-      isValid = false;
-    }
+    // Tax ID is now OPTIONAL for MVP
+    // (removed validation)
 
-    if (!formData.contactEmail.trim()) {
-      newErrors.contactEmail = 'Contact Email is required';
+    // Required: Contact email OR phone (at least one)
+    const hasEmail = formData.contactEmail.trim().length > 0;
+    const hasPhone = formData.businessPhone.trim().length > 0;
+
+    if (!hasEmail && !hasPhone) {
+      newErrors.contactEmail = 'Please provide either an email or phone number';
+      newErrors.businessPhone = 'Please provide either an email or phone number';
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) {
+    } else if (hasEmail && !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Invalid email format';
       isValid = false;
     }
 
-    if (!formData.address.street.trim()) {
-      newErrors.addressStreet = 'Street address is required';
-      isValid = false;
-    }
+    // Street address is now OPTIONAL for MVP
+    // (removed validation)
 
+    // Required: City only (minimum location for discovery)
     if (!formData.address.city.trim()) {
       newErrors.addressCity = 'City is required';
       isValid = false;
     }
 
-    if (!formData.address.state.trim()) {
-      newErrors.addressState = 'State is required';
-      isValid = false;
-    }
+    // State/Province is now OPTIONAL for MVP
+    // (removed validation)
 
-    if (!formData.address.zipCode.trim()) {
-      newErrors.addressZipCode = 'ZIP Code is required';
-      isValid = false;
-    }
+    // ZIP Code is now OPTIONAL for MVP
+    // (removed validation)
 
     setErrors(newErrors);
     return isValid;

@@ -375,12 +375,14 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
         </button>
       </div>
 
-      {/* Skip Information */}
-      <div className="text-center">
-        <p className="text-sm text-gray-500">
-          You can always set up payments later from the dashboard.
-          <br />
-          <span className="text-blue-600">Setting up now lets you start earning immediately!</span>
+      {/* Skip Information - Enhanced Warning */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <p className="text-amber-800 font-medium mb-1">
+          ⚠️ Without Stripe, you can list classes but won't receive payouts
+        </p>
+        <p className="text-sm text-amber-700">
+          You can set this up anytime from your dashboard. Students can still discover your classes,
+          but bookings with payment won't be available until Stripe is connected.
         </p>
       </div>
 

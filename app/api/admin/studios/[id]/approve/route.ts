@@ -83,6 +83,24 @@ export async function POST(
       // Don't fail the request if submission update fails
     }
 
+    // Activate associated classes (change from 'draft' to 'active')
+    const { data: activatedClasses, error: classesError } = await supabase
+      .from('studio_classes')
+      .update({
+        status: 'active',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('studio_id', studioId)
+      .eq('status', 'draft')
+      .select('id, name');
+
+    if (classesError) {
+      console.warn('Warning: Failed to activate studio classes:', classesError);
+      // Don't fail the request if class activation fails
+    } else if (activatedClasses && activatedClasses.length > 0) {
+      console.log(`✅ Activated ${activatedClasses.length} classes for studio ${studioId}`);
+    }
+
     // TODO: Send approval email notification to studio owner
     // This would integrate with your email service (Resend, SendGrid, etc.)
     // await sendStudioApprovalEmail(updatedStudio.email, updatedStudio.name);

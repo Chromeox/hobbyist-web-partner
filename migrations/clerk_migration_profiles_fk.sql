@@ -1,36 +1,38 @@
--- Migration: Update profiles table for Clerk integration
--- This removes the foreign key constraint to auth.users since Clerk manages users externally
--- Run this in Supabase SQL Editor BEFORE testing the Clerk webhook
+-- CLERK MIGRATION: Update profiles table for Clerk integration
 
--- Step 1: Drop the foreign key constraint to auth.users
--- This is necessary because Clerk user IDs (strings like 'user_abc123')
--- are not UUIDs and can't reference auth.users
-ALTER TABLE profiles
-DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+-- Drop ALL RLS policies on profiles table
+DROP POLICY IF EXISTS "Users manage own profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can delete own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Enable read access for all users" ON public.profiles;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.profiles;
+DROP POLICY IF EXISTS "Enable update for users based on id" ON public.profiles;
+DROP POLICY IF EXISTS "Anyone can view active profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Service role has full access" ON public.profiles;
 
--- Step 2: Change id column from UUID to TEXT to accept Clerk IDs
--- Note: Only run if your id column is currently UUID type
--- Check current type first with: SELECT data_type FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'id';
--- ALTER TABLE profiles ALTER COLUMN id TYPE TEXT;
+-- Drop RLS policies on studios that reference profiles
+DROP POLICY IF EXISTS "Admins can manage all studios" ON public.studios;
+DROP POLICY IF EXISTS "Studio owners can manage own studios" ON public.studios;
+DROP POLICY IF EXISTS "Users can view studios" ON public.studios;
 
--- Step 3: Add deleted_at column for soft-delete support
-ALTER TABLE profiles
-ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ NULL;
+-- Drop FK constraint
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
 
--- Step 4: Create index for efficient queries filtering out deleted profiles
-CREATE INDEX IF NOT EXISTS idx_profiles_deleted_at
-ON profiles (deleted_at)
-WHERE deleted_at IS NULL;
+-- Change id column to TEXT for Clerk IDs
+ALTER TABLE public.profiles ALTER COLUMN id TYPE TEXT USING id::TEXT;
 
--- Step 5: Create index on email for faster lookups
-CREATE INDEX IF NOT EXISTS idx_profiles_email
-ON profiles (email);
+-- Add deleted_at column
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ NULL;
 
--- Comments for documentation
-COMMENT ON TABLE profiles IS 'User profiles synced from Clerk authentication service';
-COMMENT ON COLUMN profiles.id IS 'Clerk user ID (string format: user_xxxx)';
-COMMENT ON COLUMN profiles.deleted_at IS 'Soft delete timestamp - set when user is deleted from Clerk';
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_profiles_deleted_at ON public.profiles (deleted_at) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles (email);
 
--- Optional: View to filter out deleted profiles
-CREATE OR REPLACE VIEW active_profiles AS
-SELECT * FROM profiles WHERE deleted_at IS NULL;
+-- Recreate simple RLS policies
+CREATE POLICY "Anyone can view active profiles" ON public.profiles FOR SELECT USING (deleted_at IS NULL);
+CREATE POLICY "Service role has full access" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+
+-- Create view
+CREATE OR REPLACE VIEW public.active_profiles AS SELECT * FROM public.profiles WHERE deleted_at IS NULL;

@@ -105,15 +105,22 @@ export async function POST(request: Request) {
       name: string
       email: string
       phone?: string | null
-      address?: string | null
+      address_line1?: string | null      // Fixed: was 'address'
       city?: string | null
-      province?: string | null
+      state?: string | null              // Fixed: was 'province'
       postal_code?: string | null
+      country?: string | null
+      website?: string | null
+      description?: string | null
       profile?: Json
       social_links?: Json
       amenities?: string[]
       commission_rate?: number | null
       stripe_account_id?: string | null
+      is_active?: boolean                // NEW: for approval workflow
+      approval_status?: string           // NEW: for approval workflow
+      onboarding_completed?: boolean     // NEW: track completion
+      onboarding_completed_at?: string   // NEW: completion timestamp
     }
 
     type StudiosUpdate = StudiosInsert & {
@@ -127,14 +134,21 @@ export async function POST(request: Request) {
       name: studioName,
       email: contactEmail,
       phone: businessInfo.businessPhone ?? null,
-      address: businessInfo.address?.street ?? null,
+      address_line1: businessInfo.address?.street ?? null,    // Fixed: was 'address'
       city: businessInfo.address?.city ?? null,
-      province: businessInfo.address?.state ?? null,
+      state: businessInfo.address?.state ?? null,             // Fixed: was 'province'
       postal_code: businessInfo.address?.zipCode ?? null,
+      country: businessInfo.address?.country ?? 'CA',         // Default to Canada
+      website: studioProfile?.socialMedia?.website ?? null,   // NEW: website from social
+      description: studioProfile?.description ?? null,        // NEW: description
       profile: profilePayload,
       social_links: sanitisedSocialLinks as Json,
       amenities: studioProfile?.amenities ?? [],
-      stripe_account_id: stripeAccountId ?? null
+      stripe_account_id: stripeAccountId ?? null,
+      is_active: false,                                       // NEW: inactive until approved
+      approval_status: 'pending',                             // NEW: requires admin approval
+      onboarding_completed: true,                             // NEW: mark as completed
+      onboarding_completed_at: new Date().toISOString()       // NEW: completion timestamp
     } satisfies StudiosInsert
 
     // Upsert studio by email (unique)
@@ -231,6 +245,78 @@ export async function POST(request: Request) {
       }
     }
 
+    // Create first class if provided in payload
+    let firstClassId: string | null = null
+    let firstSessionId: string | null = null
+
+    if (payload.firstClass && studioId) {
+      const firstClass = payload.firstClass as {
+        name: string
+        categoryId: string
+        description: string
+        duration: number
+        price: string | number
+        capacity: number
+        skillLevel?: string
+        firstSessionDate: string
+        firstSessionTime: string
+      }
+
+      // Insert class into private.studio_classes
+      const classData = {
+        studio_id: studioId,
+        name: firstClass.name,
+        description: firstClass.description,
+        category_id: firstClass.categoryId || null,
+        price: parseFloat(String(firstClass.price)) || 0,
+        duration_minutes: parseInt(String(firstClass.duration)) || 60,
+        capacity: parseInt(String(firstClass.capacity)) || 10,
+        level: firstClass.skillLevel || 'all_levels',
+        status: 'draft',  // Draft until studio is approved
+        is_featured: false,
+        is_online: false
+      }
+
+      const { data: classRecord, error: classError } = await (supabase as any)
+        .from('studio_classes')
+        .insert(classData)
+        .select('id')
+        .single()
+
+      if (classError) {
+        console.error('Error creating first class:', classError)
+      } else if (classRecord?.id) {
+        firstClassId = classRecord.id
+        console.log('✅ First class created:', firstClassId)
+
+        // Create first session
+        const startDateTime = new Date(`${firstClass.firstSessionDate}T${firstClass.firstSessionTime}`)
+        const durationMs = (parseInt(String(firstClass.duration)) || 60) * 60 * 1000
+        const endDateTime = new Date(startDateTime.getTime() + durationMs)
+
+        const sessionData = {
+          class_id: firstClassId,
+          start_time: startDateTime.toISOString(),
+          end_time: endDateTime.toISOString(),
+          available_spots: parseInt(String(firstClass.capacity)) || 10,
+          is_cancelled: false
+        }
+
+        const { data: sessionRecord, error: sessionError } = await (supabase as any)
+          .from('class_sessions')
+          .insert(sessionData)
+          .select('id')
+          .single()
+
+        if (sessionError) {
+          console.error('Error creating first session:', sessionError)
+        } else if (sessionRecord?.id) {
+          firstSessionId = sessionRecord.id
+          console.log('✅ First session created:', firstSessionId)
+        }
+      }
+    }
+
     // Store raw onboarding submission for audit trail
     type OnboardingSubmissionInsert = {
       user_id?: string | null
@@ -269,7 +355,11 @@ export async function POST(request: Request) {
       {
         message: 'Studio onboarding data stored successfully',
         studioId,
-        submissionId: submissionRecord?.id ?? null
+        submissionId: submissionRecord?.id ?? null,
+        firstClassId: firstClassId ?? null,
+        firstSessionId: firstSessionId ?? null,
+        approvalStatus: 'pending',  // Remind client that approval is needed
+        note: 'Your studio is pending admin approval. You will be notified once approved.'
       },
       { status: 201 }
     )
