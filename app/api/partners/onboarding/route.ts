@@ -189,7 +189,7 @@ export async function POST(request: Request) {
     } else {
       const studioInsert: StudiosInsert = {
         ...baseStudioData,
-        commission_rate: 25.0
+        commission_rate: 0.30  // 30% platform fee (70% to studio)
       }
 
       const { data: insertStudio, error: insertError } = await (supabase as any)
