@@ -33,6 +33,10 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Supabase credentials (symlinked locally)
+supabase-credentials.env
+supabase-credentials.json
+
 # Vercel
 .vercel
 
