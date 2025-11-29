@@ -115,12 +115,12 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
 
   const handleSkip = () => {
     trackEvent('stripe_connect_skipped', {
-      reason: 'user_choice',
+      reason: 'deferred_to_dashboard',
       step: 'onboarding'
     });
     setIsSkipping(true);
     setTimeout(() => {
-      onNext({ payment: { skipped: true, reason: 'user_choice' } });
+      onNext({ payment: { skipped: true, reason: 'deferred_to_dashboard' } });
     }, 1000);
   };
 
@@ -354,7 +354,7 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
         <button
           onClick={handleSkip}
           disabled={isSkipping || isConnecting}
-          className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-6 py-3 border border-blue-300 text-blue-700 font-medium rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50"
         >
           {isSkipping ? (
             <>
@@ -364,25 +364,25 @@ export default function PaymentSetupStep({ onNext, onPrevious, data }: PaymentSe
               >
                 <SkipForward className="h-4 w-4" />
               </motion.div>
-              Skipping...
+              Continuing...
             </>
           ) : (
             <>
               <SkipForward className="h-4 w-4" />
-              Set Up Later
+              Skip for Now →
             </>
           )}
         </button>
       </div>
 
-      {/* Skip Information - Enhanced Warning */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-        <p className="text-amber-800 font-medium mb-1">
-          ⚠️ Without Stripe, you can list classes but won't receive payouts
+      {/* Skip Information - Encouraging Message for Alpha */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <p className="text-blue-800 font-medium mb-1">
+          ✨ Your studio will be live and discoverable immediately
         </p>
-        <p className="text-sm text-amber-700">
-          You can set this up anytime from your dashboard. Students can still discover your classes,
-          but bookings with payment won't be available until Stripe is connected.
+        <p className="text-sm text-blue-700">
+          You can complete Stripe setup anytime from your dashboard when you're ready to accept payments.
+          Students can discover your classes and your studio profile will be fully active.
         </p>
       </div>
 

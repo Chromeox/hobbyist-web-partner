@@ -199,7 +199,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
         {/* Specialties */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Class Specialties
+            Class Specialties <span className="text-gray-400 font-normal">(optional)</span>
           </label>
 
           {/* Selected Specialties */}
@@ -260,7 +260,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
         {/* Amenities */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Amenities
+            Amenities <span className="text-gray-400 font-normal">(optional)</span>
           </label>
 
           {/* Selected Amenities */}
@@ -321,7 +321,7 @@ export default function StudioProfileStep({ onNext, onPrevious, data }: StudioPr
         {/* Photos */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Studio Photos
+            Studio Photos <span className="text-gray-400 font-normal">(optional - add later from dashboard)</span>
           </label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Uploaded Photos */}

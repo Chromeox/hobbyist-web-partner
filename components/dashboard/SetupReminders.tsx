@@ -37,22 +37,46 @@ export default function SetupReminders({ className = '', onComplete }: SetupRemi
   const [dismissedItems, setDismissedItems] = useState<Set<string>>(new Set());
   const [isClient, setIsClient] = useState(false);
 
-  // Load dismissed items from localStorage on mount
+  // Load dismissed items from storage on mount
+  // Payout reminder uses sessionStorage (returns each login), others use localStorage
   useEffect(() => {
     setIsClient(true);
     const storedDismissed = localStorage.getItem('dismissed-setup-reminders');
+    const sessionDismissed = sessionStorage.getItem('dismissed-payout-reminder');
+
+    const dismissed = new Set<string>();
+
     if (storedDismissed) {
       try {
         const parsed = JSON.parse(storedDismissed);
-        setDismissedItems(new Set(parsed));
+        parsed.forEach((id: string) => dismissed.add(id));
       } catch (e) {
         console.error('Failed to parse dismissed items from localStorage', e);
       }
     }
+
+    // Add session-dismissed payout reminder
+    if (sessionDismissed === 'true') {
+      dismissed.add('stripe-payout');
+    }
+
+    setDismissedItems(dismissed);
   }, []);
 
-  // Mock incomplete setup items - in production, this would come from user's actual setup status
+  // Setup items - in production, this would come from user's actual setup status
   const incompleteSetups: SetupItem[] = [
+    {
+      id: 'stripe-payout',
+      title: 'Complete Payment Setup',
+      description: 'Connect Stripe to start accepting payments and receiving payouts for your classes',
+      icon: <Zap className="h-5 w-5" />,
+      benefit: 'Start earning from day one',
+      estimatedTime: '5 minutes',
+      completionRate: '95% of studios complete this',
+      actionUrl: '/dashboard/settings?setup=stripe',
+      priority: 'high',
+      color: 'purple'
+    },
     {
       id: 'calendar-intelligence',
       title: 'Set Up Calendar Integration',
@@ -62,8 +86,8 @@ export default function SetupReminders({ className = '', onComplete }: SetupRemi
       estimatedTime: '3 minutes',
       completionRate: '87% of studios complete this',
       actionUrl: '/dashboard/intelligence?setup=calendar',
-      priority: 'high',
-      color: 'purple'
+      priority: 'medium',
+      color: 'blue'
     }
   ];
 
@@ -74,9 +98,15 @@ export default function SetupReminders({ className = '', onComplete }: SetupRemi
     const newDismissed = new Set([...dismissedItems, setupId]);
     setDismissedItems(newDismissed);
 
-    // Save to localStorage
     if (isClient) {
-      localStorage.setItem('dismissed-setup-reminders', JSON.stringify([...newDismissed]));
+      // Payout reminder uses sessionStorage (returns on next login)
+      if (setupId === 'stripe-payout') {
+        sessionStorage.setItem('dismissed-payout-reminder', 'true');
+      } else {
+        // Other reminders persist in localStorage
+        const localDismissed = [...newDismissed].filter(id => id !== 'stripe-payout');
+        localStorage.setItem('dismissed-setup-reminders', JSON.stringify(localDismissed));
+      }
     }
   };
 

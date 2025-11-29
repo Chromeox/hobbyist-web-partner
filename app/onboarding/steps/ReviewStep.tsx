@@ -27,7 +27,7 @@ interface ReviewStepProps {
 export default function ReviewStep({ onSubmit, onPrevious, data }: ReviewStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Calculate setup completion
+  // Calculate setup completion - Alpha version: payment and verification are optional
   const setupItems = [
     {
       id: 'business',
@@ -38,36 +38,29 @@ export default function ReviewStep({ onSubmit, onPrevious, data }: ReviewStepPro
       description: 'Studio details and contact information'
     },
     {
-      id: 'verification',
-      title: 'Identity Verification',
-      icon: <User className="h-5 w-5" />,
-      completed: !!data.verification,
-      required: true,
-      description: 'Government ID verification'
-    },
-    {
       id: 'profile',
       title: 'Studio Profile',
       icon: <Building2 className="h-5 w-5" />,
       completed: !!data.studioProfile,
       required: true,
-      description: 'Photos, description, and amenities'
+      description: 'Tagline and description'
     },
     {
       id: 'services',
-      title: 'Classes & Services',
+      title: 'Your First Class',
       icon: <Target className="h-5 w-5" />,
       completed: !!data.services,
       required: true,
-      description: 'Workshop offerings and pricing'
+      description: 'Class details and pricing'
     },
     {
       id: 'payment',
       title: 'Payment Setup',
       icon: <CreditCard className="h-5 w-5" />,
-      completed: !!data.payment,
-      required: true,
-      description: 'Stripe integration and commission'
+      completed: !!data.payment && !data.payment.skipped,
+      required: false,
+      skipped: !!data.payment?.skipped,
+      description: 'Stripe integration (complete from dashboard)'
     },
     {
       id: 'calendar',
@@ -256,11 +249,11 @@ export default function ReviewStep({ onSubmit, onPrevious, data }: ReviewStepPro
               <Zap className="h-5 w-5 text-blue-600 mt-0.5" />
               <div>
                 <div className="font-medium text-blue-800 mb-1">
-                  Complete Setup Later
+                  Complete These Anytime from Your Dashboard
                 </div>
                 <div className="text-sm text-blue-700">
-                  You can set up calendar integration and Studio Intelligence anytime from your dashboard.
-                  These features will help you optimize operations and increase revenue.
+                  Payment setup, calendar integration, and Studio Intelligence can all be configured later.
+                  Your studio will be fully discoverable - complete these features when you're ready!
                 </div>
               </div>
             </div>
