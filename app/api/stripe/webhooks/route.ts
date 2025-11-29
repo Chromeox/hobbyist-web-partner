@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/server';
+import emailService from '@/lib/services/email';
+import smsService from '@/lib/services/sms';
+import pushService from '@/lib/services/push-notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -239,7 +242,60 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
       }
     }
 
-    // TODO: Send booking confirmation email/notification
+    // Send booking confirmation notifications
+    if (bookingId) {
+      try {
+        // Fetch user details for notifications
+        const { data: booking } = await supabase
+          .from('bookings')
+          .select(`
+            id,
+            class:classes(name, start_time, location, studio:studios(name)),
+            user:profiles(email, phone, name, device_token)
+          `)
+          .eq('id', bookingId)
+          .single();
+
+        if (booking && booking.user) {
+          const classInfo = booking.class as { name: string; start_time: string; location: string; studio: { name: string } } | null;
+          const userInfo = booking.user as { email: string; phone?: string; name?: string; device_token?: string };
+
+          const notificationData = {
+            className: classInfo?.name || 'Your class',
+            date: classInfo?.start_time ? new Date(classInfo.start_time).toLocaleDateString() : 'TBD',
+            time: classInfo?.start_time ? new Date(classInfo.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD',
+            studioName: classInfo?.studio?.name || 'Studio',
+            location: classInfo?.location || 'Location TBD',
+            instructorName: 'Your instructor',
+            bookingId: bookingId,
+          };
+
+          // Send email confirmation
+          if (userInfo.email) {
+            await emailService.sendBookingConfirmation(
+              { email: userInfo.email, name: userInfo.name },
+              notificationData
+            );
+            console.log('✅ Booking confirmation email sent');
+          }
+
+          // Send SMS confirmation
+          if (userInfo.phone) {
+            await smsService.sendBookingConfirmationSMS(userInfo.phone, notificationData);
+            console.log('✅ Booking confirmation SMS sent');
+          }
+
+          // Send push notification
+          if (userInfo.device_token) {
+            await pushService.sendBookingConfirmationPush(userInfo.device_token, notificationData);
+            console.log('✅ Booking confirmation push sent');
+          }
+        }
+      } catch (notifError) {
+        console.error('Failed to send booking confirmation notifications:', notifError);
+        // Don't throw - notifications are non-critical
+      }
+    }
 
   } catch (error) {
     console.error('Error in handlePaymentSucceeded:', error);
@@ -296,7 +352,42 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
       }
     }
 
-    // TODO: Send payment failure notification to customer
+    // Send payment failure notifications
+    if (userId) {
+      try {
+        const { data: user } = await supabase
+          .from('profiles')
+          .select('email, phone, name')
+          .eq('id', userId)
+          .single();
+
+        if (user) {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.hobbiapp.com';
+          const paymentData = {
+            amount: `$${(paymentIntent.amount / 100).toFixed(2)}`,
+            reason: paymentIntent.last_payment_error?.message,
+            retryUrl: `${appUrl}/payment/retry?pi=${paymentIntent.id}`,
+          };
+
+          // Send email notification
+          if (user.email) {
+            await emailService.sendPaymentFailed(
+              { email: user.email, name: user.name },
+              paymentData
+            );
+            console.log('✅ Payment failure email sent');
+          }
+
+          // Send SMS notification
+          if (user.phone) {
+            await smsService.sendPaymentFailedSMS(user.phone, paymentData);
+            console.log('✅ Payment failure SMS sent');
+          }
+        }
+      } catch (notifError) {
+        console.error('Failed to send payment failure notifications:', notifError);
+      }
+    }
 
   } catch (error) {
     console.error('Error in handlePaymentFailed:', error);
@@ -388,7 +479,37 @@ async function handlePayoutPaid(payout: Stripe.Payout) {
 
     console.log('✅ Payout marked as paid in database');
 
-    // TODO: Send payout confirmation notification to studio
+    // Send payout confirmation to studio
+    try {
+      // Find the studio associated with this payout via Stripe account
+      const { data: studio } = await supabase
+        .from('studios')
+        .select('id, name, email, owner:profiles(email, name)')
+        .eq('stripe_account_id', payout.destination)
+        .single();
+
+      if (studio && studio.owner) {
+        const ownerInfo = studio.owner as { email: string; name?: string };
+        const payoutData = {
+          amount: `$${(payout.amount / 100).toFixed(2)}`,
+          period: 'Weekly payout',
+          arrivalDate: payout.arrival_date
+            ? new Date(payout.arrival_date * 1000).toLocaleDateString()
+            : 'Within 2 business days',
+          transactionCount: 0, // Would need to query this
+        };
+
+        if (ownerInfo.email) {
+          await emailService.sendPayoutConfirmation(
+            { email: ownerInfo.email, name: ownerInfo.name },
+            payoutData
+          );
+          console.log('✅ Payout confirmation email sent to studio');
+        }
+      }
+    } catch (notifError) {
+      console.error('Failed to send payout confirmation:', notifError);
+    }
 
   } catch (error) {
     console.error('Error in handlePayoutPaid:', error);
@@ -423,7 +544,41 @@ async function handlePayoutFailed(payout: Stripe.Payout) {
 
     console.log('✅ Payout failure recorded in database');
 
-    // TODO: Send urgent notification to studio about failed payout
+    // Send urgent payout failure notification to studio
+    try {
+      const { data: studio } = await supabase
+        .from('studios')
+        .select('id, name, email, owner:profiles(email, name)')
+        .eq('stripe_account_id', payout.destination)
+        .single();
+
+      if (studio && studio.owner) {
+        const ownerInfo = studio.owner as { email: string; name?: string };
+        const portalUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://partner.hobbiapp.com';
+
+        // Send urgent email about failed payout
+        if (ownerInfo.email) {
+          await emailService.sendEmail({
+            to: { email: ownerInfo.email, name: ownerInfo.name },
+            subject: 'Action Required: Payout Failed',
+            html: `
+              <div style="font-family: -apple-system, sans-serif; padding: 20px;">
+                <h1 style="color: #dc2626;">Payout Failed</h1>
+                <p>Hi ${ownerInfo.name || 'there'},</p>
+                <p>Your payout of <strong>$${(payout.amount / 100).toFixed(2)}</strong> could not be processed.</p>
+                ${payout.failure_message ? `<p><strong>Reason:</strong> ${payout.failure_message}</p>` : ''}
+                <p>Please update your bank account information in your Partner Portal to receive your earnings.</p>
+                <a href="${portalUrl}/dashboard/payouts" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 16px;">Update Bank Details</a>
+              </div>
+            `,
+            categories: ['payout', 'failed', 'urgent'],
+          });
+          console.log('✅ Payout failure email sent to studio');
+        }
+      }
+    } catch (notifError) {
+      console.error('Failed to send payout failure notification:', notifError);
+    }
 
   } catch (error) {
     console.error('Error in handlePayoutFailed:', error);
