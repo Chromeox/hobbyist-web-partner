@@ -353,7 +353,7 @@ export default function DashboardOverview({ studioId }: DashboardOverviewProps) 
 
           <button
             onClick={handleRefresh}
-            className={`p-2 border border-gray-300 rounded-lg hover:bg-gray-50 ${isLoading ? 'animate-spin' : ''}`}
+            className={`px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 ${isLoading ? 'animate-spin' : ''}`}
           >
             <RefreshCw className="h-5 w-5 text-gray-600" />
           </button>
